@@ -1,3 +1,8 @@
+/**
+ * Prompts the user to select a folder, which will be used to collect project files.
+ *
+ * @returns {Folder|string} The selected folder, or undefined as a string if no folder is selected.
+ */
 function selectFolder() {
   var folder = Folder.selectDialog('Select folder to collect project files:');
   if (folder) return new Folder(folder.fsName); // Return selected folder
@@ -5,6 +10,12 @@ function selectFolder() {
   // NOTE: this always returns undefined as a string if no folder is selected
 }
 
+/**
+ * Collects all project files, fonts, and footage into a designated folder.
+ *
+ * @param {string} targetPath - The path to the folder where the project files should be collected.
+ * @returns {string} The name of the collected project folder, or undefined if no project file exists.
+ */
 function collectFiles(targetPath) {
   var os = checkOs();
   var osPath = os == 'Windows' ? '\\' : '/';
@@ -120,6 +131,12 @@ function collectFiles(targetPath) {
   return projectName;
 }
 
+/**
+ * @function getAllComps
+ * @description Get all comp items in a given After Effects project
+ * @param {Object} project - The After Effects project object
+ * @returns {Array} An array of CompItem objects
+ */
 function getAllComps(project) {
   var comps = [];
 
@@ -133,6 +150,12 @@ function getAllComps(project) {
   return comps;
 }
 
+/**
+ * @function getTextLayersByComp
+ * @description Get all text layers in a given After Effects comp
+ * @param {Object} comp - The After Effects comp object
+ * @returns {Array} An array of TextLayer objects
+ */
 function getTextLayersByComp(comp) {
   var layers = [];
 
@@ -146,6 +169,11 @@ function getTextLayersByComp(comp) {
   return layers;
 }
 
+/**
+ * @function checkOs
+ * @description Determines the OS of the current After Effects instance
+ * @returns {string} The current OS, either 'Windows' or 'Mac'
+ */
 function checkOs() {
   var appOs = $.os.indexOf('Win') != -1 ? 'Windows' : 'Mac';
   return appOs;

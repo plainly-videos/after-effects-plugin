@@ -8,12 +8,23 @@ import CSInterface from '../lib/CSInterface';
 
 const csInterface = new CSInterface();
 
+/**
+ * Opens a file dialog for the user to select a folder.
+ *
+ * @param callback a callback that will be called with the path of the selected folder.
+ */
 function selectFolder(callback: (result: string) => void) {
   csInterface.evalScript('selectFolder()', (result: string) =>
     callback(result),
   );
 }
 
+/**
+ * Collects all files necessary for the project and puts them in the target folder.
+ *
+ * @param targetPath the path of the folder where the files will be copied.
+ * @param callback a callback that will be called with the project name.
+ */
 function collectFiles(targetPath: string, callback: (result: string) => void) {
   csInterface.evalScript(`collectFiles("${targetPath}")`, (result: string) =>
     callback(result),
@@ -22,7 +33,16 @@ function collectFiles(targetPath: string, callback: (result: string) => void) {
 
 const homeDirectory = os.homedir();
 
-function untildify(pathWithTilde: string) {
+/**
+ * Replaces the tilde character at the start of a path with the user's home
+ * directory.
+ *
+ * @example
+ * untildify('~/Documents') // => '/Users/username/Documents'
+ * @param {string} pathWithTilde - The path to transform.
+ * @returns {string} The path with the tilde replaced.
+ */
+function untildify(pathWithTilde: string): string {
   if (typeof pathWithTilde !== 'string') {
     throw new TypeError(`Expected a string, got ${typeof pathWithTilde}`);
   }
@@ -32,6 +52,19 @@ function untildify(pathWithTilde: string) {
     : pathWithTilde;
 }
 
+/**
+ * Zips the contents of the targetPath directory, and creates a zip file with the
+ * same name as the directory, but with a .zip extension.
+ *
+ * @param targetPath The path of the directory to zip.
+ * @param projectName The name of the project.
+ * @param updateStatus A callback function that will be called with updates about the
+ * status of the zip operation. The callback will receive an object with the following
+ * properties:
+ * - title: A string that describes the status of the operation.
+ * - type: A string that can be either 'success' or 'error'.
+ * - description: An optional string that provides more information about the status.
+ */
 function zip(
   targetPath: string,
   projectName: string,

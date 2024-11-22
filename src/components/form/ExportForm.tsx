@@ -69,35 +69,6 @@ export default function ExportForm() {
                   </div>
                 </div>
               </div>
-              {/* TODO: V2 upload to Plainly */}
-              {/* <fieldset className="mt-10">
-								<legend className="text-sm/6 font-semibold text-white">
-									Upload to Plainly
-								</legend>
-								<div className="mt-2 space-y-6">
-									<div className="relative flex gap-x-3">
-										<div className="flex h-6 items-center">
-											<input
-												id="comments"
-												name="comments"
-												type="checkbox"
-												className="size-4 rounded border-white/10 bg-white/5 text-indigo-600 focus:ring-indigo-600 focus:ring-offset-gray-900"
-											/>
-										</div>
-										<div className="text-sm/6">
-											<label
-												htmlFor="comments"
-												className="font-medium text-white"
-											>
-												Upload
-											</label>
-											<p className="text-gray-400">
-												After compression upload zip directly to Plainly app.
-											</p>
-										</div>
-									</div>
-								</div>
-							</fieldset> */}
             </div>
           </div>
         </div>
