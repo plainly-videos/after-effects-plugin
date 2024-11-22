@@ -2,24 +2,24 @@ import { createGlobalState } from 'react-hooks-global-state';
 import type { GlobalSettings } from '../types';
 
 export enum State {
-	SETTINGS = 'settings',
+  SETTINGS = 'settings',
 }
 
 const initialState = {
-	[State.SETTINGS]: {
-		currentPage: '/export',
-		sidebarOpen: false,
-	} as GlobalSettings,
+  [State.SETTINGS]: {
+    currentPage: '/export',
+    sidebarOpen: false,
+  } as GlobalSettings,
 };
 
 const { useGlobalState, getGlobalState, setGlobalState } =
-	createGlobalState(initialState);
+  createGlobalState(initialState);
 
 function resetGlobalState() {
-	setGlobalState(State.SETTINGS, {
-		currentPage: '/export',
-		sidebarOpen: false,
-	});
+  setGlobalState(State.SETTINGS, {
+    currentPage: '/export',
+    sidebarOpen: false,
+  });
 }
 
 export { useGlobalState, getGlobalState, setGlobalState, resetGlobalState };
