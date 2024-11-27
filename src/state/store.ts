@@ -17,7 +17,7 @@ const { useGlobalState, getGlobalState, setGlobalState } =
 
 function resetGlobalState() {
   setGlobalState(State.SETTINGS, {
-    currentPage: '/export',
+    currentPage: '/',
     sidebarOpen: false,
   });
 }

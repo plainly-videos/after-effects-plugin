@@ -1,4 +1,3 @@
-import { Link } from '@tanstack/react-router';
 import classNames from 'classnames';
 import type { LucideProps } from 'lucide-react';
 import type { ForwardRefExoticComponent, RefAttributes } from 'react';
@@ -26,8 +25,8 @@ export default function SidebarLinks({
         <ul className="-mx-3 space-y-1">
           {links.map((link) => (
             <li key={link.name}>
-              <Link
-                to={link.to}
+              <button
+                type="button"
                 onClick={() => {
                   setGlobalState(State.SETTINGS, {
                     ...settings,
@@ -43,7 +42,7 @@ export default function SidebarLinks({
               >
                 <link.icon aria-hidden="true" className="size-5 shrink-0" />
                 {sidebarOpen && link.name}
-              </Link>
+              </button>
             </li>
           ))}
         </ul>

@@ -14,7 +14,7 @@ Before running or developing the plugin, ensure you have the following:
 
 ### Run
 To install and run the extension:
-1. Create a new folder named `com.plainlyvideos.ae-plugin` in the following directory:
+1. Create a new folder named `com.plainlyvideos.after-effects-plugin` in the following directory:
   * **Windows**: `C:\Users\%USERNAME%\AppData\Roaming\Adobe\CEP\extensions`
   * **MacOS**: `/Library/Application Support/Adobe/CEP/extensions/`
 2. Clone this repository into the newly created folder:
@@ -23,9 +23,9 @@ git clone https://github.com/plainly-videos/after-effects-plugin.git
 ```
 3. Install dependencies and build the project:
 ```bash
-npm run install && npm run build
+yarn install && yarn build
 ```
-4. Open Adobe After Effects, navigate to **Window -> Extensions**, and select **Plainly Plugin** to start the extension.
+4. Open Adobe After Effects, navigate to **Window -> Extensions**, and select **Plainly plugin** to start the extension.
 
 ### Project structure
 The plugin is built using Vite, Node.js, and React. Below is an overview of the project's key components:
@@ -37,15 +37,16 @@ The plugin is built using Vite, Node.js, and React. Below is an overview of the 
 ### Debugging
 To debug the plugin:
 * Ensure the extension is active in Adobe After Effects.
+* `.debug` file must exist in root folder of the project.
 * Open your browser and navigate to `http://localhost:8088/`.
 * Access the Plainly plugin interface for debugging.
 
-#### Notes:
-* If you make changes to the `manifest.xml` file, restart Adobe After Effects.
-* Run `npm run build` after making changes to the code, then refresh the page at `http://localhost:8088/`.
-* For UI development:
-  * Comment out `Node.js`-related code to avoid conflicts.
-  * Use `npm run dev` for an easier browser-based development experience.
+#### Development:
+* If you make changes to the `manifest.xml` config file, restart Adobe After Effects.
+* Run `yarn build` to build extension for production.
+* Run `yarn dev` to work on extension in development mode. After making changes, use **Reload extension** button on UI to see changes.
+
+**NOTE:** When running one of these two commands for the first time `yarn build` or `yarn dev` make sure to restart Adobe After Effects, because `manifest.xml` file is changed for either `production` or `development` mode.
 
 ## Additional Resources
 For a comprehensive guide to Adobe CEP development, refer to the [Getting Started guides](https://github.com/Adobe-CEP/Getting-Started-guides)

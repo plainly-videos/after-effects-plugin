@@ -7,14 +7,12 @@
     "skipLibCheck": true,
     "allowJs": true,
 
-    /* Bundler mode */
     "moduleResolution": "Bundler",
     "allowImportingTsExtensions": true,
     "isolatedModules": true,
     "moduleDetection": "force",
     "noEmit": true,
 
-    /* Linting */
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
@@ -22,6 +20,6 @@
     "noUncheckedSideEffectImports": true,
     "types": ["@types/node"]
   },
-  "include": ["vite.config.ts", "index.d.ts"],
+  "include": ["vite.config.ts"],
   "exclude": ["./src/lib/CEPEngine_extensions.js"]
 }

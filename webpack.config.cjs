@@ -4,7 +4,7 @@ const ES3Plugin = require('webpack-es3-plugin'); // eslint-disable-line node/no-
 module.exports = (_, options) => {
   const isProdEnv = options.mode === 'production';
 
-  const coreEntryFile = ['./src/jsx/core.js'];
+  const coreEntryFile = ['./src/jsx/core.jsx'];
 
   return {
     entry: { core: coreEntryFile },

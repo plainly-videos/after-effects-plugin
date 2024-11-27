@@ -1,5 +1,5 @@
 <ExtensionList>
-    <Extension Id="com.plainlyvideos.ae-plugin.Panel">
+    <Extension Id="com.plainlyvideos.after-effects-plugin.Panel">
        <HostList>
            <Host Name="AEFT" Port="8088"/>
         </HostList>

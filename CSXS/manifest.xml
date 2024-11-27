@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <ExtensionManifest
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" ExtensionBundleId="com.plainlyvideos.ae-plugin" ExtensionBundleVersion="1.0" Version="7.0">
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" ExtensionBundleId="com.plainlyvideos.after-effects-plugin" ExtensionBundleVersion="1.0" Version="7.0">
 	<!-- MAJOR-VERSION-UPDATE-MARKER -->
 	<ExtensionList>
-		<Extension Id="com.plainlyvideos.ae-plugin.Panel" Version="1.0.0"/>
+		<Extension Id="com.plainlyvideos.after-effects-plugin.Panel" Version="1.0.0"/>
 	</ExtensionList>
 	<ExecutionEnvironment>
 		<HostList>
@@ -17,7 +17,7 @@
 		</RequiredRuntimeList>
 	</ExecutionEnvironment>
 	<DispatchInfoList>
-		<Extension Id="com.plainlyvideos.ae-plugin.Panel">
+		<Extension Id="com.plainlyvideos.after-effects-plugin.Panel">
 			<DispatchInfo>
 				<Resources>
 					<MainPath>./dist/index.html</MainPath>
@@ -34,20 +34,12 @@
 				</Lifecycle>
 				<UI>
 					<Type>Panel</Type>
-					<Menu>Plainly Plugin</Menu>
+					<Menu>Plainly plugin</Menu>
 					<Geometry>
 						<Size>	
 							<Height>580</Height>
 							<Width>1020</Width>
 						</Size>
-						<MaxSize>
-							<Height>800</Height>
-							<Width>1200</Width>
-						</MaxSize>
-						<MinSize>
-							<Height>400</Height>
-							<Width>600</Width>
-						</MinSize>
 					</Geometry>
 				</UI>
 			</DispatchInfo>
