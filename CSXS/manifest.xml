@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <ExtensionManifest
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" ExtensionBundleId="com.plainlyvideos.after-effects-plugin" ExtensionBundleVersion="1.0" Version="7.0">
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" ExtensionBundleId="com.plainlyvideos.after-effects-plugin" ExtensionBundleVersion="1.0" Version="11.0">
 	<!-- MAJOR-VERSION-UPDATE-MARKER -->
 	<ExtensionList>
 		<Extension Id="com.plainlyvideos.after-effects-plugin.Panel" Version="1.0.0"/>
 	</ExtensionList>
 	<ExecutionEnvironment>
 		<HostList>
-			<Host Name="AEFT" Version="13.0"/>
+			<Host Name="AEFT" Version="18.4"/>
 		</HostList>
 		<LocaleList>
 			<Locale Code="All"/>
 		</LocaleList>
 		<RequiredRuntimeList>
-			<RequiredRuntime Name="CSXS" Version="7.0"/> <!-- MAJOR-VERSION-UPDATE-MARKER -->
+			<RequiredRuntime Name="CSXS" Version="11.0"/> <!-- MAJOR-VERSION-UPDATE-MARKER -->
 		</RequiredRuntimeList>
 	</ExecutionEnvironment>
 	<DispatchInfoList>
