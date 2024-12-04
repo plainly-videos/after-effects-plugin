@@ -1,4 +1,4 @@
-import { BookText, GithubIcon } from 'lucide-react';
+import { BookText, GithubIcon, GlobeIcon } from 'lucide-react';
 
 export default function Footer() {
   const handleLinkClick = (link: string) => {
@@ -26,7 +26,7 @@ export default function Footer() {
   };
 
   return (
-    <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center text-white">
+    <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center text-white text-xs">
       <button
         type="button"
         className="flex items-center gap-2 hover:underline hover:underline-offset-4"
@@ -48,6 +48,7 @@ export default function Footer() {
         className="flex items-center gap-2 hover:underline hover:underline-offset-4"
         onClick={handleLinkClick.bind(null, 'plainly')}
       >
+        <GlobeIcon size={16} />
         plainlyvideos.com →
       </button>
     </footer>

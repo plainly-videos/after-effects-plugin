@@ -11,6 +11,7 @@ export default function App() {
   const [settings] = useGlobalState(State.SETTINGS);
   const currentPage = settings.currentPage;
 
+  // Add new pages here and to pages.ts
   const children = useMemo(() => {
     if (currentPage === '/export') return <Export />;
 

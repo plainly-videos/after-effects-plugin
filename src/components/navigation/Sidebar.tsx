@@ -1,6 +1,6 @@
 import classNames from 'classnames';
-import { ChevronLeftIcon, ChevronRightIcon, FolderOutput } from 'lucide-react';
-import { useEffect } from 'react';
+import { ChevronLeftIcon, ChevronRightIcon } from 'lucide-react';
+import { pages } from '../../routes/pages';
 import { State, setGlobalState, useGlobalState } from '../../state/store';
 import PlainlyLogo from '../logo/PlainlyLogo';
 import SidebarLinks from './SidebarLinks';
@@ -8,16 +8,6 @@ import SidebarLinks from './SidebarLinks';
 export default function Sidebar() {
   const [settings] = useGlobalState(State.SETTINGS);
   const sidebarOpen = settings.sidebarOpen;
-  const currentPage = settings.currentPage;
-
-  const navigation = [
-    {
-      name: 'Export',
-      to: '/export',
-      icon: FolderOutput,
-      current: currentPage === '/export',
-    },
-  ];
 
   const handleSidebarOpen = () => {
     setGlobalState(State.SETTINGS, {
@@ -26,28 +16,23 @@ export default function Sidebar() {
     });
   };
 
-  useEffect(() => {
-    const firstLink = document.querySelector('a');
-    if (firstLink) firstLink.click();
-  }, []);
-
   return (
     <div
       className={classNames(
         'fixed left-0 inset-y-0 z-50 flex flex-col border-r border-r-white/10',
-        sidebarOpen ? 'w-64' : 'w-[3.75rem]',
+        sidebarOpen ? 'w-56' : 'w-[3.75rem]',
       )}
     >
       {/* Sidebar component, swap this element with another sidebar if you like */}
-      <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-gray-900 px-6 py-5">
+      <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-[rgb(29,29,30/1)] px-6 py-5">
         <nav className="flex flex-1 flex-col">
-          <SidebarLinks links={navigation} sidebarOpen={!!sidebarOpen} />
+          <SidebarLinks links={pages} sidebarOpen={!!sidebarOpen} />
           <div className="flex shrink-0 h-12 items-center justify-between">
             {sidebarOpen && <PlainlyLogo className="h-12 w-auto" />}
             <button
               type="button"
               onClick={handleSidebarOpen}
-              className="text-gray-400 hover:text-white hover:bg-gray-800 cursor-pointer rounded-md px-2 py-1 flex items-center justify-center text-xs -mx-3"
+              className="text-gray-400 hover:text-white hover:bg-[rgb(43,43,43)] cursor-pointer rounded-md px-2 py-1 flex items-center justify-center text-xs -mx-3"
             >
               {sidebarOpen ? (
                 <ChevronLeftIcon className="size-4 shrink-0" />

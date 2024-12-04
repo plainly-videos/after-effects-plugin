@@ -30,8 +30,8 @@ export default function ExportForm() {
     <form className="space-y-6" onSubmit={handleSubmit}>
       <div className="space-y-12 border-b border-white/10 pb-12">
         <div>
-          <h2 className="text-base/7 font-semibold text-white">Export files</h2>
-          <p className="mt-1 text-sm/6 text-gray-400">
+          <h2 className="text-sm/7 font-medium text-white">Export files</h2>
+          <p className="mt-1 text-xs/6 text-gray-400">
             Lorem, ipsum dolor sit amet consectetur adipisicing elit. Hic culpa
             facilis maiores cumque. Illum, qui. Vitae nam repellat porro
             consectetur?
@@ -41,7 +41,7 @@ export default function ExportForm() {
             <div className="col-span-full">
               <label
                 htmlFor="destination-folder"
-                className="block text-sm/6 font-semibold text-white"
+                className="block text-xs/6 font-medium text-white"
               >
                 Destination folder
               </label>
@@ -52,10 +52,10 @@ export default function ExportForm() {
                     aria-hidden="true"
                     className="mx-auto size-12 text-gray-500"
                   />
-                  <div className="mt-4 flex text-sm/6 text-gray-400">
+                  <div className="mt-4 flex text-xs/6 text-gray-400">
                     <label
                       htmlFor="folder-select"
-                      className="relative cursor-pointer rounded-md bg-gray-900 font-semibold text-white focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-600 focus-within:ring-offset-2 focus-within:ring-offset-gray-900 hover:text-indigo-500"
+                      className="relative cursor-pointer rounded-md bg-inherit font-medium text-white focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-600 focus-within:ring-offset-2 focus-within:ring-offset-gray-900 hover:text-indigo-500"
                     >
                       <button
                         type="button"

@@ -23,15 +23,15 @@ git clone https://github.com/plainly-videos/after-effects-plugin.git
 2. Create a symbolic link to the required folder:
 **Windows**: Open a Command Prompt as Administrator and run:
 ```bash
-mklink /D "%AppData%\Adobe\CEP\extensions\com.plainlyvideos.after-effects-plugin" "path\to\after-effects-plugin"
+mklink /D "%AppData%\Adobe\CEP\extensions\com.plainlyvideos.after-effects-plugin" "full\path\to\after-effects-plugin"
 ```
-Replace `path\to\after-effects-plugin` with the path where you cloned the repository.
+Replace `full\path\to\after-effects-plugin` with the path where you cloned the repository.
 
 **MacOS**: Run the following command in the Terminal:
 ```bash
-ln -s /path/to/after-effects-plugin "/Library/Application Support/Adobe/CEP/extensions/com.plainlyvideos.after-effects-plugin"
+ln -s full/path/to/after-effects-plugin '/Library/Application Support/Adobe/CEP/extensions/com.plainlyvideos.after-effects-plugin'
 ```
-Replace `path\to\after-effects-plugin` with the path where you cloned the repository.
+Replace `full/path/to/after-effects-plugin` with the path where you cloned the repository.
 3. Install dependencies and build the project:
 ```bash
 yarn install && yarn build

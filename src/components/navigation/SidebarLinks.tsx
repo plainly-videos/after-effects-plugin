@@ -13,18 +13,18 @@ export default function SidebarLinks({
     icon: ForwardRefExoticComponent<
       Omit<LucideProps, 'ref'> & RefAttributes<SVGSVGElement>
     >;
-    current: boolean;
   }[];
   sidebarOpen: boolean;
 }) {
   const [settings] = useGlobalState(State.SETTINGS);
+  const currentPage = settings.currentPage;
 
   return (
     <ul className="flex flex-1 flex-col gap-y-7">
       <li>
         <ul className="-mx-3 space-y-1">
           {links.map((link) => (
-            <li key={link.name}>
+            <li key={link.name} className="w-full">
               <button
                 type="button"
                 onClick={() => {
@@ -34,10 +34,10 @@ export default function SidebarLinks({
                   });
                 }}
                 className={classNames(
-                  link.current
-                    ? 'bg-gray-800 text-white'
-                    : 'text-gray-400 hover:bg-gray-800 hover:text-white',
-                  'group flex gap-x-2 rounded-md px-2 py-1 text-xs font-semibold relative items-center',
+                  link.to === currentPage
+                    ? 'bg-[rgb(43,43,43)] text-white'
+                    : 'text-gray-400 hover:bg-[rgb(43,43,43)] hover:text-white',
+                  'group flex gap-x-2 rounded-md px-2 py-1 text-xs font-medium relative items-center w-full',
                 )}
               >
                 <link.icon aria-hidden="true" className="size-5 shrink-0" />
