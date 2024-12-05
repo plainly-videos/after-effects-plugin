@@ -20,16 +20,31 @@ function collectFiles(targetPath) {
   var os = checkOs();
   var osPath = os == 'Windows' ? '\\' : '/';
 
-  if (!app.project.file) return;
+  if (!app.project.file) {
+    return;
+  }
 
+  // extract project name, removing the .ae
   var projectName = app.project.file.name.slice(0, -4);
-  var projectDir = new Folder(targetPath + osPath + projectName);
-  var footageDir = new Folder(projectDir.absoluteURI + osPath + '(Footage)');
-  var fontDir = new Folder(projectDir.absoluteURI + osPath + '(Fonts)');
-  projectDir.create();
-  footageDir.create();
-  fontDir.create();
+  var projectDir = new Folder(targetPath.toString() + osPath + projectName);
+  if (!projectDir.exists) projectDir.create();
 
+  // copy project file to new location
+  // open copied project
+  // save project
+  var projectFile = new File(
+    projectDir.absoluteURI + osPath + app.project.file.name,
+  );
+  app.project.file.copy(projectFile);
+  app.open(projectFile);
+  app.project.save();
+
+  // create fonts folder
+  var fontDir = new Folder(projectDir.absoluteURI + osPath + 'Fonts');
+  if (!fontDir.exists) fontDir.create();
+
+  // Collect all text layers in all comps
+  // and copy font files to the Fonts folder
   var comps = getAllComps(app.project);
   for (var i = 0; i < comps.length; i++) {
     var layers = getTextLayersByComp(comps[i]);
@@ -56,78 +71,112 @@ function collectFiles(targetPath) {
     }
   }
 
-  for (i = 1; i <= app.project.numItems; i++) {
+  // create footage directory
+  var footageDir = new Folder(projectDir.absoluteURI + osPath + '(Footage)');
+  footageDir.create();
+
+  // go through all items in project
+  for (var i = 1; i <= app.project.numItems; i++) {
     var item = app.project.item(i);
 
-    if (item instanceof FootageItem == false) continue;
-    if (item.file == null) continue;
-    if (item.footageMissing) continue;
+    // Check these before continuing.
+    if (
+      item instanceof FootageItem == false ||
+      item.file == null ||
+      item.footageMissing
+    ) {
+      continue;
+    }
 
-    var targetDir = new Folder(
-      footageDir.absoluteURI + osPath + item.parentFolder.name + osPath,
-    );
+    // create item folder
+    var itemFolder = item.parentFolder.name;
+    var targetDir;
+    if (itemFolder == 'Root') {
+      targetDir = new Folder(footageDir.absoluteURI + osPath);
+    } else {
+      targetDir = new Folder(footageDir.absoluteURI + osPath + itemFolder);
+    }
     if (!targetDir.exists) targetDir.create();
 
-    if (item.mainSource.isStill) {
-      var targetFile = new File(
-        targetDir.absoluteURI + osPath + item.file.name,
-      );
-      if (!targetFile.exists)
-        item.file.copy(targetDir.absoluteURI + osPath + item.file.name);
-    } else {
-      var itemExtension = item.file.name
-        .substring(item.file.name.lastIndexOf('.') + 1)
-        .toLowerCase();
-      if (
-        'jpg' === itemExtension ||
-        'jpeg' === itemExtension ||
-        'png' === itemExtension ||
-        'gif' === itemExtension ||
-        'bmp' === itemExtension ||
-        'svg' === itemExtension ||
-        'webp' === itemExtension ||
-        'ico' === itemExtension ||
-        'tif' === itemExtension ||
-        'tiff' === itemExtension ||
-        'eps' === itemExtension ||
-        'raw' === itemExtension ||
-        'ai' === itemExtension ||
-        'ps' === itemExtension ||
-        'indd' === itemExtension ||
-        'pdf' === itemExtension ||
-        'xcf' === itemExtension ||
-        'sketch' === itemExtension ||
-        'xd' === itemExtension ||
-        'cin' === itemExtension ||
-        'dpx' === itemExtension ||
-        'exr' === itemExtension ||
-        'pxr' === itemExtension ||
-        'rla' === itemExtension ||
-        'hdr' === itemExtension ||
-        'tga' === itemExtension
-      ) {
-        var sourceFolder = item.file.parent;
-        var frames = sourceFolder.getFiles();
+    // create targetFile
+    var targetFile = new File(targetDir.absoluteURI + osPath + item.file.name);
+    if (targetFile.exists) {
+      continue;
+    }
 
-        for (var f = 0; f < frames.length; f++) {
-          var frame = frames[f];
-          if (frame instanceof File) {
-            frame.copy(targetDir.toString() + osPath + frame.name);
-          }
-        }
-      } else {
-        var targetFile = new File(
-          targetDir.absoluteURI + osPath + item.file.name,
-        );
-        if (!targetFile.exists)
-          item.file.copy(targetDir.absoluteURI + osPath + item.file.name);
+    // If the target is a still.
+    if (item.mainSource.isStill) {
+      item.file.copy(targetFile.absoluteURI);
+      item.replace(targetFile);
+      continue;
+    }
+
+    // list of still image extensions
+    var stillExtensions = [
+      'jpg',
+      'jpeg',
+      'png',
+      'gif',
+      'bmp',
+      'svg',
+      'webp',
+      'ico',
+      'tif',
+      'tiff',
+      'eps',
+      'raw',
+      'ai',
+      'ps',
+      'indd',
+      'pdf',
+      'xcf',
+      'sketch',
+      'xd',
+      'cin',
+      'dpx',
+      'exr',
+      'pxr',
+      'rla',
+      'hdr',
+      'tga',
+    ];
+
+    // Get item's extension. Will be used to differentiate between image sequences and other media.
+    var itemExtension = item.file.name
+      .substring(item.file.name.lastIndexOf('.') + 1)
+      .toLowerCase();
+
+    // If it's a video file (doesn't contain an image extension)
+    if (stillExtensions.indexOf(itemExtension) == -1) {
+      item.file.copy(targetDir.absoluteURI + osPath + item.file.name);
+      item.replace(targetFile);
+      continue;
+    }
+
+    // If it's a image sequence.
+    if (stillExtensions.indexOf(itemExtension) != -1) {
+      var sourceFolder = item.file.parent;
+      var frames = sourceFolder.getFiles();
+
+      for (f = 0; f < frames.length; f++) {
+        frame = frames[f];
+        frame.copy(targetDir.toString() + osPath + frame.name);
+      }
+
+      try {
+        item.replaceWithSequence(targetFile, true);
+      } catch (e) {
+        alert(item.name);
       }
     }
   }
 
-  app.project.save(
-    new File(projectDir.absoluteURI + osPath + app.project.file.name),
-  );
+  // save the project at the end
+  app.project.save();
+
+  // open recent project to go back to the original project
+  app.executeCommand(2331);
+
   return projectName;
 }
 
