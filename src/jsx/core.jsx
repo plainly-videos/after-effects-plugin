@@ -108,65 +108,56 @@ function collectFiles(targetPath) {
     if (item.mainSource.isStill) {
       item.file.copy(targetFile.absoluteURI);
       item.replace(targetFile);
-      continue;
-    }
+    } else {
+      // Get item's extension. Will be used to differentiate between image sequences and other media.
+      var itemExtension = item.file.name
+        .substring(item.file.name.lastIndexOf('.') + 1)
+        .toLowerCase();
 
-    // list of still image extensions
-    var stillExtensions = [
-      'jpg',
-      'jpeg',
-      'png',
-      'gif',
-      'bmp',
-      'svg',
-      'webp',
-      'ico',
-      'tif',
-      'tiff',
-      'eps',
-      'raw',
-      'ai',
-      'ps',
-      'indd',
-      'pdf',
-      'xcf',
-      'sketch',
-      'xd',
-      'cin',
-      'dpx',
-      'exr',
-      'pxr',
-      'rla',
-      'hdr',
-      'tga',
-    ];
+      if (
+        'jpg' === itemExtension ||
+        'jpeg' === itemExtension ||
+        'png' === itemExtension ||
+        'gif' === itemExtension ||
+        'bmp' === itemExtension ||
+        'svg' === itemExtension ||
+        'webp' === itemExtension ||
+        'ico' === itemExtension ||
+        'tif' === itemExtension ||
+        'tiff' === itemExtension ||
+        'eps' === itemExtension ||
+        'raw' === itemExtension ||
+        'ai' === itemExtension ||
+        'ps' === itemExtension ||
+        'indd' === itemExtension ||
+        'pdf' === itemExtension ||
+        'xcf' === itemExtension ||
+        'sketch' === itemExtension ||
+        'xd' === itemExtension ||
+        'cin' === itemExtension ||
+        'dpx' === itemExtension ||
+        'exr' === itemExtension ||
+        'pxr' === itemExtension ||
+        'rla' === itemExtension ||
+        'hdr' === itemExtension ||
+        'tga' === itemExtension
+      ) {
+        var sourceFolder = item.file.parent;
+        var frames = sourceFolder.getFiles();
 
-    // Get item's extension. Will be used to differentiate between image sequences and other media.
-    var itemExtension = item.file.name
-      .substring(item.file.name.lastIndexOf('.') + 1)
-      .toLowerCase();
+        for (f = 0; f < frames.length; f++) {
+          var frame = frames[f];
+          frame.copy(targetDir.toString() + osPath + frame.name);
+        }
 
-    // If it's a video file (doesn't contain an image extension)
-    if (stillExtensions.indexOf(itemExtension) == -1) {
-      item.file.copy(targetDir.absoluteURI + osPath + item.file.name);
-      item.replace(targetFile);
-      continue;
-    }
-
-    // If it's a image sequence.
-    if (stillExtensions.indexOf(itemExtension) != -1) {
-      var sourceFolder = item.file.parent;
-      var frames = sourceFolder.getFiles();
-
-      for (f = 0; f < frames.length; f++) {
-        frame = frames[f];
-        frame.copy(targetDir.toString() + osPath + frame.name);
-      }
-
-      try {
-        item.replaceWithSequence(targetFile, true);
-      } catch (e) {
-        alert(item.name);
+        try {
+          item.replaceWithSequence(targetFile, true);
+        } catch (e) {
+          alert(item.name);
+        }
+      } else {
+        item.file.copy(targetFile.absoluteURI);
+        item.replace(targetFile);
       }
     }
   }
