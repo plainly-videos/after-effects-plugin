@@ -1,6 +1,11 @@
 import { FolderIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { collectFiles, selectFolder, zip } from '../../node/export';
+import {
+  collectFiles,
+  removeFolder,
+  selectFolder,
+  zip,
+} from '../../node/export';
 import Button from '../common/Button';
 import Notification from '../common/Notification';
 
@@ -19,12 +24,24 @@ export default function ExportForm() {
   };
 
   useEffect(() => {
-    if (targetPath && projectName) {
-      zip(targetPath, projectName, setZipStatus);
-      setTargetPath(undefined);
-      setProjectName(undefined);
-    }
-  }, [targetPath, projectName]);
+    const handleZipping = async () => {
+      if (targetPath && projectName) {
+        try {
+          await zip(targetPath, projectName, setZipStatus);
+          if (zipStatus?.type === 'success') {
+            removeFolder(`${targetPath}/${projectName}`);
+            setProjectName(undefined);
+            setTargetPath(undefined);
+            setZipStatus(undefined);
+          }
+        } catch (err) {
+          console.error('Error during zipping:', err);
+        }
+      }
+    };
+
+    handleZipping();
+  }, [targetPath, projectName, zipStatus?.type]);
 
   return (
     <form className="space-y-6" onSubmit={handleSubmit}>

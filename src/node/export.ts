@@ -77,49 +77,74 @@ function zip(
     type: 'success' | 'error';
     description?: string;
   }) => void,
-) {
-  const targetPathExpanded = untildify(targetPath); // Expand '~'
-  const targetPathDecoded = decodeURI(`${targetPathExpanded}/${projectName}`); // Decode
-  const targetPathResolved = path.resolve(targetPathDecoded); // Normalize and resolve
+): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const targetPathExpanded = untildify(targetPath); // Expand '~'
+    const targetPathDecoded = decodeURI(`${targetPathExpanded}/${projectName}`); // Decode
+    const targetPathResolved = path.resolve(targetPathDecoded); // Normalize and resolve
 
-  // check if the directory exists
-  if (!fs.existsSync(targetPathResolved)) {
-    updateStatus({
-      title: 'Failed to zip',
-      type: 'error',
-      description: 'Directory does not exist',
+    // check if the directory exists
+    if (!fs.existsSync(targetPathResolved)) {
+      updateStatus({
+        title: 'Failed to zip',
+        type: 'error',
+        description: 'Directory does not exist',
+      });
+      reject(new Error('Directory does not exist'));
+      return;
+    }
+
+    const outputZipPath = `${targetPathResolved}.zip`;
+    const output = fs.createWriteStream(outputZipPath);
+    const archive = archiver('zip', { zlib: { level: 9 } });
+
+    output.on('close', () => {
+      console.log(`Zipped ${archive.pointer()} total bytes`);
+      console.log(`Zip file created at: ${outputZipPath}`);
+      updateStatus({
+        title: 'Successfully zipped',
+        type: 'success',
+        description: `Zip file created at: ${outputZipPath}`,
+      });
+      resolve();
     });
-  }
 
-  const outputZipPath = `${targetPathResolved}.zip`;
-  const output = fs.createWriteStream(outputZipPath);
-  const archive = archiver('zip', { zlib: { level: 9 } });
-
-  output.on('close', () => {
-    console.log(`Zipped ${archive.pointer()} total bytes`);
-    console.log(`Zip file created at: ${outputZipPath}`);
-  });
-
-  archive.on('error', (err: unknown) => {
-    updateStatus({
-      title: 'Failed to zip',
-      type: 'error',
-      description: err as string,
+    archive.on('error', (err: unknown) => {
+      updateStatus({
+        title: 'Failed to zip',
+        type: 'error',
+        description: err as string,
+      });
+      reject(err);
     });
-  });
 
-  archive.pipe(output);
+    archive.pipe(output);
 
-  // Append the directory content to the archive
-  archive.directory(targetPathResolved, false);
+    // Append the directory content to the archive
+    archive.directory(targetPathResolved, false);
 
-  archive.finalize();
+    archive.finalize();
 
-  updateStatus({
-    title: 'Successfully zipped',
-    type: 'success',
-    description: `Zip file created at: ${outputZipPath}`,
+    updateStatus({
+      title: 'Successfully zipped',
+      type: 'success',
+      description: `Zip file created at: ${outputZipPath}`,
+    });
   });
 }
 
-export { selectFolder, collectFiles, zip };
+/**
+ * Removes the folder at the specified targetPath.
+ *
+ * @param targetPath The path of the folder to remove.
+ */
+async function removeFolder(targetPath: string) {
+  try {
+    await fs.rmSync(untildify(targetPath), { recursive: true, force: true });
+    console.log(`Removed ${targetPath}`);
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+export { selectFolder, collectFiles, zip, removeFolder };
