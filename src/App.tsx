@@ -2,11 +2,11 @@ import { useMemo } from 'react';
 import Button from './components/common/Button';
 import Sidebar from './components/navigation/Sidebar';
 import { isProd } from './env';
+import About from './routes/About';
 import Export from './routes/Export';
 import Outlet from './routes/Outlet';
 import { State, useGlobalState } from './state/store';
 import { reloadExtension } from './utils';
-import About from './routes/About';
 
 export default function App() {
   const [settings] = useGlobalState(State.SETTINGS);
