@@ -16,6 +16,10 @@ export default {
         background: 'var(--background)',
         foreground: 'var(--foreground)',
       },
+      fontSize: {
+        xs: '0.7rem',
+        sm: '0.8rem',
+      },
     },
   },
   plugins: [require('@tailwindcss/forms')],

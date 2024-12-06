@@ -28,16 +28,18 @@ export default function ExportForm() {
 
   return (
     <form className="space-y-6" onSubmit={handleSubmit}>
-      <div className="space-y-12 border-b border-white/10 pb-12">
-        <div>
-          <h2 className="text-sm/7 font-medium text-white">Export files</h2>
-          <p className="mt-1 text-xs/6 text-gray-400">
-            Lorem, ipsum dolor sit amet consectetur adipisicing elit. Hic culpa
-            facilis maiores cumque. Illum, qui. Vitae nam repellat porro
-            consectetur?
-          </p>
+      <div className="space-y-6 border-b border-white/10 pb-6">
+        <div className="space-y-6">
+          <div>
+            <h2 className="text-sm/7 font-medium text-white">Export files</h2>
+            <p className="mt-1 text-xs text-gray-400">
+              Lorem, ipsum dolor sit amet consectetur adipisicing elit. Hic
+              culpa facilis maiores cumque. Illum, qui. Vitae nam repellat porro
+              consectetur?
+            </p>
+          </div>
 
-          <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
+          <div className="grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
             <div className="col-span-full">
               <label
                 htmlFor="destination-folder"

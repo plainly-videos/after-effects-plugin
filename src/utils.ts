@@ -14,3 +14,8 @@ export function reloadExtension(): void {
     window.location.reload();
   }
 }
+
+export function handleLinkClick(link: string) {
+  // @ts-expect-error
+  cep.util.openURLInDefaultBrowser(link);
+}
