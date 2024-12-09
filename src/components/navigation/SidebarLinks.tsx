@@ -1,8 +1,8 @@
 import classNames from 'classnames';
 import type { LucideProps } from 'lucide-react';
 import type { ForwardRefExoticComponent, RefAttributes } from 'react';
-import { State, setGlobalState, useGlobalState } from '../../state/store';
 import { useBreakpoint } from '../../hooks/useBreakpoint';
+import { State, setGlobalState, useGlobalState } from '../../state/store';
 
 export default function SidebarLinks({
   links,

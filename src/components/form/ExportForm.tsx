@@ -8,9 +8,9 @@ import {
 } from '../../node/export';
 import Button from '../common/Button';
 import Notification from '../common/Notification';
-import PageHeading from '../typoography/PageHeading';
-import PageDescription from '../typoography/PageDescription';
-import Label from '../typoography/Label';
+import Label from '../typography/Label';
+import PageDescription from '../typography/PageDescription';
+import PageHeading from '../typography/PageHeading';
 
 export default function ExportForm() {
   const [targetPath, setTargetPath] = useState<string>();

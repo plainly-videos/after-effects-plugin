@@ -1,10 +1,10 @@
 import classNames from 'classnames';
 import MainWrapper from '../components/layout/MainWrapper';
+import Label from '../components/typography/Label';
+import PageDescription from '../components/typography/PageDescription';
+import PageHeading from '../components/typography/PageHeading';
 import { pluginBundleVersion } from '../env';
 import { handleLinkClick } from '../utils';
-import PageHeading from '../components/typoography/PageHeading';
-import PageDescription from '../components/typoography/PageDescription';
-import Label from '../components/typoography/Label';
 
 export default function About() {
   const applicationBasics = [
