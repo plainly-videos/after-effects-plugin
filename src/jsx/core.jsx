@@ -11,33 +11,25 @@ function selectFolder() {
 }
 
 /**
- * Collects all project files, fonts, and footage into a designated folder.
+ * Collects project files, fonts, and footage into a designated folder,
+ * while keeping the project open and restoring original paths.
  *
- * @param {string} targetPath - The path to the folder where the project files should be collected.
- * @returns {string} The name of the collected project folder, or undefined if no project file exists.
+ * @param {string} targetPath - The folder where files should be collected.
+ * @returns {string|undefined} The name of the collected project folder, or undefined if no project is saved.
  */
-function collectFiles(targetPath) {
+function collectFilesWithCache(targetPath) {
+  if (app.project.file == null || app.project.dirty) {
+    return 'notSaved';
+  }
+
+  var originalPaths = {};
   var os = checkOs();
   var osPath = os == 'Windows' ? '\\' : '/';
 
-  if (!app.project.file) {
-    return;
-  }
-
-  // extract project name, removing the .ae
+  // Create target folder structure
   var projectName = app.project.file.name.slice(0, -4);
-  var projectDir = new Folder(targetPath.toString() + osPath + projectName);
+  var projectDir = new Folder(targetPath + osPath + projectName);
   if (!projectDir.exists) projectDir.create();
-
-  // copy project file to new location
-  // open copied project
-  // save project
-  var projectFile = new File(
-    projectDir.absoluteURI + osPath + app.project.file.name,
-  );
-  app.project.file.copy(projectFile);
-  app.open(projectFile);
-  app.project.save();
 
   // create fonts folder
   var fontDir = new Folder(projectDir.absoluteURI + osPath + 'Fonts');
@@ -71,102 +63,67 @@ function collectFiles(targetPath) {
     }
   }
 
-  // create footage directory
-  var footageDir = new Folder(projectDir.absoluteURI + osPath + '(Footage)');
-  footageDir.create();
-
-  // go through all items in project
+  // Cache original paths
   for (var i = 1; i <= app.project.numItems; i++) {
     var item = app.project.item(i);
-
-    // Check these before continuing.
-    if (
-      item instanceof FootageItem == false ||
-      item.file == null ||
-      item.footageMissing
-    ) {
+    if (item instanceof FootageItem == false) {
+      continue;
+    }
+    if (item.file == null) {
+      continue;
+    }
+    if (item.footageMissing) {
       continue;
     }
 
-    // create item folder
-    var itemFolder = item.parentFolder.name;
-    var targetDir;
-    if (itemFolder == 'Root') {
-      targetDir = new Folder(footageDir.absoluteURI + osPath);
-    } else {
-      targetDir = new Folder(footageDir.absoluteURI + osPath + itemFolder);
-    }
-    if (!targetDir.exists) targetDir.create();
+    originalPaths[i] = item.file.fsName;
+  }
 
-    // create targetFile
-    var targetFile = new File(targetDir.absoluteURI + osPath + item.file.name);
-    if (targetFile.exists) {
-      continue;
+  var footageDir = new Folder(projectDir.absoluteURI + osPath + '(Footage)');
+  if (!footageDir.exists) footageDir.create();
+
+  // Update paths to point to new locations
+  for (var index in originalPaths) {
+    var indexToNumber = parseInt(index, 10);
+    var item = app.project.item(indexToNumber);
+    var targetFile = new File(footageDir.absoluteURI + osPath + item.file.name);
+
+    var parentFolder = item.parentFolder;
+    if (parentFolder && parentFolder.name !== 'Root') {
+      // Create subfolder for parent folder structure
+      var subFolder = new Folder(
+        footageDir.absoluteURI + osPath + parentFolder.name,
+      );
+      if (!subFolder.exists) subFolder.create();
+      targetFile = new File(subFolder.absoluteURI + osPath + item.file.name);
     }
 
-    // If the target is a still.
-    if (item.mainSource.isStill) {
-      item.file.copy(targetFile.absoluteURI);
+    // Copy file and update project path
+    var sourceFile = new File(originalPaths[indexToNumber]);
+    if (sourceFile.exists) {
+      sourceFile.copy(targetFile.absoluteURI);
       item.replace(targetFile);
-    } else {
-      // Get item's extension. Will be used to differentiate between image sequences and other media.
-      var itemExtension = item.file.name
-        .substring(item.file.name.lastIndexOf('.') + 1)
-        .toLowerCase();
-
-      if (
-        'jpg' === itemExtension ||
-        'jpeg' === itemExtension ||
-        'png' === itemExtension ||
-        'gif' === itemExtension ||
-        'bmp' === itemExtension ||
-        'svg' === itemExtension ||
-        'webp' === itemExtension ||
-        'ico' === itemExtension ||
-        'tif' === itemExtension ||
-        'tiff' === itemExtension ||
-        'eps' === itemExtension ||
-        'raw' === itemExtension ||
-        'ai' === itemExtension ||
-        'ps' === itemExtension ||
-        'indd' === itemExtension ||
-        'pdf' === itemExtension ||
-        'xcf' === itemExtension ||
-        'sketch' === itemExtension ||
-        'xd' === itemExtension ||
-        'cin' === itemExtension ||
-        'dpx' === itemExtension ||
-        'exr' === itemExtension ||
-        'pxr' === itemExtension ||
-        'rla' === itemExtension ||
-        'hdr' === itemExtension ||
-        'tga' === itemExtension
-      ) {
-        var sourceFolder = item.file.parent;
-        var frames = sourceFolder.getFiles();
-
-        for (f = 0; f < frames.length; f++) {
-          var frame = frames[f];
-          frame.copy(targetDir.toString() + osPath + frame.name);
-        }
-
-        try {
-          item.replaceWithSequence(targetFile, true);
-        } catch (e) {
-          alert(item.name);
-        }
-      } else {
-        item.file.copy(targetFile.absoluteURI);
-        item.replace(targetFile);
-      }
     }
   }
 
-  // save the project at the end
-  app.project.save();
+  // Copy project to target folder
+  var sourceProject = new File(app.project.file.fsName);
+  if (sourceProject.exists) {
+    sourceProject.copy(projectDir.absoluteURI + osPath + sourceProject.name);
+  }
 
-  // open recent project to go back to the original project
-  app.executeCommand(2331);
+  // Restore original paths
+  for (var index in originalPaths) {
+    var indexToNumber = parseInt(index, 10);
+    var item = app.project.item(indexToNumber);
+    var sourceFile = new File(originalPaths[indexToNumber]);
+    if (sourceFile.exists) {
+      item.replace(sourceFile);
+    }
+  }
+
+  // Save the project with restored paths
+  app.project.save();
 
   return projectName;
 }

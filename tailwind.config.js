@@ -3,6 +3,9 @@ export default {
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
   theme: {
     extend: {
+      screens: {
+        xs: '480px',
+      },
       keyframes: {
         'pulse-tailwind': {
           '50%': { opacity: 0.5 },

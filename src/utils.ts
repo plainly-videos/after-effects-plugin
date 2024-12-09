@@ -15,7 +15,8 @@ export function reloadExtension(): void {
   }
 }
 
-export function handleLinkClick(link: string) {
+export function handleLinkClick(link: string | undefined) {
+  if (!link) return;
   // @ts-expect-error
   cep.util.openURLInDefaultBrowser(link);
 }

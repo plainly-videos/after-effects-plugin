@@ -14,11 +14,12 @@ export default function MainWrapper({
   return (
     <main
       className={classNames(
-        sidebarOpen ? 'pl-48' : 'pl-[3.75rem]',
-        'border-t border-t-white/10',
+        sidebarOpen
+          ? 'pl-[3.75rem] blur-md pointer-events-none xs:pl-48 xs:blur-none xs:pointer-events-auto'
+          : 'pl-[3.75rem]',
       )}
     >
-      <div className="p-12 sm:p-14 lg:p-20 min-h-screen justify-between items-center flex flex-col">
+      <div className="p-6 sm:p-14 lg:p-20 min-h-screen justify-between items-center flex flex-col">
         {children}
       </div>
     </main>

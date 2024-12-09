@@ -8,6 +8,9 @@ import {
 } from '../../node/export';
 import Button from '../common/Button';
 import Notification from '../common/Notification';
+import PageHeading from '../typoography/PageHeading';
+import PageDescription from '../typoography/PageDescription';
+import Label from '../typoography/Label';
 
 export default function ExportForm() {
   const [targetPath, setTargetPath] = useState<string>();
@@ -17,6 +20,8 @@ export default function ExportForm() {
     type: 'success' | 'error';
     description?: string;
   }>();
+
+  console.log(zipStatus);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,7 +40,11 @@ export default function ExportForm() {
             setZipStatus(undefined);
           }
         } catch (err) {
-          console.error('Error during zipping:', err);
+          setZipStatus({
+            title: 'Failed to zip',
+            type: 'error',
+            description: (err as Error).message,
+          });
         }
       }
     };
@@ -48,46 +57,41 @@ export default function ExportForm() {
       <div className="space-y-6 border-b border-white/10 pb-6">
         <div className="space-y-6">
           <div>
-            <h2 className="text-sm/7 font-medium text-white">Export files</h2>
-            <p className="mt-1 text-xs text-gray-400">
-              Lorem, ipsum dolor sit amet consectetur adipisicing elit. Hic
-              culpa facilis maiores cumque. Illum, qui. Vitae nam repellat porro
-              consectetur?
-            </p>
+            <PageHeading heading="Export files" />
+            <PageDescription className="mt-1">
+              When you click the button below, a zip file will be created in the
+              specified folder containing all asset files and fonts used in your
+              project. The zip file will have the same name as the project.
+            </PageDescription>
           </div>
 
           <div className="grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
             <div className="col-span-full">
-              <label
-                htmlFor="destination-folder"
-                className="block text-xs/6 font-medium text-white"
+              <Label label="Destination folder" htmlFor="destination-folder" />
+              <button
+                type="button"
+                onClick={() => selectFolder(setTargetPath)}
+                className="mt-2 flex justify-center rounded-lg border border-dashed border-white/25 px-6 py-4 group w-full hover:border-white/10"
               >
-                Destination folder
-              </label>
-              <div className="mt-2 flex justify-center rounded-lg border border-dashed border-white/25 px-6 py-10">
                 <div className="text-center">
                   <FolderIcon
-                    fill="rgb(107 114 128 / 1"
                     aria-hidden="true"
-                    className="mx-auto size-12 text-gray-500"
+                    className="mx-auto size-8 text-gray-500 group-hover:text-gray-600 fill-gray-500 group-hover:fill-gray-600"
                   />
-                  <div className="mt-4 flex text-xs/6 text-gray-400">
+                  <div className="mt-1 flex text-xs text-gray-400">
                     <label
                       htmlFor="folder-select"
-                      className="relative cursor-pointer rounded-md bg-inherit font-medium text-white focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-600 focus-within:ring-offset-2 focus-within:ring-offset-gray-900 hover:text-indigo-500"
+                      className="relative cursor-pointer rounded-md bg-inherit font-medium text-white focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-600 focus-within:ring-offset-2 focus-within:ring-offset-gray-900 group-hover:text-indigo-500"
                     >
-                      <button
-                        type="button"
-                        onClick={() => selectFolder(setTargetPath)}
-                      >
+                      <span>
                         {targetPath && targetPath !== 'undefined'
                           ? targetPath
                           : 'Select folder'}
-                      </button>
+                      </span>
                     </label>
                   </div>
                 </div>
-              </div>
+              </button>
             </div>
           </div>
         </div>
@@ -104,6 +108,10 @@ export default function ExportForm() {
           title={zipStatus.title}
           type={zipStatus.type}
           description={zipStatus.description}
+          onClose={() => {
+            setProjectName(undefined);
+            setZipStatus(undefined);
+          }}
         />
       )}
     </form>

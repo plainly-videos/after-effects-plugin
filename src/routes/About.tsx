@@ -1,8 +1,10 @@
 import classNames from 'classnames';
 import MainWrapper from '../components/layout/MainWrapper';
-import PlainlyLogo from '../components/logo/PlainlyLogo';
 import { pluginBundleVersion } from '../env';
 import { handleLinkClick } from '../utils';
+import PageHeading from '../components/typoography/PageHeading';
+import PageDescription from '../components/typoography/PageDescription';
+import Label from '../components/typoography/Label';
 
 export default function About() {
   const applicationBasics = [
@@ -32,18 +34,58 @@ export default function About() {
   return (
     <MainWrapper>
       <div className="space-y-6 w-full text-white">
-        <div className="space-y-6">
-          <PlainlyLogo className="h-10" />
-          <p className="text-xs text-gray-400">
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Obcaecati
-            hic cum sit magni nemo, provident, quam omnis recusandae ea dolor
-            vel aliquam dolore dicta repudiandae totam maiores asperiores.
-            Voluptatibus, placeat!
-          </p>
+        <div>
+          <PageHeading heading="About" />
+          <PageDescription className="mt-1">
+            Plainly plugin is a tool developed by{' '}
+            <button
+              type="button"
+              className="underline text-white"
+              onClick={handleLinkClick.bind(null, 'https://plainlyvideos.com')}
+            >
+              Plainly.
+            </button>{' '}
+            It's built with{' '}
+            <button
+              type="button"
+              className="underline text-white"
+              onClick={handleLinkClick.bind(null, 'https://reactjs.org/')}
+            >
+              React
+            </button>{' '}
+            and{' '}
+            <button
+              type="button"
+              className="underline text-white"
+              onClick={handleLinkClick.bind(null, 'https://vitejs.dev/')}
+            >
+              Vite.
+            </button>{' '}
+            You can find more information about the plugin on our{' '}
+            <button
+              type="button"
+              className="underline text-white"
+              onClick={handleLinkClick.bind(null, 'https://plainlyvideos.com')}
+            >
+              website.
+            </button>{' '}
+            To get the most out of the plugin, you can{' '}
+            <button
+              type="button"
+              className="underline text-white"
+              onClick={handleLinkClick.bind(
+                null,
+                'https://app.plainlyvideos.com/sign-up',
+              )}
+            >
+              sign up
+            </button>{' '}
+            at Plainly.
+          </PageDescription>
         </div>
         <div>
-          <h3 className="text-sm/7 font-medium">Application basics</h3>
-          <div className="grid grid-cols-3 border-t border-l border-r border-white/10 text-xs">
+          <Label label="Application features" />
+          <div className="grid grid-cols-3 border-t border-l border-r border-white/10 text-xs mt-2">
             <div className="col-span-1 font-medium border-r border-white/10">
               {applicationBasics.map(({ label }) => (
                 <p
@@ -61,10 +103,10 @@ export default function About() {
                   type="button"
                   className={classNames(
                     'px-1 py-1 border-b border-white/10 w-full text-left',
-                    link && 'cursor-pointer underline',
+                    link ? 'cursor-pointer underline' : 'cursor-default',
                   )}
                   key={value}
-                  onClick={() => link && handleLinkClick.bind(null, link)}
+                  onClick={handleLinkClick.bind(null, link)}
                 >
                   {value}
                 </button>
@@ -73,8 +115,8 @@ export default function About() {
           </div>
         </div>
         <div>
-          <h3 className="text-sm/7 font-medium">Plugin features</h3>
-          <div className="grid grid-cols-3 border-t border-l border-r border-white/10 text-xs">
+          <Label label="Plugin features" />
+          <div className="grid grid-cols-3 border-t border-l border-r border-white/10 text-xs mt-2">
             <div className="col-span-3 grid grid-cols-3 bg-[rgb(43,43,43)] divide-x divide-white/10">
               <p className="px-1 py-1">Name</p>
               <p className="px-1 py-1">Version</p>

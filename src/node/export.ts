@@ -26,8 +26,9 @@ function selectFolder(callback: (result: string) => void) {
  * @param callback a callback that will be called with the project name.
  */
 function collectFiles(targetPath: string, callback: (result: string) => void) {
-  csInterface.evalScript(`collectFiles("${targetPath}")`, (result: string) =>
-    callback(result),
+  csInterface.evalScript(
+    `collectFilesWithCache("${targetPath}")`,
+    (result: string) => callback(result),
   );
 }
 
@@ -79,6 +80,16 @@ function zip(
   }) => void,
 ): Promise<void> {
   return new Promise((resolve, reject) => {
+    if (projectName === 'notSaved') {
+      updateStatus({
+        title: 'Failed to zip',
+        type: 'error',
+        description: 'Project not saved',
+      });
+      reject(new Error('Project not saved'));
+      return;
+    }
+
     const targetPathExpanded = untildify(targetPath); // Expand '~'
     const targetPathDecoded = decodeURI(`${targetPathExpanded}/${projectName}`); // Decode
     const targetPathResolved = path.resolve(targetPathDecoded); // Normalize and resolve

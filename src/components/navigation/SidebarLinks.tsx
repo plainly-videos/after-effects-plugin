@@ -2,10 +2,10 @@ import classNames from 'classnames';
 import type { LucideProps } from 'lucide-react';
 import type { ForwardRefExoticComponent, RefAttributes } from 'react';
 import { State, setGlobalState, useGlobalState } from '../../state/store';
+import { useBreakpoint } from '../../hooks/useBreakpoint';
 
 export default function SidebarLinks({
   links,
-  sidebarOpen,
 }: {
   links: {
     name: string;
@@ -14,10 +14,10 @@ export default function SidebarLinks({
       Omit<LucideProps, 'ref'> & RefAttributes<SVGSVGElement>
     >;
   }[];
-  sidebarOpen: boolean;
 }) {
+  const biggerThanXS = useBreakpoint('xs');
   const [settings] = useGlobalState(State.SETTINGS);
-  const currentPage = settings.currentPage;
+  const { currentPage, sidebarOpen } = settings;
 
   return (
     <ul className="flex flex-1 flex-col gap-y-7">
@@ -31,6 +31,7 @@ export default function SidebarLinks({
                   setGlobalState(State.SETTINGS, {
                     ...settings,
                     currentPage: link.to,
+                    sidebarOpen: biggerThanXS === false ? false : sidebarOpen,
                   });
                 }}
                 className={classNames(
