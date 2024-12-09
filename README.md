@@ -58,9 +58,10 @@ To debug the plugin:
 ### Notes:
 * If you make changes to the `manifest.xml` config file, restart Adobe After Effects.
 * Run `yarn build` to build extension for production.
+* Run `yarn build-test` to build extension for staging.
 * Run `yarn dev` to work on extension in development mode. After making changes, use **Reload extension** button on UI to see changes.
 
-**NOTE:** When running one of these two commands for the first time `yarn build` or `yarn dev` make sure to restart Adobe After Effects, because `manifest.xml` file is changed for either `production` or `development` mode.
+**NOTE:** When running one of these two commands for the first time `yarn build`, `yarn build-test` or `yarn dev` make sure to restart Adobe After Effects, because `manifest.xml` file is changed for either `production`, `test` or `development` mode.
 
 ## Additional Resources
 For a comprehensive guide to Adobe CEP development, refer to the [Getting Started guides](https://github.com/Adobe-CEP/Getting-Started-guides)
