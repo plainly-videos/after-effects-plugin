@@ -21,9 +21,9 @@ To install and run the extension:
    git clone https://github.com/plainly-videos/after-effects-plugin.git
    ```
 2. Create a symbolic link to the required folder:
-   **Windows**: Open a Command Prompt as Administrator and run:
+   **Windows**: Run the following command in Powershell:
    ```bash
-   mklink /D "%AppData%\Adobe\CEP\extensions\com.plainlyvideos.after-effects-plugin" "full\path\to\after-effects-plugin"
+   "New-Item -Path 'C:\Program Files\Common Files\Adobe\CEP\extensions\com.plainlyvideos.after-effects-plugin' -ItemType SymbolicLink -Value 'full\path\to\after-effects-plugin'"
    ```
    Replace `full\path\to\after-effects-plugin` with the path where you cloned the repository.
 
