@@ -2,8 +2,8 @@ import { useMemo } from 'react';
 import Button from './components/common/Button';
 import Sidebar from './components/navigation/Sidebar';
 import { isProd } from './env';
-import About from './routes/About';
-import Export from './routes/Export';
+import AboutRoute from './routes/AboutRoute';
+import ExportRoute from './routes/ExportRoute';
 import Outlet from './routes/Outlet';
 import { State, useGlobalState } from './state/store';
 import { reloadExtension } from './utils';
@@ -14,8 +14,8 @@ export default function App() {
 
   // Add new pages here and to pages.ts
   const children = useMemo(() => {
-    if (currentPage === '/export') return <Export />;
-    if (currentPage === '/about') return <About />;
+    if (currentPage === '/export') return <ExportRoute />;
+    if (currentPage === '/about') return <AboutRoute />;
 
     return null;
   }, [currentPage]);

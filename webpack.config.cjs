@@ -3,7 +3,6 @@ const ES3Plugin = require('webpack-es3-plugin'); // eslint-disable-line node/no-
 
 module.exports = (env, options) => {
   const isProdEnv = options.mode === 'production';
-  const isTest = env.test === 'test' || env.test === true;
 
   const coreEntryFile = ['./src/jsx/core.jsx'];
 
@@ -14,7 +13,7 @@ module.exports = (env, options) => {
     devtool: isProdEnv ? false : 'source-map',
     output: {
       filename: 'plainly.[name].jsx',
-      path: path.resolve(__dirname, isTest ? 'dist-test' : 'dist'),
+      path: path.resolve(__dirname, 'dist'),
       iife: false,
     },
     optimization: { minimize: false },

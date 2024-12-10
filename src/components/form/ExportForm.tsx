@@ -21,8 +21,6 @@ export default function ExportForm() {
     description?: string;
   }>();
 
-  console.log(zipStatus);
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (targetPath) collectFiles(targetPath, setProjectName);
@@ -34,9 +32,8 @@ export default function ExportForm() {
         try {
           await zip(targetPath, projectName, setZipStatus);
           if (zipStatus?.type === 'success') {
-            removeFolder(`${targetPath}/${projectName}`);
+            removeFolder(targetPath, projectName);
             setProjectName(undefined);
-            setTargetPath(undefined);
             setZipStatus(undefined);
           }
         } catch (err) {
@@ -45,12 +42,13 @@ export default function ExportForm() {
             type: 'error',
             description: (err as Error).message,
           });
+          setProjectName(undefined);
         }
       }
     };
 
     handleZipping();
-  }, [targetPath, projectName, zipStatus?.type]);
+  }, [projectName, targetPath, zipStatus?.type]);
 
   return (
     <form className="space-y-6" onSubmit={handleSubmit}>
@@ -59,9 +57,10 @@ export default function ExportForm() {
           <div>
             <PageHeading heading="Export files" />
             <PageDescription className="mt-1">
-              When you click the button below, a zip file will be created in the
-              specified folder containing all asset files and fonts used in your
-              project. The zip file will have the same name as the project.
+              Creates a zip file in the specified folder containing all asset
+              files and fonts used in your project. File will be saved before
+              the zip process starts. The zip file will have the same name as
+              the project.
             </PageDescription>
           </div>
 

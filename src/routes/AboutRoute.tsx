@@ -1,10 +1,10 @@
-import ExportForm from '../components/form/ExportForm';
+import About from '../components/about/About';
 import MainWrapper from '../components/layout/MainWrapper';
 
-export default function Export() {
+export default function AboutRoute() {
   return (
     <MainWrapper>
-      <ExportForm />
+      <About />
     </MainWrapper>
   );
 }

@@ -7,6 +7,9 @@ const os = require('node:os');
 import CSInterface from '../lib/CSInterface';
 
 const csInterface = new CSInterface();
+const homeDirectory = os.homedir();
+const platform = os.platform();
+const sep = platform === 'win32' ? '\\' : '/';
 
 /**
  * Opens a file dialog for the user to select a folder.
@@ -26,13 +29,10 @@ function selectFolder(callback: (result: string) => void) {
  * @param callback a callback that will be called with the project name.
  */
 function collectFiles(targetPath: string, callback: (result: string) => void) {
-  csInterface.evalScript(
-    `collectFilesWithCache("${targetPath}")`,
-    (result: string) => callback(result),
+  csInterface.evalScript(`collectFiles("${targetPath}")`, (result: string) =>
+    callback(result),
   );
 }
-
-const homeDirectory = os.homedir();
 
 /**
  * Replaces the tilde character at the start of a path with the user's home
@@ -91,7 +91,9 @@ function zip(
     }
 
     const targetPathExpanded = untildify(targetPath); // Expand '~'
-    const targetPathDecoded = decodeURI(`${targetPathExpanded}/${projectName}`); // Decode
+    const targetPathDecoded = decodeURI(
+      `${targetPathExpanded}${sep}${projectName}`,
+    ); // Decode
     const targetPathResolved = path.resolve(targetPathDecoded); // Normalize and resolve
 
     // check if the directory exists
@@ -149,13 +151,15 @@ function zip(
  *
  * @param targetPath The path of the folder to remove.
  */
-async function removeFolder(targetPath: string) {
+async function removeFolder(targetPath: string, projectName: string) {
+  const path = `${targetPath}${sep}${projectName}`;
+
   try {
-    await fs.rmSync(untildify(targetPath), { recursive: true, force: true });
-    console.log(`Removed ${targetPath}`);
+    await fs.rmSync(untildify(path), { recursive: true, force: true });
+    console.log(`Removed ${path}`);
   } catch (error) {
     console.error(error);
   }
 }
 
-export { selectFolder, collectFiles, zip, removeFolder };
+export { collectFiles, removeFolder, selectFolder, zip };

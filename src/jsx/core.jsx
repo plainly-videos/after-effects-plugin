@@ -12,17 +12,14 @@ function selectFolder() {
 
 /**
  * Collects project files, fonts, and footage into a designated folder,
- * while keeping the project open and restoring original paths.
  *
  * @param {string} targetPath - The folder where files should be collected.
  * @returns {string|undefined} The name of the collected project folder, or undefined if no project is saved.
  */
-function collectFilesWithCache(targetPath) {
-  if (app.project.file == null || app.project.dirty) {
-    return 'notSaved';
-  }
+function collectFiles(targetPath) {
+  // save project at the start
+  app.project.save();
 
-  var originalPaths = {};
   var os = checkOs();
   var osPath = os == 'Windows' ? '\\' : '/';
 
@@ -31,12 +28,33 @@ function collectFilesWithCache(targetPath) {
   var projectDir = new Folder(targetPath + osPath + projectName);
   if (!projectDir.exists) projectDir.create();
 
-  // create fonts folder
-  var fontDir = new Folder(projectDir.absoluteURI + osPath + 'Fonts');
-  if (!fontDir.exists) fontDir.create();
+  // copy project
+  app.project.file.copy(projectDir.absoluteURI + osPath + projectName + '.aep');
 
-  // Collect all text layers in all comps
-  // and copy font files to the Fonts folder
+  // collect fonts
+  var fontsPath = projectDir.absoluteURI + osPath + 'Fonts';
+  collectFonts(fontsPath, osPath);
+
+  // collect footage
+  var footagePath = projectDir.absoluteURI + osPath + '(Footage)';
+  collectFootage(footagePath, osPath);
+
+  return projectName;
+}
+
+/**
+ * @function checkOs
+ * @description Determines the OS of the current After Effects instance
+ * @returns {string} The current OS, either 'Windows' or 'Mac'
+ */
+function checkOs() {
+  var appOs = $.os.indexOf('Win') != -1 ? 'Windows' : 'Mac';
+  return appOs;
+}
+
+function collectFonts(path, osPath) {
+  var fontDir = new Folder(path);
+  if (!fontDir.exists) fontDir.create();
   var comps = getAllComps(app.project);
   for (var i = 0; i < comps.length; i++) {
     var layers = getTextLayersByComp(comps[i]);
@@ -62,70 +80,6 @@ function collectFilesWithCache(targetPath) {
       }
     }
   }
-
-  // Cache original paths
-  for (var i = 1; i <= app.project.numItems; i++) {
-    var item = app.project.item(i);
-    if (item instanceof FootageItem == false) {
-      continue;
-    }
-    if (item.file == null) {
-      continue;
-    }
-    if (item.footageMissing) {
-      continue;
-    }
-
-    originalPaths[i] = item.file.fsName;
-  }
-
-  var footageDir = new Folder(projectDir.absoluteURI + osPath + '(Footage)');
-  if (!footageDir.exists) footageDir.create();
-
-  // Update paths to point to new locations
-  for (var index in originalPaths) {
-    var indexToNumber = parseInt(index, 10);
-    var item = app.project.item(indexToNumber);
-    var targetFile = new File(footageDir.absoluteURI + osPath + item.file.name);
-
-    var parentFolder = item.parentFolder;
-    if (parentFolder && parentFolder.name !== 'Root') {
-      // Create subfolder for parent folder structure
-      var subFolder = new Folder(
-        footageDir.absoluteURI + osPath + parentFolder.name,
-      );
-      if (!subFolder.exists) subFolder.create();
-      targetFile = new File(subFolder.absoluteURI + osPath + item.file.name);
-    }
-
-    // Copy file and update project path
-    var sourceFile = new File(originalPaths[indexToNumber]);
-    if (sourceFile.exists) {
-      sourceFile.copy(targetFile.absoluteURI);
-      item.replace(targetFile);
-    }
-  }
-
-  // Copy project to target folder
-  var sourceProject = new File(app.project.file.fsName);
-  if (sourceProject.exists) {
-    sourceProject.copy(projectDir.absoluteURI + osPath + sourceProject.name);
-  }
-
-  // Restore original paths
-  for (var index in originalPaths) {
-    var indexToNumber = parseInt(index, 10);
-    var item = app.project.item(indexToNumber);
-    var sourceFile = new File(originalPaths[indexToNumber]);
-    if (sourceFile.exists) {
-      item.replace(sourceFile);
-    }
-  }
-
-  // Save the project with restored paths
-  app.project.save();
-
-  return projectName;
 }
 
 /**
@@ -166,12 +120,53 @@ function getTextLayersByComp(comp) {
   return layers;
 }
 
-/**
- * @function checkOs
- * @description Determines the OS of the current After Effects instance
- * @returns {string} The current OS, either 'Windows' or 'Mac'
- */
-function checkOs() {
-  var appOs = $.os.indexOf('Win') != -1 ? 'Windows' : 'Mac';
-  return appOs;
+function collectFootage(path, osPath) {
+  var footageDir = new Folder(path);
+  if (!footageDir.exists) footageDir.create();
+
+  // Go through all items in the project
+  for (var i = 1; i <= app.project.numItems; i++) {
+    var item = app.project.item(i);
+    if (item instanceof FootageItem == false) {
+      continue;
+    }
+    if (item.file == null) {
+      continue;
+    }
+    if (item.footageMissing) {
+      continue;
+    }
+
+    // Determine the nested folder structure
+    var relativePath = getFolderPath(item.parentFolder);
+
+    // create folder for each / in relative path that doesn't exist
+    var targetDir = footageDir;
+    var folders = relativePath.split('/');
+    for (var j = 1; j < folders.length; j++) {
+      var folder = folders[j];
+      if (!targetDir.exists) {
+        targetDir.create();
+      }
+      targetDir = new Folder(targetDir.absoluteURI + osPath + folder);
+
+      if (!targetDir.exists) {
+        targetDir.create();
+      }
+    }
+
+    // Copy item to target folder
+    item.file.copy(targetDir.absoluteURI + osPath + item.file.name);
+  }
+}
+
+function getFolderPath(folder) {
+  // If the folder is the root folder, return an empty string
+  if (folder.parentFolder == null || folder == app.project.rootFolder) {
+    return folder.name;
+  } else {
+    // Recursively build the folder path
+    var parentPath = getFolderPath(folder.parentFolder);
+    return parentPath + '/' + folder.name;
+  }
 }
