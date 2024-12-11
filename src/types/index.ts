@@ -1,4 +1,4 @@
 export interface GlobalSettings {
-  currentPage: string;
+  currentPage: '/export' | '/about';
   sidebarOpen: boolean;
 }

@@ -1,5 +1,6 @@
 import { Transition } from '@headlessui/react';
 import { CircleCheckBigIcon, XIcon } from 'lucide-react';
+import { useEffect } from 'react';
 
 export default function Notification({
   title,
@@ -12,6 +13,13 @@ export default function Notification({
   description?: string;
   onClose: () => void;
 }) {
+  useEffect(() => {
+    if (type === 'success') {
+      const timer = setTimeout(() => onClose(), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [type, onClose]);
+
   return (
     <>
       {/* Global notification live region, render this permanently at the end of the document */}

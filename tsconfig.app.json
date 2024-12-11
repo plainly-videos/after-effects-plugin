@@ -22,5 +22,5 @@
     "noUncheckedSideEffectImports": true
   },
   "include": ["src"],
-  "exclude": ["./src/lib/CEPEngine_extensions.js"]
+  "exclude": ["./src/lib/**"]
 }

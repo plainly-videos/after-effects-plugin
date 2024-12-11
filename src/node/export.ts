@@ -8,8 +8,6 @@ import CSInterface from '../lib/CSInterface';
 
 const csInterface = new CSInterface();
 const homeDirectory = os.homedir();
-const platform = os.platform();
-const sep = platform === 'win32' ? '\\' : '/';
 
 /**
  * Opens a file dialog for the user to select a folder.
@@ -28,9 +26,13 @@ function selectFolder(callback: (result: string) => void) {
  * @param targetPath the path of the folder where the files will be copied.
  * @param callback a callback that will be called with the project name.
  */
-function collectFiles(targetPath: string, callback: (result: string) => void) {
-  csInterface.evalScript(`collectFiles("${targetPath}")`, (result: string) =>
-    callback(result),
+function collectFiles(
+  targetPath: string,
+  callback: (result: string) => Promise<void>,
+) {
+  csInterface.evalScript(
+    `collectFiles("${targetPath}")`,
+    async (result: string) => await callback(result),
   );
 }
 
@@ -67,8 +69,7 @@ function untildify(pathWithTilde: string): string {
  * - description: An optional string that provides more information about the status.
  */
 function zip(
-  targetPath: string,
-  projectName: string,
+  zipPath: string,
   updateStatus: ({
     title,
     type,
@@ -80,24 +81,12 @@ function zip(
   }) => void,
 ): Promise<void> {
   return new Promise((resolve, reject) => {
-    if (projectName === 'notSaved') {
-      updateStatus({
-        title: 'Failed to zip',
-        type: 'error',
-        description: 'Project not saved',
-      });
-      reject(new Error('Project not saved'));
-      return;
-    }
-
-    const targetPathExpanded = untildify(targetPath); // Expand '~'
-    const targetPathDecoded = decodeURI(
-      `${targetPathExpanded}${sep}${projectName}`,
-    ); // Decode
-    const targetPathResolved = path.resolve(targetPathDecoded); // Normalize and resolve
+    const pathExpanded = untildify(zipPath); // Expand '~'
+    const pathDecoded = decodeURI(pathExpanded); // Decode
+    const pathResolved = path.resolve(pathDecoded); // Normalize and resolve
 
     // check if the directory exists
-    if (!fs.existsSync(targetPathResolved)) {
+    if (!fs.existsSync(pathResolved)) {
       updateStatus({
         title: 'Failed to zip',
         type: 'error',
@@ -107,7 +96,7 @@ function zip(
       return;
     }
 
-    const outputZipPath = `${targetPathResolved}.zip`;
+    const outputZipPath = `${pathResolved}.zip`;
     const output = fs.createWriteStream(outputZipPath);
     const archive = archiver('zip', { zlib: { level: 9 } });
 
@@ -129,20 +118,15 @@ function zip(
         description: err as string,
       });
       reject(err);
+      return;
     });
 
     archive.pipe(output);
 
     // Append the directory content to the archive
-    archive.directory(targetPathResolved, false);
+    archive.directory(pathResolved, false);
 
     archive.finalize();
-
-    updateStatus({
-      title: 'Successfully zipped',
-      type: 'success',
-      description: `Zip file created at: ${outputZipPath}`,
-    });
   });
 }
 
@@ -151,11 +135,13 @@ function zip(
  *
  * @param targetPath The path of the folder to remove.
  */
-async function removeFolder(targetPath: string, projectName: string) {
-  const path = `${targetPath}${sep}${projectName}`;
+async function removeFolder(targetPath: string) {
+  const pathExpanded = untildify(targetPath); // Expand '~'
+  const pathDecoded = decodeURI(pathExpanded); // Decode
+  const pathResolved = path.resolve(pathDecoded); // Normalize and resolve
 
   try {
-    await fs.rmSync(untildify(path), { recursive: true, force: true });
+    await fs.rmSync(pathResolved, { recursive: true, force: true });
     console.log(`Removed ${path}`);
   } catch (error) {
     console.error(error);

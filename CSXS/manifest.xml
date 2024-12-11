@@ -37,8 +37,8 @@
 					<Menu>Plainly plugin</Menu>
 					<Geometry>
 						<Size>	
-							<Height>1100</Height>
-							<Width>1100</Width>
+							<Height>540</Height>
+							<Width>640</Width>
 						</Size>
 					</Geometry>
 				</UI>

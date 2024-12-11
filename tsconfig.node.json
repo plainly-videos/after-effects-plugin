@@ -21,5 +21,5 @@
     "types": ["@types/node"]
   },
   "include": ["vite.config.ts"],
-  "exclude": ["./src/lib/CEPEngine_extensions.js"]
+  "exclude": ["./src/lib/**"]
 }

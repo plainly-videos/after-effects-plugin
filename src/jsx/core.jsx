@@ -39,7 +39,8 @@ function collectFiles(targetPath) {
   var footagePath = projectDir.absoluteURI + osPath + '(Footage)';
   collectFootage(footagePath, osPath);
 
-  return projectName;
+  // return full path
+  return projectDir.absoluteURI;
 }
 
 /**

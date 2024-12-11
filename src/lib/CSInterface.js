@@ -1,7 +1,7 @@
 /**************************************************************************************************
  *
  * ADOBE SYSTEMS INCORPORATED
- * Copyright 2013 Adobe Systems Incorporated
+ * Copyright 2020 Adobe Systems Incorporated
  * All Rights Reserved.
  *
  * NOTICE:  Adobe permits you to use, modify, and distribute this file in accordance with the
@@ -11,7 +11,7 @@
  *
  **************************************************************************************************/
 
-/** CSInterface - v9.2.0 */
+/** CSInterface - v12.0.0 */
 
 /**
  * Stores constants for the window types supported by the CSXS infrastructure.
@@ -358,7 +358,15 @@ function AppSkinInfo(
  *
  * @return A new \c HostEnvironment object.
  */
-function HostEnvironment(appName, appVersion, appLocale, appUILocale, appId, isAppOnline, appSkinInfo) {
+function HostEnvironment(
+	appName,
+	appVersion,
+	appLocale,
+	appUILocale,
+	appId,
+	isAppOnline,
+	appSkinInfo,
+) {
 	this.appName = appName;
 	this.appVersion = appVersion;
 	this.appLocale = appLocale;
@@ -479,7 +487,8 @@ export default function CSInterface() {}
  *    // and redraw all UI controls of your extension according to the style info.
  * }
  */
-CSInterface.THEME_COLOR_CHANGED_EVENT = 'com.adobe.csxs.events.ThemeColorChanged';
+CSInterface.THEME_COLOR_CHANGED_EVENT =
+	'com.adobe.csxs.events.ThemeColorChanged';
 
 /** The host environment data object. */
 CSInterface.prototype.hostEnvironment = window.__adobe_cep__
@@ -494,6 +503,73 @@ CSInterface.prototype.hostEnvironment = window.__adobe_cep__
 CSInterface.prototype.getHostEnvironment = function () {
 	this.hostEnvironment = JSON.parse(window.__adobe_cep__.getHostEnvironment());
 	return this.hostEnvironment;
+};
+
+/** Loads binary file created which is located at url asynchronously
+*
+*@param urlName url at which binary file is located. Local files should start with 'file://'
+*@param callback Optional. A callback function that returns after binary is loaded
+
+*@example
+* To create JS binary use command ./cep_compiler test.js test.bin
+* To load JS binary asyncronously
+*   var CSLib = new CSInterface();
+*   CSLib.loadBinAsync(url, function () { });
+*/
+CSInterface.prototype.loadBinAsync = function (urlName, callback) {
+	try {
+		var xhr = new XMLHttpRequest();
+		xhr.responseType = 'arraybuffer'; // make response as ArrayBuffer
+		xhr.open('GET', urlName, true);
+		xhr.onerror = function () {
+			console.log('Unable to load snapshot from given URL');
+			return false;
+		};
+		xhr.send();
+		xhr.onload = () => {
+			window.__adobe_cep__.loadSnapshot(xhr.response);
+			if (typeof callback === 'function') {
+				callback();
+			} else if (typeof callback !== 'undefined') {
+				console.log('Provided callback is not a function');
+			}
+		};
+	} catch (err) {
+		console.log(err);
+		return false;
+	}
+
+	return true;
+};
+
+/** Loads binary file created synchronously
+*
+*@param pathName the local path at which binary file is located
+
+*@example
+* To create JS binary use command ./cep_compiler test.js test.bin
+* To load JS binary syncronously
+*   var CSLib = new CSInterface();
+*   CSLib.loadBinSync(path);
+*/
+CSInterface.prototype.loadBinSync = function (pathName) {
+	try {
+		var OSVersion = this.getOSInformation();
+		if (pathName.startsWith('file://')) {
+			if (OSVersion.indexOf('Windows') >= 0) {
+				pathName = pathName.replace('file:///', '');
+			} else if (OSVersion.indexOf('Mac') >= 0) {
+				pathName = pathName.replace('file://', '');
+			}
+			window.__adobe_cep__.loadSnapshot(pathName);
+			return true;
+		}
+	} catch (err) {
+		console.log(err);
+		return false;
+	}
+	//control should not come here
+	return false;
 };
 
 /** Closes this extension. */
@@ -733,11 +809,17 @@ CSInterface.prototype.getOSInformation = function () {
 		}
 
 		return winVersion + winBit;
-	} else if (navigator.platform == 'MacIntel' || navigator.platform == 'Macintosh') {
+	} else if (
+		navigator.platform == 'MacIntel' ||
+		navigator.platform == 'Macintosh'
+	) {
 		var result = 'Mac OS X';
 
 		if (userAgent.indexOf('Mac OS X') > -1) {
-			result = userAgent.substring(userAgent.indexOf('Mac OS X'), userAgent.indexOf(')'));
+			result = userAgent.substring(
+				userAgent.indexOf('Mac OS X'),
+				userAgent.indexOf(')'),
+			);
 			result = result.replace(/_/g, '.');
 		}
 
@@ -889,11 +971,18 @@ CSInterface.prototype.setPanelFlyoutMenu = function (menu) {
  *
  * @see HostCapabilities.EXTENDED_PANEL_MENU
  */
-CSInterface.prototype.updatePanelMenuItem = function (menuItemLabel, enabled, checked) {
+CSInterface.prototype.updatePanelMenuItem = function (
+	menuItemLabel,
+	enabled,
+	checked,
+) {
 	var ret = false;
 	if (this.getHostCapabilities().EXTENDED_PANEL_MENU) {
 		var itemStatus = new MenuItemStatus(menuItemLabel, enabled, checked);
-		ret = window.__adobe_cep__.invokeSync('updatePanelMenuItem', JSON.stringify(itemStatus));
+		ret = window.__adobe_cep__.invokeSync(
+			'updatePanelMenuItem',
+			JSON.stringify(itemStatus),
+		);
 	}
 	return ret;
 };
@@ -1022,9 +1111,16 @@ CSInterface.prototype.setContextMenuByJSON = function (menu, callback) {
  * @param enabled       True to enable the item, false to disable it (gray it out).
  * @param checked       True to select the item, false to deselect it.
  */
-CSInterface.prototype.updateContextMenuItem = function (menuItemID, enabled, checked) {
+CSInterface.prototype.updateContextMenuItem = function (
+	menuItemID,
+	enabled,
+	checked,
+) {
 	var itemStatus = new ContextMenuItemStatus(menuItemID, enabled, checked);
-	ret = window.__adobe_cep__.invokeSync('updateContextMenuItem', JSON.stringify(itemStatus));
+	ret = window.__adobe_cep__.invokeSync(
+		'updateContextMenuItem',
+		JSON.stringify(itemStatus),
+	);
 };
 
 /**

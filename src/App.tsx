@@ -4,7 +4,6 @@ import Sidebar from './components/navigation/Sidebar';
 import { isProd } from './env';
 import AboutRoute from './routes/AboutRoute';
 import ExportRoute from './routes/ExportRoute';
-import Outlet from './routes/Outlet';
 import { State, useGlobalState } from './state/store';
 import { reloadExtension } from './utils';
 
@@ -32,7 +31,7 @@ export default function App() {
         </Button>
       )}
       <Sidebar />
-      <Outlet>{children}</Outlet>
+      {children}
     </>
   );
 }

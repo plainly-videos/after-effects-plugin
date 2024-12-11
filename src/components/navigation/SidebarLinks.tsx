@@ -30,7 +30,7 @@ export default function SidebarLinks({
                 onClick={() => {
                   setGlobalState(State.SETTINGS, {
                     ...settings,
-                    currentPage: link.to,
+                    currentPage: link.to as '/export' | '/about',
                     sidebarOpen: biggerThanXS === false ? false : sidebarOpen,
                   });
                 }}

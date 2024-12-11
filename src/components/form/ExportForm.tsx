@@ -1,5 +1,5 @@
 import { FolderIcon } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import {
   collectFiles,
   removeFolder,
@@ -14,7 +14,6 @@ import PageHeading from '../typography/PageHeading';
 
 export default function ExportForm() {
   const [targetPath, setTargetPath] = useState<string>();
-  const [projectName, setProjectName] = useState<string>();
   const [zipStatus, setZipStatus] = useState<{
     title: string;
     type: 'success' | 'error';
@@ -23,32 +22,34 @@ export default function ExportForm() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (targetPath) collectFiles(targetPath, setProjectName);
-  };
-
-  useEffect(() => {
-    const handleZipping = async () => {
-      if (targetPath && projectName) {
-        try {
-          await zip(targetPath, projectName, setZipStatus);
-          if (zipStatus?.type === 'success') {
-            removeFolder(targetPath, projectName);
-            setProjectName(undefined);
-            setZipStatus(undefined);
+    if (targetPath) {
+      try {
+        collectFiles(targetPath, async (result) => {
+          try {
+            await zip(result, setZipStatus);
+            await removeFolder(result);
+            setZipStatus({
+              title: 'Successfully zipped',
+              type: 'success',
+              description: `Zip file created at: ${result}`,
+            });
+          } catch (error) {
+            setZipStatus({
+              title: 'Failed to zip',
+              type: 'error',
+              description: (error as Error).message,
+            });
           }
-        } catch (err) {
-          setZipStatus({
-            title: 'Failed to zip',
-            type: 'error',
-            description: (err as Error).message,
-          });
-          setProjectName(undefined);
-        }
+        });
+      } catch (error) {
+        setZipStatus({
+          title: 'Failed to collect files',
+          type: 'error',
+          description: (error as Error).message,
+        });
       }
-    };
-
-    handleZipping();
-  }, [projectName, targetPath, zipStatus?.type]);
+    }
+  };
 
   return (
     <form className="space-y-6" onSubmit={handleSubmit}>
@@ -58,9 +59,14 @@ export default function ExportForm() {
             <PageHeading heading="Export files" />
             <PageDescription className="mt-1">
               Creates a zip file in the specified folder containing all asset
-              files and fonts used in your project. File will be saved before
-              the zip process starts. The zip file will have the same name as
-              the project.
+              files and fonts used in your project. The project file will be
+              saved before the zip process starts. The zip file will have the
+              same name as the project. <br />
+              <strong>
+                <span className="italic text-gray-300">
+                  Zip file will be overwritten if it already exists.
+                </span>
+              </strong>
             </PageDescription>
           </div>
 
@@ -107,10 +113,7 @@ export default function ExportForm() {
           title={zipStatus.title}
           type={zipStatus.type}
           description={zipStatus.description}
-          onClose={() => {
-            setProjectName(undefined);
-            setZipStatus(undefined);
-          }}
+          onClose={() => setZipStatus(undefined)}
         />
       )}
     </form>

@@ -31,7 +31,7 @@ To install and run the extension:
    ```bash
    ln -s full/path/to/after-effects-plugin '/Library/Application Support/Adobe/CEP/extensions/com.plainlyvideos.after-effects-plugin'
    ```
-Replace `full/path/to/after-effects-plugin` with the path where you cloned the repository.
+   Replace `full/path/to/after-effects-plugin` with the path where you cloned the repository.
 3. Install dependencies and build the project:
    ```bash
    yarn install && yarn build
