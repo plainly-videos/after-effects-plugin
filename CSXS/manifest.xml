@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<ExtensionManifest
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" ExtensionBundleId="com.plainlyvideos.after-effects-plugin" ExtensionBundleVersion="1.0" Version="12.0">
+	<!-- MAJOR-VERSION-UPDATE-MARKER -->
+	<ExtensionList>
+		<Extension Id="com.plainlyvideos.after-effects-plugin.Panel" Version="1.0.0"/>
+	</ExtensionList>
+	<ExecutionEnvironment>
+		<HostList>
+			<Host Name="AEFT" Version="18.4"/>
+		</HostList>
+		<LocaleList>
+			<Locale Code="All"/>
+		</LocaleList>
+		<RequiredRuntimeList>
+			<RequiredRuntime Name="CSXS" Version="12.0"/> <!-- MAJOR-VERSION-UPDATE-MARKER -->
+		</RequiredRuntimeList>
+	</ExecutionEnvironment>
+	<DispatchInfoList>
+		<Extension Id="com.plainlyvideos.after-effects-plugin.Panel">
+			<DispatchInfo>
+				<Resources>
+					<MainPath>./dist/index.html</MainPath>
+					<ScriptPath>./dist/plainly.core.jsx</ScriptPath>
+					<CEFCommandLine>
+						<Parameter>--enable-nodejs</Parameter>
+						<Parameter>--mixed-context</Parameter>
+						<Parameter>--allow-file-access</Parameter>
+						<Parameter>--allow-file-access-from-files</Parameter>
+					</CEFCommandLine>
+				</Resources>
+				<Lifecycle>
+					<AutoVisible>true</AutoVisible>
+				</Lifecycle>
+				<UI>
+					<Type>Panel</Type>
+					<Menu>Plainly plugin</Menu>
+					<Geometry>
+						<Size>	
+							<Height>540</Height>
+							<Width>640</Width>
+						</Size>
+					</Geometry>
+				</UI>
+			</DispatchInfo>
+		</Extension>
+	</DispatchInfoList>
+</ExtensionManifest>
