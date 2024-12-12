@@ -33,7 +33,7 @@ export default function ExportForm() {
             setZipStatus({
               title: 'Successfully zipped',
               type: 'success',
-              description: `Zip file created at: ${result}`,
+              description: `Zip file created at: ${decodeURI(result)}`,
             });
             setLoading(false);
           } catch (error) {
@@ -92,7 +92,7 @@ export default function ExportForm() {
                     >
                       <span>
                         {targetPath && targetPath !== 'undefined'
-                          ? targetPath
+                          ? decodeURI(targetPath)
                           : 'Select folder'}
                       </span>
                     </label>
