@@ -1,5 +1,5 @@
 import { createGlobalState } from 'react-hooks-global-state';
-import { Routes, type GlobalSettings } from '../types';
+import { type GlobalSettings, Routes } from '../types';
 
 export enum State {
   SETTINGS = 'settings',
