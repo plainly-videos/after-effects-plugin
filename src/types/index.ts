@@ -1,4 +1,9 @@
+export enum Routes {
+  EXPORT = '/export',
+  ABOUT = '/about',
+}
+
 export interface GlobalSettings {
-  currentPage: '/export' | '/about';
+  currentPage: Routes;
   sidebarOpen: boolean;
 }

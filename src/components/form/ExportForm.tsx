@@ -14,6 +14,7 @@ import PageHeading from '../typography/PageHeading';
 
 export default function ExportForm() {
   const [targetPath, setTargetPath] = useState<string>();
+  const [loading, setLoading] = useState(false);
   const [zipStatus, setZipStatus] = useState<{
     title: string;
     type: 'success' | 'error';
@@ -22,23 +23,26 @@ export default function ExportForm() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    setLoading(true);
     if (targetPath) {
       try {
         collectFiles(targetPath, async (result) => {
           try {
-            await zip(result, setZipStatus);
+            await zip(result);
             await removeFolder(result);
             setZipStatus({
               title: 'Successfully zipped',
               type: 'success',
               description: `Zip file created at: ${result}`,
             });
+            setLoading(false);
           } catch (error) {
             setZipStatus({
               title: 'Failed to zip',
               type: 'error',
               description: (error as Error).message,
             });
+            setLoading(false);
           }
         });
       } catch (error) {
@@ -47,6 +51,7 @@ export default function ExportForm() {
           type: 'error',
           description: (error as Error).message,
         });
+        setLoading(false);
       }
     }
   };
@@ -61,12 +66,8 @@ export default function ExportForm() {
               Creates a zip file in the specified folder containing all asset
               files and fonts used in your project. The project file will be
               saved before the zip process starts. The zip file will have the
-              same name as the project. <br />
-              <strong>
-                <span className="italic text-gray-300">
-                  Zip file will be overwritten if it already exists.
-                </span>
-              </strong>
+              same name as the project and will be overwritten if it already
+              exists.
             </PageDescription>
           </div>
 
@@ -75,8 +76,9 @@ export default function ExportForm() {
               <Label label="Destination folder" htmlFor="destination-folder" />
               <button
                 type="button"
+                disabled={loading}
                 onClick={() => selectFolder(setTargetPath)}
-                className="mt-2 flex justify-center rounded-lg border border-dashed border-white/25 px-6 py-4 group w-full hover:border-white/10"
+                className="mt-2 flex justify-center rounded-lg border border-dashed border-white/25 px-6 py-4 group w-full hover:border-white/10 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <div className="text-center">
                   <FolderIcon
@@ -103,7 +105,7 @@ export default function ExportForm() {
       </div>
 
       <div className="mt-6 flex items-center justify-end gap-x-6">
-        <Button disabled={!targetPath || targetPath === 'undefined'}>
+        <Button disabled={!targetPath || targetPath === 'undefined' || loading}>
           Export
         </Button>
       </div>

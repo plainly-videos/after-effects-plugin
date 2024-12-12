@@ -1,5 +1,5 @@
 import { createGlobalState } from 'react-hooks-global-state';
-import type { GlobalSettings } from '../types';
+import { Routes, type GlobalSettings } from '../types';
 
 export enum State {
   SETTINGS = 'settings',
@@ -7,7 +7,7 @@ export enum State {
 
 const initialState = {
   [State.SETTINGS]: {
-    currentPage: '/export',
+    currentPage: Routes.EXPORT,
     sidebarOpen: false,
   } as GlobalSettings,
 };
@@ -17,7 +17,7 @@ const { useGlobalState, getGlobalState, setGlobalState } =
 
 function resetGlobalState() {
   setGlobalState(State.SETTINGS, {
-    currentPage: '/export',
+    currentPage: Routes.EXPORT,
     sidebarOpen: false,
   });
 }

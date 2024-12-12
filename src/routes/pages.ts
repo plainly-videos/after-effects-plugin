@@ -1,9 +1,10 @@
 import { FolderOutput, InfoIcon } from 'lucide-react';
+import { Routes } from '../types';
 
 export const pages = [
   {
     name: 'Export',
-    to: '/export',
+    to: Routes.EXPORT,
     icon: FolderOutput,
   },
 ];
@@ -11,7 +12,7 @@ export const pages = [
 export const resources = [
   {
     name: 'About',
-    to: '/about',
+    to: Routes.ABOUT,
     icon: InfoIcon,
   },
 ];

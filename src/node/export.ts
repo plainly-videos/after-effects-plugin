@@ -30,10 +30,7 @@ function collectFiles(
   targetPath: string,
   callback: (result: string) => Promise<void>,
 ) {
-  csInterface.evalScript(
-    `collectFiles("${targetPath}")`,
-    async (result: string) => await callback(result),
-  );
+  csInterface.evalScript(`collectFiles("${targetPath}")`, callback);
 }
 
 /**
@@ -56,30 +53,12 @@ function untildify(pathWithTilde: string): string {
 }
 
 /**
- * Zips the contents of the targetPath directory, and creates a zip file with the
+ * Zips the contents of the zipPath directory, and creates a zip file with the
  * same name as the directory, but with a .zip extension.
  *
- * @param targetPath The path of the directory to zip.
- * @param projectName The name of the project.
- * @param updateStatus A callback function that will be called with updates about the
- * status of the zip operation. The callback will receive an object with the following
- * properties:
- * - title: A string that describes the status of the operation.
- * - type: A string that can be either 'success' or 'error'.
- * - description: An optional string that provides more information about the status.
+ * @param zipPath The path of the directory to zip.
  */
-function zip(
-  zipPath: string,
-  updateStatus: ({
-    title,
-    type,
-    description,
-  }: {
-    title: string;
-    type: 'success' | 'error';
-    description?: string;
-  }) => void,
-): Promise<void> {
+function zip(zipPath: string): Promise<void> {
   return new Promise((resolve, reject) => {
     const pathExpanded = untildify(zipPath); // Expand '~'
     const pathDecoded = decodeURI(pathExpanded); // Decode
@@ -87,11 +66,6 @@ function zip(
 
     // check if the directory exists
     if (!fs.existsSync(pathResolved)) {
-      updateStatus({
-        title: 'Failed to zip',
-        type: 'error',
-        description: 'Directory does not exist',
-      });
       reject(new Error('Directory does not exist'));
       return;
     }
@@ -103,20 +77,10 @@ function zip(
     output.on('close', () => {
       console.log(`Zipped ${archive.pointer()} total bytes`);
       console.log(`Zip file created at: ${outputZipPath}`);
-      updateStatus({
-        title: 'Successfully zipped',
-        type: 'success',
-        description: `Zip file created at: ${outputZipPath}`,
-      });
       resolve();
     });
 
     archive.on('error', (err: unknown) => {
-      updateStatus({
-        title: 'Failed to zip',
-        type: 'error',
-        description: err as string,
-      });
       reject(err);
       return;
     });

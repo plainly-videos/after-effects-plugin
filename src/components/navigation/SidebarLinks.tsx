@@ -3,13 +3,14 @@ import type { LucideProps } from 'lucide-react';
 import type { ForwardRefExoticComponent, RefAttributes } from 'react';
 import { useBreakpoint } from '../../hooks/useBreakpoint';
 import { State, setGlobalState, useGlobalState } from '../../state/store';
+import type { Routes } from '../../types';
 
 export default function SidebarLinks({
   links,
 }: {
   links: {
     name: string;
-    to: string;
+    to: Routes;
     icon: ForwardRefExoticComponent<
       Omit<LucideProps, 'ref'> & RefAttributes<SVGSVGElement>
     >;
@@ -30,7 +31,7 @@ export default function SidebarLinks({
                 onClick={() => {
                   setGlobalState(State.SETTINGS, {
                     ...settings,
-                    currentPage: link.to as '/export' | '/about',
+                    currentPage: link.to,
                     sidebarOpen: biggerThanXS === false ? false : sidebarOpen,
                   });
                 }}
