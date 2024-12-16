@@ -2,7 +2,7 @@ export const jsToBottomNoModule = () => {
   return {
     name: 'no-attribute',
     transformIndexHtml(html: string) {
-      let replacedHtml = html.replace(`type="module" crossorigin`, '');
+      let replacedHtml = html.replace(` type="module" crossorigin`, '');
       const matchResult = replacedHtml.match(
         /<script[^>]*>(.*?)<\/script[^>]*>/,
       );
@@ -12,8 +12,8 @@ export const jsToBottomNoModule = () => {
         console.log('\n SCRIPT TAG', scriptTag, '\n');
         replacedHtml = replacedHtml.replace(scriptTag, '');
         replacedHtml = replacedHtml.replace(
-          '<!-- # INSERT SCRIPT HERE -->',
-          scriptTag,
+          '</body>',
+          `\t${scriptTag}\n</body>`,
         );
       } else {
         console.log('No script tag found.');
