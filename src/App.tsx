@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import Button from './components/common/Button';
 import Sidebar from './components/navigation/Sidebar';
-import { isProd } from './env';
+import { isDev } from './env';
 import AboutRoute from './routes/AboutRoute';
 import ExportRoute from './routes/ExportRoute';
 import { State, useGlobalState } from './state/store';
@@ -21,7 +21,7 @@ export default function App() {
 
   return (
     <>
-      {!isProd && (
+      {isDev && (
         <Button
           secondary
           onClick={reloadExtension}
