@@ -11,9 +11,7 @@
  *
  **************************************************************************************************/
 
-/** CEP-Vulcan.js v11.1.0 - This JS Bindings for Vulcan is compatible with Vulcan v7.0 */
-
-/**
+/** Vulcan - v11.2.0 */
 
 /**
  * @class Vulcan
@@ -43,13 +41,12 @@ Vulcan.prototype.getTargetSpecifiersEx = function () {
 };
 
 /**
-
  * Launches a CC application on the local machine, if it is not already running.
  *
  * Vulcan Control New 6.x APIs, and Deprecating older Vulcan Control APIs.
  * Changes : New launchAppEx uses productSAPCodeSpecifiers
  *
- * @param productSAPCodeSpecifier The application specifier; for example "ILST-25.2.3", "ILST-25", "ILST-25.2.3-en_US" and "ILST".
+ * @param productSAPCodeSpecifier The application specifier; for example "ILST-25.2.3", "ILST-25", "ILST-25.2.3-en_US" and "ILST. Refer to `Documentation/CEP 11.1 HTML Extension Cookbook.md#applications-integrated-with-cep` for product SAPCode.
  * @param focus           True to launch in foreground, or false to launch in the background.
  * @param cmdLine         Optional, command-line parameters to supply to the launch command.
  * @return True if the app can be launched, false otherwise.
@@ -82,7 +79,7 @@ Vulcan.prototype.launchAppEx = function (
  * Vulcan Control New 6.x APIs, and Deprecating older Vulcan Control APIs.
  * Changes : New isAppRunningEx uses productSAPCodeSpecifiers
  *
- * @param productSAPCodeSpecifier The application specifier; for example "ILST-25.2.3", "ILST-25", "ILST-25.2.3-en_US" and "ILST".
+ * @param productSAPCodeSpecifier The application specifier; for example "ILST-25.2.3", "ILST-25", "ILST-25.2.3-en_US" and "ILST. Refer to `Documentation/CEP 11.1 HTML Extension Cookbook.md#applications-integrated-with-cep` for product SAPCode.
  * @return True if the app is running, false otherwise.
  */
 Vulcan.prototype.isAppRunningEx = function (productSAPCodeSpecifier) {
@@ -107,7 +104,7 @@ Vulcan.prototype.isAppRunningEx = function (productSAPCodeSpecifier) {
  * Vulcan Control New 6.x APIs, and Deprecating older Vulcan Control APIs.
  * Changes : New isAppInstalledEx uses productSAPCodeSpecifiers
  *
- * @param productSAPCodeSpecifier The application specifier; for example "ILST-25.2.3", "ILST-25", "ILST-25.2.3-en_US" and "ILST".
+ * @param productSAPCodeSpecifier The application specifier; for example "ILST-25.2.3", "ILST-25", "ILST-25.2.3-en_US" and "ILST. Refer to `Documentation/CEP 11.1 HTML Extension Cookbook.md#applications-integrated-with-cep` for product SAPCode.
  * @return True if the app is installed, false otherwise.
  */
 Vulcan.prototype.isAppInstalledEx = function (productSAPCodeSpecifier) {
@@ -132,7 +129,7 @@ Vulcan.prototype.isAppInstalledEx = function (productSAPCodeSpecifier) {
  * Vulcan Control New 6.x APIs, and Deprecating older Vulcan Control APIs.
  * Changes : New getAppPathEx uses productSAPCodeSpecifiers
  *
- * @param productSAPCodeSpecifier The application specifier; for example "ILST-25.2.3", "ILST-25", "ILST-25.2.3-en_US" and "ILST".
+ * @param productSAPCodeSpecifier The application specifier; for example "ILST-25.2.3", "ILST-25", "ILST-25.2.3-en_US" and "ILST. Refer to `Documentation/CEP 11.1 HTML Extension Cookbook.md#applications-integrated-with-cep` for product SAPCode.
  * @return The path string if the application is found, "" otherwise.
  */
 Vulcan.prototype.getAppPathEx = function (productSAPCodeSpecifier) {
@@ -148,6 +145,159 @@ Vulcan.prototype.getAppPathEx = function (productSAPCodeSpecifier) {
 			'vulcanGetAppPathEx',
 			JSON.stringify(params),
 		),
+	).result;
+};
+
+/**
+ * DEPRECATED API:: use getTargetSpecifiersEx
+ * Gets all available application specifiers on the local machine.
+ *
+ * @return The array of all available application specifiers.
+ */
+Vulcan.prototype.getTargetSpecifiers = function () {
+	console.warn(
+		"WARNING! Function 'getTargetSpecifiers' has been deprecated, please use the new 'getTargetSpecifiersEx' function instead!",
+	);
+	var params = {};
+	return JSON.parse(
+		window.__adobe_cep__.invokeSync(
+			'vulcanGetTargetSpecifiers',
+			JSON.stringify(params),
+		),
+	);
+};
+
+/**
+ * DEPRECATED API:: use launchAppEx
+ * Launches a CC application on the local machine, if it is not already running.
+ *
+ * @param targetSpecifier The application specifier; for example "indesign".
+ *
+ *        Note: In Windows 7 64-bit or Windows 8 64-bit system, some target applications (like Photoshop and Illustrator) have both 32-bit version
+ *        and 64-bit version. Therefore, we need to specify the version by this parameter with "photoshop-70.032" or "photoshop-70.064". If you
+ *        installed Photoshop 32-bit and 64-bit on one Windows 64-bit system and invoke this interface with parameter "photoshop-70.032", you may
+ *        receive wrong result.
+ *        The specifiers for Illustrator is "illustrator-17.032", "illustrator-17.064", "illustrator-17" and "illustrator".
+ *
+ *        In other platforms there is no such issue, so we can use "photoshop" or "photoshop-70" as specifier.
+ * @param focus           True to launch in foreground, or false to launch in the background.
+ * @param cmdLine         Optional, command-line parameters to supply to the launch command.
+ * @return True if the app can be launched, false otherwise.
+ */
+Vulcan.prototype.launchApp = function (targetSpecifier, focus, cmdLine) {
+	console.warn(
+		"WARNING! Function 'launchApp' has been deprecated, please use the new 'launchAppEx' function instead!",
+	);
+	if (!requiredParamsValid(targetSpecifier)) {
+		return false;
+	}
+
+	var params = {};
+	params.targetSpecifier = targetSpecifier;
+	params.focus = focus ? 'true' : 'false';
+	params.cmdLine = requiredParamsValid(cmdLine) ? cmdLine : '';
+
+	return JSON.parse(
+		window.__adobe_cep__.invokeSync('vulcanLaunchApp', JSON.stringify(params)),
+	).result;
+};
+
+/**
+ * DEPRECATED API:: use isAppRunningEx
+ * Checks whether a CC application is running on the local machine.
+ *
+ * @param targetSpecifier The application specifier; for example "indesign".
+ *
+ *        Note: In Windows 7 64-bit or Windows 8 64-bit system, some target applications (like Photoshop and Illustrator) have both 32-bit version
+ *        and 64-bit version. Therefore, we need to specify the version by this parameter with "photoshop-70.032" or "photoshop-70.064". If you
+ *        installed Photoshop 32-bit and 64-bit on one Windows 64-bit system and invoke this interface with parameter "photoshop-70.032", you may
+ *        receive wrong result.
+ *        The specifiers for Illustrator is "illustrator-17.032", "illustrator-17.064", "illustrator-17" and "illustrator".
+ *
+ *        In other platforms there is no such issue, so we can use "photoshop" or "photoshop-70" as specifier.
+ * @return True if the app is running, false otherwise.
+ */
+Vulcan.prototype.isAppRunning = function (targetSpecifier) {
+	console.warn(
+		"WARNING! Function 'isAppRunning' has been deprecated, please use the new 'isAppRunningEx' function instead!",
+	);
+	if (!requiredParamsValid(targetSpecifier)) {
+		return false;
+	}
+
+	var params = {};
+	params.targetSpecifier = targetSpecifier;
+
+	return JSON.parse(
+		window.__adobe_cep__.invokeSync(
+			'vulcanIsAppRunning',
+			JSON.stringify(params),
+		),
+	).result;
+};
+
+/**
+ * DEPRECATED API:: use isAppInstalledEx
+ * Checks whether a CC application is installed on the local machine.
+ *
+ * @param targetSpecifier The application specifier; for example "indesign".
+ *
+ *        Note: In Windows 7 64-bit or Windows 8 64-bit system, some target applications (like Photoshop and Illustrator) have both 32-bit version
+ *        and 64-bit version. Therefore, we need to specify the version by this parameter with "photoshop-70.032" or "photoshop-70.064". If you
+ *        installed Photoshop 32-bit and 64-bit on one Windows 64-bit system and invoke this interface with parameter "photoshop-70.032", you may
+ *        receive wrong result.
+ *        The specifiers for Illustrator is "illustrator-17.032", "illustrator-17.064", "illustrator-17" and "illustrator".
+ *
+ *        In other platforms there is no such issue, so we can use "photoshop" or "photoshop-70" as specifier.
+ * @return True if the app is installed, false otherwise.
+ */
+Vulcan.prototype.isAppInstalled = function (targetSpecifier) {
+	console.warn(
+		"WARNING! Function 'isAppInstalled' has been deprecated, please use the new 'isAppInstalledEx' function instead!",
+	);
+	if (!requiredParamsValid(targetSpecifier)) {
+		return false;
+	}
+
+	var params = {};
+	params.targetSpecifier = targetSpecifier;
+
+	return JSON.parse(
+		window.__adobe_cep__.invokeSync(
+			'vulcanIsAppInstalled',
+			JSON.stringify(params),
+		),
+	).result;
+};
+
+/**
+ * DEPRECATED API:: use getAppPathEx
+ * Retrieves the local install path of a CC application.
+ *
+ * @param targetSpecifier The application specifier; for example "indesign".
+ *
+ *        Note: In Windows 7 64-bit or Windows 8 64-bit system, some target applications (like Photoshop and Illustrator) have both 32-bit version
+ *        and 64-bit version. Therefore, we need to specify the version by this parameter with "photoshop-70.032" or "photoshop-70.064". If you
+ *        installed Photoshop 32-bit and 64-bit on one Windows 64-bit system and invoke this interface with parameter "photoshop-70.032", you may
+ *        receive wrong result.
+ *        The specifiers for Illustrator is "illustrator-17.032", "illustrator-17.064", "illustrator-17" and "illustrator".
+ *
+ *        In other platforms there is no such issue, so we can use "photoshop" or "photoshop-70" as specifier.
+ * @return The path string if the application is found, "" otherwise.
+ */
+Vulcan.prototype.getAppPath = function (targetSpecifier) {
+	console.warn(
+		"WARNING! Function 'getAppPath' has been deprecated, please use the new 'getAppPathEx' function instead!",
+	);
+	if (!requiredParamsValid(targetSpecifier)) {
+		return '';
+	}
+
+	var params = {};
+	params.targetSpecifier = targetSpecifier;
+
+	return JSON.parse(
+		window.__adobe_cep__.invokeSync('vulcanGetAppPath', JSON.stringify(params)),
 	).result;
 };
 

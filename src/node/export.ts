@@ -1,7 +1,7 @@
-const fs = require('node:fs');
+const fs = require('fs');
 const archiver = require('archiver');
-const path = require('node:path');
-const os = require('node:os');
+const path = require('path');
+const os = require('os');
 
 // @ts-ignore
 import CSInterface from '../lib/CSInterface';
