@@ -1,8 +1,9 @@
 const path = require('node:path');
 const ES3Plugin = require('webpack-es3-plugin'); // eslint-disable-line node/no-unpublished-require
 
-module.exports = (env, options) => {
+module.exports = (options) => {
   const isProdEnv = options.mode === 'production';
+  const isPackage = process.env.NODE_ENV === 'package';
 
   const coreEntryFile = ['./src/jsx/core.jsx'];
 
@@ -13,7 +14,7 @@ module.exports = (env, options) => {
     devtool: isProdEnv ? false : 'source-map',
     output: {
       filename: 'plainly.[name].jsx',
-      path: path.resolve(__dirname, 'dist'),
+      path: path.resolve(__dirname, isPackage ? 'package/dist' : 'dist'),
       iife: false,
     },
     optimization: { minimize: false },

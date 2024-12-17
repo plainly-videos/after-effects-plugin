@@ -11,7 +11,7 @@ node_modules
 dist
 dist-ssr
 dist-dev
-dist-test
+package
 *.local
 
 # Editor directories and files

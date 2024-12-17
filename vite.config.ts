@@ -6,6 +6,8 @@ import { jsToBottomNoModule } from './vite-plugins/jsBottomOfIndex';
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => {
   const isDev = mode === 'development';
+  const isPackage = mode === 'package';
+
   return {
     base: './',
     plugins: [
@@ -22,7 +24,7 @@ export default defineConfig(({ mode }) => {
       jsToBottomNoModule(),
     ],
     build: {
-      outDir: isDev ? 'dist-dev' : 'dist',
+      outDir: isDev ? 'dist-dev' : isPackage ? 'package/dist' : 'dist',
     },
     define: {
       __APP_VERSION__: JSON.stringify(require('./package.json').version),

@@ -7,6 +7,7 @@
     "dev": "NODE_ENV=development node ./script/updateManifest.cjs --dev && vite build --mode development --watch",
     "build-test": "NODE_ENV=test node ./script/updateManifest.cjs && tsc -b && vite build && webpack --mode production",
     "build": "NODE_ENV=production node ./script/updateManifest.cjs && tsc -b && vite build && webpack --mode production",
+    "package": "tsc -b && vite build --mode package && NODE_ENV=package webpack --mode production && node ./script/updateManifest.cjs --package",
     "biome": "biome check ./src",
     "biome-write": "biome check --write ./src",
     "preview": "vite preview"

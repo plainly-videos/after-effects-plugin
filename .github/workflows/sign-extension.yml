@@ -1,0 +1,75 @@
+# This workflow will perform signing of the plugin on manual trigger
+name: Sign plugin
+
+on:
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: 'Reason for signing'
+        required: true
+
+jobs:
+  build-and-sign:
+    name: Build and Run ZXPSignCMD Tool
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.11.1'
+          cache: 'yarn'
+
+      - name: Package extension
+        run: |
+          yarn install
+          yarn package
+
+      - name: Install external dependencies
+        run: |
+          npm install --no-package-lock archiver@^5.3.2 --prefix package
+          rm package/package.json
+          rm package/node_modules/.package-lock.json
+    
+      - name: Download ZXPSignCmd Tool
+        run: |
+          curl -L -o ZXPSignCmd.dmg https://github.com/Adobe-CEP/CEP-Resources/raw/master/ZXPSignCMD/4.1.2/macOS/ZXPSignCmd-64bit.dmg
+
+      - name: Mount ZXPSignCmd Tool
+        run: |
+          hdiutil attach ZXPSignCmd.dmg
+
+      - name: Copy ZXPSignCmd Tool to /usr/local/bin
+        run: |
+          sudo cp /Volumes/ZXPSignCmd/ZXPSignCmd /usr/local/bin/
+          sudo chmod +x /usr/local/bin/ZXPSignCmd
+        
+      - name: Import certificate
+        run: |
+          echo "${{ secrets.PLUGIN_CERTIFICATE_P12 }}" | base64 --decode > certificate.p12
+
+      - name: Verify certificate
+        run: |
+          openssl pkcs12 -info -in certificate.p12 -noout
+
+      - name: Perform signing
+        run: |
+          ZXPSignCmd -sign \
+            package \
+            plainly-plugin.zxp \
+            certificate.p12 \
+            ${{ secrets.PLUGIN_CERTIFICATE_P12_PASSWORD }} \
+            -tsa http://timestamp.digicert.com/
+        env:
+          PATH: "/usr/local/bin:$PATH"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: signed-plugin
+          path: plainly-plugin.zxp
+
+      - name: Cleanup
+        run: |
+          rm certificate.p12
+          rm -rf package
+          hdiutil detach /Volumes/ZXPSignCmd
