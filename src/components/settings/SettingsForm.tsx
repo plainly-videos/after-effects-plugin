@@ -87,6 +87,8 @@ export default function ExportForm() {
                 name="api-key"
                 type={showApiKey ? 'text' : 'password'}
                 className="col-start-1 row-start-1 block w-full rounded-md bg-white/5 pl-3 pr-10 py-1 text-xs text-white outline outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500 sm:pr-9"
+                value={apiKey}
+                onChange={(e) => setApiKey(e.target.value)}
                 required
               />
               <button
@@ -115,16 +117,20 @@ export default function ExportForm() {
             </div>
             <div className="mt-2 grid grid-cols-6 items-center justify-items-center gap-y-2">
               <PINInput
-                className="col-start-2 col-end-5 row-start-1"
+                className="col-start-3 col-end-5 row-start-1"
                 pin={pin}
                 onChange={setPin}
               />
-              <div className="row-start-2 col-start-3 col-end-4 flex items-center justify-center gap-x-1">
+              <div className="col-start-3 col-end-5 row-start-2 flex items-center justify-center gap-x-1">
                 <div className="bg-white/10 h-[1px] w-8" />
                 <p className="text-xs text-gray-400">confirm</p>
                 <div className="bg-white/10 h-[1px] w-8" />
               </div>
-              <PINInput className="col-start-2 col-end-5 row-start-3" />
+              <PINInput
+                className="col-start-3 col-end-5 row-start-3"
+                pin={confirmPin}
+                onChange={setConfirmPin}
+              />
             </div>
           </div>
         </div>
@@ -156,7 +162,10 @@ function PINInput({
   className?: string;
 }) {
   const changeDigit = useCallback(
-    (digit: 'first' | 'second' | 'third' | 'forth', value: number) => {
+    (
+      digit: 'first' | 'second' | 'third' | 'fourth',
+      value: string | undefined,
+    ) => {
       onChange((prev) => ({ ...prev, [digit]: value }));
     },
     [onChange],
@@ -174,9 +183,7 @@ function PINInput({
         className="block w-[30px] rounded-md bg-white/5 px-3 py-1 text-xs text-white outline outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500"
         maxLength={1}
         value={pin.first}
-        onChange={(e) =>
-          onChange((prev) => ({ ...prev, first: +e.target.value }))
-        }
+        onChange={(e) => changeDigit('first', e.target.value)}
       />
       <input
         id="pin"
@@ -186,9 +193,7 @@ function PINInput({
         maxLength={1}
         className="block w-[30px] rounded-md bg-white/5 px-3 py-1 text-xs text-white outline outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500"
         value={pin.second}
-        onChange={(e) =>
-          onChange((prev) => ({ ...prev, second: +e.target.value }))
-        }
+        onChange={(e) => changeDigit('second', e.target.value)}
       />
       <input
         id="pin"
@@ -198,9 +203,7 @@ function PINInput({
         maxLength={1}
         className="block w-[30px] rounded-md bg-white/5 px-3 py-1 text-xs text-white outline outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500"
         value={pin.third}
-        onChange={(e) =>
-          onChange((prev) => ({ ...prev, third: +e.target.value }))
-        }
+        onChange={(e) => changeDigit('third', e.target.value)}
       />
       <input
         id="pin"
@@ -210,9 +213,7 @@ function PINInput({
         maxLength={1}
         className="block w-[30px] rounded-md bg-white/5 px-3 py-1 text-xs text-white outline outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500"
         value={pin.fourth}
-        onChange={(e) =>
-          onChange((prev) => ({ ...prev, fourth: +e.target.value }))
-        }
+        onChange={(e) => changeDigit('fourth', e.target.value)}
       />
     </div>
   );
