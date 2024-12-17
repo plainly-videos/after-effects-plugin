@@ -40,8 +40,8 @@ jobs:
 
       - name: Copy ZXPSignCmd Tool to /usr/local/bin
         run: |
-          sudo cp /Volumes/ZXPSignCmd/ZXPSignCmd /usr/local/bin/
-          sudo chmod +x /usr/local/bin/ZXPSignCmd
+          sudo cp /Volumes/ZXPSignCmd-64bit/ZXPSignCmd-64bit /usr/local/bin/
+          sudo chmod +x /usr/local/bin/ZXPSignCmd-64bit
         
       - name: Import certificate
         run: |
@@ -53,7 +53,7 @@ jobs:
 
       - name: Perform signing
         run: |
-          ZXPSignCmd -sign \
+          ZXPSignCmd-64bit -sign \
             package \
             plainly-plugin.zxp \
             certificate.p12 \
@@ -72,4 +72,4 @@ jobs:
         run: |
           rm certificate.p12
           rm -rf package
-          hdiutil detach /Volumes/ZXPSignCmd
+          hdiutil detach /Volumes/ZXPSignCmd-64bit
