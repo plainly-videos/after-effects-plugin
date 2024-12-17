@@ -49,7 +49,7 @@ jobs:
 
       - name: Verify certificate
         run: |
-          openssl pkcs12 -legacy -info -in certificate.p12 -noout -passin pass:${{ secrets.PLUGIN_CERTIFICATE_P12_PASSWORD }}
+          openssl pkcs12 -info -in certificate.p12 -noout -passin pass:${{ secrets.PLUGIN_CERTIFICATE_P12_PASSWORD }}
 
       - name: Perform signing
         run: |
