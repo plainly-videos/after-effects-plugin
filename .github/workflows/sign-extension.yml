@@ -40,8 +40,8 @@ jobs:
 
       - name: Copy ZXPSignCmd Tool to /usr/local/bin
         run: |
-          sudo cp /Volumes/ZXPSignCmd/ZXPSignCmd /usr/local/bin/
-          sudo chmod +x /usr/local/bin/ZXPSignCmd
+          sudo cp /Volumes/ZXPSignCmd-64bit/ZXPSignCmd-64bit /usr/local/bin/
+          sudo chmod +x /usr/local/bin/ZXPSignCmd-64bit
         
       - name: Import certificate
         run: |
@@ -49,18 +49,16 @@ jobs:
 
       - name: Verify certificate
         run: |
-          openssl pkcs12 -info -in certificate.p12 -noout
+          openssl pkcs12 -info -in certificate.p12 -noout -passin pass:${{ secrets.PLUGIN_CERTIFICATE_P12_PASSWORD }}
 
       - name: Perform signing
         run: |
-          ZXPSignCmd -sign \
+          ZXPSignCmd-64bit -sign \
             package \
             plainly-plugin.zxp \
             certificate.p12 \
             ${{ secrets.PLUGIN_CERTIFICATE_P12_PASSWORD }} \
             -tsa http://timestamp.digicert.com/
-        env:
-          PATH: "/usr/local/bin:$PATH"
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
@@ -72,4 +70,4 @@ jobs:
         run: |
           rm certificate.p12
           rm -rf package
-          hdiutil detach /Volumes/ZXPSignCmd
+          hdiutil detach /Volumes/ZXPSignCmd-64bit
