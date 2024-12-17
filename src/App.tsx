@@ -4,6 +4,7 @@ import Sidebar from './components/navigation/Sidebar';
 import { isDev } from './env';
 import AboutRoute from './routes/AboutRoute';
 import ExportRoute from './routes/ExportRoute';
+import SettingsRoute from './routes/SettingsRoute';
 import { State, useGlobalState } from './state/store';
 import { reloadExtension } from './utils';
 
@@ -15,6 +16,7 @@ export default function App() {
   const children = useMemo(() => {
     if (currentPage === '/export') return <ExportRoute />;
     if (currentPage === '/about') return <AboutRoute />;
+    if (currentPage === '/settings') return <SettingsRoute />;
 
     return null;
   }, [currentPage]);
