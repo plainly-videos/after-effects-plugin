@@ -9,32 +9,8 @@ on:
         required: true
 
 jobs:
-  install_needed_deps:
-    name: Install needed node dependencies
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '20.11.1'
-
-      - name: Install dependencies
-        run: |
-          npm install --no-package-lock archiver@^5.3.2 --prefix temp
-
-      - name: Upload node_modules as artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: node_modules
-          path: temp/node_modules
-
-      - name: Cleanup
-        run: |
-          rm -rf temp
-
   build-and-sign:
-    name: Run ZXPSignCMD Tool
-    needs: install_needed_deps
+    name: Build and Run ZXPSignCMD Tool
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
@@ -45,17 +21,14 @@ jobs:
 
       - name: Package extension
         run: |
+          yarn install
           yarn package
 
-      - name: Download node_modules artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: node_modules
-          path: node_modules
-
-      - name: Copy node_modules to package
+      - name: Install external dependencies
         run: |
-          cp -r node_modules package
+          npm install --no-package-lock archiver@^5.3.2 --prefix package
+          rm package/package.json
+          rm package/node_modules/.package-lock.json
     
       - name: Download ZXPSignCmd Tool
         run: |
@@ -68,7 +41,7 @@ jobs:
       - name: Copy ZXPSignCmd Tool to /usr/local/bin
         run: |
           sudo cp /Volumes/ZXPSignCmd/ZXPSignCmd /usr/local/bin/
-          chmod +x /usr/local/bin/ZXPSignCmd
+          sudo chmod +x /usr/local/bin/ZXPSignCmd
         
       - name: Import certificate
         run: |
@@ -89,15 +62,14 @@ jobs:
         env:
           PATH: "/usr/local/bin:$PATH"
 
-      - name: Cleanup
-        run: |
-          rm certificate.p12
-          hdiutil detach /Volumes/ZXPSignCmd
-          rm -rf package
-          rm -rf node_modules
-
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: signed-plugin
           path: plainly-plugin.zxp
+
+      - name: Cleanup
+        run: |
+          rm certificate.p12
+          rm -rf package
+          hdiutil detach /Volumes/ZXPSignCmd
