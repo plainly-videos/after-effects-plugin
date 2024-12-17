@@ -17,17 +17,10 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '20.11.1'
-          cache: 'yarn'
-      - name: Setup temporary package.json in temp directory
-        run: |
-          mkdir temp
-          touch temp/package.json
-          echo '{ "dependencies": { "archiver": "^5.3.2" } }' > temp/package.json
 
       - name: Install dependencies
         run: |
-          cd temp
-          yarn install
+          npm install --no-package-lock archiver@^5.3.2 --prefix temp
 
       - name: Upload node_modules as artifact
         uses: actions/upload-artifact@v4
@@ -39,7 +32,7 @@ jobs:
         run: |
           rm -rf temp
 
-  sign:
+  build-and-sign:
     name: Run ZXPSignCMD Tool
     needs: install_needed_deps
     runs-on: macos-latest
@@ -49,19 +42,6 @@ jobs:
         with:
           node-version: '20.11.1'
           cache: 'yarn'
-    
-      - name: Download ZXPSignCmd Tool
-        run: |
-          curl -L -o ZXPSignCmd.dmg https://github.com/Adobe-CEP/CEP-Resources/raw/master/ZXPSignCMD/4.1.2/macOS/ZXPSignCmd-64bit.dmg
-
-      - name: Mount ZXPSignCmd Tool
-        run: |
-          hdiutil attach ZXPSignCmd.dmg
-
-      - name: Copy ZXPSignCmd Tool to /usr/local/bin
-        run: |
-          sudo cp /Volumes/ZXPSignCmd/ZXPSignCmd /usr/local/bin/
-          chmod +x /usr/local/bin/ZXPSignCmd
 
       - name: Package extension
         run: |
@@ -76,6 +56,19 @@ jobs:
       - name: Copy node_modules to package
         run: |
           cp -r node_modules package
+    
+      - name: Download ZXPSignCmd Tool
+        run: |
+          curl -L -o ZXPSignCmd.dmg https://github.com/Adobe-CEP/CEP-Resources/raw/master/ZXPSignCMD/4.1.2/macOS/ZXPSignCmd-64bit.dmg
+
+      - name: Mount ZXPSignCmd Tool
+        run: |
+          hdiutil attach ZXPSignCmd.dmg
+
+      - name: Copy ZXPSignCmd Tool to /usr/local/bin
+        run: |
+          sudo cp /Volumes/ZXPSignCmd/ZXPSignCmd /usr/local/bin/
+          chmod +x /usr/local/bin/ZXPSignCmd
         
       - name: Import certificate
         run: |
