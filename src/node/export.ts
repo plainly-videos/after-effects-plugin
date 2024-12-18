@@ -5,6 +5,7 @@ const path = require('path');
 
 // @ts-ignore
 import CSInterface from '../lib/CSInterface';
+import { CollectFontsError, CollectFootageError } from './errors';
 import type { Fonts, Footage, ProjectInfo } from './types';
 import {
   evalScriptAsync,
@@ -12,7 +13,6 @@ import {
   generateFolders,
   runInParallelReturnRejected,
 } from './utils';
-import { CollectFontsError, CollectFootageError } from './errors';
 
 const csInterface = new CSInterface();
 
