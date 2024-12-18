@@ -26,7 +26,7 @@ function collectFiles(targetPath) {
   var osPath = os == 'Windows' ? '\\' : '/';
 
   var filePaths = {
-    project: app.project.file.absoluteURI,
+    projectPath: app.project.file.absoluteURI,
     fonts: [],
     footage: [],
   };

@@ -49,3 +49,17 @@ export async function evalScriptAsync(func: string): Promise<string> {
     }
   });
 }
+
+export const runInParallelReturnRejected = async <T>(
+  promises: Promise<T>[],
+): Promise<string[]> => {
+  const results = await Promise.allSettled(promises);
+
+  return results
+    .filter(
+      (result): result is PromiseRejectedResult => result.status === 'rejected',
+    )
+    .map(({ reason }) =>
+      reason instanceof Error ? reason.message : String(reason),
+    );
+};
