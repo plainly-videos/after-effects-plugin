@@ -1,13 +1,13 @@
 const fs = require('fs');
+const fsPromises = require('fs/promises');
 const archiver = require('archiver');
 const path = require('path');
-const os = require('os');
 
 // @ts-ignore
 import CSInterface from '../lib/CSInterface';
+import { evalScriptAsync, finalizePath, generateFolders } from './utils';
 
 const csInterface = new CSInterface();
-const homeDirectory = os.homedir();
 
 /**
  * Opens a file dialog for the user to select a folder.
@@ -26,30 +26,69 @@ function selectFolder(callback: (result: string) => void) {
  * @param targetPath the path of the folder where the files will be copied.
  * @param callback a callback that will be called with the project name.
  */
-function collectFiles(
-  targetPath: string,
-  callback: (result: string) => Promise<void>,
-) {
-  csInterface.evalScript(`collectFiles("${targetPath}")`, callback);
-}
+async function collectFiles(targetPath: string): Promise<string> {
+  const result = await evalScriptAsync(`collectFiles("${targetPath}")`);
 
-/**
- * Replaces the tilde character at the start of a path with the user's home
- * directory.
- *
- * @example
- * untildify('~/Documents') // => '/Users/username/Documents'
- * @param {string} pathWithTilde - The path to transform.
- * @returns {string} The path with the tilde replaced.
- */
-function untildify(pathWithTilde: string): string {
-  if (typeof pathWithTilde !== 'string') {
-    throw new TypeError(`Expected a string, got ${typeof pathWithTilde}`);
+  const filePaths: {
+    project: string;
+    fonts: {
+      fontName: string;
+      fontExtension: string;
+      fontLocation: string;
+    }[];
+    footage: { itemName: string; itemFolder: string }[];
+  } = JSON.parse(result);
+
+  const projectName = path.basename(filePaths.project, '.aep');
+  const pathResolved = finalizePath(targetPath); // Normalize and resolve
+
+  await fsPromises.mkdir(path.join(pathResolved, projectName));
+  const projectDir = path.join(pathResolved, projectName);
+
+  const dest = path.join(projectDir, `${projectName}.aep`);
+  await fsPromises.copyFile(finalizePath(filePaths.project), dest);
+
+  // copy fonts
+  if (filePaths.fonts.length > 0) {
+    const fontsDir = path.join(projectDir, 'Fonts');
+    await fsPromises.mkdir(fontsDir);
+
+    for (let i = 0; i < filePaths.fonts.length; i++) {
+      const font = filePaths.fonts[i];
+      const dest = path.join(
+        fontsDir,
+        `${font.fontName}.${font.fontExtension}`,
+      );
+
+      await fsPromises.copyFile(finalizePath(font.fontLocation), dest);
+    }
   }
 
-  return homeDirectory
-    ? pathWithTilde.replace(/^~(?=$|\/|\\)/, homeDirectory)
-    : pathWithTilde;
+  // copy footage
+  if (filePaths.footage.length > 0) {
+    const footageDir = path.join(projectDir, 'Footage');
+    await fsPromises.mkdir(footageDir);
+
+    for (let i = 0; i < filePaths.footage.length; i++) {
+      const footage = filePaths.footage[i];
+      const footageName = path.basename(footage.itemName, '.aep');
+
+      const folder = footage.itemFolder;
+
+      if (folder === 'Root') {
+        const dest = path.join(footageDir, `${footageName}.aep`);
+        await fsPromises.copyFile(finalizePath(filePaths.project), dest);
+      } else {
+        generateFolders(path.join(footageDir, folder.replace('Root', '')));
+
+        const replaced = folder.replace('Root', '');
+        const dest = path.join(footageDir, replaced, `${footageName}.aep`);
+        await fsPromises.copyFile(finalizePath(filePaths.project), dest);
+      }
+    }
+  }
+
+  return projectDir;
 }
 
 /**
@@ -60,15 +99,7 @@ function untildify(pathWithTilde: string): string {
  */
 function zip(zipPath: string): Promise<void> {
   return new Promise((resolve, reject) => {
-    const pathExpanded = untildify(zipPath); // Expand '~'
-    const pathDecoded = decodeURI(pathExpanded); // Decode
-    const pathResolved = path.resolve(pathDecoded); // Normalize and resolve
-
-    // check if the directory exists
-    if (!fs.existsSync(pathResolved)) {
-      reject(new Error('Directory does not exist'));
-      return;
-    }
+    const pathResolved = finalizePath(zipPath); // Normalize and resolve
 
     const outputZipPath = `${pathResolved}.zip`;
     const output = fs.createWriteStream(outputZipPath);
@@ -100,12 +131,14 @@ function zip(zipPath: string): Promise<void> {
  * @param targetPath The path of the folder to remove.
  */
 async function removeFolder(targetPath: string) {
-  const pathExpanded = untildify(targetPath); // Expand '~'
-  const pathDecoded = decodeURI(pathExpanded); // Decode
-  const pathResolved = path.resolve(pathDecoded); // Normalize and resolve
+  const pathResolved = finalizePath(targetPath); // Normalize and resolve
 
   try {
-    await fs.rmSync(pathResolved, { recursive: true, force: true });
+    await fsPromises.rmdir(pathResolved, {
+      maxRetires: 3,
+      recursive: true,
+      force: true,
+    });
     console.log(`Removed ${path}`);
   } catch (error) {
     console.error(error);

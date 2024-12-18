@@ -1,3 +1,4 @@
+import classNames from 'classnames';
 import { FolderIcon } from 'lucide-react';
 import { useState } from 'react';
 import {
@@ -21,33 +22,23 @@ export default function ExportForm() {
     description?: string;
   }>();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     if (targetPath) {
       try {
-        collectFiles(targetPath, async (result) => {
-          try {
-            await zip(result);
-            await removeFolder(result);
-            setZipStatus({
-              title: 'Successfully zipped',
-              type: 'success',
-              description: `Zip file created at: ${decodeURI(result)}`,
-            });
-            setLoading(false);
-          } catch (error) {
-            setZipStatus({
-              title: 'Failed to zip',
-              type: 'error',
-              description: (error as Error).message,
-            });
-            setLoading(false);
-          }
+        const result = await collectFiles(targetPath);
+        await zip(result);
+        await removeFolder(result);
+        setZipStatus({
+          title: 'Successfully zipped',
+          type: 'success',
+          description: `Zip file created at: ${decodeURI(result)}`,
         });
+        setLoading(false);
       } catch (error) {
         setZipStatus({
-          title: 'Failed to collect files',
+          title: 'Failed to zip',
           type: 'error',
           description: (error as Error).message,
         });
@@ -72,7 +63,12 @@ export default function ExportForm() {
           </div>
 
           <div className="grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
-            <div className="col-span-full">
+            <div
+              className={classNames(
+                'col-span-full',
+                loading && 'cursor-not-allowed opacity-50',
+              )}
+            >
               <Label label="Destination folder" htmlFor="destination-folder" />
               <button
                 type="button"
@@ -105,7 +101,10 @@ export default function ExportForm() {
       </div>
 
       <div className="mt-6 flex items-center justify-end gap-x-6">
-        <Button disabled={!targetPath || targetPath === 'undefined' || loading}>
+        <Button
+          disabled={!targetPath || targetPath === 'undefined' || loading}
+          loading={loading}
+        >
           Export
         </Button>
       </div>
