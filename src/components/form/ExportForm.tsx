@@ -10,8 +10,8 @@ import {
 } from '../../node/export';
 import Button from '../common/Button';
 import Notification from '../common/Notification';
-import Label from '../typography/Label';
 import Description from '../typography/Description';
+import Label from '../typography/Label';
 import PageHeading from '../typography/PageHeading';
 
 export default function ExportForm() {

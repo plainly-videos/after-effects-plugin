@@ -1,8 +1,8 @@
 import classNames from 'classnames';
 import { pluginBundleVersion } from '../../env';
 import { handleLinkClick } from '../../utils';
-import Label from '../typography/Label';
 import Description from '../typography/Description';
+import Label from '../typography/Label';
 import PageHeading from '../typography/PageHeading';
 
 export default function About() {

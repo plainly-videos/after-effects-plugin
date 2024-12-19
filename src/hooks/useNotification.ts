@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react';
-import { NotificationType, type Notification } from '../types';
+import { type Notification, NotificationType } from '../types';
 
 export const useNotification = () => {
   const [notification, setNotification] = useState<Notification>();
