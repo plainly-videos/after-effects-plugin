@@ -6,23 +6,18 @@ This repository contains code for the After Effects Plugin created to support [P
 * **Export zip**: Gather all project assets and fonts, then compress them into a single zip file for easy sharing.
 
 ## Installation
-### Method 1: Manual installation
-1. Download the latest [successful artifact on master branch](https://github.com/plainly-videos/after-effects-plugin/actions/workflows/sign-extension.yml?query=branch%3Amaster)
-2. Once your download is done, unzip the `plainly-plugin.zip` which has a `plainly-plugin.zxp` file in it.
-3. Run the `Command Prompt / Terminal`, navigate to Unified Plugin Installer Agent application folder, and install the plugin:
+### Manual installation
+1. Download the latest `plainly-plugin.zxp` from [releases](https://github.com/plainly-videos/after-effects-plugin/releases).
+2. Run the `Command Prompt / Terminal`, navigate to Unified Plugin Installer Agent application folder, and install the plugin:
 
    **Windows**: Run in Command Prompt:
    ```bash
    cd "C:\Program Files\Common Files\Adobe\Adobe Desktop Common\RemoteComponents\UPI\UnifiedPluginInstallerAgent"
-   ```
-   ```bash
    UnifiedPluginInstallerAgent.exe /install 'path\to\plainly-plugin.zxp'
    ```
    **MacOS**: Run in Terminal:
    ```bash
    cd "/Library/Application Support/Adobe/Adobe Desktop Common/RemoteComponents/UPI/UnifiedPluginInstallerAgent/UnifiedPluginInstallerAgent.app/Contents/MacOS"
-   ```
-   ```bash
    ./UnifiedPluginInstallerAgent --install '/path/to/plainly-plugin.zxp'
    ```
 
