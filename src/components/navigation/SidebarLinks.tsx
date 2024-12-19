@@ -3,7 +3,7 @@ import type { LucideProps } from 'lucide-react';
 import type { ForwardRefExoticComponent, RefAttributes } from 'react';
 import { useBreakpoint } from '../../hooks/useBreakpoint';
 import { State, setGlobalState, useGlobalState } from '../../state/store';
-import type { Routes } from '../../types';
+import { Routes } from '../../types';
 
 export default function SidebarLinks({
   links,
@@ -23,9 +23,15 @@ export default function SidebarLinks({
   return (
     <ul className="flex flex-1 flex-col gap-y-7">
       <li>
-        <ul className="-mx-2.5 space-y-1">
+        <ul className="-mx-2.5 space-y-2">
           {links.map((link) => (
-            <li key={link.name} className="w-full">
+            <li
+              key={link.name}
+              className={classNames(
+                'w-full',
+                link.to === Routes.SETTINGS && 'border-t border-white/10 pt-2',
+              )}
+            >
               <button
                 type="button"
                 onClick={() => {
