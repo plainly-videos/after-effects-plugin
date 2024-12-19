@@ -1,4 +1,5 @@
 import classNames from 'classnames';
+import { LoaderCircleIcon } from 'lucide-react';
 import type { ComponentPropsWithRef } from 'react';
 
 export default function Button({
@@ -22,7 +23,7 @@ export default function Button({
     <button
       onClick={onClick}
       className={classNames(
-        'rounded-md px-2.5 py-1.5 text-xs font-medium shadow-sm disabled:cursor-not-allowed disabled:opacity-50',
+        'rounded-md px-2.5 py-1.5 text-xs font-medium shadow-sm disabled:cursor-not-allowed disabled:opacity-50 flex items-center',
         primary && classPrimary,
         secondary && classSecondary,
         loading && 'animate-pulse-tailwind',
@@ -32,6 +33,9 @@ export default function Button({
       disabled={disabled}
     >
       {children}
+      {loading && (
+        <LoaderCircleIcon className="ml-1 size-4 shrink-0 animate-spin" />
+      )}
     </button>
   );
 }

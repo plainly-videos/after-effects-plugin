@@ -25,6 +25,7 @@ export default defineConfig(({ mode }) => {
     ],
     build: {
       outDir: isDev ? 'dist-dev' : isPackage ? 'package/dist' : 'dist',
+      minify: isDev ? false : 'esbuild',
     },
     define: {
       __APP_VERSION__: JSON.stringify(require('./package.json').version),

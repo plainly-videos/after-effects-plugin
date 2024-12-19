@@ -1,3 +1,5 @@
+//@include "./shims.js"
+
 /**
  * Prompts the user to select a folder, which will be used to collect project files.
  *
@@ -23,24 +25,18 @@ function collectFiles(targetPath) {
   var os = checkOs();
   var osPath = os == 'Windows' ? '\\' : '/';
 
-  // Create target folder structure
-  var projectName = app.project.file.name.slice(0, -4);
-  var projectDir = new Folder(targetPath + osPath + projectName);
-  if (!projectDir.exists) projectDir.create();
+  var filePaths = {
+    projectPath: app.project.file.absoluteURI,
+    fonts: [],
+    footage: [],
+  };
 
-  // copy project
-  app.project.file.copy(projectDir.absoluteURI + osPath + projectName + '.aep');
-
-  // collect fonts
-  var fontsPath = projectDir.absoluteURI + osPath + 'Fonts';
-  collectFonts(fontsPath, osPath);
-
-  // collect footage
-  var footagePath = projectDir.absoluteURI + osPath + '(Footage)';
-  collectFootage(footagePath, osPath);
+  // collect paths
+  filePaths.fonts = collectFonts(osPath);
+  filePaths.footage = collectFootage(osPath);
 
   // return full path
-  return projectDir.absoluteURI;
+  return JSON.stringify(filePaths);
 }
 
 /**
@@ -53,10 +49,10 @@ function checkOs() {
   return appOs;
 }
 
-function collectFonts(path, osPath) {
-  var fontDir = new Folder(path);
-  if (!fontDir.exists) fontDir.create();
+function collectFonts(osPath) {
   var comps = getAllComps(app.project);
+  var fontPaths = [];
+
   for (var i = 0; i < comps.length; i++) {
     var layers = getTextLayersByComp(comps[i]);
     for (var j = 0; j < layers.length; j++) {
@@ -68,19 +64,15 @@ function collectFonts(path, osPath) {
 
       fontExtension = fontExtension.split('.').pop();
       var fontLocation = layers[j].sourceText.value.fontLocation;
-      var targetFont = new File(
-        fontDir.absoluteURI + osPath + fontName + '.' + fontExtension,
-      );
-      if (!targetFont.exists) {
-        var sourceFont = new File(fontLocation);
-        if (sourceFont.exists) {
-          sourceFont.copy(
-            fontDir.absoluteURI + osPath + fontName + '.' + fontExtension,
-          );
-        }
-      }
+      fontPaths.push({
+        fontName: fontName,
+        fontExtension: fontExtension,
+        fontLocation: fontLocation,
+      });
     }
   }
+
+  return fontPaths;
 }
 
 /**
@@ -121,9 +113,8 @@ function getTextLayersByComp(comp) {
   return layers;
 }
 
-function collectFootage(path, osPath) {
-  var footageDir = new Folder(path);
-  if (!footageDir.exists) footageDir.create();
+function collectFootage(osPath) {
+  var footagePaths = [];
 
   // Go through all items in the project
   for (var i = 1; i <= app.project.numItems; i++) {
@@ -141,24 +132,10 @@ function collectFootage(path, osPath) {
     // Determine the nested folder structure
     var relativePath = getFolderPath(item.parentFolder);
 
-    // create folder for each / in relative path that doesn't exist
-    var targetDir = footageDir;
-    var folders = relativePath.split('/');
-    for (var j = 1; j < folders.length; j++) {
-      var folder = folders[j];
-      if (!targetDir.exists) {
-        targetDir.create();
-      }
-      targetDir = new Folder(targetDir.absoluteURI + osPath + folder);
-
-      if (!targetDir.exists) {
-        targetDir.create();
-      }
-    }
-
-    // Copy item to target folder
-    item.file.copy(targetDir.absoluteURI + osPath + item.file.name);
+    footagePaths.push({ itemName: item.file.fsName, itemFolder: relativePath });
   }
+
+  return footagePaths;
 }
 
 function getFolderPath(folder) {
