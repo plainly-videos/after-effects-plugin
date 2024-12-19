@@ -1,15 +1,15 @@
-import { EyeIcon, EyeOffIcon } from 'lucide-react';
-import { type SetStateAction, useCallback, useState } from 'react';
-import Button from '../common/Button';
-import Label from '../typography/Label';
-import Description from '../typography/Description';
-import PageHeading from '../typography/PageHeading';
-import Notification from '../common/Notification';
-import { useNotification } from '../../hooks/useNotification';
-import { handleLinkClick } from '../../utils';
 import classNames from 'classnames';
+import { EyeIcon, EyeOffIcon } from 'lucide-react';
+import { useCallback, useState } from 'react';
+import { useNotification } from '../../hooks/useNotification';
 import { setSettingsApiKey } from '../../node/settings';
 import type { Pin } from '../../types';
+import { handleLinkClick } from '../../utils';
+import Button from '../common/Button';
+import Notification from '../common/Notification';
+import Description from '../typography/Description';
+import Label from '../typography/Label';
+import PageHeading from '../typography/PageHeading';
 
 export default function ExportForm() {
   const [showApiKey, setShowApiKey] = useState(false);
@@ -18,31 +18,37 @@ export default function ExportForm() {
     useNotification();
 
   const [apiKey, setApiKey] = useState<string>();
-  const [pin, setPin] = useState<Pin>({
-    first: undefined,
-    second: undefined,
-    third: undefined,
-    fourth: undefined,
-  });
-  const [confirmPin, setConfirmPin] = useState<Pin>({
-    first: undefined,
-    second: undefined,
-    third: undefined,
-    fourth: undefined,
-  });
+  const [pin, setPin] = useState<Pin>();
+  const [confirmPin, setConfirmPin] = useState<Pin>();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     if (apiKey) {
+      if (pin && Object.values(pin).some((value) => !value)) {
+        notifyError('All digits must be filled');
+        setLoading(false);
+        return;
+      }
+
+      if (pin && JSON.stringify(pin) !== JSON.stringify(confirmPin)) {
+        notifyError('Pins do not match');
+        setLoading(false);
+        return;
+      }
+
       try {
-        await setSettingsApiKey(apiKey, pin, confirmPin);
+        await setSettingsApiKey(apiKey, pin);
         notifySuccess('Settings saved successfully');
         setLoading(false);
+        setPin(undefined);
+        setConfirmPin(undefined);
       } catch (error) {
         notifyError('Failed to save settings', (error as Error).message);
         setLoading(false);
+        setPin(undefined);
+        setConfirmPin(undefined);
       }
     }
   };
@@ -160,8 +166,8 @@ function PINInput({
   onChange,
   className,
 }: {
-  pin: Pin;
-  onChange: React.Dispatch<SetStateAction<Pin>>;
+  pin: Pin | undefined;
+  onChange: (pin: Pin) => void;
   className?: string;
 }) {
   const changeDigit = useCallback(
@@ -169,9 +175,17 @@ function PINInput({
       digit: 'first' | 'second' | 'third' | 'fourth',
       value: string | undefined,
     ) => {
-      onChange((prev) => ({ ...prev, [digit]: value }));
+      const parsedValue = value ? Number.parseInt(value) : undefined;
+
+      onChange({
+        ...pin,
+        first: digit === 'first' ? parsedValue : pin?.first,
+        second: digit === 'second' ? parsedValue : pin?.second,
+        third: digit === 'third' ? parsedValue : pin?.third,
+        fourth: digit === 'fourth' ? parsedValue : pin?.fourth,
+      });
     },
-    [onChange],
+    [pin, onChange],
   );
 
   return (
@@ -185,7 +199,7 @@ function PINInput({
         pattern="[0-9]{1}"
         className="block w-[30px] rounded-md bg-white/5 px-3 py-1 text-xs text-white outline outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500"
         maxLength={1}
-        value={pin.first}
+        value={pin?.first || ''}
         onChange={(e) => changeDigit('first', e.target.value)}
       />
       <input
@@ -195,7 +209,7 @@ function PINInput({
         pattern="[0-9]{1}"
         maxLength={1}
         className="block w-[30px] rounded-md bg-white/5 px-3 py-1 text-xs text-white outline outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500"
-        value={pin.second}
+        value={pin?.second || ''}
         onChange={(e) => changeDigit('second', e.target.value)}
       />
       <input
@@ -205,7 +219,7 @@ function PINInput({
         pattern="[0-9]{1}"
         maxLength={1}
         className="block w-[30px] rounded-md bg-white/5 px-3 py-1 text-xs text-white outline outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500"
-        value={pin.third}
+        value={pin?.third || ''}
         onChange={(e) => changeDigit('third', e.target.value)}
       />
       <input
@@ -215,7 +229,7 @@ function PINInput({
         pattern="[0-9]{1}"
         maxLength={1}
         className="block w-[30px] rounded-md bg-white/5 px-3 py-1 text-xs text-white outline outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500"
-        value={pin.fourth}
+        value={pin?.fourth || ''}
         onChange={(e) => changeDigit('fourth', e.target.value)}
       />
     </div>

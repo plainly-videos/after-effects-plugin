@@ -22,4 +22,5 @@ export interface CollectFilesResult {
 
 export interface Settings {
   apiKey: string;
+  hasPin: boolean;
 }
