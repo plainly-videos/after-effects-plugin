@@ -23,20 +23,13 @@ export const useNotification = () => {
     [clearNotification],
   );
 
-  const notifyError = useCallback(
-    (title: string, description?: string) => {
-      setNotification({
-        title,
-        type: NotificationType.ERROR,
-        description,
-      });
-
-      setTimeout(() => {
-        clearNotification();
-      }, 3000);
-    },
-    [clearNotification],
-  );
+  const notifyError = useCallback((title: string, description?: string) => {
+    setNotification({
+      title,
+      type: NotificationType.ERROR,
+      description,
+    });
+  }, []);
 
   return {
     notification,
