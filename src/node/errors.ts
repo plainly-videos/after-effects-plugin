@@ -1,7 +1,9 @@
 export class CollectFootageError extends Error {
   errorPaths: string[];
   constructor(errorPaths: string[]) {
-    super();
+    super(
+      `Could not collect footage for the following paths: ${errorPaths.join(', ')}`,
+    );
     this.errorPaths = errorPaths;
   }
 }
@@ -9,7 +11,9 @@ export class CollectFootageError extends Error {
 export class CollectFontsError extends Error {
   errorPaths: string[];
   constructor(errorPaths: string[]) {
-    super();
+    super(
+      `Could not collect footage for the following paths: ${errorPaths.join(', ')}`,
+    );
     this.errorPaths = errorPaths;
   }
 }

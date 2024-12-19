@@ -54,55 +54,62 @@ async function collectFiles(targetPath: string): Promise<string> {
 }
 
 async function copyFonts(fonts: Fonts[], projectDir: string) {
-  if (fonts.length > 0) {
-    const fontsDir = path.join(projectDir, 'Fonts');
-    await fsPromises.mkdir(fontsDir);
+  if (fonts.length === 0) {
+    return;
+  }
 
-    const fontPromises = fonts.map(async (font) => {
-      const src = finalizePath(font.fontLocation);
+  const fontsDir = path.join(projectDir, 'Fonts');
+  await fsPromises.mkdir(fontsDir);
 
-      const dest = path.join(
-        fontsDir,
-        `${font.fontName}.${font.fontExtension}`,
-      );
-      return fsPromises.copyFile(src, dest);
-    });
+  const fontPromises = fonts.map(async (font) => {
+    const src = finalizePath(font.fontLocation);
 
-    const errors = await runInParallelReturnRejected(fontPromises);
-
-    if (errors.length > 0) {
-      throw new CollectFontsError(errors);
+    const dest = path.join(fontsDir, `${font.fontName}.${font.fontExtension}`);
+    try {
+      return await fsPromises.copyFile(src, dest);
+    } catch (error) {
+      throw new Error(src);
     }
+  });
+
+  const errors = await runInParallelReturnRejected(fontPromises);
+  if (errors.length > 0) {
+    throw new CollectFontsError(errors);
   }
 }
 
 async function copyFootage(footage: Footage[], projectDir: string) {
-  if (footage.length > 0) {
-    const footageDir = path.join(projectDir, '(Footage)');
-    await fsPromises.mkdir(footageDir);
+  if (footage.length === 0) {
+    return;
+  }
 
-    const footagePromises = footage.map(async (footageItem) => {
-      const src = finalizePath(footageItem.itemName);
-      const footageName = path.basename(footageItem.itemName);
-      const folder = footageItem.itemFolder;
+  const footageDir = path.join(projectDir, '(Footage)');
+  await fsPromises.mkdir(footageDir);
 
-      if (folder === 'Root') {
-        const dest = path.join(footageDir, footageName);
-        return fsPromises.copyFile(finalizePath(footageItem.itemName), dest);
-      }
+  const footagePromises = footage.map(async (footageItem) => {
+    const src = finalizePath(footageItem.itemName);
+    const footageName = path.basename(footageItem.itemName);
+    const folder = footageItem.itemFolder;
 
-      const replaced = folder.replace('Root', '');
-      generateFolders(path.join(footageDir, replaced));
-
-      const dest = path.join(footageDir, replaced, footageName);
-      return fsPromises.copyFile(src, dest);
-    });
-
-    const errors = await runInParallelReturnRejected(footagePromises);
-
-    if (errors.length > 0) {
-      throw new CollectFootageError(errors);
+    if (folder === 'Root') {
+      const dest = path.join(footageDir, footageName);
+      return fsPromises.copyFile(finalizePath(footageItem.itemName), dest);
     }
+
+    const replaced = folder.replace('Root', '');
+    generateFolders(path.join(footageDir, replaced));
+
+    const dest = path.join(footageDir, replaced, footageName);
+    try {
+      return await fsPromises.copyFile(src, dest);
+    } catch (error) {
+      throw new Error(src);
+    }
+  });
+
+  const errors = await runInParallelReturnRejected(footagePromises);
+  if (errors.length > 0) {
+    throw new CollectFootageError(errors);
   }
 }
 
