@@ -9,7 +9,7 @@ This repository contains code for the After Effects Plugin created to support [P
 ### Method 1: Manual installation
 1. Download the latest [successful artifact on master branch](https://github.com/plainly-videos/after-effects-plugin/actions/workflows/sign-extension.yml?query=branch%3Amaster)
 2. Once your download is done, unzip the `plainly-plugin.zip` which has a `plainly-plugin.zxp` file in it.
-3. Run the `Command Prompt / Terminal`, navigate to Unified Plugin Installer Agent application folder, and install the extension:
+3. Run the `Command Prompt / Terminal`, navigate to Unified Plugin Installer Agent application folder, and install the plugin:
 
    **Windows**: Run in Command Prompt:
    ```bash
@@ -25,6 +25,11 @@ This repository contains code for the After Effects Plugin created to support [P
    ```bash
    ./UnifiedPluginInstallerAgent --install '/path/to/plainly-plugin.zxp'
    ```
+
+You can read more about the [Unified Plugin Installer Agent](https://helpx.adobe.com/in/creative-cloud/help/working-from-the-command-line.html) and its available commands.
+
+### How to uninstall
+If you wish to uninstall the plugin you can do that via **Unified Plugin Installer Agent** or in **Creative Cloud** > **Stock & Marketplace** > **Plugins** > **Manage plugins**
 
 ## Development
 ### Prerequisites
