@@ -7,7 +7,7 @@ This repository contains code for the After Effects Plugin created to support [P
 
 ## Installation
 ### Manual installation
-1. Download the latest `plainly-plugin.zxp` from [releases](https://github.com/plainly-videos/after-effects-plugin/releases).
+1. Download the latest `plainly-plugin.zxp` from the [latest release](https://github.com/plainly-videos/after-effects-plugin/releases/latest).
 2. Run the `Command Prompt / Terminal`, navigate to Unified Plugin Installer Agent application folder, and install the plugin:
 
    **Windows**: Run in Command Prompt:
