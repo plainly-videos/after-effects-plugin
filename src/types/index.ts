@@ -18,5 +18,11 @@ export interface Notification {
   title: string;
   type: NotificationType;
   description?: string;
-  onClose?: () => void;
+}
+
+export interface Pin {
+  first: number | undefined;
+  second: number | undefined;
+  third: number | undefined;
+  fourth: number | undefined;
 }

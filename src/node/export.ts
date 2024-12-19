@@ -4,8 +4,7 @@ const archiver = require('archiver');
 const path = require('path');
 const crypto = require('crypto');
 
-// @ts-ignore
-import CSInterface from '../lib/CSInterface';
+import { csInterface } from './constants';
 import { CollectFontsError, CollectFootageError } from './errors';
 import type { CollectFilesResult, Fonts, Footage, ProjectInfo } from './types';
 import {
@@ -14,8 +13,6 @@ import {
   generateFolders,
   runInParallelReturnRejected,
 } from './utils';
-
-const csInterface = new CSInterface();
 
 /**
  * Opens a file dialog for the user to select a folder.

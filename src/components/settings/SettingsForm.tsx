@@ -8,13 +8,8 @@ import Notification from '../common/Notification';
 import { useNotification } from '../../hooks/useNotification';
 import { handleLinkClick } from '../../utils';
 import classNames from 'classnames';
-
-type Pin = {
-  first: number | undefined;
-  second: number | undefined;
-  third: number | undefined;
-  fourth: number | undefined;
-};
+import { setSettingsApiKey } from '../../node/settings';
+import type { Pin } from '../../types';
 
 export default function ExportForm() {
   const [showApiKey, setShowApiKey] = useState(false);
@@ -39,12 +34,16 @@ export default function ExportForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    try {
-      notifySuccess('Settings saved successfully');
-      setLoading(false);
-    } catch (error) {
-      notifyError('Failed to save settings', (error as Error).message);
-      setLoading(false);
+
+    if (apiKey) {
+      try {
+        await setSettingsApiKey(apiKey, pin, confirmPin);
+        notifySuccess('Settings saved successfully');
+        setLoading(false);
+      } catch (error) {
+        notifyError('Failed to save settings', (error as Error).message);
+        setLoading(false);
+      }
     }
   };
 
@@ -136,7 +135,11 @@ export default function ExportForm() {
         </div>
       </div>
 
-      <Button className="float-right" disabled={loading}>
+      <Button
+        className="float-right"
+        disabled={loading || !apiKey}
+        loading={loading}
+      >
         Save
       </Button>
 
