@@ -1,8 +1,11 @@
 import classNames from 'classnames';
-import { EyeIcon, EyeOffIcon } from 'lucide-react';
-import { useCallback, useState } from 'react';
+import { CopyIcon, EyeIcon, EyeOffIcon } from 'lucide-react';
+import { useCallback, useEffect, useState } from 'react';
 import { useNotification } from '../../hooks/useNotification';
+import { useSessionStorage } from '../../hooks/useSessionStorage';
+import { decode } from '../../node/encoding';
 import { setSettingsApiKey } from '../../node/settings';
+import { getSettings } from '../../node/settings';
 import type { Pin } from '../../types';
 import { handleLinkClick } from '../../utils';
 import Button from '../common/Button';
@@ -16,6 +19,7 @@ export default function ExportForm() {
   const [loading, setLoading] = useState(false);
   const { notification, notifySuccess, notifyError, clearNotification } =
     useNotification();
+  const { setItem, getItem } = useSessionStorage();
 
   const [apiKey, setApiKey] = useState<string>();
   const [pin, setPin] = useState<Pin>();
@@ -41,9 +45,12 @@ export default function ExportForm() {
       try {
         await setSettingsApiKey(apiKey, pin);
         notifySuccess('Settings saved successfully');
+        if (pin) {
+          setItem('pin', JSON.stringify(pin));
+          setPin(undefined);
+          setConfirmPin(undefined);
+        }
         setLoading(false);
-        setPin(undefined);
-        setConfirmPin(undefined);
       } catch (error) {
         notifyError('Failed to save settings', (error as Error).message);
         setLoading(false);
@@ -53,12 +60,31 @@ export default function ExportForm() {
     }
   };
 
+  useEffect(() => {
+    const getApiKey = async () => {
+      const settings = await getSettings();
+      let apiKey = settings.apiKey;
+
+      if (apiKey && settings.hasPin && getItem('pin')) {
+        const pin = getItem('pin') as string;
+        const parsedPin = JSON.parse(pin);
+        const secret = `${parsedPin.first}${parsedPin.second}${parsedPin.third}${parsedPin.fourth}`;
+
+        apiKey = decode(secret, apiKey);
+      }
+
+      setApiKey(apiKey);
+    };
+
+    getApiKey();
+  }, [getItem]);
+
   return (
     <form className="space-y-6 w-full text-white" onSubmit={handleSubmit}>
       <div className="space-y-6 border-b border-white/10 pb-6">
         <div>
           <PageHeading heading="Settings" />
-          <Description>
+          <Description className="mt-1">
             Lorem ipsum dolor sit amet consectetur adipisicing elit. Deserunt
             odio totam incidunt ratione vero ex possimus cumque voluptatibus
             ipsa commodi doloribus dolorum ipsum, non aliquam earum aspernatur
@@ -91,20 +117,30 @@ export default function ExportForm() {
                 id="api-key"
                 name="api-key"
                 type={showApiKey ? 'text' : 'password'}
-                className="col-start-1 row-start-1 block w-full rounded-md bg-white/5 pl-3 pr-10 py-1 text-xs text-white outline outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500 sm:pr-9"
+                className="col-start-1 row-start-1 block w-full rounded-md bg-white/5 pl-3 pr-16 py-1 text-xs text-white outline outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500"
                 value={apiKey}
                 onChange={(e) => setApiKey(e.target.value)}
                 required
               />
               <button
                 type="button"
+                onClick={() => {
+                  navigator.clipboard.writeText(apiKey || '');
+                  notifySuccess('API key copied to clipboard');
+                }}
+                className="col-start-1 row-start-1 mr-9 self-center justify-self-end cursor-pointer w-4 h-4 flex items-center justify-center group"
+              >
+                <CopyIcon className="size-4 shrink-0 text-gray-400 group-hover:text-white" />
+              </button>
+              <button
+                type="button"
                 onClick={() => setShowApiKey((prev) => !prev)}
-                className="col-start-1 row-start-1 mr-3 self-center justify-self-end cursor-pointer w-4 h-4 flex items-center justify-center"
+                className="col-start-1 row-start-1 mr-3 self-center justify-self-end cursor-pointer w-4 h-4 flex items-center justify-center group"
               >
                 {showApiKey ? (
-                  <EyeIcon className="size-4 shrink-0 text-gray-400" />
+                  <EyeIcon className="size-4 shrink-0 text-gray-400 group-hover:text-white" />
                 ) : (
-                  <EyeOffIcon className="size-4 shrink-0 text-gray-400" />
+                  <EyeOffIcon className="size-4 shrink-0 text-gray-400 group-hover:text-white" />
                 )}
               </button>
             </div>
@@ -161,7 +197,7 @@ export default function ExportForm() {
   );
 }
 
-function PINInput({
+export function PINInput({
   pin,
   onChange,
   className,

@@ -16,6 +16,6 @@ export interface Footage {
 }
 
 export interface Settings {
-  apiKey: string;
-  hasPin: boolean;
+  apiKey?: string;
+  hasPin?: boolean;
 }

@@ -2,10 +2,10 @@ const os = require('os');
 const fsPromises = require('fs/promises');
 const fs = require('fs');
 const path = require('path');
-const crypto = require('crypto');
 
 import type { Pin } from '../types';
 import { macDest, windowsDest } from './constants';
+import { encode } from './encoding';
 import { get } from './request';
 import type { Settings } from './types';
 
@@ -37,14 +37,8 @@ async function setSettingsApiKey(apiKey: string, pin: Pin | undefined) {
 
   if (pin) {
     const secret = `${pin.first}${pin.second}${pin.third}${pin.fourth}`;
-    const key = crypto.createHash('sha256').update(secret).digest(); // 32-byte key for AES-256
 
-    // Encrypt the API key without IV (AES-ECB)
-    const cipher = crypto.createCipheriv('aes-256-ecb', key, null); // No IV for ECB mode
-    let newApiKey = cipher.update(apiKey, 'utf8', 'hex');
-    newApiKey += cipher.final('hex');
-
-    newSettings.apiKey = newApiKey;
+    newSettings.apiKey = encode(secret, apiKey);
     newSettings.hasPin = true;
   }
 
