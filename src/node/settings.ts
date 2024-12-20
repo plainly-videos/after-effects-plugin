@@ -9,12 +9,12 @@ import { encode } from './encoding';
 import { get } from './request';
 import type { Settings } from './types';
 
-const device = os.type();
+const device: string = os.type();
 
 async function getSettings(): Promise<Settings> {
   let settingsFile: string;
 
-  if (device === 'Windows_NT') {
+  if (device.toLowerCase().includes('win')) {
     settingsFile = await retrieveSettingsFile(windowsDest);
     const settingsIni: Settings = JSON.parse(settingsFile);
     return settingsIni;
@@ -61,7 +61,7 @@ async function retrieveSettingsFile(dest: string) {
 async function saveSettings(settings: Settings) {
   const settingsFile = JSON.stringify(settings, null, 2);
 
-  if (device === 'Windows_NT') {
+  if (device.toLowerCase().includes('win')) {
     await fsPromises.writeFile(
       path.join(windowsDest, 'settings.ini'),
       settingsFile,
