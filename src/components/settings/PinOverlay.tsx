@@ -8,7 +8,7 @@ import Button from '../common/Button';
 import Notification from '../common/Notification';
 import Description from '../typography/Description';
 import PageHeading from '../typography/PageHeading';
-import { PINInput } from './SettingsForm';
+import { PinInput } from './SettingsForm';
 
 export default function PinOverlay({ close }: { close: () => void }) {
   const [pin, setPin] = useState<Pin>();
@@ -39,12 +39,12 @@ export default function PinOverlay({ close }: { close: () => void }) {
       className="absolute top-0 left-0 w-full h-full flex flex-col items-center justify-center backdrop-blur-md z-30"
       onSubmit={handleSubmit}
     >
-      <div className="w-[145px]">
+      <div className="w-[155px]">
         <PageHeading heading="Confirm PIN" className="text-center" />
         <Description className="text-center">
           Please confirm your PIN to use your API key
         </Description>
-        <PINInput pin={pin} onChange={setPin} className="mt-2" />
+        <PinInput pin={pin} onChange={setPin} className="mt-2" />
         <div className="flex justify-between mt-2">
           <Button
             type="button"

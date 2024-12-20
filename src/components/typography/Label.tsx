@@ -20,7 +20,7 @@ export default function Label({
       )}
     >
       {label}
-      {required && <span> *</span>}
+      {required && <span className="ml-1">*</span>}
     </label>
   );
 }

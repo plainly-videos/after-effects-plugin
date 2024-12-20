@@ -1,6 +1,6 @@
 import classNames from 'classnames';
 import { CopyIcon, EyeIcon, EyeOffIcon } from 'lucide-react';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNotification } from '../../hooks/useNotification';
 import { useSessionStorage } from '../../hooks/useSessionStorage';
 import { decode } from '../../node/encoding';
@@ -14,8 +14,10 @@ import Description from '../typography/Description';
 import Label from '../typography/Label';
 import PageHeading from '../typography/PageHeading';
 
-export default function ExportForm() {
+export default function SettingsForm() {
   const [showApiKey, setShowApiKey] = useState(false);
+  const [showPin, setShowPin] = useState(false);
+
   const [loading, setLoading] = useState(false);
   const { notification, notifySuccess, notifyError, clearNotification } =
     useNotification();
@@ -157,19 +159,31 @@ export default function ExportForm() {
               </Description>
             </div>
             <div className="mt-2 grid grid-cols-6 items-center justify-items-center gap-y-2">
-              <PINInput
+              <PinInput
                 className="col-start-3 col-end-5 row-start-1"
                 pin={pin}
+                showPin={showPin}
                 onChange={setPin}
               />
               <div className="col-start-3 col-end-5 row-start-2 flex items-center justify-center gap-x-1">
                 <div className="bg-white/10 h-[1px] w-8" />
-                <p className="text-xs text-gray-400">confirm</p>
+                <button
+                  type="button"
+                  onClick={() => setShowPin((prev) => !prev)}
+                  className="cursor-pointer w-4 h-4 flex items-center justify-center group mx-3"
+                >
+                  {showPin ? (
+                    <EyeIcon className="size-4 shrink-0 text-gray-400 group-hover:text-white" />
+                  ) : (
+                    <EyeOffIcon className="size-4 shrink-0 text-gray-400 group-hover:text-white" />
+                  )}
+                </button>
                 <div className="bg-white/10 h-[1px] w-8" />
               </div>
-              <PINInput
+              <PinInput
                 className="col-start-3 col-end-5 row-start-3"
                 pin={confirmPin}
+                showPin={showPin}
                 onChange={setConfirmPin}
               />
             </div>
@@ -197,15 +211,23 @@ export default function ExportForm() {
   );
 }
 
-export function PINInput({
+export function PinInput({
   pin,
   onChange,
+  showPin,
   className,
 }: {
   pin: Pin | undefined;
   onChange: (pin: Pin) => void;
+  showPin?: boolean;
   className?: string;
 }) {
+  // Create refs for each input
+  const firstInputRef = useRef<HTMLInputElement>(null);
+  const secondInputRef = useRef<HTMLInputElement>(null);
+  const thirdInputRef = useRef<HTMLInputElement>(null);
+  const fourthInputRef = useRef<HTMLInputElement>(null);
+
   const changeDigit = useCallback(
     (
       digit: 'first' | 'second' | 'third' | 'fourth',
@@ -219,7 +241,24 @@ export function PINInput({
         second: digit === 'second' ? parsedValue : pin?.second,
         third: digit === 'third' ? parsedValue : pin?.third,
         fourth: digit === 'fourth' ? parsedValue : pin?.fourth,
-      });
+      } as Pin);
+
+      // Move focus to the next input if a valid digit is entered
+      if (value && value.length === 1) {
+        switch (digit) {
+          case 'first':
+            secondInputRef.current?.focus();
+            break;
+          case 'second':
+            thirdInputRef.current?.focus();
+            break;
+          case 'third':
+            fourthInputRef.current?.focus();
+            break;
+          default:
+            break;
+        }
+      }
     },
     [pin, onChange],
   );
@@ -229,42 +268,46 @@ export function PINInput({
       className={classNames('w-full flex gap-x-2 justify-center', className)}
     >
       <input
-        id="pin"
+        ref={firstInputRef}
+        id="pin-first"
         name="pin"
-        type="password"
+        type={showPin ? 'text' : 'password'}
         pattern="[0-9]{1}"
-        className="block w-[30px] rounded-md bg-white/5 px-3 py-1 text-xs text-white outline outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500"
+        className="block w-8 text-center rounded-md bg-white/5 px-3 py-1 text-xs text-white outline outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500"
         maxLength={1}
         value={pin?.first || ''}
         onChange={(e) => changeDigit('first', e.target.value)}
       />
       <input
-        id="pin"
+        ref={secondInputRef}
+        id="pin-second"
         name="pin"
-        type="password"
+        type={showPin ? 'text' : 'password'}
         pattern="[0-9]{1}"
         maxLength={1}
-        className="block w-[30px] rounded-md bg-white/5 px-3 py-1 text-xs text-white outline outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500"
+        className="block w-8 text-center rounded-md bg-white/5 px-3 py-1 text-xs text-white outline outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500"
         value={pin?.second || ''}
         onChange={(e) => changeDigit('second', e.target.value)}
       />
       <input
-        id="pin"
+        ref={thirdInputRef}
+        id="pin-third"
         name="pin"
-        type="password"
+        type={showPin ? 'text' : 'password'}
         pattern="[0-9]{1}"
         maxLength={1}
-        className="block w-[30px] rounded-md bg-white/5 px-3 py-1 text-xs text-white outline outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500"
+        className="block w-8 text-center rounded-md bg-white/5 px-3 py-1 text-xs text-white outline outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500"
         value={pin?.third || ''}
         onChange={(e) => changeDigit('third', e.target.value)}
       />
       <input
-        id="pin"
+        ref={fourthInputRef}
+        id="pin-fourth"
         name="pin"
-        type="password"
+        type={showPin ? 'text' : 'password'}
         pattern="[0-9]{1}"
         maxLength={1}
-        className="block w-[30px] rounded-md bg-white/5 px-3 py-1 text-xs text-white outline outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500"
+        className="block w-8 text-center rounded-md bg-white/5 px-3 py-1 text-xs text-white outline outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500"
         value={pin?.fourth || ''}
         onChange={(e) => changeDigit('fourth', e.target.value)}
       />
