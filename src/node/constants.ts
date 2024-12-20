@@ -22,3 +22,11 @@ export const windowsDest = path.join(
   'Adobe',
   'Plainly Videos',
 );
+
+const device: string = os.platform();
+
+export function getSettingsDirectory(): string {
+  if (device === 'win32') return windowsDest;
+
+  return macDest;
+}
