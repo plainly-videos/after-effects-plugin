@@ -3,8 +3,7 @@ const fsPromises = require('fs/promises');
 const archiver = require('archiver');
 const path = require('path');
 
-// @ts-ignore
-import CSInterface from '../lib/CSInterface';
+import { csInterface } from './constants';
 import { CollectFontsError, CollectFootageError } from './errors';
 import type { Fonts, Footage, ProjectInfo } from './types';
 import {
@@ -13,8 +12,6 @@ import {
   generateFolders,
   runInParallelReturnRejected,
 } from './utils';
-
-const csInterface = new CSInterface();
 
 /**
  * Opens a file dialog for the user to select a folder.

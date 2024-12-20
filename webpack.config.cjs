@@ -1,7 +1,7 @@
 const path = require('node:path');
 const ES3Plugin = require('webpack-es3-plugin'); // eslint-disable-line node/no-unpublished-require
 
-module.exports = (options) => {
+module.exports = (env, options) => {
   const isPackage = process.env.NODE_ENV === 'package';
 
   const shimsEntryFile = './src/jsx/shims.js';

@@ -14,3 +14,8 @@ export interface Footage {
   itemName: string;
   itemFolder: string;
 }
+
+export interface Settings {
+  apiKey?: string;
+  hasPin?: boolean;
+}
