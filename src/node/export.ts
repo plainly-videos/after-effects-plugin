@@ -2,6 +2,7 @@ const fs = require('fs');
 const fsPromises = require('fs/promises');
 const archiver = require('archiver');
 const path = require('path');
+const crypto = require('crypto');
 
 // @ts-ignore
 import CSInterface from '../lib/CSInterface';
@@ -33,7 +34,7 @@ function selectFolder(callback: (result: string) => void) {
  * @param targetPath the path of the folder where the files will be copied.
  * @param callback a callback that will be called with the project name.
  */
-async function collectFiles(targetPath: string): Promise<string> {
+async function collectFiles(targetPath: string): Promise<[string, string]> {
   const result = await evalScriptAsync(`collectFiles("${targetPath}")`);
 
   const projectInfo: ProjectInfo = JSON.parse(result);
@@ -41,8 +42,9 @@ async function collectFiles(targetPath: string): Promise<string> {
   const projectName = path.basename(projectInfo.projectPath, '.aep');
   const pathResolved = finalizePath(targetPath); // Normalize and resolve
 
-  await fsPromises.mkdir(path.join(pathResolved, projectName));
-  const projectDir = path.join(pathResolved, projectName);
+  const folderName = crypto.randomUUID();
+  await fsPromises.mkdir(path.join(pathResolved, folderName));
+  const projectDir = path.join(pathResolved, folderName);
 
   const dest = path.join(projectDir, `${projectName}.aep`);
   await fsPromises.copyFile(finalizePath(projectInfo.projectPath), dest);
@@ -50,7 +52,7 @@ async function collectFiles(targetPath: string): Promise<string> {
   await copyFonts(projectInfo.fonts, projectDir);
   await copyFootage(projectInfo.footage, projectDir);
 
-  return projectDir;
+  return [projectDir, projectName];
 }
 
 async function copyFonts(fonts: Fonts[], projectDir: string) {
@@ -119,11 +121,15 @@ async function copyFootage(footage: Footage[], projectDir: string) {
  *
  * @param zipPath The path of the directory to zip.
  */
-function zip(zipPath: string): Promise<void> {
+function zip(zipPath: string, projectName: string): Promise<void> {
   return new Promise((resolve, reject) => {
     const pathResolved = finalizePath(zipPath); // Normalize and resolve
 
-    const outputZipPath = `${pathResolved}.zip`;
+    // replace final part of path with project name to create zip with project name
+    const pathReplaced = path.join(path.dirname(pathResolved), projectName);
+    const finalizeZipPath = finalizePath(pathReplaced); // Normalize and resolve
+
+    const outputZipPath = `${finalizeZipPath}.zip`;
     const output = fs.createWriteStream(outputZipPath);
     const archive = archiver('zip', { zlib: { level: 1 } });
 

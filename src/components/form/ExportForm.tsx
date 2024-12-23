@@ -27,8 +27,8 @@ export default function ExportForm() {
     setLoading(true);
     if (targetPath) {
       try {
-        const result = await collectFiles(targetPath);
-        await zip(result);
+        const [result, projectName] = await collectFiles(targetPath);
+        await zip(result, projectName);
         await removeFolder(result);
         setZipStatus({
           title: 'Successfully zipped',
