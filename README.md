@@ -6,6 +6,13 @@ This repository contains code for the After Effects Plugin created to support [P
 * **Export zip**: Gather all project assets and fonts, then compress them into a single zip file for easy sharing.
 
 ## Installation
+
+### Using ZXP/UXP Installer
+
+1. Download the latest `plainly-plugin.zxp` from the [latest release](https://github.com/plainly-videos/after-effects-plugin/releases/latest).
+2. Download [ZXP/UXP Installer](https://aescripts.com/learn/zxp-installer/) developed by *aescripts + aeplugins*. During the installation process make sure to check `Install ZXP/UXP Installer`.
+3. Drag & drop `plainly-plugin.zxp` into ZXP/UXP Installer.
+
 ### Manual installation
 1. Download the latest `plainly-plugin.zxp` from the [latest release](https://github.com/plainly-videos/after-effects-plugin/releases/latest).
 2. Run the `Command Prompt / Terminal`, navigate to Unified Plugin Installer Agent application folder, and install the plugin:
