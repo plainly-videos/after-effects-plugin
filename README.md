@@ -22,7 +22,13 @@ This repository contains code for the After Effects Plugin created to support [P
    ```
 3. Open Adobe After Effects, navigate to **Window -> Extensions**, and select **Plainly Videos** to start the extension.
 
-> You can read more about the [Unified Plugin Installer Agent](https://helpx.adobe.com/in/creative-cloud/help/working-from-the-command-line.html) and its available commands.
+> **NOTE** 
+> The manual installation is successful if the install command outputs similar log entry:
+> ```
+> Installing extension with file path = C:\Users\plainly\plainly-plugin.zxp
+> Installation Successful for extension with file path = C:\Users\plainly\plainly-plugin.zxp for all users
+> ```
+>  You can read more about the [Unified Plugin Installer Agent](https://helpx.adobe.com/in/creative-cloud/help/working-from-the-command-line.html) and its available commands.
 
 ### How to uninstall
 If you wish to uninstall the plugin you can do that via **Unified Plugin Installer Agent** or in **Creative Cloud** > **Stock & Marketplace** > **Plugins** > **Manage plugins**
