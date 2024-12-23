@@ -76,7 +76,7 @@ To debug the plugin:
 
 * Ensure the extension is active in Adobe After Effects.
 * Open your browser and navigate to `http://localhost:8088/`.
-* Access the Plainly plugin interface for debugging.
+* Access the plugin interface for debugging.
 
 ### Notes:
 * If you make changes to the `manifest.xml` config file, restart Adobe After Effects.
