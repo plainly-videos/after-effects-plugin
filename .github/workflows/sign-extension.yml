@@ -1,12 +1,8 @@
 # This workflow will perform signing of the plugin on manual trigger
-name: Sign plugin
+name: Sign Plugin
 
 on:
   workflow_dispatch:
-    inputs:
-      reason:
-        description: 'Reason for signing'
-        required: true
 
 jobs:
   build-and-sign:
