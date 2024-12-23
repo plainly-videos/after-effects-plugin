@@ -22,9 +22,10 @@ This repository contains code for the After Effects Plugin created to support [P
    ```
 3. Open Adobe After Effects, navigate to **Window -> Extensions**, and select **Plainly Videos** to start the extension.
 
-> **NOTE** 
+> **NOTE**
+> 
 > The manual installation is successful if the install command outputs similar log entry:
-> ```
+> ```log
 > Installing extension with file path = C:\Users\plainly\plainly-plugin.zxp
 > Installation Successful for extension with file path = C:\Users\plainly\plainly-plugin.zxp for all users
 > ```
