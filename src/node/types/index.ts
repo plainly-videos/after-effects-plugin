@@ -14,3 +14,8 @@ export interface Footage {
   itemName: string;
   itemFolder: string;
 }
+
+export interface CollectFilesResult {
+  collectFilesDir: string;
+  projectName: string;
+}

@@ -7,7 +7,7 @@ const crypto = require('crypto');
 // @ts-ignore
 import CSInterface from '../lib/CSInterface';
 import { CollectFontsError, CollectFootageError } from './errors';
-import type { Fonts, Footage, ProjectInfo } from './types';
+import type { CollectFilesResult, Fonts, Footage, ProjectInfo } from './types';
 import {
   evalScriptAsync,
   finalizePath,
@@ -32,9 +32,8 @@ function selectFolder(callback: (result: string) => void) {
  * Collects all files necessary for the project and puts them in the target folder.
  *
  * @param targetPath the path of the folder where the files will be copied.
- * @param callback a callback that will be called with the project name.
  */
-async function collectFiles(targetPath: string): Promise<[string, string]> {
+async function collectFiles(targetPath: string): Promise<CollectFilesResult> {
   const result = await evalScriptAsync(`collectFiles("${targetPath}")`);
 
   const projectInfo: ProjectInfo = JSON.parse(result);
@@ -52,15 +51,15 @@ async function collectFiles(targetPath: string): Promise<[string, string]> {
   await copyFonts(projectInfo.fonts, projectDir);
   await copyFootage(projectInfo.footage, projectDir);
 
-  return [projectDir, projectName];
+  return { collectFilesDir: projectDir, projectName: projectName };
 }
 
-async function copyFonts(fonts: Fonts[], projectDir: string) {
+async function copyFonts(fonts: Fonts[], targetDir: string) {
   if (fonts.length === 0) {
     return;
   }
 
-  const fontsDir = path.join(projectDir, 'Fonts');
+  const fontsDir = path.join(targetDir, 'Fonts');
   await fsPromises.mkdir(fontsDir);
 
   const fontPromises = fonts.map(async (font) => {
@@ -80,12 +79,12 @@ async function copyFonts(fonts: Fonts[], projectDir: string) {
   }
 }
 
-async function copyFootage(footage: Footage[], projectDir: string) {
+async function copyFootage(footage: Footage[], targetDir: string) {
   if (footage.length === 0) {
     return;
   }
 
-  const footageDir = path.join(projectDir, '(Footage)');
+  const footageDir = path.join(targetDir, '(Footage)');
   await fsPromises.mkdir(footageDir);
 
   const footagePromises = footage.map(async (footageItem) => {
@@ -116,18 +115,18 @@ async function copyFootage(footage: Footage[], projectDir: string) {
 }
 
 /**
- * Zips the contents of the zipPath directory, and creates a zip file with the
- * same name as the directory, but with a .zip extension.
+ * Zips the contents of the targetPath directory, and creates a zip file with the
+ * project name.
  *
- * @param zipPath The path of the directory to zip.
+ * @param targetPath The path of the directory to zip.
  */
-function zip(zipPath: string, projectName: string): Promise<void> {
+function zip(targetPath: string, projectName: string): Promise<void> {
   return new Promise((resolve, reject) => {
-    const pathResolved = finalizePath(zipPath); // Normalize and resolve
+    const targetPathResolved = finalizePath(targetPath); // Normalize and resolve
 
-    // replace final part of path with project name to create zip with project name
-    const pathReplaced = path.join(path.dirname(pathResolved), projectName);
-    const finalizeZipPath = finalizePath(pathReplaced); // Normalize and resolve
+    // replace final part of path (random uuid) with project name to create zip with projectName.zip
+    const zipPath = path.join(path.dirname(targetPathResolved), projectName);
+    const finalizeZipPath = finalizePath(zipPath); // Normalize and resolve
 
     const outputZipPath = `${finalizeZipPath}.zip`;
     const output = fs.createWriteStream(outputZipPath);
@@ -147,7 +146,7 @@ function zip(zipPath: string, projectName: string): Promise<void> {
     archive.pipe(output);
 
     // Append the directory content to the archive
-    archive.directory(pathResolved, false);
+    archive.directory(targetPathResolved, false);
 
     archive.finalize();
   });

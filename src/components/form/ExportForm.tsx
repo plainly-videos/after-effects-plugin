@@ -27,13 +27,13 @@ export default function ExportForm() {
     setLoading(true);
     if (targetPath) {
       try {
-        const [result, projectName] = await collectFiles(targetPath);
-        await zip(result, projectName);
-        await removeFolder(result);
+        const { collectFilesDir, projectName } = await collectFiles(targetPath);
+        await zip(collectFilesDir, projectName);
+        await removeFolder(collectFilesDir);
         setZipStatus({
           title: 'Successfully zipped',
           type: 'success',
-          description: `Zip file created at: ${decodeURI(result)}`,
+          description: `Zip file created at: ${decodeURI(collectFilesDir)}`,
         });
         setLoading(false);
       } catch (error) {
