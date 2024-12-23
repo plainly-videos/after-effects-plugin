@@ -125,10 +125,12 @@ function zip(targetPath: string, projectName: string): Promise<void> {
     const targetPathResolved = finalizePath(targetPath); // Normalize and resolve
 
     // replace final part of path (random uuid) with project name to create zip with projectName.zip
-    const zipPath = path.join(path.dirname(targetPathResolved), projectName);
-    const finalizeZipPath = finalizePath(zipPath); // Normalize and resolve
+    const zipPath = path.join(
+      path.dirname(targetPathResolved),
+      `${projectName}.zip`,
+    );
+    const outputZipPath = finalizePath(zipPath); // Normalize and resolve
 
-    const outputZipPath = `${finalizeZipPath}.zip`;
     const output = fs.createWriteStream(outputZipPath);
     const archive = archiver('zip', { zlib: { level: 1 } });
 

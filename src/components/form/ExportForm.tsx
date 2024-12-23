@@ -33,7 +33,7 @@ export default function ExportForm() {
         setZipStatus({
           title: 'Successfully zipped',
           type: 'success',
-          description: `Zip file created at: ${decodeURI(collectFilesDir)}`,
+          description: `Zip file created at: ${decodeURI(targetPath)}`,
         });
         setLoading(false);
       } catch (error) {

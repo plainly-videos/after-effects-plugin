@@ -37,8 +37,8 @@ fs.readFile(manifestPath, 'utf-8', (err, data) => {
     .replace(
       /<Menu>(.*?)<\/Menu>/,
       isDev
-        ? '<Menu>Plainly plugin - Dev mode</Menu>'
-        : '<Menu>Plainly plugin</Menu>',
+        ? '<Menu>Plainly Videos - Dev mode</Menu>'
+        : '<Menu>Plainly Videos</Menu>',
     );
 
   if (updatedManifest === data) {
