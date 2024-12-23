@@ -20,8 +20,9 @@ This repository contains code for the After Effects Plugin created to support [P
    cd "/Library/Application Support/Adobe/Adobe Desktop Common/RemoteComponents/UPI/UnifiedPluginInstallerAgent/UnifiedPluginInstallerAgent.app/Contents/MacOS"
    ./UnifiedPluginInstallerAgent --install '/path/to/plainly-plugin.zxp'
    ```
+3. Open Adobe After Effects, navigate to **Window -> Extensions**, and select **Plainly Videos** to start the extension.
 
-You can read more about the [Unified Plugin Installer Agent](https://helpx.adobe.com/in/creative-cloud/help/working-from-the-command-line.html) and its available commands.
+> You can read more about the [Unified Plugin Installer Agent](https://helpx.adobe.com/in/creative-cloud/help/working-from-the-command-line.html) and its available commands.
 
 ### How to uninstall
 If you wish to uninstall the plugin you can do that via **Unified Plugin Installer Agent** or in **Creative Cloud** > **Stock & Marketplace** > **Plugins** > **Manage plugins**
@@ -58,7 +59,7 @@ To install and run the extension:
    ```bash
    yarn install && yarn build
    ```
-4. Open Adobe After Effects, navigate to **Window -> Extensions**, and select **Plainly plugin** to start the extension.
+4. Open Adobe After Effects, navigate to **Window -> Extensions**, and select **Plainly Videos** to start the extension.
 
 ### Project structure
 The plugin is built using Vite, Node.js, and React. Below is an overview of the project's key components:
