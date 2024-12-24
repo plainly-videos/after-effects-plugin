@@ -7,7 +7,7 @@ import PageHeading from '../typography/PageHeading';
 
 export default function About() {
   const applicationBasics = [
-    { label: 'Name', value: 'Plainly plugin' },
+    { label: 'Name', value: 'Plainly Videos Plugin' },
     { label: 'Version', value: `${pluginBundleVersion}` },
     { label: 'Author', value: 'contact@plainlyvideos.com' },
     { label: 'License', value: 'Apache-2.0' },
@@ -35,7 +35,7 @@ export default function About() {
       <div>
         <PageHeading heading="About" />
         <PageDescription className="mt-1">
-          Plainly plugin is a tool developed by{' '}
+          This plugin is a tool developed by{' '}
           <button
             type="button"
             className="underline text-white"

@@ -6,6 +6,13 @@ This repository contains code for the After Effects Plugin created to support [P
 * **Export zip**: Gather all project assets and fonts, then compress them into a single zip file for easy sharing.
 
 ## Installation
+
+### Using ZXP/UXP Installer
+
+1. Download the latest `plainly-plugin.zxp` from the [latest release](https://github.com/plainly-videos/after-effects-plugin/releases/latest).
+2. Download [ZXP/UXP Installer](https://aescripts.com/learn/zxp-installer/) developed by *aescripts + aeplugins*. During the installation process make sure to check `Install ZXP/UXP Installer`.
+3. Drag & drop `plainly-plugin.zxp` into ZXP/UXP Installer.
+
 ### Manual installation
 1. Download the latest `plainly-plugin.zxp` from the [latest release](https://github.com/plainly-videos/after-effects-plugin/releases/latest).
 2. Run the `Command Prompt / Terminal`, navigate to Unified Plugin Installer Agent application folder, and install the plugin:
@@ -22,7 +29,14 @@ This repository contains code for the After Effects Plugin created to support [P
    ```
 3. Open Adobe After Effects, navigate to **Window -> Extensions**, and select **Plainly Videos** to start the extension.
 
-> You can read more about the [Unified Plugin Installer Agent](https://helpx.adobe.com/in/creative-cloud/help/working-from-the-command-line.html) and its available commands.
+> **NOTE**
+> 
+> The manual installation is successful if the install command outputs similar log entry:
+> ```log
+> Installing extension with file path = C:\Users\plainly\plainly-plugin.zxp
+> Installation Successful for extension with file path = C:\Users\plainly\plainly-plugin.zxp for all users
+> ```
+>  You can read more about the [Unified Plugin Installer Agent](https://helpx.adobe.com/in/creative-cloud/help/working-from-the-command-line.html) and its available commands.
 
 ### How to uninstall
 If you wish to uninstall the plugin you can do that via **Unified Plugin Installer Agent** or in **Creative Cloud** > **Stock & Marketplace** > **Plugins** > **Manage plugins**
@@ -76,7 +90,7 @@ To debug the plugin:
 
 * Ensure the extension is active in Adobe After Effects.
 * Open your browser and navigate to `http://localhost:8088/`.
-* Access the Plainly plugin interface for debugging.
+* Access the plugin interface for debugging.
 
 ### Notes:
 * If you make changes to the `manifest.xml` config file, restart Adobe After Effects.
