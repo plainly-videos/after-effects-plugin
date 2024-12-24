@@ -1,10 +1,7 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import Button from './components/common/Button';
 import Sidebar from './components/navigation/Sidebar';
-import PinOverlay from './components/settings/PinOverlay';
 import { isDev } from './env';
-import { useSessionStorage } from './hooks/useSessionStorage';
-import { getSettings } from './node/settings';
 import AboutRoute from './routes/AboutRoute';
 import ExportRoute from './routes/ExportRoute';
 import SettingsRoute from './routes/SettingsRoute';
@@ -24,18 +21,6 @@ export default function App() {
     return null;
   }, [currentPage]);
 
-  const [showPinOverlay, setShowPinOverlay] = useState(false);
-  const { getItem } = useSessionStorage();
-
-  useEffect(() => {
-    const getUserSettings = async () => {
-      const settings = await getSettings();
-      if (settings.hasPin && !getItem('pin')) setShowPinOverlay(true);
-    };
-
-    getUserSettings();
-  }, [getItem]);
-
   return (
     <>
       {isDev && (
@@ -47,7 +32,6 @@ export default function App() {
           Reload extension
         </Button>
       )}
-      {showPinOverlay && <PinOverlay close={() => setShowPinOverlay(false)} />}
       <Sidebar />
       {children}
     </>

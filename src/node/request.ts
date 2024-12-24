@@ -1,39 +1,59 @@
 const https = require('https');
+const http = require('http');
 
 import type { ClientRequest, RequestOptions, ServerResponse } from 'http';
+import { isDev } from '../env';
+
+const protocol = isDev ? http : https;
 
 const options = {
-  hostname: `${import.meta.env.VITE_API_BASE_URL}`,
-  port: 443,
-  headers: {
-    'Content-Type': 'application/json',
-  },
+  hostname: import.meta.env.VITE_API_BASE_URL,
+  port: isDev ? 8080 : undefined,
+  headers: { 'Content-Type': 'application/json' },
 };
 
 function request(options: RequestOptions) {
   return new Promise((resolve, reject) => {
-    const req: ClientRequest = https.request(options, (res: ServerResponse) => {
-      let data = '';
+    const req: ClientRequest = protocol.request(
+      options,
+      (res: ServerResponse) => {
+        let data = '';
 
-      // Collect the response data
-      res.on('data', (chunk) => {
-        data += chunk;
-      });
+        // Collect the response data
+        res.on('data', (chunk) => {
+          data += chunk;
+        });
 
-      // Resolve the Promise when the response ends
-      res.on('end', () => {
-        const error = JSON.parse(data).error;
-        if (error) {
-          reject(error); // Reject the Promise if there's an error
-          return;
-        }
-
-        resolve(JSON.parse(data)); // Parse JSON if the response is JSON
-      });
-    });
+        // Resolve or Reject the Promise when the response ends
+        res.on('end', () => {
+          const { statusCode } = res;
+          if (statusCode >= 200 && statusCode < 300) {
+            try {
+              const response = JSON.parse(data);
+              resolve(response);
+            } catch (error) {
+              reject({
+                statusCode: 500,
+                message: `Failed to parse response: ${(error as Error).message}`,
+              });
+            }
+          } else {
+            const error = {
+              statusCode,
+              message: data,
+            };
+            reject(error);
+          }
+        });
+      },
+    );
 
     req.on('error', (error) => {
-      reject(error); // Reject the Promise if there's an error
+      reject({
+        statusCode: 500,
+        message: error.message,
+        error,
+      }); // Reject the Promise if there's an error
     });
 
     req.end();

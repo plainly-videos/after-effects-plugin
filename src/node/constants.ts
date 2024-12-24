@@ -3,6 +3,7 @@ const path = require('path');
 
 // @ts-ignore
 import CSInterface from '../lib/CSInterface';
+import type { Settings } from './types';
 
 export const homeDirectory = os.homedir();
 export const csInterface = new CSInterface();
@@ -26,7 +27,12 @@ export const windowsDest = path.join(
 const device: string = os.platform();
 
 export function getSettingsDirectory(): string {
-  if (device === 'win32') return windowsDest;
-
+  if (device === 'win32') {
+    return windowsDest;
+  }
   return macDest;
 }
+
+export const defaultSettings: Settings = {
+  apiKey: undefined,
+};

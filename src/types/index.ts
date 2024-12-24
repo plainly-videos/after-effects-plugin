@@ -20,9 +20,34 @@ export interface Notification {
   description?: string;
 }
 
-export interface Pin {
+export class Pin {
   first: number | undefined;
   second: number | undefined;
   third: number | undefined;
   fourth: number | undefined;
+
+  constructor(
+    first?: number,
+    second?: number,
+    third?: number,
+    fourth?: number,
+  ) {
+    this.first = first;
+    this.second = second;
+    this.third = third;
+    this.fourth = fourth;
+  }
+
+  getPin() {
+    return `${this.first}${this.second}${this.third}${this.fourth}`;
+  }
+
+  isFilled() {
+    return (
+      this.first !== undefined &&
+      this.second !== undefined &&
+      this.third !== undefined &&
+      this.fourth !== undefined
+    );
+  }
 }

@@ -2,42 +2,27 @@ const fsPromises = require('fs/promises');
 const fs = require('fs');
 const path = require('path');
 
-import type { Pin } from '../types';
-import { getSettingsDirectory } from './constants';
-import { encode } from './encoding';
-import { get } from './request';
+import { defaultSettings, getSettingsDirectory } from './constants';
 import type { Settings } from './types';
 
-async function getSettings(): Promise<Settings> {
-  const settingsFile = await retrieveSettings();
+async function setSettings(settings: Settings) {
+  let newSettings: Settings = settings;
+  if (settings.apiKey) {
+    newSettings = {
+      ...settings,
+      apiKey: {
+        key: settings.apiKey.key,
+        encrypted: settings.apiKey.encrypted,
+      },
+    };
+  }
 
-  const settingsIni: Settings = JSON.parse(settingsFile);
-  return settingsIni;
-}
-
-async function setSettingsApiKey(apiKey: string, pin: Pin | undefined) {
   try {
-    await get('/api/v2/integrations/appmixer/user-profile', apiKey);
+    await saveSettings(newSettings);
   } catch (error) {
-    throw new Error(
-      'Invalid API key, please make sure to copy a valid API key from Plainly web-app and try again.',
-    );
+    console.log(error);
   }
-
-  const settings = await getSettings();
-  const newSettings = { ...settings, apiKey, hasPin: false };
-
-  if (pin) {
-    const secret = `${pin.first}${pin.second}${pin.third}${pin.fourth}`;
-
-    newSettings.apiKey = encode(secret, apiKey);
-    newSettings.hasPin = true;
-  }
-
-  await saveSettings(newSettings);
 }
-
-export { getSettings, setSettingsApiKey };
 
 async function retrieveSettings() {
   const dest = getSettingsDirectory();
@@ -45,28 +30,34 @@ async function retrieveSettings() {
   if (!fs.existsSync(dest)) {
     fs.mkdirSync(dest, { recursive: true });
   }
-  if (!fs.existsSync(path.join(dest, 'settings.ini'))) {
-    fs.writeFileSync(path.join(dest, 'settings.ini'), '{}');
+  if (!fs.existsSync(path.join(dest, 'settings.json'))) {
+    fs.writeFileSync(
+      path.join(dest, 'settings.json'),
+      JSON.stringify(defaultSettings),
+    );
   }
 
-  const settingsFile = await fsPromises.readFile(
-    path.join(dest, 'settings.ini'),
-    'utf-8',
-  );
-  if (!settingsFile) {
-    throw new Error('Settings file not found');
+  try {
+    const file = await fsPromises.readFile(
+      path.join(dest, 'settings.json'),
+      'utf-8',
+    );
+    const json = JSON.parse(file);
+    return json;
+  } catch (error) {
+    return defaultSettings;
   }
-
-  return await fsPromises.readFile(path.join(dest, 'settings.ini'), 'utf-8');
 }
 
+export { retrieveSettings, setSettings };
+
 async function saveSettings(settings: Settings) {
-  const settingsFile = JSON.stringify(settings, null, 2);
+  const settingsContent = JSON.stringify(settings, null, 2);
   const dest = getSettingsDirectory();
 
   await fsPromises.writeFile(
-    path.join(dest, 'settings.ini'),
-    settingsFile,
+    path.join(dest, 'settings.json'),
+    settingsContent,
     'utf-8',
   );
 }
