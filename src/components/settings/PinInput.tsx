@@ -40,22 +40,13 @@ export default function PinInput({
         let nextInputRef: React.RefObject<HTMLInputElement> | null = null;
         switch (digit) {
           case 'first':
-            if (secondInputRef.current) {
-              secondInputRef.current.focus();
-              nextInputRef = secondInputRef;
-            }
+            nextInputRef = secondInputRef;
             break;
           case 'second':
-            if (thirdInputRef.current) {
-              thirdInputRef.current.focus();
-              nextInputRef = thirdInputRef;
-            }
+            nextInputRef = thirdInputRef;
             break;
           case 'third':
-            if (fourthInputRef.current) {
-              fourthInputRef.current.focus();
-              nextInputRef = fourthInputRef;
-            }
+            nextInputRef = fourthInputRef;
             break;
           default:
             break;
@@ -86,7 +77,7 @@ export default function PinInput({
         className="block w-8 text-center rounded-md bg-white/5 px-3 py-1 text-xs text-white outline outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500"
         maxLength={1}
         value={pin?.first || ''}
-        onChange={(e) => changeDigit('first', e.target.value)}
+        onInput={(e) => changeDigit('first', e.currentTarget.value)}
       />
       <input
         ref={secondInputRef}
@@ -97,7 +88,7 @@ export default function PinInput({
         maxLength={1}
         className="block w-8 text-center rounded-md bg-white/5 px-3 py-1 text-xs text-white outline outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500"
         value={pin?.second || ''}
-        onChange={(e) => changeDigit('second', e.target.value)}
+        onInput={(e) => changeDigit('second', e.currentTarget.value)}
       />
       <input
         ref={thirdInputRef}
@@ -108,7 +99,7 @@ export default function PinInput({
         maxLength={1}
         className="block w-8 text-center rounded-md bg-white/5 px-3 py-1 text-xs text-white outline outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500"
         value={pin?.third || ''}
-        onChange={(e) => changeDigit('third', e.target.value)}
+        onInput={(e) => changeDigit('third', e.currentTarget.value)}
       />
       <input
         ref={fourthInputRef}
@@ -119,7 +110,7 @@ export default function PinInput({
         maxLength={1}
         className="block w-8 text-center rounded-md bg-white/5 px-3 py-1 text-xs text-white outline outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500"
         value={pin?.fourth || ''}
-        onChange={(e) => changeDigit('fourth', e.target.value)}
+        onInput={(e) => changeDigit('fourth', e.currentTarget.value)}
       />
     </div>
   );

@@ -7,7 +7,7 @@ import {
 } from 'lucide-react';
 import { useState } from 'react';
 import { useNotification } from '../../hooks/useNotification';
-import { useSettingsReducer } from '../../hooks/useSettingsReducer';
+import { useSettings } from '../../hooks/useSettings';
 import { Pin } from '../../types';
 import { handleLinkClick } from '../../utils';
 import Button from '../common/Button';
@@ -28,7 +28,7 @@ export default function SettingsForm() {
     settings,
     loading: settingsLoading,
     setSettingsApiKey,
-  } = useSettingsReducer();
+  } = useSettings();
 
   const [apiKey, setApiKey] = useState<string>();
   const [pin, setPin] = useState<Pin>();

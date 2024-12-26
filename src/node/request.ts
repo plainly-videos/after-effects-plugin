@@ -8,7 +8,7 @@ const protocol = isDev ? http : https;
 
 const options = {
   hostname: import.meta.env.VITE_API_BASE_URL,
-  port: isDev ? 8080 : undefined,
+  port: import.meta.env.VITE_API_BASE_PORT,
   headers: { 'Content-Type': 'application/json' },
 };
 
@@ -26,23 +26,19 @@ function request(options: RequestOptions) {
 
         // Resolve or Reject the Promise when the response ends
         res.on('end', () => {
-          const { statusCode } = res;
-          if (statusCode >= 200 && statusCode < 300) {
-            try {
-              const response = JSON.parse(data);
+          try {
+            const response = JSON.parse(data);
+            const { statusCode } = res;
+            if (statusCode >= 200 && statusCode < 400) {
               resolve(response);
-            } catch (error) {
+            } else {
               reject({
-                statusCode: 500,
-                message: `Failed to parse response: ${(error as Error).message}`,
+                statusCode,
+                message: data,
               });
             }
-          } else {
-            const error = {
-              statusCode,
-              message: data,
-            };
-            reject(error);
+          } catch (error) {
+            reject(`Failed to parse response: ${(error as Error).message}`);
           }
         });
       },

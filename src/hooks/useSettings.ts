@@ -1,10 +1,13 @@
 import { useCallback, useEffect, useReducer, useState } from 'react';
-import { defaultSettings } from '../node/constants';
 import { encode } from '../node/encoding';
 import { get } from '../node/request';
-import { retrieveSettings, setSettings } from '../node/settings';
+import {
+  defaultSettings,
+  retrieveSettings,
+  saveSettings,
+} from '../node/settings';
 import type { Settings } from '../node/types';
-import { Pin } from '../types';
+import type { Pin } from '../types';
 
 type Action =
   | {
@@ -32,7 +35,7 @@ function settingsReducer(settings: Settings, action: Action) {
   }
 }
 
-export const useSettingsReducer = () => {
+export const useSettings = () => {
   const [settings, dispatch] = useReducer(settingsReducer, defaultSettings);
   const [loading, setLoading] = useState(true);
 
@@ -63,15 +66,9 @@ export const useSettingsReducer = () => {
 
       let newApiKey = apiKey;
       if (pin) {
-        const pinClass = new Pin(pin.first, pin.second, pin.third, pin.fourth);
-        const secret = pinClass.getPin();
+        const secret = pin.getPin();
         newApiKey = encode(secret, apiKey);
       }
-
-      dispatch({
-        type: 'SET_SETTINGS_API_KEY',
-        payload: { key: newApiKey, encrypted: !!pin },
-      });
 
       const newSettings = {
         ...settings,
@@ -81,7 +78,15 @@ export const useSettingsReducer = () => {
         },
       };
 
-      await setSettings(newSettings);
+      try {
+        await saveSettings(newSettings);
+        dispatch({
+          type: 'SET_SETTINGS_API_KEY',
+          payload: { key: newApiKey, encrypted: !!pin },
+        });
+      } catch (error) {
+        throw new Error(`Failed to set API key: ${(error as Error).message}`);
+      }
     },
     [settings],
   );

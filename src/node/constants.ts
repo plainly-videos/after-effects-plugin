@@ -3,7 +3,6 @@ const path = require('path');
 
 // @ts-ignore
 import CSInterface from '../lib/CSInterface';
-import type { Settings } from './types';
 
 export const homeDirectory = os.homedir();
 export const csInterface = new CSInterface();
@@ -32,7 +31,3 @@ export function getSettingsDirectory(): string {
   }
   return macDest;
 }
-
-export const defaultSettings: Settings = {
-  apiKey: undefined,
-};
