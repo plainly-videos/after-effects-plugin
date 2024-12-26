@@ -9,7 +9,6 @@ export const jsToBottomNoModule = () => {
 
       if (matchResult) {
         const scriptTag = matchResult[0];
-        console.log('\n SCRIPT TAG', scriptTag, '\n');
         replacedHtml = replacedHtml.replace(scriptTag, '');
         replacedHtml = replacedHtml.replace(
           '</body>',
