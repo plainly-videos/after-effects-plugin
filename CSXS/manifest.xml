@@ -26,7 +26,7 @@
 			<DispatchInfo>
 				<Resources>
 					<MainPath>./dist/index.html</MainPath>
-					<ScriptPath>./dist/plainly.core.jsx</ScriptPath>
+					<ScriptPath>./plainly-aescripts/dist/plainly.index.jsx</ScriptPath>
 					<CEFCommandLine>
 						<Parameter>--enable-nodejs</Parameter>
 						<Parameter>--mixed-context</Parameter>

@@ -29,12 +29,6 @@ fs.readFile(manifestPath, 'utf-8', (err, data) => {
         : '<MainPath>./dist/index.html</MainPath>',
     )
     .replace(
-      /<ScriptPath>(.*?)<\/ScriptPath>/,
-      isDev
-        ? '<ScriptPath>./dist-dev/jsx/core.jsx</ScriptPath>'
-        : '<ScriptPath>./dist/plainly.core.jsx</ScriptPath>',
-    )
-    .replace(
       /<Menu>(.*?)<\/Menu>/,
       isDev
         ? '<Menu>Plainly Videos - Dev mode</Menu>'

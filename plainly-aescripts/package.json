@@ -1,0 +1,29 @@
+{
+  "name": "@plainly/aescripts",
+  "version": "1.0.0",
+  "description": "Adobe After Effects scripts for plugin",
+  "author": "Plainly Videos",
+  "main": "build/src/main",
+  "license": "Apache-2.0",
+  "scripts": {
+    "clean": "rm -rf dist",
+    "compile": "yarn run clean && tsc",
+    "dev": "concurrently \"tsc --watch\" \"webpack --mode development --watch\"",
+    "build-test": "yarn run compile && webpack --mode production",
+    "build": "yarn run compile && webpack --mode production",
+    "biome": "biome check ./src",
+    "biome-write": "biome check --write ./src"
+  },
+  "dependencies": {
+    "types-for-adobe": "^7.2.2"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "1.9.4",
+    "@types/node": "^22.10.5",
+    "concurrently": "^9.1.2",
+    "imports-loader": "^5.0.0",
+    "typescript": "^5.7.2",
+    "webpack": "^5.97.1",
+    "webpack-cli": "^6.0.1"
+  }
+}
