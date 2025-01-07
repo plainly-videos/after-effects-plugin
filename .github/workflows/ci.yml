@@ -45,7 +45,6 @@ jobs:
   biome-check-plugin:
     name: Run Biome check Plugin
     runs-on: ubuntu-latest
-    needs: build-aescripts
 
     steps:
       - uses: actions/checkout@v4
