@@ -8,7 +8,7 @@ on:
 
 jobs:
   biome-check-aescripts:
-    name: Run biome check
+    name: Run Biome check AeScripts
     runs-on: ubuntu-latest
 
     steps:
@@ -18,16 +18,14 @@ jobs:
           node-version: '20.11.1'
           cache: 'yarn'
 
-      - name: Install dependencies
+      - name: Run Biome check
         run: |
           cd plainly-aescripts
           yarn install --frozen-lockfile
-
-      - name: Run biome check
-        run: yarn biome
+          yarn biome
 
   build-aescripts:
-    name: Run build
+    name: Run build AeScripts
     runs-on: ubuntu-latest
     needs: biome-check-aescripts
 
@@ -38,16 +36,14 @@ jobs:
           node-version: '20.11.1'
           cache: 'yarn'
 
-      - name: Install dependencies
+      - name: Run build
         run: |
           cd plainly-aescripts
           yarn install --frozen-lockfile
-
-      - name: Run build
-        run: yarn run build
+          yarn build
 
   biome-check-plugin:
-    name: Run biome check
+    name: Run Biome check Plugin
     runs-on: ubuntu-latest
     needs: build-aescripts
 
@@ -58,16 +54,14 @@ jobs:
           node-version: '20.11.1'
           cache: 'yarn'
 
-      - name: Install dependencies
+      - name: Run Biome check
         run: |
           cd plainly-plugin
           yarn install --frozen-lockfile
-
-      - name: Run biome check
-        run: yarn biome
+          yarn biome
 
   build-plugin:
-    name: Run build
+    name: Run build Plugin
     runs-on: ubuntu-latest
     needs: biome-check-plugin
 
@@ -78,10 +72,8 @@ jobs:
           node-version: '20.11.1'
           cache: 'yarn'
 
-      - name: Install dependencies
+      - name: Run build
         run: |
           cd plainly-plugin
           yarn install --frozen-lockfile
-
-      - name: Run build
-        run: yarn run build
+          yarn build
