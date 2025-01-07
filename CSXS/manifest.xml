@@ -25,7 +25,7 @@
 		<Extension Id="com.plainlyvideos.after-effects-plugin.Panel">
 			<DispatchInfo>
 				<Resources>
-					<MainPath>./dist/index.html</MainPath>
+					<MainPath>./plainly-plugin/dist/index.html</MainPath>
 					<ScriptPath>./plainly-aescripts/dist/plainly.index.jsx</ScriptPath>
 					<CEFCommandLine>
 						<Parameter>--enable-nodejs</Parameter>

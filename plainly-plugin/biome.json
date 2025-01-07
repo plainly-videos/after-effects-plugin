@@ -24,8 +24,7 @@
         "noNonNullAssertion": "off",
         "useNodejsImportProtocol": "off"
       }
-    },
-    "ignore": ["./src/jsx/**"]
+    }
   },
   "javascript": {
     "formatter": {

@@ -17,7 +17,6 @@ jobs:
 
       - name: Package extension
         run: |
-          yarn install
           yarn package
 
       - name: Install external dependencies

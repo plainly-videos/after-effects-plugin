@@ -1,12 +1,10 @@
 const path = require('node:path');
 
 module.exports = (_, options) => {
-  const isProdEnv = process.env.NODE_ENV === 'production';
-
-  const entryIndexFile = './dist/index.js';
+  const isProdEnv = options.mode === 'production';
 
   return {
-    entry: { index: entryIndexFile },
+    entry: { index: './dist/index.js' },
     target: ['node', 'es3'],
     devtool: isProdEnv ? false : 'source-map',
     output: {
