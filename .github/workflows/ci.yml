@@ -10,6 +10,9 @@ jobs:
   biome-check-aescripts:
     name: Run Biome check AeScripts
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: plainly-aescripts
 
     steps:
       - uses: actions/checkout@v4
@@ -28,6 +31,9 @@ jobs:
     name: Run build AeScripts
     runs-on: ubuntu-latest
     needs: biome-check-aescripts
+    defaults:
+      run:
+        working-directory: plainly-aescripts
 
     steps:
       - uses: actions/checkout@v4
@@ -45,6 +51,9 @@ jobs:
   biome-check-plugin:
     name: Run Biome check Plugin
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: plainly-plugin
 
     steps:
       - uses: actions/checkout@v4
@@ -63,6 +72,9 @@ jobs:
     name: Run build Plugin
     runs-on: ubuntu-latest
     needs: biome-check-plugin
+    defaults:
+      run:
+        working-directory: plainly-plugin
 
     steps:
       - uses: actions/checkout@v4
