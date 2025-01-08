@@ -19,8 +19,8 @@ jobs:
           cache: 'yarn'
 
       - name: Run Biome check
+        working-directory: plainly-aescripts
         run: |
-          cd plainly-aescripts
           yarn install --frozen-lockfile
           yarn biome
 
@@ -37,8 +37,8 @@ jobs:
           cache: 'yarn'
 
       - name: Run build
+        working-directory: plainly-aescripts
         run: |
-          cd plainly-aescripts
           yarn install --frozen-lockfile
           yarn build
 
@@ -54,8 +54,8 @@ jobs:
           cache: 'yarn'
 
       - name: Run Biome check
+        working-directory: plainly-plugin
         run: |
-          cd plainly-plugin
           yarn install --frozen-lockfile
           yarn biome
 
@@ -72,7 +72,7 @@ jobs:
           cache: 'yarn'
 
       - name: Run build
+        working-directory: plainly-plugin
         run: |
-          cd plainly-plugin
           yarn install --frozen-lockfile
           yarn build
