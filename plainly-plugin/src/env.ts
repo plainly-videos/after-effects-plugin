@@ -1,4 +1,4 @@
-export const isProd = import.meta.env.VITE_APP_PLAINLY_ENV === 'production';
-export const isTest = import.meta.env.VITE_APP_PLAINLY_ENV === 'test';
-export const isDev = import.meta.env.VITE_APP_PLAINLY_ENV === 'development';
-export const pluginBundleVersion = __APP_VERSION__;
+export const isProd = process.env.PLUGIN_ENV === 'production';
+export const isTest = process.env.PLUGIN_ENV === 'test';
+export const isDev = process.env.PLUGIN_ENV === 'development';
+export const pluginBundleVersion = process.env.PLUGIN_BUNDLE_VERSION;

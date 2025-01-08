@@ -4,18 +4,18 @@
   "description": "Plainly Videos Adobe After Effects plugin",
   "author": "Plainly Videos",
   "license": "Apache-2.0",
-  "type": "module",
   "scripts": {
-    "dev": "NODE_ENV=development node ./script/updateManifest.cjs --dev && vite build --mode development --watch",
-    "build-test": "NODE_ENV=test node ./script/updateManifest.cjs && tsc -b && vite build",
-    "build": "NODE_ENV=production node ./script/updateManifest.cjs && tsc -b && vite build",
+    "clean": "rm -rf dist",
+    "dev": "yarn clean && NODE_ENV=development node ./script/updateManifest.cjs --dev && NODE_ENV=development webpack --mode development --watch",
+    "build-test": "yarn clean && NODE_ENV=test node ./script/updateManifest.cjs && NODE_ENV=test webpack --mode production",
+    "build": "yarn clean && NODE_ENV=production node ./script/updateManifest.cjs && NODE_ENV=production webpack --mode production",
     "biome": "biome check ./src",
     "biome-write": "biome check --write ./src"
   },
   "dependencies": {
     "@headlessui/react": "^2.2.0",
     "@heroicons/react": "^2.1.5",
-    "archiver": "^5.3.2",
+    "archiver": "^7.0.1",
     "classnames": "^2.5.1",
     "lucide-react": "^0.456.0",
     "react": "^18.3.1",
@@ -23,19 +23,31 @@
     "react-hooks-global-state": "^2.1.0"
   },
   "devDependencies": {
+    "@babel/core": "^7.26.0",
+    "@babel/preset-env": "^7.26.0",
+    "@babel/preset-react": "^7.26.3",
     "@biomejs/biome": "1.9.4",
     "@tailwindcss/forms": "^0.5.9",
     "@tailwindcss/typography": "^0.5.15",
+    "@types/archiver": "^6.0.3",
+    "@types/dotenv-webpack": "^7.0.8",
     "@types/node": "^20.17.6",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
-    "@vitejs/plugin-react": "^4.3.3",
     "autoprefixer": "^10.4.20",
+    "babel-loader": "^9.2.1",
+    "css-loader": "^7.1.2",
+    "dotenv-webpack": "^8.1.0",
     "globals": "^15.11.0",
+    "html-webpack-plugin": "^5.6.3",
     "postcss": "^8.4.49",
+    "postcss-loader": "^8.1.1",
+    "style-loader": "^4.0.0",
     "tailwindcss": "^3.4.15",
+    "ts-loader": "^9.5.1",
     "typescript": "~5.6.2",
-    "vite": "^5.4.10",
-    "vite-plugin-static-copy": "^2.1.0"
+    "webpack": "^5.97.1",
+    "webpack-cli": "^6.0.1",
+    "webpack-dev-server": "^5.2.0"
   }
 }

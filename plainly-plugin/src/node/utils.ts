@@ -1,6 +1,7 @@
-const os = require('os');
-const fs = require('fs');
-const path = require('path');
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+
 const homeDirectory = os.homedir();
 
 // @ts-ignore

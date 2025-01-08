@@ -36,7 +36,7 @@ This repository contains code for the After Effects Plugin created to support [P
 > Installing extension with file path = C:\Users\plainly\plainly-plugin.zxp
 > Installation Successful for extension with file path = C:\Users\plainly\plainly-plugin.zxp for all users
 > ```
->  You can read more about the [Unified Plugin Installer Agent](https://helpx.adobe.com/in/creative-cloud/help/working-from-the-command-line.html) and its available commands.
+> You can read more about the [Unified Plugin Installer Agent](https://helpx.adobe.com/in/creative-cloud/help/working-from-the-command-line.html) and its available commands.
 
 ### How to uninstall
 If you wish to uninstall the plugin you can do that via **Unified Plugin Installer Agent** or in **Creative Cloud** > **Stock & Marketplace** > **Plugins** > **Manage plugins**
@@ -69,20 +69,37 @@ To install and run the extension:
    ln -s 'full/path/to/after-effects-plugin' '/Library/Application Support/Adobe/CEP/extensions/com.plainlyvideos.after-effects-plugin'
    ```
    Replace `full/path/to/after-effects-plugin` with the path where you cloned the repository.
-3. Install dependencies and build the project:
+3. Install aescripts dependencies and build for production
    ```bash
-   yarn install && yarn build
+   cd plainly-aescripts && yarn install && yarn build
    ```
-4. Open Adobe After Effects, navigate to **Window -> Extensions**, and select **Plainly Videos** to start the extension.
+4. Install plugin dependencies and build for production
+   ```bash
+   cd plainly-plugin && yarn install && yarn build
+   ```
+5. Open Adobe After Effects, navigate to **Window -> Extensions**, and select **Plainly Videos** to start the extension.
+
+### Package
+To prepare extension for signing:
+
+1. While inside `after-effects-plugin` directory, run `package` script
+   ```bash
+   yarn package
+   ```
+
+This script will output a `package` directory, that will consist out of `CSXS/manifest.xml`, `plainly-aescripts/dist` and `plainly-plugin/dist` ready to be signed using a sign tool.
+
+> You can read details about a [ZXPSignCmd tool](https://github.com/Adobe-CEP/Getting-Started-guides/blob/master/Package%20Distribute%20Install/readme.md#package-distribute-install-guide) and its available commands.
 
 ### Project structure
-The plugin is built using Vite, Node.js, and React. Below is an overview of the project's key components:
+The plugin is built using Node.js, React and its bundled with Webpack. Below is an overview of the project's key components:
 
 * `CSXS/manifest.xml` - Defines the [extension configuration](https://github.com/Adobe-CEP/Getting-Started-guides?tab=readme-ov-file#2-configure-your-extension-in-manifestxml)
-* `src/`              - Contains the plugin's source code, including the React components and utility functions
-* `src/lib`           - Contains [Adobe CEP library files](https://github.com/Adobe-CEP/CEP-Resources/tree/master/CEP_11.x)
-* `src/jsx`           - Holds ExtendScripts files
-* `src/node`          - Contains Node related source code
+* `plainly-aescripts/src/` - Houses the scripts executed within After Effects
+* `plainly-plugin/src/`              - Contains the plugin's source code, including the React components, Node.js functions, and utility functions
+* `plainly-plugin/src/lib`           - Contains [Adobe CEP library files](https://github.com/Adobe-CEP/CEP-Resources/tree/master/CEP_11.x)
+* `plainly-plugin/src/jsx`           - Holds ExtendScripts files
+* `plainly-plugin/src/node`          - Contains Node related source code
 * `.debug`            - File for debugging the extension
 
 ### Debugging
@@ -97,8 +114,10 @@ To debug the plugin:
 * Run `yarn build` to build extension for production.
 * Run `yarn build-test` to build extension for staging.
 * Run `yarn dev` to work on extension in development mode. After making changes, use **Reload extension** button on UI to see changes.
+* All scripts above exist in both `plainly-aescripts` and `plainly-plugin`.
+* Changes in `plainly-aescripts` requires extension to be reopened.
 
-**NOTE:** When running one of these two commands for the first time `yarn build`, `yarn build-test` or `yarn dev` make sure to restart Adobe After Effects, because `manifest.xml` file is changed for either `production`, `test` or `development` mode.
+**NOTE:** When running one of these three commands for the first time: `yarn build`, `yarn build-test` or `yarn dev` make sure to restart Adobe After Effects, because `manifest.xml` file is changed for either `production`, `test` or `development` mode.
 
 ## Additional Resources
 For a comprehensive guide to Adobe CEP development, refer to the [Getting Started guides](https://github.com/Adobe-CEP/Getting-Started-guides)

@@ -1,8 +1,8 @@
-const fs = require('fs');
-const fsPromises = require('fs/promises');
-const archiver = require('archiver');
-const path = require('path');
-const crypto = require('crypto');
+import crypto from 'node:crypto';
+import fs from 'node:fs';
+import fsPromises from 'node:fs/promises';
+import path from 'node:path';
+import archiver from 'archiver';
 
 // @ts-ignore
 import CSInterface from '../lib/CSInterface';
@@ -164,9 +164,8 @@ async function removeFolder(targetPath: string) {
 
   try {
     await fsPromises.rmdir(pathResolved, {
-      maxRetires: 3,
+      maxRetries: 3,
       recursive: true,
-      force: true,
     });
   } catch (error) {
     console.error(error);

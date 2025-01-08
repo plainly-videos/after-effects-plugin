@@ -6,7 +6,7 @@ import {
   removeFolder,
   selectFolder,
   zip,
-} from '../../node/export';
+} from '../../node/index';
 import Button from '../common/Button';
 import Notification from '../common/Notification';
 import Label from '../typography/Label';

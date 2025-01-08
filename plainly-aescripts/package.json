@@ -6,10 +6,10 @@
   "license": "Apache-2.0",
   "scripts": {
     "clean": "rm -rf dist",
-    "compile": "yarn run clean && tsc",
+    "compile": "yarn clean && tsc",
     "dev": "concurrently \"tsc --watch\" \"webpack --mode development --watch\"",
-    "build-test": "yarn run compile && webpack --mode production",
-    "build": "yarn run compile && webpack --mode production",
+    "build-test": "yarn compile && webpack --mode production",
+    "build": "yarn compile && webpack --mode production",
     "biome": "biome check ./src",
     "biome-write": "biome check --write ./src"
   },

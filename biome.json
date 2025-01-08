@@ -7,7 +7,7 @@
   },
   "files": {
     "ignoreUnknown": false,
-    "ignore": ["./src/shims.js"]
+    "ignore": ["**/lib/**", "shims.js"]
   },
   "formatter": {
     "enabled": true,
@@ -21,8 +21,7 @@
     "rules": {
       "recommended": true,
       "style": {
-        "noNonNullAssertion": "off",
-        "useNodejsImportProtocol": "off"
+        "noNonNullAssertion": "off"
       }
     }
   },
