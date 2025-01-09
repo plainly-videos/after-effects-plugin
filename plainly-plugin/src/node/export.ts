@@ -4,9 +4,9 @@ import fsPromises from 'node:fs/promises';
 import path from 'node:path';
 import archiver from 'archiver';
 
+import { CollectFontsError, CollectFootageError } from './errors';
 // @ts-ignore
 import CSInterface from './lib/CSInterface';
-import { CollectFontsError, CollectFootageError } from './errors';
 import type { CollectFilesResult, Fonts, Footage, ProjectInfo } from './types';
 import {
   evalScriptAsync,

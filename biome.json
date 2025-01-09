@@ -7,7 +7,12 @@
   },
   "files": {
     "ignoreUnknown": false,
-    "ignore": ["**/lib/**", "shims.js"]
+    "ignore": [
+      "shims.js",
+      "CEPEngine_extensions.js",
+      "Vulcan.js",
+      "CSInterface.js"
+    ]
   },
   "formatter": {
     "enabled": true,
