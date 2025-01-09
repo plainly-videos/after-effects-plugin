@@ -5,7 +5,7 @@ import path from 'node:path';
 const homeDirectory = os.homedir();
 
 // @ts-ignore
-import CSInterface from '../lib/CSInterface';
+import CSInterface from './lib/CSInterface';
 const csInterface = new CSInterface();
 
 /**

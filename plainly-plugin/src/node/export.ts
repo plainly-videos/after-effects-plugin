@@ -5,7 +5,7 @@ import path from 'node:path';
 import archiver from 'archiver';
 
 // @ts-ignore
-import CSInterface from '../lib/CSInterface';
+import CSInterface from './lib/CSInterface';
 import { CollectFontsError, CollectFootageError } from './errors';
 import type { CollectFilesResult, Fonts, Footage, ProjectInfo } from './types';
 import {

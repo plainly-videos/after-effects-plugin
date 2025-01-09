@@ -4,7 +4,7 @@ const Dotenv = require('dotenv-webpack');
 
 module.exports = (_, options) => ({
   target: 'node',
-  entry: './src/main.tsx', // entry point of your application
+  entry: './src/ui/main.tsx', // entry point of your application
   output: {
     path: path.resolve(__dirname, 'dist'), // output directory
     filename: 'index-[contenthash].js', // output file name
