@@ -1,8 +1,8 @@
 import crypto from 'crypto';
 import fs from 'fs';
-import fsPromises from 'fs/promises';
 import path from 'path';
 import archiver from 'archiver';
+import fsPromises from 'fs/promises';
 
 import { CollectFontsError, CollectFootageError } from './errors';
 // @ts-ignore
