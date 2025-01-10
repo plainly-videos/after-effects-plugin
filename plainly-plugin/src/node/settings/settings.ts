@@ -2,10 +2,9 @@ const fsPromises = require('fs/promises');
 const fs = require('fs');
 const path = require('path');
 
-import { getSettingsDirectory } from '../constants';
+import { settingsDirectory } from '../constants';
 import type { Settings } from '../types';
 
-const settingsDirectory = getSettingsDirectory();
 export const defaultSettings: Settings = {};
 
 async function retrieveSettings() {
