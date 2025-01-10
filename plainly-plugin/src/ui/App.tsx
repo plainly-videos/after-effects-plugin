@@ -1,9 +1,10 @@
 import { useMemo } from 'react';
+import { isDev } from '../env';
 import Button from './components/common/Button';
 import Sidebar from './components/navigation/Sidebar';
-import { isDev } from './env';
 import AboutRoute from './routes/AboutRoute';
 import ExportRoute from './routes/ExportRoute';
+import SettingsRoute from './routes/SettingsRoute';
 import { State, useGlobalState } from './state/store';
 import { reloadExtension } from './utils';
 
@@ -15,6 +16,7 @@ export default function App() {
   const children = useMemo(() => {
     if (currentPage === '/export') return <ExportRoute />;
     if (currentPage === '/about') return <AboutRoute />;
+    if (currentPage === '/settings') return <SettingsRoute />;
 
     return null;
   }, [currentPage]);
@@ -25,7 +27,7 @@ export default function App() {
         <Button
           secondary
           onClick={reloadExtension}
-          className="absolute top-3 right-3 cursor-pointer z-30"
+          className="absolute top-3 right-3 cursor-pointer z-40"
         >
           Reload extension
         </Button>

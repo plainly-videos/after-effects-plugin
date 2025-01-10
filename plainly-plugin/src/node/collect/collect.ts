@@ -4,18 +4,15 @@ import path from 'path';
 import archiver from 'archiver';
 import fsPromises from 'fs/promises';
 
-import { CollectFontsError, CollectFootageError } from './errors';
-// @ts-ignore
-import CSInterface from './lib/CSInterface';
-import type { CollectFilesResult, Fonts, Footage, ProjectInfo } from './types';
+import { csInterface } from '../constants';
+import { CollectFontsError, CollectFootageError } from '../errors';
+import type { CollectFilesResult, Fonts, Footage, ProjectInfo } from '../types';
 import {
   evalScriptAsync,
   finalizePath,
   generateFolders,
   runInParallelReturnRejected,
-} from './utils';
-
-const csInterface = new CSInterface();
+} from '../utils';
 
 /**
  * Opens a file dialog for the user to select a folder.
