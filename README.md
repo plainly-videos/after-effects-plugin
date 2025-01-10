@@ -56,28 +56,27 @@ To install and run the extension:
    ```bash
    git clone https://github.com/plainly-videos/after-effects-plugin.git
    ```
-2. Create a symbolic link to the required folder:
+2. Navigate to the cloned `after-effects-plugin` folder.
+3. Create a symbolic link to the required folder:
 
    **Windows**: Run the following command in Powershell:
    ```bash
-   "New-Item -Path 'C:\Program Files\Common Files\Adobe\CEP\extensions\com.plainlyvideos.after-effects-plugin' -ItemType SymbolicLink -Value 'full\path\to\after-effects-plugin'"
+   "New-Item -Path 'C:\Program Files\Common Files\Adobe\CEP\extensions\com.plainlyvideos.after-effects-plugin' -ItemType SymbolicLink -Value (Get-Location).Path"
    ```
-   Replace `full\path\to\after-effects-plugin` with the path where you cloned the repository.
 
    **MacOS**: Run the following command in the Terminal:
    ```bash
-   ln -s 'full/path/to/after-effects-plugin' '/Library/Application Support/Adobe/CEP/extensions/com.plainlyvideos.after-effects-plugin'
+   ln -s "$(pwd)" '/Library/Application Support/Adobe/CEP/extensions/com.plainlyvideos.after-effects-plugin'
    ```
-   Replace `full/path/to/after-effects-plugin` with the path where you cloned the repository.
-3. Install aescripts dependencies and build for production
+4. Install `aescripts` dependencies and build for production
    ```bash
    cd plainly-aescripts && yarn install && yarn build
    ```
-4. Install plugin dependencies and build for production
+5. Install `plugin` dependencies and build for production
    ```bash
    cd plainly-plugin && yarn install && yarn build
    ```
-5. Open Adobe After Effects, navigate to **Window -> Extensions**, and select **Plainly Videos** to start the extension.
+6. Open Adobe After Effects, navigate to **Window -> Extensions**, and select **Plainly Videos** to start the extension.
 
 ### Package
 To prepare extension for signing:

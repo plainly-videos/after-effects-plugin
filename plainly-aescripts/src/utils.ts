@@ -9,6 +9,19 @@ function checkOs(): string {
 }
 
 /**
+ * Joins multiple path segments into a single path string.
+ *
+ * @param {...string} args - The path segments to join.
+ * @returns {string} The combined path string, using the appropriate
+ * separator for the current OS ('\\' for Windows, '/' for Mac).
+ */
+function pathJoin(...args: string[]): string {
+  const os = checkOs();
+  const path = os === 'Windows' ? '\\' : '/';
+  return args.join(path);
+}
+
+/**
  * @function getAllComps
  * @description Get all comp items in a given After Effects project
  * @param {Project} project - The After Effects project object
@@ -54,11 +67,5 @@ function getFolderPath(folder: FolderItem) {
 
   // Recursively build the folder path
   const parentPath = getFolderPath(folder.parentFolder);
-  const osPath = checkOs();
-
-  if (osPath === 'Windows') {
-    return `${parentPath}\\${folder.name}`;
-  }
-
-  return `${parentPath}/${folder.name}`;
+  return pathJoin(parentPath, folder.name);
 }
