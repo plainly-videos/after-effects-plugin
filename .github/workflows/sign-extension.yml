@@ -10,21 +10,34 @@ jobs:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-node@v4
         with:
           node-version: '20.11.1'
           cache: 'yarn'
+          cache-dependency-path: 'plainly-aescripts/yarn.lock'
 
-      - name: Package extension
+      - name: Prepare plainly-aescripts
+        working-directory: plainly-aescripts
         run: |
-          yarn install
-          yarn package
+          yarn install --frozen-lockfile
+          yarn build
 
-      - name: Install external dependencies
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.11.1'
+          cache: 'yarn'
+          cache-dependency-path: 'plainly-plugin/yarn.lock'
+
+      - name: Prepare plainly-plugin
+        working-directory: plainly-plugin
         run: |
-          npm install --no-package-lock archiver@^5.3.2 --prefix package
-          rm package/package.json
-          rm package/node_modules/.package-lock.json
+          yarn install --frozen-lockfile
+          yarn build
+
+      - name: Prepare package for signing
+        run: |
+          yarn prepare
     
       - name: Download ZXPSignCmd Tool
         run: |

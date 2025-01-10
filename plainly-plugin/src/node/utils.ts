@@ -1,10 +1,11 @@
-const os = require('os');
-const fs = require('fs');
-const path = require('path');
+import fs from 'fs';
+import os from 'os';
+import path from 'path';
+
 const homeDirectory = os.homedir();
 
 // @ts-ignore
-import CSInterface from '../lib/CSInterface';
+import CSInterface from './lib/CSInterface';
 const csInterface = new CSInterface();
 
 /**

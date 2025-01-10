@@ -1,12 +1,12 @@
-const fs = require('fs');
-const fsPromises = require('fs/promises');
-const archiver = require('archiver');
-const path = require('path');
-const crypto = require('crypto');
+import crypto from 'crypto';
+import fs from 'fs';
+import path from 'path';
+import archiver from 'archiver';
+import fsPromises from 'fs/promises';
 
-// @ts-ignore
-import CSInterface from '../lib/CSInterface';
 import { CollectFontsError, CollectFootageError } from './errors';
+// @ts-ignore
+import CSInterface from './lib/CSInterface';
 import type { CollectFilesResult, Fonts, Footage, ProjectInfo } from './types';
 import {
   evalScriptAsync,
@@ -164,9 +164,8 @@ async function removeFolder(targetPath: string) {
 
   try {
     await fsPromises.rmdir(pathResolved, {
-      maxRetires: 3,
+      maxRetries: 3,
       recursive: true,
-      force: true,
     });
   } catch (error) {
     console.error(error);

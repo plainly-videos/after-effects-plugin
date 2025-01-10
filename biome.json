@@ -7,7 +7,12 @@
   },
   "files": {
     "ignoreUnknown": false,
-    "ignore": ["./src/lib/**"]
+    "ignore": [
+      "shims.js",
+      "CEPEngine_extensions.js",
+      "Vulcan.js",
+      "CSInterface.js"
+    ]
   },
   "formatter": {
     "enabled": true,
@@ -24,8 +29,7 @@
         "noNonNullAssertion": "off",
         "useNodejsImportProtocol": "off"
       }
-    },
-    "ignore": ["./src/jsx/**"]
+    }
   },
   "javascript": {
     "formatter": {

@@ -7,9 +7,12 @@ on:
     branches: [ master ]
 
 jobs:
-  biome-check:
-    name: Run biome check
+  biome-check-aescripts:
+    name: Run Biome check AeScripts
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: plainly-aescripts
 
     steps:
       - uses: actions/checkout@v4
@@ -17,17 +20,21 @@ jobs:
         with:
           node-version: '20.11.1'
           cache: 'yarn'
+          cache-dependency-path: 'plainly-aescripts/yarn.lock'
 
-      - name: Install dependencies
-        run: yarn install --frozen-lockfile
+      - name: Run Biome check
+        working-directory: plainly-aescripts
+        run: |
+          yarn install --frozen-lockfile
+          yarn biome
 
-      - name: Run biome check
-        run: yarn run biome
-
-  build:
-    name: Run build
+  build-aescripts:
+    name: Run build AeScripts
     runs-on: ubuntu-latest
-    needs: biome-check
+    needs: biome-check-aescripts
+    defaults:
+      run:
+        working-directory: plainly-aescripts
 
     steps:
       - uses: actions/checkout@v4
@@ -35,9 +42,53 @@ jobs:
         with:
           node-version: '20.11.1'
           cache: 'yarn'
-
-      - name: Install dependencies
-        run: yarn install --frozen-lockfile
+          cache-dependency-path: 'plainly-aescripts/yarn.lock'
 
       - name: Run build
-        run: yarn run build
+        working-directory: plainly-aescripts
+        run: |
+          yarn install --frozen-lockfile
+          yarn build
+
+  biome-check-plugin:
+    name: Run Biome check Plugin
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: plainly-plugin
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.11.1'
+          cache: 'yarn'
+          cache-dependency-path: 'plainly-plugin/yarn.lock'
+
+      - name: Run Biome check
+        working-directory: plainly-plugin
+        run: |
+          yarn install --frozen-lockfile
+          yarn biome
+
+  build-plugin:
+    name: Run build Plugin
+    runs-on: ubuntu-latest
+    needs: biome-check-plugin
+    defaults:
+      run:
+        working-directory: plainly-plugin
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.11.1'
+          cache: 'yarn'
+          cache-dependency-path: 'plainly-plugin/yarn.lock'
+
+      - name: Run build
+        working-directory: plainly-plugin
+        run: |
+          yarn install --frozen-lockfile
+          yarn build

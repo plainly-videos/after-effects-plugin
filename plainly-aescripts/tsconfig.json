@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "module": "System",
+    "rootDir": ".",
+    "outDir": "dist",
+    "outFile": "dist/index.js",
+    "lib": ["ES2018"],
+    "skipLibCheck": true,
+    "ignoreDeprecations": "5.0",
+    "experimentalDecorators": true,
+    "allowJs": true,
+    "types": ["./node_modules/types-for-adobe/AfterEffects/22.0", "@types/node"]
+  },
+  "include": ["src/**/*.ts", "index.d.ts"]
+}
