@@ -19,3 +19,10 @@ export interface CollectFilesResult {
   collectFilesDir: string;
   projectName: string;
 }
+
+export interface Settings {
+  apiKey?: {
+    key: string;
+    encrypted: boolean;
+  };
+}

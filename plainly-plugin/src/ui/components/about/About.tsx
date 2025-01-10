@@ -1,8 +1,8 @@
 import classNames from 'classnames';
-import { pluginBundleVersion } from '../../env';
+import { pluginBundleVersion } from '../../../env';
 import { handleLinkClick } from '../../utils';
+import Description from '../typography/Description';
 import Label from '../typography/Label';
-import PageDescription from '../typography/PageDescription';
 import PageHeading from '../typography/PageHeading';
 
 export default function About() {
@@ -34,7 +34,7 @@ export default function About() {
     <div className="space-y-6 w-full text-white">
       <div>
         <PageHeading heading="About" />
-        <PageDescription className="mt-1">
+        <Description className="mt-1">
           This plugin is a tool developed by{' '}
           <button
             type="button"
@@ -57,7 +57,7 @@ export default function About() {
             sign up
           </button>{' '}
           at Plainly.
-        </PageDescription>
+        </Description>
       </div>
       <div>
         <Label label="Application features" />

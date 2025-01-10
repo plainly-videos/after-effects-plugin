@@ -4,7 +4,13 @@ export default function Label({
   label,
   htmlFor,
   className,
-}: { label: string; htmlFor?: string; className?: string }) {
+  required = false,
+}: {
+  label: string;
+  htmlFor?: string;
+  className?: string;
+  required?: boolean;
+}) {
   return (
     <label
       htmlFor={htmlFor}
@@ -14,6 +20,7 @@ export default function Label({
       )}
     >
       {label}
+      {required && <span className="ml-1">*</span>}
     </label>
   );
 }
