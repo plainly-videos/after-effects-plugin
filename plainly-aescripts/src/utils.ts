@@ -54,5 +54,11 @@ function getFolderPath(folder: FolderItem) {
 
   // Recursively build the folder path
   const parentPath = getFolderPath(folder.parentFolder);
+  const osPath = checkOs();
+
+  if (osPath === 'Windows') {
+    return `${parentPath}\\${folder.name}`;
+  }
+
   return `${parentPath}/${folder.name}`;
 }

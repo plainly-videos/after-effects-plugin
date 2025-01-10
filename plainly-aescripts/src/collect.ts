@@ -19,9 +19,6 @@ function collectFiles(): string | undefined {
   // save project at the start
   app.project.save();
 
-  const os = checkOs();
-  const osPath = os === 'Windows' ? '\\' : '/';
-
   const filePaths = {
     projectPath: app.project.file.absoluteURI,
     fonts: [],
@@ -29,14 +26,14 @@ function collectFiles(): string | undefined {
   };
 
   // collect paths
-  filePaths.fonts = collectFonts(osPath);
+  filePaths.fonts = collectFonts();
   filePaths.footage = collectFootage();
 
   // return full path
   return JSON.stringify(filePaths);
 }
 
-function collectFonts(osPath: string) {
+function collectFonts() {
   const comps = getAllComps(app.project);
   const fontPaths = [];
 
@@ -44,12 +41,12 @@ function collectFonts(osPath: string) {
     const layers = getTextLayersByComp(comps[i]);
     for (let j = 0; j < layers.length; j++) {
       const fontName = layers[j].sourceText.value.font;
-      let fontExtension = layers[j].sourceText.value.fontLocation
-        .split(osPath)
+      const fontExtension = new File(
+        layers[j].sourceText.value.fontLocation,
+      ).name
+        .split('.')
         .pop();
-      if (fontExtension == null) continue;
 
-      fontExtension = fontExtension.split('.').pop();
       const fontLocation = layers[j].sourceText.value.fontLocation;
       fontPaths.push({
         fontName: fontName,

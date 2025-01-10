@@ -6,9 +6,9 @@
   "license": "Apache-2.0",
   "scripts": {
     "clean": "rm -rf dist",
-    "dev": "yarn clean && NODE_ENV=development node ./script/updateManifest.cjs --dev && NODE_ENV=development webpack --mode development --watch",
-    "build-test": "yarn clean && NODE_ENV=test node ./script/updateManifest.cjs && NODE_ENV=test webpack --mode production",
-    "build": "yarn clean && NODE_ENV=production node ./script/updateManifest.cjs && NODE_ENV=production webpack --mode production",
+    "dev": "yarn clean && NODE_ENV=development node ./../scripts/updateManifest.cjs --dev && NODE_ENV=development webpack --mode development --watch",
+    "build-test": "yarn clean && NODE_ENV=test node ./../scripts/updateManifest.cjs && NODE_ENV=test webpack --mode production",
+    "build": "yarn clean && NODE_ENV=production node ./../scripts/updateManifest.cjs && NODE_ENV=production webpack --mode production",
     "biome": "biome check ./src",
     "biome-write": "biome check --write ./src"
   },

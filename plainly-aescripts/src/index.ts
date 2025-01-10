@@ -1,3 +1,3 @@
-import './export';
+import './collect';
 import './shims';
 import './utils';
