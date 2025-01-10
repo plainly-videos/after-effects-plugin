@@ -5,6 +5,7 @@
   "scripts": {
     "prepare-aescripts": "cd plainly-aescripts && yarn install && yarn build",
     "prepare-plugin": "cd plainly-plugin && yarn install && yarn build",
-    "package": "rm -rf package && yarn prepare-aescripts && yarn prepare-plugin && node ./scripts/preparePackage.cjs"
+    "package": "rm -rf package && yarn prepare-aescripts && yarn prepare-plugin && node ./scripts/preparePackage.cjs",
+    "prepare": "rm -rf package && node ./scripts/preparePackage.cjs"
   }
 }

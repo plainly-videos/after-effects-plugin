@@ -14,10 +14,25 @@ jobs:
         with:
           node-version: '20.11.1'
           cache: 'yarn'
+          cache-dependency-path: |
+            'plainly-plugin/yarn.lock'
+            'plainly-aescripts/yarn.lock'
 
-      - name: Package extension
+      - name: Prepare plainly-aescripts
+        working-directory: ./plainly-aescripts
         run: |
-          yarn package
+          yarn install --frozen-lockfile
+          yarn build
+
+      - name: Prepare plainly-plugin
+        working-directory: ./plainly-plugin
+        run: |
+          yarn install --frozen-lockfile
+          yarn build
+
+      - name: Prepare package for signing
+        run: |
+          yarn prepare
     
       - name: Download ZXPSignCmd Tool
         run: |
