@@ -10,22 +10,27 @@ jobs:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-node@v4
         with:
           node-version: '20.11.1'
           cache: 'yarn'
-          cache-dependency-path: |
-            'plainly-plugin/yarn.lock'
-            'plainly-aescripts/yarn.lock'
+          cache-dependency-path: 'plainly-aescripts/yarn.lock'
 
       - name: Prepare plainly-aescripts
-        working-directory: ./plainly-aescripts
+        working-directory: plainly-aescripts
         run: |
           yarn install --frozen-lockfile
           yarn build
 
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.11.1'
+          cache: 'yarn'
+          cache-dependency-path: 'plainly-plugin/yarn.lock'
+
       - name: Prepare plainly-plugin
-        working-directory: ./plainly-plugin
+        working-directory: plainly-plugin
         run: |
           yarn install --frozen-lockfile
           yarn build
