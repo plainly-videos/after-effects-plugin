@@ -24,11 +24,4 @@ const windowsDest = path.join(
   'Plainly Videos',
 );
 const device: string = os.platform();
-function getSettingsDirectory(): string {
-  if (device === 'win32') {
-    return windowsDest;
-  }
-  return macDest;
-}
-
-export const settingsDirectory = getSettingsDirectory();
+export const settingsDirectory = device === 'win32' ? windowsDest : macDest;
