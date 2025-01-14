@@ -9,7 +9,7 @@ This repository contains code for the After Effects Plugin created to support [P
 
 ### Through Creative Cloud
 
-1. Check the plugin at [Adobe Exchange - Creative Cloud](https://exchange.adobe.com/apps/cc/202811/plainly-videos).
+1. Acquire the plugin at [Adobe Exchange - Creative Cloud](https://exchange.adobe.com/apps/cc/202811/plainly-videos).
 2. Open **Creative Cloud** application.
 3. Navigate to **Stock & Marketplace** > **Plugins** > **All plugins**
 4. Search for `Plainly Videos`, click install and proceed with the installation process.
