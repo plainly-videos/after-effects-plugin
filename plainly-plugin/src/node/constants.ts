@@ -8,6 +8,7 @@ import CSInterface from './lib/CSInterface';
 export const csInterface = new CSInterface();
 
 // directory related
+const settingsFileName = 'settings.json';
 const homeDirectory = os.homedir();
 const macDest = path.join(
   homeDirectory,
@@ -25,3 +26,4 @@ const windowsDest = path.join(
 );
 const device: string = os.platform();
 export const settingsDirectory = device === 'win32' ? windowsDest : macDest;
+export const settingsPath = path.join(settingsDirectory, settingsFileName);

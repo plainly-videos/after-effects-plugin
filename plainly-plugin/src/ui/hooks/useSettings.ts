@@ -11,7 +11,7 @@ import type { Pin } from '../types';
 
 type Action =
   | {
-      type: 'SET_SETTINGS';
+      type: 'INIT_SETTINGS';
       payload: Settings;
     }
   | {
@@ -21,7 +21,7 @@ type Action =
 
 function settingsReducer(settings: Settings, action: Action) {
   switch (action.type) {
-    case 'SET_SETTINGS': {
+    case 'INIT_SETTINGS': {
       return action.payload;
     }
     case 'SET_SETTINGS_API_KEY': {
@@ -43,7 +43,7 @@ export const useSettings = () => {
     const fetchSettings = async () => {
       try {
         const initialSettings = await retrieveSettings();
-        dispatch({ type: 'SET_SETTINGS', payload: initialSettings });
+        dispatch({ type: 'INIT_SETTINGS', payload: initialSettings });
       } catch (error) {
         console.log(error);
       } finally {

@@ -1,18 +1,14 @@
 const fsPromises = require('fs/promises');
 const fs = require('fs');
-const path = require('path');
 
-import { settingsDirectory } from '../constants';
+import { settingsDirectory, settingsPath } from '../constants';
 import type { Settings } from '../types';
 
 export const defaultSettings: Settings = {};
 
 async function retrieveSettings() {
   try {
-    const file = await fsPromises.readFile(
-      path.join(settingsDirectory, 'settings.json'),
-      'utf-8',
-    );
+    const file = await fsPromises.readFile(settingsPath, 'utf-8');
     return JSON.parse(file);
   } catch (error) {
     console.error(`Failed to read settings: ${error}`);
@@ -27,11 +23,7 @@ async function saveSettings(settings: Settings) {
 
   try {
     const settingsContent = JSON.stringify(settings, null, 2);
-    await fsPromises.writeFile(
-      path.join(settingsDirectory, 'settings.json'),
-      settingsContent,
-      'utf-8',
-    );
+    await fsPromises.writeFile(settingsPath, settingsContent, 'utf-8');
   } catch (error) {
     console.error(`Failed to save settings: ${error}`);
   }

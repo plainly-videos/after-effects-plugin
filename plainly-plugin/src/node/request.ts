@@ -13,7 +13,7 @@ const options = {
 };
 
 function request(options: RequestOptions) {
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve, reject: (reason: Error) => void) => {
     const req: ClientRequest = protocol.request(
       options,
       (res: ServerResponse) => {
@@ -28,17 +28,20 @@ function request(options: RequestOptions) {
         res.on('end', () => {
           try {
             const response = JSON.parse(data);
-            const { statusCode } = res;
+            const { statusCode, statusMessage } = res;
             if (statusCode >= 200 && statusCode < 400) {
               resolve(response);
             } else {
               reject({
-                statusCode,
-                message: data,
+                name: 'ResponseError',
+                message: statusMessage,
               });
             }
           } catch (error) {
-            reject(`Failed to parse response: ${(error as Error).message}`);
+            reject({
+              name: 'ParseError',
+              message: `Failed to parse response: ${(error as Error).message}`,
+            });
           }
         });
       },
@@ -46,9 +49,8 @@ function request(options: RequestOptions) {
 
     req.on('error', (error) => {
       reject({
-        statusCode: 500,
+        name: 'RequestError',
         message: error.message,
-        error,
       }); // Reject the Promise if there's an error
     });
 
