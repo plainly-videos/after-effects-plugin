@@ -7,6 +7,13 @@ This repository contains code for the After Effects Plugin created to support [P
 
 ## Installation
 
+### Through Creative Cloud
+
+1. Acquire our plugin at [Adobe Exchange - Creative Cloud](https://exchange.adobe.com/apps/cc/202811/plainly-videos).
+2. Open **Creative Cloud** application.
+3. Navigate to **Stock & Marketplace** > **Plugins** > **All plugins**
+4. Search for `plainly videos`, click install and proceed with an installation process.
+
 ### Using ZXP/UXP Installer
 
 1. Download the latest `plainly-plugin.zxp` from the [latest release](https://github.com/plainly-videos/after-effects-plugin/releases/latest).
