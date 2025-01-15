@@ -6,7 +6,7 @@ import type { Settings } from '../types';
 
 export const defaultSettings: Settings = {};
 
-async function retrieveSettings() {
+async function retrieveSettings(): Promise<Settings> {
   try {
     const file = await fsPromises.readFile(settingsPath, 'utf-8');
     return JSON.parse(file);

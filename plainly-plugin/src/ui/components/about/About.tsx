@@ -28,10 +28,14 @@ export default function About() {
       label: 'Export zip',
       version: '1.0.0',
     },
+    {
+      label: 'Project upload',
+      version: '1.0.0',
+    },
   ];
 
   return (
-    <div className="space-y-6 w-full text-white">
+    <div className="space-y-4 w-full text-white">
       <div>
         <PageHeading heading="About" />
         <Description className="mt-1">

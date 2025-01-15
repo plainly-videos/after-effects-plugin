@@ -41,8 +41,8 @@ export default function ExportForm() {
   };
 
   return (
-    <form className="space-y-6 w-full text-white" onSubmit={handleSubmit}>
-      <div className="space-y-6 border-b border-white/10 pb-6">
+    <form className="space-y-4 w-full text-white" onSubmit={handleSubmit}>
+      <div className="space-y-4 border-b border-white/10 pb-4">
         <div>
           <PageHeading heading="Export files" />
           <Description className="mt-1">
@@ -53,7 +53,7 @@ export default function ExportForm() {
           </Description>
         </div>
 
-        <div className="grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
+        <div className="grid grid-cols-1 gap-x-4 gap-y-4 sm:grid-cols-6">
           <div
             className={classNames(
               'col-span-full',

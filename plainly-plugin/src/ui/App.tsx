@@ -7,6 +7,7 @@ import ExportRoute from './routes/ExportRoute';
 import SettingsRoute from './routes/SettingsRoute';
 import { State, useGlobalState } from './state/store';
 import { reloadExtension } from './utils';
+import UploadRoute from './routes/UploadRoute';
 
 export default function App() {
   const [settings] = useGlobalState(State.SETTINGS);
@@ -15,8 +16,9 @@ export default function App() {
   // Add new pages here and to pages.ts
   const children = useMemo(() => {
     if (currentPage === '/export') return <ExportRoute />;
-    if (currentPage === '/about') return <AboutRoute />;
+    if (currentPage === '/upload') return <UploadRoute />;
     if (currentPage === '/settings') return <SettingsRoute />;
+    if (currentPage === '/about') return <AboutRoute />;
 
     return null;
   }, [currentPage]);

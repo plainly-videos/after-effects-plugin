@@ -1,22 +1,23 @@
-const https = require('https');
-const http = require('http');
+import https from 'https';
+import http from 'http';
 
-import type { ClientRequest, RequestOptions, ServerResponse } from 'http';
+import type { ClientRequest, IncomingMessage, RequestOptions } from 'http';
 import { hostname, isDev, port } from '../env';
+import type FormData from 'form-data';
 
 const protocol = isDev ? http : https;
 
-const options = {
+const applicationJson = { 'Content-Type': 'application/json' };
+const options: RequestOptions = {
   hostname: `${hostname}`,
   port: port,
-  headers: { 'Content-Type': 'application/json' },
 };
 
-function request(options: RequestOptions) {
+function request(options: RequestOptions, body?: FormData | string) {
   return new Promise((resolve, reject: (reason: Error) => void) => {
     const req: ClientRequest = protocol.request(
       options,
-      (res: ServerResponse) => {
+      (res: IncomingMessage) => {
         let data = '';
 
         // Collect the response data
@@ -54,13 +55,34 @@ function request(options: RequestOptions) {
       }); // Reject the Promise if there's an error
     });
 
-    req.end();
+    if (body) {
+      if (typeof body === 'string') {
+        // for application/json
+        req.write(body, (err) => {
+          if (err) {
+            reject({
+              name: 'WriteError',
+              message: err.message,
+            });
+          }
+
+          req.end(); // needs to be here because of the write and async
+        });
+      } else {
+        // for multipart/form-data
+        body.pipe(req, { end: true });
+      }
+    } else {
+      // in case of a GET request we need to end
+      req.end();
+    }
   });
 }
 
 async function get(path: string, apiKey: string) {
-  const getOptions = {
+  const getOptions: RequestOptions = {
     ...options,
+    headers: applicationJson,
     path,
     method: 'GET',
     auth: `${apiKey}:`, // Format for Basic Authentication
@@ -69,4 +91,19 @@ async function get(path: string, apiKey: string) {
   return request(getOptions);
 }
 
-export { get };
+async function post(path: string, apiKey: string, body: FormData | string) {
+  const headers =
+    typeof body === 'string' ? { applicationJson } : body.getHeaders();
+
+  const postOptions: RequestOptions = {
+    ...options,
+    headers,
+    path,
+    method: 'POST',
+    auth: `${apiKey}:`, // Format for Basic Authentication
+  };
+
+  return request(postOptions, body);
+}
+
+export { get, post };

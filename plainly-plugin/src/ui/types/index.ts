@@ -2,6 +2,7 @@ export enum Routes {
   EXPORT = '/export',
   ABOUT = '/about',
   SETTINGS = '/settings',
+  UPLOAD = '/upload',
 }
 
 export interface GlobalSettings {
