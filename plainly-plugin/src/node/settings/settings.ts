@@ -1,5 +1,5 @@
-const fsPromises = require('fs/promises');
-const fs = require('fs');
+import fs from 'fs';
+import fsPromises from 'fs/promises';
 
 import { settingsDirectory, settingsPath } from '../constants';
 import type { Settings } from '../types';

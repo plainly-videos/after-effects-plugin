@@ -34,7 +34,7 @@ function request(options: RequestOptions) {
             } else {
               reject({
                 name: 'ResponseError',
-                message: statusMessage,
+                message: response?.message || statusMessage,
               });
             }
           } catch (error) {

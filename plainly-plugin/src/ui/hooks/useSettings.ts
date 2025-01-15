@@ -20,19 +20,27 @@ type Action =
     };
 
 function settingsReducer(settings: Settings, action: Action) {
-  switch (action.type) {
-    case 'INIT_SETTINGS': {
-      return action.payload;
+  const reducerFunction = () => {
+    switch (action.type) {
+      case 'INIT_SETTINGS': {
+        return action.payload;
+      }
+      case 'SET_SETTINGS_API_KEY': {
+        return {
+          ...settings,
+          apiKey: action.payload,
+        };
+      }
+      default:
+        return settings;
     }
-    case 'SET_SETTINGS_API_KEY': {
-      return {
-        ...settings,
-        apiKey: action.payload,
-      };
-    }
-    default:
-      return settings;
+  };
+
+  if (action.type !== 'INIT_SETTINGS') {
+    saveSettings(reducerFunction());
   }
+
+  return reducerFunction();
 }
 
 export const useSettings = () => {
@@ -70,25 +78,12 @@ export const useSettings = () => {
         newApiKey = encode(secret, apiKey);
       }
 
-      const newSettings = {
-        ...settings,
-        apiKey: {
-          key: newApiKey,
-          encrypted: !!pin,
-        },
-      };
-
-      try {
-        await saveSettings(newSettings);
-        dispatch({
-          type: 'SET_SETTINGS_API_KEY',
-          payload: { key: newApiKey, encrypted: !!pin },
-        });
-      } catch (error) {
-        throw new Error(`Failed to set API key: ${(error as Error).message}`);
-      }
+      dispatch({
+        type: 'SET_SETTINGS_API_KEY',
+        payload: { key: newApiKey, encrypted: !!pin },
+      });
     },
-    [settings],
+    [],
   );
 
   return { settings, setSettingsApiKey, loading };

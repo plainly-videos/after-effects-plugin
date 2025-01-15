@@ -1,5 +1,5 @@
-const os = require('os');
-const path = require('path');
+import os from 'os';
+import path from 'path';
 
 // @ts-ignore
 import CSInterface from './lib/CSInterface';

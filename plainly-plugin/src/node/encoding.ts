@@ -1,4 +1,4 @@
-const crypto = require('crypto');
+import crypto from 'crypto';
 
 export function encode(secret: string, data: string) {
   const key = crypto.createHash('sha256').update(secret).digest(); // 32-byte key for AES-256
