@@ -1,9 +1,9 @@
-import https from 'https';
 import http from 'http';
+import https from 'https';
 
 import type { ClientRequest, IncomingMessage, RequestOptions } from 'http';
-import { hostname, isDev, port } from '../env';
 import type FormData from 'form-data';
+import { hostname, isDev, port } from '../env';
 
 const protocol = isDev ? http : https;
 

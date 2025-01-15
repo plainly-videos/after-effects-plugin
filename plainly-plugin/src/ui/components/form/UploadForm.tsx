@@ -1,16 +1,16 @@
+import FormData from 'form-data';
 import { useState } from 'react';
-import Button from '../common/Button';
-import Description from '../typography/Description';
-import Label from '../typography/Label';
-import PageHeading from '../typography/PageHeading';
-import { post } from '../../../node/request';
 import {
   collectFiles,
   removeFolder,
   retrieveSettings,
   zip,
 } from '../../../node';
-import FormData from 'form-data';
+import { post } from '../../../node/request';
+import Button from '../common/Button';
+import Description from '../typography/Description';
+import Label from '../typography/Label';
+import PageHeading from '../typography/PageHeading';
 
 import fs from 'fs';
 import path from 'path';

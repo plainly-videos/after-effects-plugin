@@ -5,9 +5,9 @@ import Sidebar from './components/navigation/Sidebar';
 import AboutRoute from './routes/AboutRoute';
 import ExportRoute from './routes/ExportRoute';
 import SettingsRoute from './routes/SettingsRoute';
+import UploadRoute from './routes/UploadRoute';
 import { State, useGlobalState } from './state/store';
 import { reloadExtension } from './utils';
-import UploadRoute from './routes/UploadRoute';
 
 export default function App() {
   const [settings] = useGlobalState(State.SETTINGS);
