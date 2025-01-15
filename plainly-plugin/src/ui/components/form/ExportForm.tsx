@@ -24,18 +24,24 @@ export default function ExportForm() {
     e.preventDefault();
     setLoading(true);
     if (targetPath) {
+      let collectFilesDirValue: string | undefined;
+
       try {
         const { collectFilesDir, projectName } = await collectFiles(targetPath);
-        await zip(collectFilesDir, projectName);
-        await removeFolder(collectFilesDir);
+        collectFilesDirValue = collectFilesDir;
+        const zipPath = await zip(collectFilesDir, projectName);
         notifySuccess(
           'Zip file created',
-          `Zip file created at: ${decodeURI(targetPath)}`,
+          `Zip file created at: ${decodeURI(zipPath)}`,
         );
         setLoading(false);
       } catch (error) {
         notifyError('Failed to collect files', (error as Error).message);
         setLoading(false);
+      } finally {
+        if (collectFilesDirValue) {
+          await removeFolder(collectFilesDirValue);
+        }
       }
     }
   };

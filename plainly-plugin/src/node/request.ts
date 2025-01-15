@@ -92,12 +92,9 @@ async function get(path: string, apiKey: string) {
 }
 
 async function post(path: string, apiKey: string, body: FormData | string) {
-  const headers =
-    typeof body === 'string' ? { applicationJson } : body.getHeaders();
-
   const postOptions: RequestOptions = {
     ...options,
-    headers,
+    headers: applicationJson,
     path,
     method: 'POST',
     auth: `${apiKey}:`, // Format for Basic Authentication
@@ -106,4 +103,16 @@ async function post(path: string, apiKey: string, body: FormData | string) {
   return request(postOptions, body);
 }
 
-export { get, post };
+async function postFormData(path: string, apiKey: string, body: FormData) {
+  const postOptions: RequestOptions = {
+    ...options,
+    headers: body.getHeaders(),
+    path,
+    method: 'POST',
+    auth: `${apiKey}:`, // Format for Basic Authentication
+  };
+
+  return request(postOptions, body);
+}
+
+export { get, post, postFormData };

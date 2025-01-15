@@ -28,10 +28,6 @@ export default function About() {
       label: 'Export zip',
       version: '1.0.0',
     },
-    {
-      label: 'Project upload',
-      version: '1.0.0',
-    },
   ];
 
   return (

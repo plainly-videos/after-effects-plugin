@@ -4,7 +4,7 @@ import path from 'path';
 import archiver from 'archiver';
 import fsPromises from 'fs/promises';
 
-import { csInterface } from '../constants';
+import { csInterface, settingsDirectory } from '../constants';
 import { CollectFontsError, CollectFootageError } from '../errors';
 import type { CollectFilesResult, Fonts, Footage, ProjectInfo } from '../types';
 import {
@@ -30,7 +30,18 @@ function selectFolder(callback: (result: string) => void) {
  *
  * @param targetPath the path of the folder where the files will be copied.
  */
-async function collectFiles(targetPath: string): Promise<CollectFilesResult> {
+async function collectFiles(
+  targetPath: string | undefined,
+): Promise<CollectFilesResult> {
+  if (!targetPath) {
+    const tempDest = path.join(settingsDirectory, 'temp');
+    if (!fs.existsSync(tempDest)) {
+      fs.mkdirSync(tempDest, { recursive: true });
+    }
+
+    return collectFiles(tempDest);
+  }
+
   const result = await evalScriptAsync(`collectFiles("${targetPath}")`);
 
   const projectInfo: ProjectInfo = JSON.parse(result);
@@ -117,7 +128,7 @@ async function copyFootage(footage: Footage[], targetDir: string) {
  *
  * @param targetPath The path of the directory to zip.
  */
-function zip(targetPath: string, projectName: string): Promise<void> {
+function zip(targetPath: string, projectName: string): Promise<string> {
   return new Promise((resolve, reject) => {
     const targetPathResolved = finalizePath(targetPath); // Normalize and resolve
 
@@ -134,7 +145,7 @@ function zip(targetPath: string, projectName: string): Promise<void> {
     output.on('close', () => {
       console.log(`Zipped ${archive.pointer()} total bytes`);
       console.log(`Zip file created at: ${outputZipPath}`);
-      resolve();
+      resolve(outputZipPath);
     });
 
     archive.on('error', (err: unknown) => {
