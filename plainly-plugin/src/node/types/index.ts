@@ -1,5 +1,4 @@
 export interface ProjectInfo {
-  projectPath: string;
   fonts: Fonts[];
   footage: Footage[];
 }
@@ -17,7 +16,6 @@ export interface Footage {
 
 export interface CollectFilesResult {
   collectFilesDir: string;
-  projectName: string;
 }
 
 export interface Settings {

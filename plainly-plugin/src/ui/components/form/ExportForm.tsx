@@ -3,6 +3,7 @@ import { FolderIcon } from 'lucide-react';
 import { useState } from 'react';
 import {
   collectFiles,
+  makeProjectZip,
   removeFolder,
   selectFolder,
   zip,
@@ -13,6 +14,7 @@ import Notification from '../common/Notification';
 import Description from '../typography/Description';
 import Label from '../typography/Label';
 import PageHeading from '../typography/PageHeading';
+import path from 'path';
 
 export default function ExportForm() {
   const [targetPath, setTargetPath] = useState<string>();
@@ -27,9 +29,8 @@ export default function ExportForm() {
       let collectFilesDirValue: string | undefined;
 
       try {
-        const { collectFilesDir, projectName } = await collectFiles(targetPath);
+        const { collectFilesDir, zipPath } = await makeProjectZip(targetPath);
         collectFilesDirValue = collectFilesDir;
-        const zipPath = await zip(collectFilesDir, projectName);
         notifySuccess(
           'Zip file created',
           `Zip file created at: ${decodeURI(zipPath)}`,

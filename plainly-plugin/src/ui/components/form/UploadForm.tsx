@@ -1,6 +1,12 @@
 import FormData from 'form-data';
 import { useState } from 'react';
-import { collectFiles, removeFolder, zip } from '../../../node';
+import {
+  collectFiles,
+  makeProjectZip,
+  makeTmpDir,
+  removeFolder,
+  zip,
+} from '../../../node';
 import { postFormData } from '../../../node/request';
 import Button from '../common/Button';
 import Description from '../typography/Description';
@@ -9,6 +15,7 @@ import PageHeading from '../typography/PageHeading';
 
 import fs from 'fs';
 import { LoaderCircleIcon } from 'lucide-react';
+import { TMP_DIR } from '../../../node/constants';
 import { useNotification } from '../../hooks/useNotification';
 import { useSettings } from '../../hooks/useSettings';
 import Alert from '../common/Alert';
@@ -36,10 +43,9 @@ export default function UploadForm() {
     let zipPathValue: string | undefined;
 
     try {
-      const { collectFilesDir, projectName } = await collectFiles(undefined);
+      await makeTmpDir();
+      const { collectFilesDir, zipPath } = await makeProjectZip(TMP_DIR);
       collectFilesDirValue = collectFilesDir;
-
-      const zipPath = await zip(collectFilesDir, projectName);
       zipPathValue = zipPath;
 
       const file = fs.createReadStream(zipPath);

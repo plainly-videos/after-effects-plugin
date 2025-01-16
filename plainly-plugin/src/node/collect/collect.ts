@@ -1,10 +1,10 @@
+import archiver from 'archiver';
 import crypto from 'crypto';
 import fs from 'fs';
-import path from 'path';
-import archiver from 'archiver';
 import fsPromises from 'fs/promises';
+import path from 'path';
 
-import { csInterface, settingsDirectory } from '../constants';
+import { csInterface, TMP_DIR } from '../constants';
 import { CollectFontsError, CollectFootageError } from '../errors';
 import type { CollectFilesResult, Fonts, Footage, ProjectInfo } from '../types';
 import {
@@ -30,23 +30,13 @@ function selectFolder(callback: (result: string) => void) {
  *
  * @param targetPath the path of the folder where the files will be copied.
  */
-async function collectFiles(
-  targetPath: string | undefined,
-): Promise<CollectFilesResult> {
-  if (!targetPath) {
-    const tempDest = path.join(settingsDirectory, 'temp');
-    if (!fs.existsSync(tempDest)) {
-      fs.mkdirSync(tempDest, { recursive: true });
-    }
-
-    return collectFiles(tempDest);
-  }
-
+async function collectFiles(targetPath: string): Promise<CollectFilesResult> {
   const result = await evalScriptAsync(`collectFiles("${targetPath}")`);
+  const projectPath = await evalScriptAsync('getProjectPath()');
 
   const projectInfo: ProjectInfo = JSON.parse(result);
 
-  const projectName = path.basename(projectInfo.projectPath, '.aep');
+  const projectName = path.basename(projectPath, '.aep');
   const pathResolved = finalizePath(targetPath); // Normalize and resolve
 
   const folderName = crypto.randomUUID();
@@ -54,12 +44,12 @@ async function collectFiles(
   const projectDir = path.join(pathResolved, folderName);
 
   const dest = path.join(projectDir, `${projectName}.aep`);
-  await fsPromises.copyFile(finalizePath(projectInfo.projectPath), dest);
+  await fsPromises.copyFile(finalizePath(projectPath), dest);
 
   await copyFonts(projectInfo.fonts, projectDir);
   await copyFootage(projectInfo.footage, projectDir);
 
-  return { collectFilesDir: projectDir, projectName: projectName };
+  return { collectFilesDir: projectDir };
 }
 
 async function copyFonts(fonts: Fonts[], targetDir: string) {
@@ -180,4 +170,9 @@ async function removeFolder(targetPath: string) {
   }
 }
 
-export { collectFiles, removeFolder, selectFolder, zip };
+async function makeTmpDir() {
+  await removeFolder(TMP_DIR);
+  await fsPromises.mkdir(TMP_DIR);
+}
+
+export { collectFiles, makeTmpDir, removeFolder, selectFolder, zip };
