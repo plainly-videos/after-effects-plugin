@@ -8,13 +8,11 @@ import Label from '../typography/Label';
 import PageHeading from '../typography/PageHeading';
 
 import fs from 'fs';
-import path from 'path';
-import { settingsDirectory } from '../../../node/constants';
+import { LoaderCircleIcon } from 'lucide-react';
 import { useNotification } from '../../hooks/useNotification';
-import Notification from '../common/Notification';
 import { useSettings } from '../../hooks/useSettings';
-import { LoaderCircleIcon, XCircleIcon } from 'lucide-react';
 import Alert from '../common/Alert';
+import Notification from '../common/Notification';
 
 export default function UploadForm() {
   const [inputs, setInputs] = useState<{
@@ -25,9 +23,11 @@ export default function UploadForm() {
   const [loading, setLoading] = useState(false);
   const { notification, notifySuccess, notifyError, clearNotification } =
     useNotification();
-  const { settings, loading: settingsLoading } = useSettings();
+  const { getSettingsApiKey, loading: settingsLoading } = useSettings();
 
-  const disabled = loading || !settings?.apiKey?.key;
+  const apiKey = getSettingsApiKey();
+
+  const disabled = loading || !apiKey?.key;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -46,6 +46,7 @@ export default function UploadForm() {
       const tags = inputs.tags?.map((tag) => tag.trim());
 
       const formData = new FormData();
+      formData.append('file', file);
       inputs.projectName && formData.append('name', inputs.projectName);
       inputs.description && formData.append('description', inputs.description);
       if (tags) {
@@ -53,9 +54,8 @@ export default function UploadForm() {
           formData.append('tags', tag);
         }
       }
-      formData.append('file', file);
 
-      await postFormData('/api/v2/projects', settings.apiKey.key, formData);
+      await postFormData('/api/v2/projects', apiKey.key, formData);
 
       notifySuccess('Project uploaded');
       setInputs({});
@@ -145,7 +145,7 @@ export default function UploadForm() {
           </div>
         )}
 
-        {!settings?.apiKey?.key && (
+        {!apiKey?.key && (
           <Alert
             title="To upload a project, you must have a valid API key set up in the Settings."
             danger

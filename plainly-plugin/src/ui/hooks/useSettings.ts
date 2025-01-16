@@ -86,5 +86,7 @@ export const useSettings = () => {
     [],
   );
 
-  return { settings, setSettingsApiKey, loading };
+  const getSettingsApiKey = () => settings.apiKey;
+
+  return { settings, setSettingsApiKey, loading, getSettingsApiKey };
 };
