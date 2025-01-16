@@ -3,11 +3,9 @@ import classNames from 'classnames';
 import { FolderIcon } from 'lucide-react';
 import { useState } from 'react';
 import {
-  collectFiles,
   makeProjectZip,
   removeFolder,
   selectFolder,
-  zip,
 } from '../../../node/index';
 import { useNotification } from '../../hooks/useNotification';
 import Button from '../common/Button';

@@ -6,7 +6,7 @@ import fsPromises from 'fs/promises';
 
 import { TMP_DIR, csInterface } from '../constants';
 import { CollectFontsError, CollectFootageError } from '../errors';
-import type { CollectFilesResult, Fonts, Footage, ProjectInfo } from '../types';
+import type { Fonts, Footage, ProjectInfo } from '../types';
 import {
   evalScriptAsync,
   finalizePath,
@@ -30,7 +30,7 @@ function selectFolder(callback: (result: string) => void) {
  *
  * @param targetPath the path of the folder where the files will be copied.
  */
-async function collectFiles(targetPath: string): Promise<CollectFilesResult> {
+async function collectProjectFiles(targetPath: string): Promise<string> {
   const result = await evalScriptAsync(`collectFiles("${targetPath}")`);
   const projectPath = await evalScriptAsync('getProjectPath()');
 
@@ -49,7 +49,7 @@ async function collectFiles(targetPath: string): Promise<CollectFilesResult> {
   await copyFonts(projectInfo.fonts, projectDir);
   await copyFootage(projectInfo.footage, projectDir);
 
-  return { collectFilesDir: projectDir };
+  return projectDir;
 }
 
 async function copyFonts(fonts: Fonts[], targetDir: string) {
@@ -171,8 +171,7 @@ async function removeFolder(targetPath: string) {
 }
 
 async function makeTmpDir() {
-  await removeFolder(TMP_DIR);
-  await fsPromises.mkdir(TMP_DIR);
+  await fsPromises.mkdir(TMP_DIR, { recursive: true });
 }
 
-export { collectFiles, makeTmpDir, removeFolder, selectFolder, zip };
+export { collectProjectFiles, makeTmpDir, removeFolder, selectFolder, zip };

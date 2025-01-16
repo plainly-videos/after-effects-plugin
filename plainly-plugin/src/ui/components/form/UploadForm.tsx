@@ -1,12 +1,6 @@
 import FormData from 'form-data';
 import { useState } from 'react';
-import {
-  collectFiles,
-  makeProjectZip,
-  makeTmpDir,
-  removeFolder,
-  zip,
-} from '../../../node';
+import { makeProjectZip, makeTmpDir, removeFolder } from '../../../node';
 import { postFormData } from '../../../node/request';
 import Button from '../common/Button';
 import Description from '../typography/Description';

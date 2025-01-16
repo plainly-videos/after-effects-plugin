@@ -14,10 +14,6 @@ export interface Footage {
   itemFolder: string;
 }
 
-export interface CollectFilesResult {
-  collectFilesDir: string;
-}
-
 export interface Settings {
   apiKey?: {
     key: string;
