@@ -1,10 +1,10 @@
-import archiver from 'archiver';
 import crypto from 'crypto';
 import fs from 'fs';
-import fsPromises from 'fs/promises';
 import path from 'path';
+import archiver from 'archiver';
+import fsPromises from 'fs/promises';
 
-import { csInterface, TMP_DIR } from '../constants';
+import { TMP_DIR, csInterface } from '../constants';
 import { CollectFontsError, CollectFootageError } from '../errors';
 import type { CollectFilesResult, Fonts, Footage, ProjectInfo } from '../types';
 import {

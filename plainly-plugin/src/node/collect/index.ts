@@ -1,7 +1,7 @@
 import path from 'path';
 
-import { collectFiles, zip } from './collect';
 import { evalScriptAsync } from '../utils';
+import { collectFiles, zip } from './collect';
 
 export * from './collect';
 
