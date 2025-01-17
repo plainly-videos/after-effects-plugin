@@ -170,8 +170,27 @@ async function removeFolder(targetPath: string) {
   }
 }
 
-async function makeTmpDir() {
-  await fsPromises.mkdir(TMP_DIR, { recursive: true });
+// Overload signatures
+async function makeProjectZip();
+async function makeProjectZip(targetPath: string);
+
+async function makeProjectZip(targetPath?: string) {
+  if (!targetPath) {
+    // Handle the case with no arguments
+    await fsPromises.mkdir(TMP_DIR, { recursive: true });
+    return makeProjectZip(TMP_DIR);
+  }
+
+  // Handle the case with a targetPath argument
+  try {
+    const collectFilesDir = await collectProjectFiles(targetPath);
+    const projectPath = await evalScriptAsync('getProjectPath()');
+    const projectName = path.basename(projectPath, '.aep');
+    const zipPath = await zip(collectFilesDir, projectName);
+    return { collectFilesDir, zipPath };
+  } catch (error) {
+    throw new Error(`Failed to collect files: ${(error as Error).message}`);
+  }
 }
 
-export { collectProjectFiles, makeTmpDir, removeFolder, selectFolder, zip };
+export { makeProjectZip, removeFolder, selectFolder };
