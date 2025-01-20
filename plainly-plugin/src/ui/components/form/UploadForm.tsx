@@ -87,69 +87,71 @@ export default function UploadForm() {
         )}
 
         {!settingsLoading && (
-          <div className="grid grid-cols-1 gap-x-4 gap-y-4 sm:grid-cols-6">
-            <div className="col-span-full">
-              <Label label="Name" htmlFor="projectName" />
-              <input
-                id="projectName"
-                name="projectName"
-                type="text"
-                className="col-start-1 row-start-1 block w-full rounded-md bg-white/5 px-3 py-1 text-xs text-white outline outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500"
-                defaultValue={inputs.projectName}
-                onChange={(e) =>
-                  setInputs((prev) => ({
-                    ...prev,
-                    projectName: e.target.value,
-                  }))
-                }
+          <>
+            {!apiKey?.key && (
+              <Alert
+                title="To upload a project, you must have a valid API key set up in the settings."
+                danger
               />
-            </div>
+            )}
 
-            <div className="col-span-full">
-              <Label label="Description" htmlFor="description" />
-              <textarea
-                id="description"
-                name="description"
-                className="col-start-1 row-start-1 block w-full rounded-md bg-white/5 px-3 py-1 text-xs text-white outline outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500"
-                defaultValue={inputs.description}
-                onChange={(e) =>
-                  setInputs((prev) => ({
-                    ...prev,
-                    description: e.target.value,
-                  }))
-                }
-              />
-            </div>
+            <div className="grid grid-cols-1 gap-x-4 gap-y-4 sm:grid-cols-6">
+              <div className="col-span-full">
+                <Label label="Name" htmlFor="projectName" />
+                <input
+                  id="projectName"
+                  name="projectName"
+                  type="text"
+                  className="col-start-1 row-start-1 block w-full rounded-md bg-white/5 px-3 py-1 text-xs text-white outline outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500"
+                  defaultValue={inputs.projectName}
+                  onChange={(e) =>
+                    setInputs((prev) => ({
+                      ...prev,
+                      projectName: e.target.value,
+                    }))
+                  }
+                />
+              </div>
 
-            <div className="col-span-full">
-              <Label label="Tags" htmlFor="tags" />
-              <Description>
-                Tags help you group, filter and categorize your projects on
-                Plainly Videos. Separate tags with a comma.
-              </Description>
-              <input
-                id="tags"
-                name="tags"
-                type="text"
-                className="mt-2 col-start-1 row-start-1 block w-full rounded-md bg-white/5 px-3 py-1 text-xs text-white outline outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500"
-                onChange={(e) =>
-                  setInputs((prev) => ({
-                    ...prev,
-                    tags: e.target.value.split(','),
-                  }))
-                }
-                defaultValue={inputs.tags}
-                placeholder="Example: Sports, Fitness, Gym"
-              />
-            </div>
-          </div>
-        )}
+              <div className="col-span-full">
+                <Label label="Description" htmlFor="description" />
+                <textarea
+                  id="description"
+                  name="description"
+                  className="col-start-1 row-start-1 block w-full rounded-md bg-white/5 px-3 py-1 text-xs text-white outline outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500"
+                  defaultValue={inputs.description}
+                  onChange={(e) =>
+                    setInputs((prev) => ({
+                      ...prev,
+                      description: e.target.value,
+                    }))
+                  }
+                />
+              </div>
 
-        {!apiKey?.key && (
-          <Alert
-            title="To upload a project, you must have a valid API key set up in the Settings."
-            danger
-          />
+              <div className="col-span-full">
+                <Label label="Tags" htmlFor="tags" />
+                <Description>
+                  Tags help you group, filter and categorize your projects on
+                  Plainly Videos. Separate tags with a comma.
+                </Description>
+                <input
+                  id="tags"
+                  name="tags"
+                  type="text"
+                  className="mt-2 col-start-1 row-start-1 block w-full rounded-md bg-white/5 px-3 py-1 text-xs text-white outline outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500"
+                  onChange={(e) =>
+                    setInputs((prev) => ({
+                      ...prev,
+                      tags: e.target.value.split(','),
+                    }))
+                  }
+                  defaultValue={inputs.tags}
+                  placeholder="Example: Sports, Fitness, Gym"
+                />
+              </div>
+            </div>
+          </>
         )}
       </div>
 
