@@ -170,18 +170,14 @@ async function removeFolder(targetPath: string) {
   }
 }
 
-// Overload signatures
-async function makeProjectZip();
-async function makeProjectZip(targetPath: string);
+// Function to make a project zip with no target path specified
+async function makeProjectZipTmpDir() {
+  await fsPromises.mkdir(TMP_DIR, { recursive: true });
+  return makeProjectZip(TMP_DIR);
+}
 
-async function makeProjectZip(targetPath?: string) {
-  if (!targetPath) {
-    // Handle the case with no arguments
-    await fsPromises.mkdir(TMP_DIR, { recursive: true });
-    return makeProjectZip(TMP_DIR);
-  }
-
-  // Handle the case with a targetPath argument
+// Function to make a project zip with a specified target path
+async function makeProjectZip(targetPath: string) {
   try {
     const collectFilesDir = await collectProjectFiles(targetPath);
     const projectPath = await evalScriptAsync('getProjectPath()');
@@ -193,4 +189,4 @@ async function makeProjectZip(targetPath?: string) {
   }
 }
 
-export { makeProjectZip, removeFolder, selectFolder };
+export { makeProjectZipTmpDir, makeProjectZip, removeFolder, selectFolder };

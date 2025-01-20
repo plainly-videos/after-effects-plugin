@@ -1,6 +1,6 @@
 import FormData from 'form-data';
 import { useState } from 'react';
-import { makeProjectZip, removeFolder } from '../../../node';
+import { makeProjectZipTmpDir, removeFolder } from '../../../node';
 import { postFormData } from '../../../node/request';
 import Button from '../common/Button';
 import Description from '../typography/Description';
@@ -37,7 +37,7 @@ export default function UploadForm() {
     let zipPathValue: string | undefined;
 
     try {
-      const { collectFilesDir, zipPath } = await makeProjectZip();
+      const { collectFilesDir, zipPath } = await makeProjectZipTmpDir();
       collectFilesDirValue = collectFilesDir;
       zipPathValue = zipPath;
 

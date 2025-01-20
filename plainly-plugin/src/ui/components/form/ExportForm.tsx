@@ -1,4 +1,3 @@
-import path from 'path';
 import classNames from 'classnames';
 import { FolderIcon } from 'lucide-react';
 import { useState } from 'react';
