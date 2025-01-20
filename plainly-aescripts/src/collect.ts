@@ -20,7 +20,6 @@ function collectFiles(): string | undefined {
   app.project.save();
 
   const filePaths = {
-    projectPath: app.project.file.absoluteURI,
     fonts: [],
     footage: [],
   };

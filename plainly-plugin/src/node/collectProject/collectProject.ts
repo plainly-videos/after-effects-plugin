@@ -4,9 +4,9 @@ import path from 'path';
 import archiver from 'archiver';
 import fsPromises from 'fs/promises';
 
-import { csInterface } from '../constants';
+import { TMP_DIR, csInterface } from '../constants';
 import { CollectFontsError, CollectFootageError } from '../errors';
-import type { CollectFilesResult, Fonts, Footage, ProjectInfo } from '../types';
+import type { Fonts, Footage, ProjectInfo } from '../types';
 import {
   evalScriptAsync,
   finalizePath,
@@ -30,12 +30,13 @@ function selectFolder(callback: (result: string) => void) {
  *
  * @param targetPath the path of the folder where the files will be copied.
  */
-async function collectFiles(targetPath: string): Promise<CollectFilesResult> {
+async function collectProjectFiles(targetPath: string): Promise<string> {
   const result = await evalScriptAsync(`collectFiles("${targetPath}")`);
+  const projectPath = await evalScriptAsync('getProjectPath()');
 
   const projectInfo: ProjectInfo = JSON.parse(result);
 
-  const projectName = path.basename(projectInfo.projectPath, '.aep');
+  const projectName = path.basename(projectPath, '.aep');
   const pathResolved = finalizePath(targetPath); // Normalize and resolve
 
   const folderName = crypto.randomUUID();
@@ -43,12 +44,12 @@ async function collectFiles(targetPath: string): Promise<CollectFilesResult> {
   const projectDir = path.join(pathResolved, folderName);
 
   const dest = path.join(projectDir, `${projectName}.aep`);
-  await fsPromises.copyFile(finalizePath(projectInfo.projectPath), dest);
+  await fsPromises.copyFile(finalizePath(projectPath), dest);
 
   await copyFonts(projectInfo.fonts, projectDir);
   await copyFootage(projectInfo.footage, projectDir);
 
-  return { collectFilesDir: projectDir, projectName: projectName };
+  return projectDir;
 }
 
 async function copyFonts(fonts: Fonts[], targetDir: string) {
@@ -117,7 +118,7 @@ async function copyFootage(footage: Footage[], targetDir: string) {
  *
  * @param targetPath The path of the directory to zip.
  */
-function zip(targetPath: string, projectName: string): Promise<void> {
+function zip(targetPath: string, projectName: string): Promise<string> {
   return new Promise((resolve, reject) => {
     const targetPathResolved = finalizePath(targetPath); // Normalize and resolve
 
@@ -134,7 +135,7 @@ function zip(targetPath: string, projectName: string): Promise<void> {
     output.on('close', () => {
       console.log(`Zipped ${archive.pointer()} total bytes`);
       console.log(`Zip file created at: ${outputZipPath}`);
-      resolve();
+      resolve(outputZipPath);
     });
 
     archive.on('error', (err: unknown) => {
@@ -169,4 +170,23 @@ async function removeFolder(targetPath: string) {
   }
 }
 
-export { collectFiles, removeFolder, selectFolder, zip };
+// Function to make a project zip with no target path specified
+async function makeProjectZipTmpDir() {
+  await fsPromises.mkdir(TMP_DIR, { recursive: true });
+  return makeProjectZip(TMP_DIR);
+}
+
+// Function to make a project zip with a specified target path
+async function makeProjectZip(targetPath: string) {
+  try {
+    const collectFilesDir = await collectProjectFiles(targetPath);
+    const projectPath = await evalScriptAsync('getProjectPath()');
+    const projectName = path.basename(projectPath, '.aep');
+    const zipPath = await zip(collectFilesDir, projectName);
+    return { collectFilesDir, zipPath };
+  } catch (error) {
+    throw new Error(`Failed to collect files: ${(error as Error).message}`);
+  }
+}
+
+export { makeProjectZipTmpDir, makeProjectZip, removeFolder, selectFolder };

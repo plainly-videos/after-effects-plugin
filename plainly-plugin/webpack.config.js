@@ -10,6 +10,9 @@ module.exports = (_, options) => ({
     filename: 'index-[contenthash].js', // output file name
     clean: options.mode === 'development', // clean old index.js files in dev
   },
+  optimization: {
+    minimize: options.mode === 'production',
+  },
   module: {
     rules: [
       {

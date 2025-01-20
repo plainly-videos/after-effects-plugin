@@ -2,10 +2,9 @@ import classNames from 'classnames';
 import { FolderIcon } from 'lucide-react';
 import { useState } from 'react';
 import {
-  collectFiles,
+  makeProjectZip,
   removeFolder,
   selectFolder,
-  zip,
 } from '../../../node/index';
 import { useNotification } from '../../hooks/useNotification';
 import Button from '../common/Button';
@@ -24,25 +23,30 @@ export default function ExportForm() {
     e.preventDefault();
     setLoading(true);
     if (targetPath) {
+      let collectFilesDirValue: string | undefined;
+
       try {
-        const { collectFilesDir, projectName } = await collectFiles(targetPath);
-        await zip(collectFilesDir, projectName);
-        await removeFolder(collectFilesDir);
+        const { collectFilesDir, zipPath } = await makeProjectZip(targetPath);
+        collectFilesDirValue = collectFilesDir;
         notifySuccess(
           'Zip file created',
-          `Zip file created at: ${decodeURI(targetPath)}`,
+          `Zip file created at: ${decodeURI(zipPath)}`,
         );
         setLoading(false);
       } catch (error) {
         notifyError('Failed to collect files', (error as Error).message);
         setLoading(false);
+      } finally {
+        if (collectFilesDirValue) {
+          await removeFolder(collectFilesDirValue);
+        }
       }
     }
   };
 
   return (
-    <form className="space-y-6 w-full text-white" onSubmit={handleSubmit}>
-      <div className="space-y-6 border-b border-white/10 pb-6">
+    <form className="space-y-4 w-full text-white" onSubmit={handleSubmit}>
+      <div className="space-y-4 border-b border-white/10 pb-4">
         <div>
           <PageHeading heading="Export files" />
           <Description className="mt-1">
@@ -53,7 +57,7 @@ export default function ExportForm() {
           </Description>
         </div>
 
-        <div className="grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
+        <div className="grid grid-cols-1 gap-x-4 gap-y-4 sm:grid-cols-6">
           <div
             className={classNames(
               'col-span-full',

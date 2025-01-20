@@ -31,7 +31,7 @@ export default function About() {
   ];
 
   return (
-    <div className="space-y-6 w-full text-white">
+    <div className="space-y-4 w-full text-white">
       <div>
         <PageHeading heading="About" />
         <Description className="mt-1">

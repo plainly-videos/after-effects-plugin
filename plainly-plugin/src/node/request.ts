@@ -1,72 +1,42 @@
-const https = require('https');
-const http = require('http');
+import axios from 'axios';
+import type FormData from 'form-data';
 
-import type { ClientRequest, RequestOptions, ServerResponse } from 'http';
-import { hostname, isDev, port } from '../env';
+import { baseURL } from '../env';
 
-const protocol = isDev ? http : https;
+const instance = axios.create({
+  adapter: 'http',
+  baseURL: baseURL,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
 
-const options = {
-  hostname: `${hostname}`,
-  port: port,
-  headers: { 'Content-Type': 'application/json' },
-};
-
-function request(options: RequestOptions) {
-  return new Promise((resolve, reject: (reason: Error) => void) => {
-    const req: ClientRequest = protocol.request(
-      options,
-      (res: ServerResponse) => {
-        let data = '';
-
-        // Collect the response data
-        res.on('data', (chunk) => {
-          data += chunk;
-        });
-
-        // Resolve or Reject the Promise when the response ends
-        res.on('end', () => {
-          try {
-            const response = JSON.parse(data);
-            const { statusCode, statusMessage } = res;
-            if (statusCode >= 200 && statusCode < 400) {
-              resolve(response);
-            } else {
-              reject({
-                name: 'ResponseError',
-                message: response?.message || statusMessage,
-              });
-            }
-          } catch (error) {
-            reject({
-              name: 'ParseError',
-              message: `Failed to parse response: ${(error as Error).message}`,
-            });
-          }
-        });
-      },
-    );
-
-    req.on('error', (error) => {
-      reject({
-        name: 'RequestError',
-        message: error.message,
-      }); // Reject the Promise if there's an error
-    });
-
-    req.end();
+async function get(path: string, apiKey: string) {
+  return instance.get(path, {
+    auth: {
+      username: apiKey,
+      password: '',
+    },
   });
 }
 
-async function get(path: string, apiKey: string) {
-  const getOptions = {
-    ...options,
-    path,
-    method: 'GET',
-    auth: `${apiKey}:`, // Format for Basic Authentication
-  };
-
-  return request(getOptions);
+async function post(path: string, apiKey: string, body: string) {
+  return instance.post(path, body, {
+    auth: {
+      username: apiKey,
+      password: '',
+    },
+  });
 }
 
-export { get };
+async function postFormData(path: string, apiKey: string, body: FormData) {
+  return instance.post(path, body, {
+    headers: { ...body.getHeaders() },
+    auth: {
+      username: apiKey,
+      password: '',
+    },
+  });
+}
+
+export { get, post, postFormData };

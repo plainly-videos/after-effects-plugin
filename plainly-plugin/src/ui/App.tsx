@@ -5,6 +5,7 @@ import Sidebar from './components/navigation/Sidebar';
 import AboutRoute from './routes/AboutRoute';
 import ExportRoute from './routes/ExportRoute';
 import SettingsRoute from './routes/SettingsRoute';
+import UploadRoute from './routes/UploadRoute';
 import { State, useGlobalState } from './state/store';
 import { reloadExtension } from './utils';
 
@@ -15,8 +16,9 @@ export default function App() {
   // Add new pages here and to pages.ts
   const children = useMemo(() => {
     if (currentPage === '/export') return <ExportRoute />;
-    if (currentPage === '/about') return <AboutRoute />;
+    if (currentPage === '/upload') return <UploadRoute />;
     if (currentPage === '/settings') return <SettingsRoute />;
+    if (currentPage === '/about') return <AboutRoute />;
 
     return null;
   }, [currentPage]);
