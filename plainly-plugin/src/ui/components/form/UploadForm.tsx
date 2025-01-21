@@ -31,6 +31,10 @@ export default function UploadForm() {
   const disabled = isLoading || !apiKey?.key;
 
   const handleSubmit = async (e: React.FormEvent) => {
+    if (disabled) {
+      return;
+    }
+
     e.preventDefault();
     setLoading(true);
     let collectFilesDirValue: string | undefined;

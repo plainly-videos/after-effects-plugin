@@ -1,3 +1,14 @@
+interface FontPath {
+  fontName: string;
+  fontExtension: string | undefined;
+  fontLocation: string;
+}
+
+interface FootagePath {
+  itemName: string;
+  itemFolder: string;
+}
+
 /**
  * Prompts the user to select a folder, which will be used to collect project files.
  *
@@ -8,6 +19,7 @@ function selectFolder(): Folder | string {
   if (folder) return new Folder(folder.fsName); // Return selected folder
 
   // NOTE: this always returns undefined as a string if no folder is selected
+  return 'undefined';
 }
 
 /**
@@ -19,20 +31,20 @@ function collectFiles(): string | undefined {
   // save project at the start
   app.project.save();
 
-  const filePaths = {
+  const collectedData: { fonts: FontPath[]; footage: FootagePath[] } = {
     fonts: [],
     footage: [],
   };
 
   // collect paths
-  filePaths.fonts = collectFonts();
-  filePaths.footage = collectFootage();
+  collectedData.fonts = collectFonts();
+  collectedData.footage = collectFootage();
 
   // return full path
-  return JSON.stringify(filePaths);
+  return JSON.stringify(collectedData);
 }
 
-function collectFonts() {
+function collectFonts(): FontPath[] {
   const comps = getAllComps(app.project);
   const fontPaths = [];
 
@@ -58,7 +70,7 @@ function collectFonts() {
   return fontPaths;
 }
 
-function collectFootage() {
+function collectFootage(): FootagePath[] {
   const footagePaths = [];
 
   // Go through all items in the project

@@ -4,6 +4,12 @@
     "module": "es2020",
     "moduleResolution": "bundler",
     "esModuleInterop": true,
-    "jsx": "react-jsx"
-  }
+    "jsx": "react-jsx",
+    "strict": true,
+    "paths": {
+      "@src/*": ["./src/*"]
+    }
+  },
+  "include": ["src", "index.d.ts"],
+  "exclude": ["node_modules"]
 }
