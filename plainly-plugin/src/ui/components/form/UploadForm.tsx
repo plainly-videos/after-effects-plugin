@@ -1,7 +1,7 @@
 import FormData from 'form-data';
 import { useState } from 'react';
 import { makeProjectZipTmpDir, removeFolder } from '../../../node';
-import { get, postFormData } from '../../../node/request';
+import { postFormData } from '../../../node/request';
 import Button from '../common/Button';
 import Description from '../typography/Description';
 import Label from '../typography/Label';
@@ -10,9 +10,6 @@ import PageHeading from '../typography/PageHeading';
 import fs from 'fs';
 import { evalScriptAsync } from '../../../node/utils';
 import { useNotification } from '../../hooks/useNotification';
-import { useProjectData } from '../../hooks/useProjectData';
-import { useSettings } from '../../hooks/useSettings';
-import type { ProjectData } from '../../types';
 import type { Project } from '../../types/model';
 import Alert from '../common/Alert';
 import Notification from '../common/Notification';
@@ -23,41 +20,45 @@ const uploadModes = [
     label: 'Upload new',
   },
   {
-    value: 'existing',
+    value: 'edit',
     label: 'Re-upload existing',
   },
 ];
 
 export default function UploadForm({
-  existing,
   apiKey,
   projectId,
+  existing,
+  badRevision,
 }: {
-  existing?: boolean;
   apiKey: string | undefined;
   projectId: string | undefined;
+  existing?: boolean;
+  badRevision?: boolean;
 }) {
+  const { notification, notifySuccess, notifyError, clearNotification } =
+    useNotification();
+
   const [inputs, setInputs] = useState<{
     projectName?: string;
     description?: string;
     tags?: string[];
   }>({});
 
-  const { notification, notifySuccess, notifyError, clearNotification } =
-    useNotification();
-
   const [loading, setLoading] = useState(false);
-  const [uploadMode, setUploadMode] = useState(existing ? 'existing' : 'new');
+  const [uploadMode, setUploadMode] = useState(existing ? 'edit' : 'new');
 
-  const disableExisting = projectId && !existing && uploadMode === 'existing';
+  const disableExisting = (!projectId || !existing) && uploadMode === 'edit';
   const disabled = loading || !apiKey || disableExisting;
 
+  const showBadRevision = badRevision && uploadMode === 'edit';
+
   const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
     if (disabled) {
       return;
     }
 
-    e.preventDefault();
     setLoading(true);
 
     let collectFilesDirValue: string | undefined;
@@ -82,14 +83,15 @@ export default function UploadForm({
       }
 
       const { data: project } = await postFormData<Project>(
-        `/api/v2/projects${uploadMode === 'existing' ? `/${projectId}` : ''}`,
+        `/api/v2/projects${uploadMode === 'edit' ? `/${projectId}` : ''}`,
         apiKey,
         formData,
       );
 
       const id = project.id;
-      const latestRevision =
-        project.revisionHistory[project.revisionHistory.length - 1].id;
+
+      const revisionHistory = project.revisionHistory;
+      const latestRevision = revisionHistory?.[revisionHistory.length - 1].id;
       const projectName = project.name;
 
       await evalScriptAsync(
@@ -124,14 +126,21 @@ export default function UploadForm({
         {!apiKey && (
           <Alert
             title="To upload a project, you must have a valid API key set up in the settings."
-            danger
+            type="danger"
           />
         )}
 
         {disableExisting && (
           <Alert
-            title="This project no longer exists on the platform."
-            danger
+            title="This project no longer exists on the platform. Please upload a new project."
+            type="danger"
+          />
+        )}
+
+        {showBadRevision && (
+          <Alert
+            title="Local project is out of date with the platform."
+            type="warning"
           />
         )}
 
