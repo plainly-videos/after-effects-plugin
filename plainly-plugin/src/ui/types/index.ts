@@ -53,3 +53,9 @@ export class Pin {
     );
   }
 }
+
+export interface ProjectData {
+  id: string;
+  revision: string;
+  name: string;
+}

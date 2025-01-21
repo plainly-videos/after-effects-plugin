@@ -213,7 +213,7 @@ export default function SettingsForm() {
         )}
       </div>
 
-      {settings.apiKey && !edit ? (
+      {settings.apiKey?.key && !edit ? (
         <div className="float-right flex items-center gap-2">
           <Button type="button" onClick={() => setEdit(true)}>
             Edit
