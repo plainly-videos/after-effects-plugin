@@ -39,11 +39,13 @@ export function generateFolders(folderPath: string) {
   }
 }
 
-export async function evalScriptAsync(func: string): Promise<string> {
+export async function evalScriptAsync(
+  func: string,
+): Promise<string | undefined> {
   return new Promise((resolve, reject) => {
     try {
       csInterface.evalScript(func, (result: string) => {
-        resolve(result);
+        resolve(result === 'undefined' ? undefined : result);
       });
     } catch (error) {
       reject(error);

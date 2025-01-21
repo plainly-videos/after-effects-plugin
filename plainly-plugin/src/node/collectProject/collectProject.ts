@@ -32,9 +32,12 @@ function selectFolder(callback: (result: string) => void) {
  */
 async function collectProjectFiles(targetPath: string): Promise<string> {
   const result = await evalScriptAsync(`collectFiles("${targetPath}")`);
-  const projectPath = await evalScriptAsync('getProjectPath()');
+  if (!result) {
+    throw new Error('Failed to collect files');
+  }
 
-  if (projectPath === 'undefined' || !projectPath) {
+  const projectPath = await evalScriptAsync('getProjectPath()');
+  if (!projectPath) {
     throw new Error('Project not opened or not saved');
   }
 
@@ -185,8 +188,7 @@ async function makeProjectZip(targetPath: string) {
   try {
     const collectFilesDir = await collectProjectFiles(targetPath);
     const projectPath = await evalScriptAsync('getProjectPath()');
-
-    if (projectPath === 'undefined' || !projectPath) {
+    if (!projectPath) {
       throw new Error('Project not opened or not saved');
     }
 
