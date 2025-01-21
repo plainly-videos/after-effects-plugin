@@ -59,7 +59,7 @@ function getTextLayersByComp(comp: CompItem): Array<TextLayer> {
   return layers;
 }
 
-function getFolderPath(folder: FolderItem) {
+function getFolderPath(folder: FolderItem): string {
   // If the folder is the root folder, return an empty string
   if (folder.parentFolder == null || folder === app.project.rootFolder) {
     return folder.name;
@@ -71,5 +71,5 @@ function getFolderPath(folder: FolderItem) {
 }
 
 function getProjectPath() {
-  return app.project.file.absoluteURI;
+  return app.project.file?.absoluteURI;
 }
