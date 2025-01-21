@@ -89,8 +89,8 @@ export const useSettings = () => {
   );
 
   // TODO: handle decrypt
-  const getSettingsApiKey = (): { apiKey: Settings['apiKey']['key'] } => {
-    return { apiKey: settings?.apiKey?.key };
+  const getSettingsApiKey = (): { apiKey: string | undefined } => {
+    return { apiKey: settings?.apiKey?.key ?? undefined };
   };
 
   return {
