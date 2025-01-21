@@ -34,6 +34,10 @@ async function collectProjectFiles(targetPath: string): Promise<string> {
   const result = await evalScriptAsync(`collectFiles("${targetPath}")`);
   const projectPath = await evalScriptAsync('getProjectPath()');
 
+  if (projectPath === 'undefined' || !projectPath) {
+    throw new Error('Project not opened or not saved');
+  }
+
   const projectInfo: ProjectInfo = JSON.parse(result);
 
   const projectName = path.basename(projectPath, '.aep');
@@ -181,6 +185,11 @@ async function makeProjectZip(targetPath: string) {
   try {
     const collectFilesDir = await collectProjectFiles(targetPath);
     const projectPath = await evalScriptAsync('getProjectPath()');
+
+    if (projectPath === 'undefined' || !projectPath) {
+      throw new Error('Project not opened or not saved');
+    }
+
     const projectName = path.basename(projectPath, '.aep');
     const zipPath = await zip(collectFilesDir, projectName);
     return { collectFilesDir, zipPath };

@@ -31,17 +31,17 @@ function collectFiles(): string | undefined {
   // save project at the start
   app.project.save();
 
-  const filePaths: { fonts: FontPath[]; footage: FootagePath[] } = {
+  const collectedData: { fonts: FontPath[]; footage: FootagePath[] } = {
     fonts: [],
     footage: [],
   };
 
   // collect paths
-  filePaths.fonts = collectFonts();
-  filePaths.footage = collectFootage();
+  collectedData.fonts = collectFonts();
+  collectedData.footage = collectFootage();
 
   // return full path
-  return JSON.stringify(filePaths);
+  return JSON.stringify(collectedData);
 }
 
 function collectFonts(): FontPath[] {
