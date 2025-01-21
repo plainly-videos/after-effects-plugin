@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios, { type AxiosResponse } from 'axios';
 import type FormData from 'form-data';
 
 import { baseURL } from '../env';
@@ -29,7 +29,11 @@ async function post(path: string, apiKey: string, body: string) {
   });
 }
 
-async function postFormData(path: string, apiKey: string, body: FormData) {
+async function postFormData<T>(
+  path: string,
+  apiKey: string,
+  body: FormData,
+): Promise<AxiosResponse<T, unknown>> {
   return instance.post(path, body, {
     headers: { ...body.getHeaders() },
     auth: {

@@ -7,7 +7,7 @@ export enum State {
 
 const initialState = {
   [State.SETTINGS]: {
-    currentPage: Routes.EXPORT,
+    currentPage: Routes.UPLOAD,
     sidebarOpen: false,
   } as GlobalSettings,
 };
@@ -17,7 +17,7 @@ const { useGlobalState, getGlobalState, setGlobalState } =
 
 function resetGlobalState() {
   setGlobalState(State.SETTINGS, {
-    currentPage: Routes.EXPORT,
+    currentPage: Routes.UPLOAD,
     sidebarOpen: false,
   });
 }
