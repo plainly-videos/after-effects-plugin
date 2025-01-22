@@ -1,13 +1,13 @@
 import type { Pin } from '@src/ui/types';
 import { useState } from 'react';
+import { useNotification } from '../../hooks/useNotification';
 import { useSessionStorage } from '../../hooks/useSessionStorage';
 import { useSettings } from '../../hooks/useSettings';
 import Button from '../common/Button';
+import Notification from '../common/Notification';
 import Description from '../typography/Description';
 import PageHeading from '../typography/PageHeading';
 import PinInput from './PinInput';
-import { useNotification } from '../../hooks/useNotification';
-import Notification from '../common/Notification';
 
 export default function PinOverlay({
   onSubmit,
