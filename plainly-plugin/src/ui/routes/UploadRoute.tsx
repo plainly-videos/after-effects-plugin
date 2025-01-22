@@ -1,25 +1,29 @@
 import { LoaderCircleIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { get } from '../../node/request';
+import Notification from '../components/common/Notification';
 import UploadForm from '../components/form/UploadForm';
 import MainWrapper from '../components/layout/MainWrapper';
 import PinOverlay from '../components/settings/PinOverlay';
 import { useProjectData } from '../hooks/useProjectData';
+import { useSessionStorage } from '../hooks/useSessionStorage';
 import { useSettings } from '../hooks/useSettings';
 import type { Project } from '../types/model';
-import { useSessionStorage } from '../hooks/useSessionStorage';
+import { useNotification } from '../hooks/useNotification';
 
 export default function UploadRoute() {
   const { projectData } = useProjectData();
   const { settings, getSettingsApiKey, loading: loadingApiKey } = useSettings();
   const { encrypted } = settings.apiKey || {};
   const { getItem } = useSessionStorage();
+  const { notification, notifyError, clearNotification } = useNotification();
 
   const [loading, setLoading] = useState(false);
   const [projectExists, setProjectExists] = useState<boolean | undefined>();
   const [badRevision, setBadRevision] = useState<boolean | undefined>();
 
   const [decrypted, setDecrypted] = useState<string | undefined>();
+  const [error, setError] = useState<boolean | undefined>(false);
 
   const isLoading = loadingApiKey || loading;
 
@@ -42,7 +46,8 @@ export default function UploadRoute() {
         }
       } catch (error) {
         setProjectExists(false);
-        throw new Error((error as Error).message);
+        notifyError('Failed to fetch project', (error as Error).message);
+        setError(true);
       } finally {
         setLoading(false);
       }
@@ -53,7 +58,7 @@ export default function UploadRoute() {
     }
 
     setLoading(false);
-  }, [projectData?.id, projectData?.revision, decrypted]);
+  }, [projectData?.id, projectData?.revision, decrypted, notifyError]);
 
   useEffect(() => {
     const storedPin = getItem('pin');
@@ -84,9 +89,18 @@ export default function UploadRoute() {
               projectId={projectData?.id}
               existing={projectExists}
               badRevision={badRevision}
+              error={error}
             />
           )}
         </>
+      )}
+      {notification && (
+        <Notification
+          title={notification.title}
+          type={notification.type}
+          description={notification.description}
+          onClose={clearNotification}
+        />
       )}
     </MainWrapper>
   );

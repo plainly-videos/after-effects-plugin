@@ -6,6 +6,8 @@ import Button from '../common/Button';
 import Description from '../typography/Description';
 import PageHeading from '../typography/PageHeading';
 import PinInput from './PinInput';
+import { useNotification } from '../../hooks/useNotification';
+import Notification from '../common/Notification';
 
 export default function PinOverlay({
   onSubmit,
@@ -15,16 +17,30 @@ export default function PinOverlay({
   const [pin, setPin] = useState<Pin | undefined>();
   const { getSettingsApiKey } = useSettings();
   const { setItem } = useSessionStorage();
+  const { notification, notifyError, clearNotification } = useNotification();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
     if (pin) {
-      const { key } = getSettingsApiKey(true, pin.getPin());
+      const { key, error } = getSettingsApiKey(true, pin.getPin());
+      if (error) {
+        notifyError(error);
+        return;
+      }
+
       if (key) {
         setItem('pin', pin.getPin());
         onSubmit(key);
       }
+    }
+  };
+
+  const onCancel = () => {
+    const { key } = getSettingsApiKey();
+    if (key) {
+      setItem('pin', '');
+      onSubmit(key);
     }
   };
 
@@ -42,13 +58,21 @@ export default function PinOverlay({
         <div className="flex flex-col gap-y-2 w-fit">
           <PinInput pin={pin} onChange={setPin} type="password" />
           <div className="flex justify-between items-center">
-            <Button type="button" secondary>
+            <Button type="button" secondary onClick={onCancel}>
               Cancel
             </Button>
             <Button>Submit</Button>
           </div>
         </div>
       </div>
+      {notification && (
+        <Notification
+          title={notification.title}
+          type={notification.type}
+          description={notification.description}
+          onClose={clearNotification}
+        />
+      )}
     </form>
   );
 }
