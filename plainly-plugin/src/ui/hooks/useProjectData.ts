@@ -17,13 +17,5 @@ export const useProjectData = () => {
     getProjectData();
   }, []);
 
-  // try {
-  //   const data = await evalScriptAsync('getProjectData()');
-  //   const parsedData = JSON.parse(data);
-  //   return parsedData;
-  // } catch (error) {
-  //   throw new Error((error as Error).message);
-  // }
-
   return { projectData };
 };

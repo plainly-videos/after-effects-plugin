@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import { useState } from 'react';
 import { useNotification } from '../../hooks/useNotification';
+import { useSessionStorage } from '../../hooks/useSessionStorage';
 import { useSettings } from '../../hooks/useSettings';
 import { Pin } from '../../types';
 import { handleLinkClick } from '../../utils';
@@ -18,18 +19,18 @@ import PageHeading from '../typography/PageHeading';
 import PinInput from './PinInput';
 
 export default function SettingsForm() {
-  const [showApiKey, setShowApiKey] = useState(false);
-  const [edit, setEdit] = useState(false);
-
-  const [loading, setLoading] = useState(false);
-  const { notification, notifySuccess, notifyError, clearNotification } =
-    useNotification();
+  const { notification, notifySuccess, notifyError, clear } = useNotification();
   const {
     settings,
     loading: settingsLoading,
     setSettingsApiKey,
   } = useSettings();
 
+  const [showApiKey, setShowApiKey] = useState(false);
+  const [edit, setEdit] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  const [, , clearValue] = useSessionStorage('pin', '');
   const [apiKey, setApiKey] = useState<string>();
   const [pin, setPin] = useState<Pin>();
   const [confirmPin, setConfirmPin] = useState<Pin>();
@@ -88,6 +89,8 @@ export default function SettingsForm() {
     setLoading(true);
     try {
       await setSettingsApiKey('', undefined, true);
+      clearValue();
+      notifySuccess('API key removed successfully');
     } catch (error) {
       notifyError('Failed to remove API key', (error as Error).message);
     } finally {
@@ -240,7 +243,7 @@ export default function SettingsForm() {
           title={notification.title}
           type={notification.type}
           description={notification.description}
-          onClose={clearNotification}
+          onClose={clear}
         />
       )}
     </form>

@@ -16,8 +16,7 @@ import PageHeading from '../typography/PageHeading';
 export default function ExportForm() {
   const [targetPath, setTargetPath] = useState<string>();
   const [loading, setLoading] = useState(false);
-  const { notification, notifySuccess, notifyError, clearNotification } =
-    useNotification();
+  const { notification, notifySuccess, notifyError, clear } = useNotification();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -111,7 +110,7 @@ export default function ExportForm() {
           title={notification.title}
           type={notification.type}
           description={notification.description}
-          onClose={clearNotification}
+          onClose={clear}
         />
       )}
     </form>

@@ -1,47 +1,27 @@
-import type { Pin } from '@src/ui/types';
 import { useState } from 'react';
 import { useNotification } from '../../hooks/useNotification';
-import { useSessionStorage } from '../../hooks/useSessionStorage';
-import { useSettings } from '../../hooks/useSettings';
+import type { Pin } from '../../types';
 import Button from '../common/Button';
 import Notification from '../common/Notification';
 import Description from '../typography/Description';
 import PageHeading from '../typography/PageHeading';
+import { useAuthContext } from './AuthProvider';
 import PinInput from './PinInput';
 
-export default function PinOverlay({
-  onSubmit,
-}: {
-  onSubmit: (key: string) => void;
-}) {
+export default function PinOverlay() {
   const [pin, setPin] = useState<Pin | undefined>();
-  const { getSettingsApiKey } = useSettings();
-  const { setItem } = useSessionStorage();
-  const { notification, notifyError, clearNotification } = useNotification();
+  const { notification, notifyError, clear } = useNotification();
+  const { decryptKey, cancelDecrypt } = useAuthContext();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (pin) {
-      const { key, error } = getSettingsApiKey(true, pin.getPin());
-      if (error) {
-        notifyError(error);
-        return;
-      }
-
-      if (key) {
-        setItem('pin', pin.getPin());
-        onSubmit(key);
-      }
+    if (!pin?.isFilled()) {
+      notifyError('All digits must be filled');
+      return;
     }
-  };
 
-  const onCancel = () => {
-    const { key } = getSettingsApiKey();
-    if (key) {
-      setItem('pin', '');
-      onSubmit(key);
-    }
+    decryptKey(pin.getPin());
   };
 
   return (
@@ -58,7 +38,7 @@ export default function PinOverlay({
         <div className="flex flex-col gap-y-2 w-fit">
           <PinInput pin={pin} onChange={setPin} type="password" />
           <div className="flex justify-between items-center">
-            <Button type="button" secondary onClick={onCancel}>
+            <Button type="button" secondary onClick={cancelDecrypt}>
               Cancel
             </Button>
             <Button>Submit</Button>
@@ -70,7 +50,7 @@ export default function PinOverlay({
           title={notification.title}
           type={notification.type}
           description={notification.description}
-          onClose={clearNotification}
+          onClose={clear}
         />
       )}
     </form>

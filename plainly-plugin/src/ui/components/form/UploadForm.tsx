@@ -1,7 +1,7 @@
 import FormData from 'form-data';
 import { useEffect, useState } from 'react';
 import { makeProjectZipTmpDir, removeFolder } from '../../../node';
-import { postFormData } from '../../../node/request';
+import { get, postFormData } from '../../../node/request';
 import Button from '../common/Button';
 import Description from '../typography/Description';
 import Label from '../typography/Label';
@@ -10,9 +10,12 @@ import PageHeading from '../typography/PageHeading';
 import fs from 'fs';
 import { evalScriptAsync } from '../../../node/utils';
 import { useNotification } from '../../hooks/useNotification';
+import { useProjectData } from '../../hooks/useProjectData';
+import { useSessionStorage } from '../../hooks/useSessionStorage';
 import type { Project } from '../../types/model';
 import Alert from '../common/Alert';
 import Notification from '../common/Notification';
+import { useAuthContext } from '../settings/AuthProvider';
 
 const uploadModes = [
   {
@@ -25,42 +28,33 @@ const uploadModes = [
   },
 ];
 
-export default function UploadForm({
-  apiKey,
-  projectId,
-  existing,
-  badRevision,
-  badDecrypt,
-}: {
-  apiKey: string | undefined;
-  projectId: string | undefined;
-  existing?: boolean;
-  badRevision?: boolean;
-  badDecrypt?: boolean;
-}) {
-  const { notification, notifySuccess, notifyError, clearNotification } =
-    useNotification();
+export default function UploadForm() {
+  const { apiKey, decryptedKey } = useAuthContext();
+  const { projectData } = useProjectData();
+  const { notification, notifySuccess, notifyError, clear } = useNotification();
 
+  const [loading, setLoading] = useState(false);
+  const [badRevision, setBadRevision] = useState(false);
+  const [projectExists, setProjectExists] = useState<boolean | undefined>();
+  const [storedValue] = useSessionStorage('pin', '');
+
+  const [uploadMode, setUploadMode] = useState<'edit' | 'new'>();
   const [inputs, setInputs] = useState<{
     projectName?: string;
     description?: string;
     tags?: string[];
   }>({});
 
-  const [loading, setLoading] = useState(false);
-  const [uploadMode, setUploadMode] = useState(existing ? 'edit' : 'new');
-
-  const disableExisting = (!projectId || !existing) && uploadMode === 'edit';
-  const disabled = loading || !apiKey || disableExisting || badDecrypt;
-
-  const showBadRevision = badRevision && uploadMode === 'edit';
+  const { id, revision } = projectData || {};
+  const canceledKeyDecrypt = storedValue === 'cancelled';
+  const disabledEdit = uploadMode === 'edit' && projectExists === false;
+  const disabled = loading || !apiKey || canceledKeyDecrypt || disabledEdit;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (disabled) {
       return;
     }
-
     setLoading(true);
 
     let collectFilesDirValue: string | undefined;
@@ -70,10 +64,8 @@ export default function UploadForm({
       const { collectFilesDir, zipPath } = await makeProjectZipTmpDir();
       collectFilesDirValue = collectFilesDir;
       zipPathValue = zipPath;
-
       const file = fs.createReadStream(zipPath);
       const tags = inputs.tags?.map((tag) => tag.trim());
-
       const formData = new FormData();
       formData.append('file', file);
       inputs.projectName && formData.append('name', inputs.projectName);
@@ -84,20 +76,21 @@ export default function UploadForm({
         }
       }
 
+      const keyToUse = decryptedKey || apiKey;
+
       const { data: project } = await postFormData<Project>(
-        `/api/v2/projects${uploadMode === 'edit' ? `/${projectId}` : ''}`,
-        apiKey,
+        `/api/v2/projects${uploadMode === 'edit' ? `/${id}` : ''}`,
+        keyToUse,
         formData,
       );
 
-      const id = project.id;
-
+      const projectId = project.id;
       const revisionHistory = project.revisionHistory;
       const latestRevision = revisionHistory?.[revisionHistory.length - 1].id;
       const projectName = project.name;
 
       await evalScriptAsync(
-        `setProjectData("${id}", "${latestRevision}", "${projectName}")`,
+        `setProjectData("${projectId}", "${latestRevision}", "${projectName}")`,
       );
 
       notifySuccess('Project uploaded');
@@ -116,8 +109,53 @@ export default function UploadForm({
   };
 
   useEffect(() => {
-    setUploadMode((prev) => (existing ? 'edit' : prev));
-  }, [existing]);
+    // early exit
+    if (disabled || uploadMode !== 'edit') {
+      return;
+    }
+    setLoading(true);
+
+    const keyToUse = decryptedKey || apiKey;
+
+    const fetchProject = async (key: string) => {
+      try {
+        const { data } = await get<Project>(`/api/v2/projects/${id}`, key);
+
+        const revisionHistory = data.revisionHistory;
+        const latestRevision = revisionHistory?.[revisionHistory.length - 1].id;
+
+        if (latestRevision !== revision) {
+          setBadRevision(true);
+        }
+
+        setProjectExists(true);
+        notifySuccess('Project fetched successfully');
+      } catch (error) {
+        setProjectExists(false);
+        notifyError('Failed to fetch project', (error as Error).message);
+      }
+    };
+
+    fetchProject(keyToUse);
+    setLoading(false);
+  }, [
+    disabled,
+    decryptedKey,
+    apiKey,
+    id,
+    revision,
+    uploadMode,
+    notifyError,
+    notifySuccess,
+  ]);
+
+  useEffect(() => {
+    if (projectData) {
+      setUploadMode('edit');
+    } else {
+      setUploadMode('new');
+    }
+  }, [projectData]);
 
   return (
     <form className="space-y-4 w-full text-white" onSubmit={handleSubmit}>
@@ -136,21 +174,21 @@ export default function UploadForm({
           />
         )}
 
-        {badDecrypt && (
+        {canceledKeyDecrypt && (
           <Alert
             title="To use this action, you need to provide a PIN for your API key."
             type="danger"
           />
         )}
 
-        {disableExisting && (
+        {uploadMode === 'edit' && projectExists === false && (
           <Alert
-            title="This project no longer exists on the platform. Please upload a new project."
+            title="Couldn't find a project on the platform. Please upload a new project."
             type="danger"
           />
         )}
 
-        {showBadRevision && (
+        {uploadMode === 'edit' && badRevision && (
           <Alert
             title="Local project is out of date with the platform."
             type="warning"
@@ -173,7 +211,9 @@ export default function UploadForm({
                     type="radio"
                     value={mode.value}
                     checked={uploadMode === mode.value}
-                    onChange={(e) => setUploadMode(e.target.value)}
+                    onChange={(e) => {
+                      setUploadMode(e.target.value as 'edit' | 'new');
+                    }}
                     className="relative size-4 appearance-none rounded-full border border-gray-300 bg-[rgb(29,29,30)] before:absolute before:inset-1 before:rounded-full before:bg-white checked:border-indigo-600 checked:bg-indigo-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:border-gray-300 disabled:bg-gray-100 disabled:before:bg-gray-400 forced-colors:appearance-auto forced-colors:before:hidden [&:not(:checked)]:before:hidden"
                   />
                   <label
@@ -253,7 +293,7 @@ export default function UploadForm({
           title={notification.title}
           type={notification.type}
           description={notification.description}
-          onClose={clearNotification}
+          onClose={clear}
         />
       )}
     </form>
