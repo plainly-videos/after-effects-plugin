@@ -3,32 +3,32 @@ import { useEffect, useState } from 'react';
 import { get } from '../../node/request';
 import UploadForm from '../components/form/UploadForm';
 import MainWrapper from '../components/layout/MainWrapper';
+import PinOverlay from '../components/settings/PinOverlay';
 import { useProjectData } from '../hooks/useProjectData';
 import { useSettings } from '../hooks/useSettings';
 import type { Project } from '../types/model';
 
 export default function UploadRoute() {
   const { projectData } = useProjectData();
-  const { getSettingsApiKey, loading: loadingApiKey } = useSettings();
-  const { apiKey } = getSettingsApiKey();
+  const { settings, getSettingsApiKey, loading: loadingApiKey } = useSettings();
+  const { encrypted } = settings.apiKey || {};
 
   const [loading, setLoading] = useState(false);
   const [projectExists, setProjectExists] = useState<boolean | undefined>();
   const [badRevision, setBadRevision] = useState<boolean | undefined>();
 
+  const [decrypted, setDecrypted] = useState<string | undefined>();
+
   const isLoading = loadingApiKey || loading;
 
   useEffect(() => {
-    const fetchProject = async (projectId: string) => {
-      setLoading(true);
-      if (!apiKey) {
-        return;
-      }
+    setLoading(true);
 
+    const fetchProject = async (projectId: string, key: string) => {
       try {
         const { data } = await get<Project>(
           `/api/v2/projects/${projectId}`,
-          apiKey,
+          key,
         );
         setProjectExists(true);
 
@@ -46,22 +46,37 @@ export default function UploadRoute() {
       }
     };
 
-    if (projectData?.id) {
-      fetchProject(projectData?.id);
+    if (projectData?.id && decrypted) {
+      fetchProject(projectData.id, decrypted);
     }
-  }, [apiKey, projectData?.id, projectData?.revision]);
+
+    setLoading(false);
+  }, [projectData?.id, projectData?.revision, decrypted]);
+
+  useEffect(() => {
+    if (!encrypted) {
+      const { key } = getSettingsApiKey();
+      setDecrypted(key);
+    }
+  }, [encrypted, getSettingsApiKey]);
 
   return (
     <MainWrapper>
       {isLoading ? (
         <LoaderCircleIcon className="animate-spin shrink-0 mx-auto size-6 text-white my-auto" />
       ) : (
-        <UploadForm
-          apiKey={apiKey}
-          projectId={projectData?.id}
-          existing={projectExists}
-          badRevision={badRevision}
-        />
+        <>
+          {encrypted && !decrypted ? (
+            <PinOverlay onSubmit={setDecrypted} />
+          ) : (
+            <UploadForm
+              apiKey={decrypted}
+              projectId={projectData?.id}
+              existing={projectExists}
+              badRevision={badRevision}
+            />
+          )}
+        </>
       )}
     </MainWrapper>
   );

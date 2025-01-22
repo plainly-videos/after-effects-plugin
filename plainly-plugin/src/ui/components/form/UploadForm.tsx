@@ -1,5 +1,5 @@
 import FormData from 'form-data';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { makeProjectZipTmpDir, removeFolder } from '../../../node';
 import { postFormData } from '../../../node/request';
 import Button from '../common/Button';
@@ -109,6 +109,10 @@ export default function UploadForm({
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    setUploadMode((prev) => (existing ? 'edit' : prev));
+  }, [existing]);
 
   return (
     <form className="space-y-4 w-full text-white" onSubmit={handleSubmit}>
