@@ -23,7 +23,7 @@ export default function UploadRoute() {
   const [badRevision, setBadRevision] = useState<boolean | undefined>();
 
   const [decrypted, setDecrypted] = useState<string | undefined>();
-  const [error, setError] = useState<boolean | undefined>(false);
+  const [badDecrypt, setBadDecrypt] = useState<boolean | undefined>(false);
 
   const isLoading = loadingApiKey || loading;
 
@@ -47,7 +47,7 @@ export default function UploadRoute() {
       } catch (error) {
         setProjectExists(false);
         notifyError('Failed to fetch project', (error as Error).message);
-        setError(true);
+        setBadDecrypt(true);
       } finally {
         setLoading(false);
       }
@@ -89,7 +89,7 @@ export default function UploadRoute() {
               projectId={projectData?.id}
               existing={projectExists}
               badRevision={badRevision}
-              error={error}
+              badDecrypt={badDecrypt}
             />
           )}
         </>
