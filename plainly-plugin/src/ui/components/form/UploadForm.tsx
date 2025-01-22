@@ -29,13 +29,13 @@ export default function UploadForm({
   projectId,
   existing,
   badRevision,
-  error,
+  badDecrypt,
 }: {
   apiKey: string | undefined;
   projectId: string | undefined;
   existing?: boolean;
   badRevision?: boolean;
-  error?: boolean;
+  badDecrypt?: boolean;
 }) {
   const { notifySuccess, notifyError } = useNotifications();
 
@@ -49,7 +49,7 @@ export default function UploadForm({
   const [uploadMode, setUploadMode] = useState(existing ? 'edit' : 'new');
 
   const disableExisting = (!projectId || !existing) && uploadMode === 'edit';
-  const disabled = loading || !apiKey || disableExisting || error;
+  const disabled = loading || !apiKey || disableExisting || badDecrypt;
 
   const showBadRevision = badRevision && uploadMode === 'edit';
 
@@ -129,6 +129,13 @@ export default function UploadForm({
         {!apiKey && (
           <Alert
             title="To upload a project, you must have a valid API key set up in the settings."
+            type="danger"
+          />
+        )}
+
+        {badDecrypt && (
+          <Alert
+            title="To use this action, you need to provide a PIN for your API key."
             type="danger"
           />
         )}

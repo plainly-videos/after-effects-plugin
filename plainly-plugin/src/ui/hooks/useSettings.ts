@@ -94,7 +94,7 @@ export const useSettings = () => {
   ): { key: string | undefined; error?: string | undefined } => {
     if (encrypted && pin) {
       const [decoded, error] = decode(pin, settings?.apiKey?.key ?? '');
-      return { key: decoded, error: error ? 'Invalid API key' : undefined };
+      return { key: decoded, error: error ? 'Invalid PIN entered' : undefined };
     }
 
     return { key: settings?.apiKey?.key ?? undefined };
