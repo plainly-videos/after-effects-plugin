@@ -1,5 +1,6 @@
 import type { Pin } from '@src/ui/types';
-import { type Dispatch, type SetStateAction, useState } from 'react';
+import { useState } from 'react';
+import { useSessionStorage } from '../../hooks/useSessionStorage';
 import { useSettings } from '../../hooks/useSettings';
 import Button from '../common/Button';
 import Description from '../typography/Description';
@@ -13,13 +14,17 @@ export default function PinOverlay({
 }) {
   const [pin, setPin] = useState<Pin | undefined>();
   const { getSettingsApiKey } = useSettings();
+  const { setItem } = useSessionStorage();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
     if (pin) {
-      const { key } = getSettingsApiKey(true, pin);
-      if (key) onSubmit(key);
+      const { key } = getSettingsApiKey(true, pin.getPin());
+      if (key) {
+        setItem('pin', pin.getPin());
+        onSubmit(key);
+      }
     }
   };
 

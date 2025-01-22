@@ -7,11 +7,13 @@ import PinOverlay from '../components/settings/PinOverlay';
 import { useProjectData } from '../hooks/useProjectData';
 import { useSettings } from '../hooks/useSettings';
 import type { Project } from '../types/model';
+import { useSessionStorage } from '../hooks/useSessionStorage';
 
 export default function UploadRoute() {
   const { projectData } = useProjectData();
   const { settings, getSettingsApiKey, loading: loadingApiKey } = useSettings();
   const { encrypted } = settings.apiKey || {};
+  const { getItem } = useSessionStorage();
 
   const [loading, setLoading] = useState(false);
   const [projectExists, setProjectExists] = useState<boolean | undefined>();
@@ -54,11 +56,19 @@ export default function UploadRoute() {
   }, [projectData?.id, projectData?.revision, decrypted]);
 
   useEffect(() => {
+    const storedPin = getItem('pin');
+    if (encrypted && storedPin) {
+      const { key } = getSettingsApiKey(true, storedPin);
+      setDecrypted(key);
+      return;
+    }
+
     if (!encrypted) {
       const { key } = getSettingsApiKey();
       setDecrypted(key);
+      return;
     }
-  }, [encrypted, getSettingsApiKey]);
+  }, [encrypted, getSettingsApiKey, getItem]);
 
   return (
     <MainWrapper>
