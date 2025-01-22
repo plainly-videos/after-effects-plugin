@@ -1,4 +1,8 @@
-import { useNotifications, useSettings } from '@src/ui/hooks';
+import {
+  useNotifications,
+  useSettings,
+  useSessionStorage,
+} from '@src/ui/hooks';
 import {
   CheckCircleIcon,
   EyeIcon,
@@ -16,10 +20,6 @@ import PageHeading from '../typography/PageHeading';
 import PinInput from './PinInput';
 
 export default function SettingsForm() {
-  const [showApiKey, setShowApiKey] = useState(false);
-  const [edit, setEdit] = useState(false);
-
-  const [loading, setLoading] = useState(false);
   const { notifySuccess, notifyError } = useNotifications();
   const {
     settings,
@@ -27,6 +27,11 @@ export default function SettingsForm() {
     setSettingsApiKey,
   } = useSettings();
 
+  const [showApiKey, setShowApiKey] = useState(false);
+  const [edit, setEdit] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  const [, , clearValue] = useSessionStorage('pin', '');
   const [apiKey, setApiKey] = useState<string>();
   const [pin, setPin] = useState<Pin>();
   const [confirmPin, setConfirmPin] = useState<Pin>();
@@ -85,6 +90,8 @@ export default function SettingsForm() {
     setLoading(true);
     try {
       await setSettingsApiKey('', undefined, true);
+      clearValue();
+      notifySuccess('API key removed successfully');
     } catch (error) {
       notifyError('Failed to remove API key', (error as Error).message);
     } finally {

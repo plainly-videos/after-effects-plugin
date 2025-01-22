@@ -42,23 +42,3 @@ function getProjectData() {
 
   return JSON.stringify(projectData);
 }
-
-function removeProjectData() {
-  const project = app.project;
-  project.save();
-
-  if (ExternalObject.AdobeXMPScript === undefined) {
-    // load the XMPlibrary as an ExtendScript ExternalObject
-    ExternalObject.AdobeXMPScript = new ExternalObject('lib:AdobeXMPScript');
-  }
-
-  const mdata = new XMPMeta!(project.xmpPacket); //get the project's XMPmetadata
-  const schemaNS = XMPMeta!.getNamespaceURI('xmp');
-
-  mdata.deleteProperty(schemaNS, 'xmp:PlainlyProjectId');
-  mdata.deleteProperty(schemaNS, 'xmp:PlainlyProjectRevision');
-  mdata.deleteProperty(schemaNS, 'xmp:PlainlyProjectName');
-
-  project.xmpPacket = mdata.serialize();
-  project.save();
-}
