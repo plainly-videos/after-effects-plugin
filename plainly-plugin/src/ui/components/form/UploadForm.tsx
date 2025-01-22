@@ -29,11 +29,13 @@ export default function UploadForm({
   projectId,
   existing,
   badRevision,
+  error,
 }: {
   apiKey: string | undefined;
   projectId: string | undefined;
   existing?: boolean;
   badRevision?: boolean;
+  error?: boolean;
 }) {
   const { notifySuccess, notifyError } = useNotifications();
 
@@ -47,7 +49,7 @@ export default function UploadForm({
   const [uploadMode, setUploadMode] = useState(existing ? 'edit' : 'new');
 
   const disableExisting = (!projectId || !existing) && uploadMode === 'edit';
-  const disabled = loading || !apiKey || disableExisting;
+  const disabled = loading || !apiKey || disableExisting || error;
 
   const showBadRevision = badRevision && uploadMode === 'edit';
 
