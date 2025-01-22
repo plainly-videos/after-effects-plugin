@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useReducer, useState } from 'react';
-import { encode } from '../../node/encoding';
+import { encode, decode } from '../../node/encoding';
 import { get } from '../../node/request';
 import {
   defaultSettings,
@@ -88,9 +88,16 @@ export const useSettings = () => {
     [],
   );
 
-  // TODO: handle decrypt
-  const getSettingsApiKey = (): { apiKey: string | undefined } => {
-    return { apiKey: settings?.apiKey?.key ?? undefined };
+  const getSettingsApiKey = (
+    encrypted = false,
+    pin: Pin | undefined = undefined,
+  ): { key: string | undefined } => {
+    if (encrypted && pin) {
+      const secret = pin.getPin();
+      return { key: decode(secret, settings?.apiKey?.key ?? '') };
+    }
+
+    return { key: settings?.apiKey?.key ?? undefined };
   };
 
   return {
