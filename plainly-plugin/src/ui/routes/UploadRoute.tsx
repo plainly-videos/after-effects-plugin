@@ -5,11 +5,11 @@ import Notification from '../components/common/Notification';
 import UploadForm from '../components/form/UploadForm';
 import MainWrapper from '../components/layout/MainWrapper';
 import PinOverlay from '../components/settings/PinOverlay';
+import { useNotification } from '../hooks/useNotification';
 import { useProjectData } from '../hooks/useProjectData';
 import { useSessionStorage } from '../hooks/useSessionStorage';
 import { useSettings } from '../hooks/useSettings';
 import type { Project } from '../types/model';
-import { useNotification } from '../hooks/useNotification';
 
 export default function UploadRoute() {
   const { projectData } = useProjectData();
