@@ -21,12 +21,12 @@ function setProjectData(
     mdata.setProperty(schemaNS, propNameId, id);
     revision && mdata.setProperty(schemaNS, propNameRevision, revision);
     mdata.setProperty(schemaNS, propNameName, name);
+    project.xmpPacket = mdata.serialize();
   } catch (e) {
     alert('failed');
+  } finally {
+    project.save();
   }
-
-  project.xmpPacket = mdata.serialize();
-  project.save();
 }
 
 function getProjectData() {
