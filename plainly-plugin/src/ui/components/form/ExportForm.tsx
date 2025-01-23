@@ -6,8 +6,10 @@ import {
   removeFolder,
   selectFolder,
 } from '../../../node/index';
+import { openFolder } from '../../../node/utils';
 import { useNotification } from '../../hooks/useNotification';
 import Button from '../common/Button';
+import Checkbox from '../common/Checkbox';
 import Notification from '../common/Notification';
 import Description from '../typography/Description';
 import Label from '../typography/Label';
@@ -16,6 +18,8 @@ import PageHeading from '../typography/PageHeading';
 export default function ExportForm() {
   const [targetPath, setTargetPath] = useState<string>();
   const [loading, setLoading] = useState(false);
+  const [openLocation, setOpenLocation] = useState(true);
+
   const { notification, notifySuccess, notifyError, clearNotification } =
     useNotification();
 
@@ -39,6 +43,10 @@ export default function ExportForm() {
       } finally {
         if (collectFilesDirValue) {
           await removeFolder(collectFilesDirValue);
+        }
+
+        if (openLocation) {
+          openFolder(targetPath);
         }
       }
     }
@@ -94,6 +102,14 @@ export default function ExportForm() {
                 </div>
               </div>
             </button>
+          </div>
+
+          <div className="col-span-full">
+            <Checkbox
+              label="Open location"
+              description="Open the folder containing the zip file once the export is done."
+              onChange={setOpenLocation}
+            />
           </div>
         </div>
       </div>
