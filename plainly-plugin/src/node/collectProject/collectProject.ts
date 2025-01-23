@@ -72,9 +72,20 @@ async function copyFonts(fonts: Fonts[], targetDir: string) {
 
     const dest = path.join(fontsDir, `${font.fontName}.${font.fontExtension}`);
     try {
-      return await fsPromises.copyFile(src, dest);
-    } catch (error) {
-      throw new Error(src);
+      // if the file doesn't end with .otf or .ttf, copy it, otherwise, throw an error
+      if (font.fontExtension === 'otf' || font.fontExtension === 'ttf') {
+        return await fsPromises.copyFile(src, dest);
+      }
+
+      throw new Error(
+        `Unsupported font format: ${font.fontExtension} for font ${font.fontName}`,
+      );
+    } catch (error: unknown) {
+      // Add `src` to the error message if it's not already present
+      if (!(error as Error).message.includes(src)) {
+        (error as Error).message += ` (Source Path: ${src})`;
+      }
+      throw error; // Re-throw the enriched error
     }
   });
 
@@ -196,7 +207,7 @@ async function makeProjectZip(targetPath: string) {
     const zipPath = await zip(collectFilesDir, projectName);
     return { collectFilesDir, zipPath };
   } catch (error) {
-    throw new Error(`Failed to collect files: ${(error as Error).message}`);
+    throw new Error((error as Error).message);
   }
 }
 
