@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useReducer, useState } from 'react';
-import { encode } from '../../node/encoding';
+import { decode, encode } from '../../node/encoding';
 import { get } from '../../node/request';
 import {
   defaultSettings,
@@ -63,13 +63,15 @@ export const useSettings = () => {
   }, []);
 
   const setSettingsApiKey = useCallback(
-    async (apiKey: string, pin: Pin | undefined) => {
-      try {
-        await get('/api/v2/integrations/appmixer/user-profile', apiKey);
-      } catch (error) {
-        throw new Error(
-          'Invalid API key, please make sure to copy a valid API key from Plainly web-app and try again.',
-        );
+    async (apiKey: string, pin: Pin | undefined, skipCheck = false) => {
+      if (skipCheck === false) {
+        try {
+          await get('/api/v2/integrations/appmixer/user-profile', apiKey);
+        } catch (error) {
+          throw new Error(
+            'Invalid API key, please make sure to copy a valid API key from Plainly web-app and try again.',
+          );
+        }
       }
 
       let newApiKey = apiKey;
@@ -86,8 +88,22 @@ export const useSettings = () => {
     [],
   );
 
-  // TODO: handle decrypt
-  const getSettingsApiKey = () => settings.apiKey;
+  const getSettingsApiKey = (
+    encrypted = false,
+    pin: string | undefined = undefined,
+  ): { key: string | undefined; error?: string | undefined } => {
+    if (encrypted && pin) {
+      const [decoded, error] = decode(pin, settings?.apiKey?.key ?? '');
+      return { key: decoded, error: error ? 'Invalid PIN entered' : undefined };
+    }
 
-  return { settings, setSettingsApiKey, loading, getSettingsApiKey };
+    return { key: settings?.apiKey?.key ?? undefined };
+  };
+
+  return {
+    settings,
+    loading,
+    getSettingsApiKey,
+    setSettingsApiKey,
+  };
 };

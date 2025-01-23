@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import { useState } from 'react';
 import { useNotification } from '../../hooks/useNotification';
+import { useSessionStorage } from '../../hooks/useSessionStorage';
 import { useSettings } from '../../hooks/useSettings';
 import { Pin } from '../../types';
 import { handleLinkClick } from '../../utils';
@@ -18,18 +19,18 @@ import PageHeading from '../typography/PageHeading';
 import PinInput from './PinInput';
 
 export default function SettingsForm() {
-  const [showApiKey, setShowApiKey] = useState(false);
-  const [edit, setEdit] = useState(false);
-
-  const [loading, setLoading] = useState(false);
-  const { notification, notifySuccess, notifyError, clearNotification } =
-    useNotification();
+  const { notification, notifySuccess, notifyError, clear } = useNotification();
   const {
     settings,
     loading: settingsLoading,
     setSettingsApiKey,
   } = useSettings();
 
+  const [showApiKey, setShowApiKey] = useState(false);
+  const [edit, setEdit] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  const [, , clearValue] = useSessionStorage('pin', '');
   const [apiKey, setApiKey] = useState<string>();
   const [pin, setPin] = useState<Pin>();
   const [confirmPin, setConfirmPin] = useState<Pin>();
@@ -75,12 +76,25 @@ export default function SettingsForm() {
           setPin(undefined);
           setConfirmPin(undefined);
         }
-        setLoading(false);
         setEdit(false);
       } catch (error) {
         notifyError('Failed to save settings', (error as Error).message);
+      } finally {
         setLoading(false);
       }
+    }
+  };
+
+  const removeApiKey = async () => {
+    setLoading(true);
+    try {
+      await setSettingsApiKey('', undefined, true);
+      clearValue();
+      notifySuccess('API key removed successfully');
+    } catch (error) {
+      notifyError('Failed to remove API key', (error as Error).message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -119,7 +133,7 @@ export default function SettingsForm() {
                   .
                 </Description>
               </div>
-              {(!settings.apiKey || edit) && (
+              {(!settings.apiKey?.key || edit) && (
                 <div className="mt-2 grid grid-cols-1">
                   <input
                     id="api-key"
@@ -143,7 +157,7 @@ export default function SettingsForm() {
                   </button>
                 </div>
               )}
-              {settings.apiKey && !edit && (
+              {settings.apiKey?.key && !edit && (
                 <div className="mt-2 flex flex-col gap-1">
                   <div className="flex items-center">
                     <CheckCircleIcon className="size-4 text-green-400" />
@@ -171,7 +185,7 @@ export default function SettingsForm() {
               )}
             </div>
 
-            {(!settings.apiKey || edit) && (
+            {(!settings.apiKey?.key || edit) && (
               <div className="col-span-full">
                 <div>
                   <Label label="PIN (recommended)" htmlFor="pin" />
@@ -205,14 +219,15 @@ export default function SettingsForm() {
         )}
       </div>
 
-      {settings.apiKey && !edit ? (
-        <Button
-          type="button"
-          onClick={() => setEdit(true)}
-          className="float-right"
-        >
-          Edit
-        </Button>
+      {settings.apiKey?.key && !edit ? (
+        <div className="float-right flex items-center gap-2">
+          <Button type="button" onClick={() => setEdit(true)}>
+            Edit
+          </Button>
+          <Button type="button" secondary onClick={removeApiKey}>
+            Remove
+          </Button>
+        </div>
       ) : (
         <Button
           className="float-right"
@@ -228,7 +243,7 @@ export default function SettingsForm() {
           title={notification.title}
           type={notification.type}
           description={notification.description}
-          onClose={clearNotification}
+          onClose={clear}
         />
       )}
     </form>

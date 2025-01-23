@@ -4,7 +4,7 @@ import { type Notification, NotificationType } from '../types';
 export const useNotification = () => {
   const [notification, setNotification] = useState<Notification>();
 
-  const clearNotification = useCallback(() => {
+  const clear = useCallback(() => {
     setNotification(undefined);
   }, []);
 
@@ -17,10 +17,10 @@ export const useNotification = () => {
       });
 
       setTimeout(() => {
-        clearNotification();
+        clear();
       }, 3000);
     },
-    [clearNotification],
+    [clear],
   );
 
   const notifyError = useCallback((title: string, description?: string) => {
@@ -35,6 +35,6 @@ export const useNotification = () => {
     notification,
     notifySuccess,
     notifyError,
-    clearNotification,
+    clear,
   };
 };

@@ -5,10 +5,7 @@
     "moduleResolution": "bundler",
     "esModuleInterop": true,
     "jsx": "react-jsx",
-    "strict": true,
-    "paths": {
-      "@src/*": ["./src/*"]
-    }
+    "strict": true
   },
   "include": ["src", "index.d.ts"],
   "exclude": ["node_modules"]
