@@ -6,14 +6,14 @@ import {
   removeFolder,
   selectFolder,
 } from '../../../node/index';
+import { openFolder } from '../../../node/utils';
 import { useNotification } from '../../hooks/useNotification';
 import Button from '../common/Button';
+import Checkbox from '../common/Checkbox';
 import Notification from '../common/Notification';
 import Description from '../typography/Description';
 import Label from '../typography/Label';
 import PageHeading from '../typography/PageHeading';
-import Checkbox from '../common/Checkbox';
-import { openFolder } from '../../../node/utils';
 
 export default function ExportForm() {
   const [targetPath, setTargetPath] = useState<string>();
