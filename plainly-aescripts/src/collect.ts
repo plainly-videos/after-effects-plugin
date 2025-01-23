@@ -56,7 +56,8 @@ function collectFonts(): FontPath[] {
         layers[j].sourceText.value.fontLocation,
       ).name
         .split('.')
-        .pop();
+        .pop()
+        ?.toLowerCase();
 
       const fontLocation = layers[j].sourceText.value.fontLocation;
       fontPaths.push({

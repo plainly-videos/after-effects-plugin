@@ -71,11 +71,14 @@ async function copyFonts(fonts: Fonts[], targetDir: string) {
     const src = finalizePath(font.fontLocation);
 
     const dest = path.join(fontsDir, `${font.fontName}.${font.fontExtension}`);
-    try {
+    // if the file doesn't end with .otf or .ttf, copy it, otherwise, throw an error
+    if (font.fontExtension === 'otf' || font.fontExtension === 'ttf') {
       return await fsPromises.copyFile(src, dest);
-    } catch (error) {
-      throw new Error(src);
     }
+
+    throw new Error(
+      `Unsupported font format: ${font.fontExtension} for font ${font.fontName} (Source Path: ${src})`,
+    );
   });
 
   const errors = await runInParallelReturnRejected(fontPromises);
@@ -185,19 +188,15 @@ async function makeProjectZipTmpDir() {
 
 // Function to make a project zip with a specified target path
 async function makeProjectZip(targetPath: string) {
-  try {
-    const collectFilesDir = await collectProjectFiles(targetPath);
-    const projectPath = await evalScriptAsync('getProjectPath()');
-    if (!projectPath) {
-      throw new Error('Project not opened or not saved');
-    }
-
-    const projectName = path.basename(projectPath, '.aep');
-    const zipPath = await zip(collectFilesDir, projectName);
-    return { collectFilesDir, zipPath };
-  } catch (error) {
-    throw new Error(`Failed to collect files: ${(error as Error).message}`);
+  const collectFilesDir = await collectProjectFiles(targetPath);
+  const projectPath = await evalScriptAsync('getProjectPath()');
+  if (!projectPath) {
+    throw new Error('Project not opened or not saved');
   }
+
+  const projectName = path.basename(projectPath, '.aep');
+  const zipPath = await zip(collectFilesDir, projectName);
+  return { collectFilesDir, zipPath };
 }
 
 export { makeProjectZipTmpDir, makeProjectZip, removeFolder, selectFolder };
