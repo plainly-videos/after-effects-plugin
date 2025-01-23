@@ -1,6 +1,7 @@
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
+import child_process from 'child_process';
 
 const homeDirectory = os.homedir();
 
@@ -65,4 +66,11 @@ export const runInParallelReturnRejected = async <T>(
     .map(({ reason }) =>
       reason instanceof Error ? reason.message : String(reason),
     );
+};
+
+export const openFolder = (path: string) => {
+  const finalizedPath = finalizePath(path);
+  const p = child_process.spawn('open', [finalizedPath]);
+
+  p.on('error', () => p.kill());
 };
