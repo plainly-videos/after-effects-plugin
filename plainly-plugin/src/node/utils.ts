@@ -7,6 +7,7 @@ const homeDirectory = os.homedir();
 
 // @ts-ignore
 import CSInterface from './lib/CSInterface';
+import { isWindows } from './constants';
 const csInterface = new CSInterface();
 
 /**
@@ -70,7 +71,8 @@ export const runInParallelReturnRejected = async <T>(
 
 export const openFolder = (path: string) => {
   const finalizedPath = finalizePath(path);
-  const p = child_process.spawn('open', [finalizedPath]);
+  const command = isWindows ? 'explorer' : 'open';
+  const p = child_process.spawn(command, [finalizedPath]);
 
   p.on('error', () => p.kill());
 };
