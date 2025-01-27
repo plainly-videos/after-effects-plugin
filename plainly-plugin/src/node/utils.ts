@@ -5,9 +5,9 @@ import path from 'path';
 
 const homeDirectory = os.homedir();
 
+import { isWindows } from './constants';
 // @ts-ignore
 import CSInterface from './lib/CSInterface';
-import { isWindows } from './constants';
 const csInterface = new CSInterface();
 
 /**
