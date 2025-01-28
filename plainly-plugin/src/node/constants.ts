@@ -25,6 +25,7 @@ const windowsDest = path.join(
   'Plainly Videos',
 );
 const device: string = os.platform();
-export const settingsDirectory = device === 'win32' ? windowsDest : macDest;
+export const isWindows = device === 'win32';
+export const settingsDirectory = isWindows ? windowsDest : macDest;
 export const settingsPath = path.join(settingsDirectory, settingsFileName);
 export const TMP_DIR = path.join(os.tmpdir(), 'plainlyvideos');

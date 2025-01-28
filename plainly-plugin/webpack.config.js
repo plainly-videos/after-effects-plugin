@@ -34,9 +34,6 @@ module.exports = (_, options) => ({
   resolve: {
     extensions: ['.wasm', '.mjs', '.json', '.jsx', '.js', '.ts', '.tsx'], // resolve file extensions
   },
-  devServer: {
-    contentBase: path.join(__dirname, 'dist'), // serve files from dist directory
-  },
   plugins: [
     new HtmlWebpackPlugin({
       template: './index.html',

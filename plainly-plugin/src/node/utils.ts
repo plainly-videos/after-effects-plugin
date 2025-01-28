@@ -1,9 +1,11 @@
+import child_process from 'child_process';
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
 
 const homeDirectory = os.homedir();
 
+import { isWindows } from './constants';
 // @ts-ignore
 import CSInterface from './lib/CSInterface';
 const csInterface = new CSInterface();
@@ -65,4 +67,12 @@ export const runInParallelReturnRejected = async <T>(
     .map(({ reason }) =>
       reason instanceof Error ? reason.message : String(reason),
     );
+};
+
+export const openFolder = (path: string) => {
+  const finalizedPath = finalizePath(path);
+  const command = isWindows ? 'explorer' : 'open';
+  const p = child_process.spawn(command, [finalizedPath]);
+
+  p.on('error', () => p.kill());
 };
