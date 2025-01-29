@@ -17,6 +17,9 @@ type Action =
   | {
       type: 'SET_SETTINGS_API_KEY';
       payload: Settings['apiKey'];
+    }
+  | {
+      type: 'CLEAR_SETTINGS_API_KEY';
     };
 
 function settingsReducer(settings: Settings, action: Action) {
@@ -29,6 +32,12 @@ function settingsReducer(settings: Settings, action: Action) {
         return {
           ...settings,
           apiKey: action.payload,
+        };
+      }
+      case 'CLEAR_SETTINGS_API_KEY': {
+        return {
+          ...settings,
+          apiKey: undefined,
         };
       }
       default:
@@ -88,22 +97,41 @@ export const useSettings = () => {
     [],
   );
 
-  const getSettingsApiKey = (
-    encrypted = false,
-    pin: string | undefined = undefined,
-  ): { key: string | undefined; error?: string | undefined } => {
-    if (encrypted && pin) {
-      const [decoded, error] = decode(pin, settings?.apiKey?.key ?? '');
-      return { key: decoded, error: error ? 'Invalid PIN entered' : undefined };
-    }
+  const getSettingsApiKey = useCallback(
+    (
+      pin: string | undefined = undefined,
+    ): {
+      key: string | undefined;
+      encrypted?: boolean;
+      error?: string | undefined;
+    } => {
+      const { key, encrypted } = settings.apiKey ?? {};
 
-    return { key: settings?.apiKey?.key ?? undefined };
-  };
+      if (pin) {
+        const [decoded, error] = decode(pin, key ?? '');
+        return {
+          key: decoded,
+          encrypted: encrypted,
+          error: error ? 'Invalid PIN entered' : undefined,
+        };
+      }
+
+      return { key: key ?? undefined, encrypted: encrypted };
+    },
+    [settings.apiKey],
+  );
+
+  const clearApiKey = useCallback(async () => {
+    dispatch({
+      type: 'CLEAR_SETTINGS_API_KEY',
+    });
+  }, []);
 
   return {
     settings,
     loading,
     getSettingsApiKey,
     setSettingsApiKey,
+    clearApiKey,
   };
 };

@@ -47,6 +47,10 @@ export async function evalScriptAsync(
   return new Promise((resolve, reject) => {
     try {
       csInterface.evalScript(func, (result: string) => {
+        if (result.includes('Error: ')) {
+          reject(new Error(result));
+        }
+
         resolve(result === 'undefined' ? undefined : result);
       });
     } catch (error) {

@@ -14,7 +14,7 @@ export default function App() {
   const currentPage = settings.currentPage;
 
   // Add new pages here and to pages.ts
-  const children = useMemo(() => {
+  const route = useMemo(() => {
     if (currentPage === '/export') return <ExportRoute />;
     if (currentPage === '/upload') return <UploadRoute />;
     if (currentPage === '/settings') return <SettingsRoute />;
@@ -35,7 +35,7 @@ export default function App() {
         </Button>
       )}
       <Sidebar />
-      {children}
+      {route}
     </>
   );
 }

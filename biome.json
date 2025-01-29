@@ -28,6 +28,9 @@
       "style": {
         "noNonNullAssertion": "off",
         "useNodejsImportProtocol": "off"
+      },
+      "correctness": {
+        "noUnusedImports": "error"
       }
     }
   },

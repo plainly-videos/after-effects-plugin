@@ -1,5 +1,11 @@
 import classNames from 'classnames';
-import { type Dispatch, type SetStateAction, useCallback, useRef } from 'react';
+import {
+  type Dispatch,
+  type SetStateAction,
+  useCallback,
+  useEffect,
+  useRef,
+} from 'react';
 import { Pin } from '../../types';
 
 export default function PinInput({
@@ -7,11 +13,13 @@ export default function PinInput({
   className,
   onChange,
   type = 'password',
+  overlay = false,
 }: {
   pin: Pin | undefined;
   onChange: Dispatch<SetStateAction<Pin | undefined>>;
   className?: string;
   type?: 'text' | 'password';
+  overlay?: boolean;
 }) {
   // Create refs for each input
   const firstInputRef = useRef<HTMLInputElement>(null);
@@ -63,6 +71,12 @@ export default function PinInput({
     },
     [pin, onChange],
   );
+
+  useEffect(() => {
+    if (overlay) {
+      firstInputRef.current?.focus();
+    }
+  }, [overlay]);
 
   return (
     <div

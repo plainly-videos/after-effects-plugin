@@ -1,92 +1,44 @@
 import { LoaderCircleIcon } from 'lucide-react';
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useState,
-} from 'react';
-import { useNotification } from '../../hooks/useNotification';
+import { createContext } from 'react';
 import { useSessionStorage } from '../../hooks/useSessionStorage';
 import { useSettings } from '../../hooks/useSettings';
-import Notification from '../common/Notification';
+import MissingApiKey from './MissingApiKey';
 import PinOverlay from './PinOverlay';
 
 interface AuthContextProps {
-  apiKey: string | undefined;
-  decryptedKey: string | undefined;
-  setDecryptedKey: React.Dispatch<React.SetStateAction<string | undefined>>;
-  decryptKey: (pin: string) => void;
-  cancelDecrypt: () => void;
+  apiKey: string;
 }
 
-const AuthContext = createContext<AuthContextProps | undefined>(undefined);
+export const AuthContext = createContext<AuthContextProps>(
+  {} as AuthContextProps,
+);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const { settings, getSettingsApiKey, loading } = useSettings();
-  const { notification, notifySuccess, notifyError, clear } = useNotification();
+  const { getSettingsApiKey, loading } = useSettings();
 
-  const [storedValue, setValue] = useSessionStorage<string>('pin', '');
-  const [decryptedKey, setDecryptedKey] = useState<string>();
-
-  const decryptKey = useCallback(
-    (pin: string) => {
-      const { key, error } = getSettingsApiKey(true, pin);
-
-      if (error) {
-        notifyError(error);
-        return;
-      }
-
-      setValue(pin);
-      setDecryptedKey(key);
-      notifySuccess('Successfully entered PIN');
-    },
-    [getSettingsApiKey, notifyError, notifySuccess, setValue],
+  const [pin, setPinStorage] = useSessionStorage<string | undefined>(
+    'pin',
+    undefined,
   );
 
-  const cancelDecrypt = useCallback(() => {
-    setDecryptedKey(settings.apiKey?.key);
-    setValue('cancelled');
-  }, [setValue, settings.apiKey?.key]);
-
-  const showOverlay =
-    (!decryptedKey || !storedValue) && settings.apiKey?.encrypted;
+  const { key, encrypted, error } = getSettingsApiKey(pin);
+  const showOverlay = (!pin && encrypted) || error;
 
   return (
-    <AuthContext.Provider
-      value={{
-        apiKey: settings.apiKey?.key,
-        decryptedKey,
-        setDecryptedKey,
-        decryptKey,
-        cancelDecrypt,
-      }}
-    >
+    <>
       {loading ? (
         <LoaderCircleIcon className="animate-spin shrink-0 mx-auto size-6 text-white my-auto" />
       ) : (
         <>
-          {showOverlay ? <PinOverlay /> : children}
-          {notification && (
-            <Notification
-              title={notification.title}
-              type={notification.type}
-              description={notification.description}
-              onClose={clear}
-            />
+          {!key && !error && <MissingApiKey />}
+          {showOverlay && <PinOverlay setPinStorage={setPinStorage} />}
+          {key && !showOverlay && (
+            <AuthContext.Provider value={{ apiKey: key }}>
+              {children}
+            </AuthContext.Provider>
           )}
         </>
       )}
-    </AuthContext.Provider>
+    </>
   );
-};
-
-export const useAuthContext = () => {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('usePinContext must be used within a AuthProvider');
-  }
-
-  return context;
 };

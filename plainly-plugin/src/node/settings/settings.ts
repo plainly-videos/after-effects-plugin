@@ -11,7 +11,7 @@ async function retrieveSettings(): Promise<Settings> {
     const file = await fsPromises.readFile(settingsPath, 'utf-8');
     return JSON.parse(file);
   } catch (error) {
-    console.log(`Failed to read settings: ${error}`);
+    console.error(`Failed to read settings: ${error}`);
     fsPromises.writeFile(settingsPath, JSON.stringify(defaultSettings));
     return defaultSettings;
   }

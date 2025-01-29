@@ -5,13 +5,13 @@ import Button from '../common/Button';
 import Notification from '../common/Notification';
 import Description from '../typography/Description';
 import PageHeading from '../typography/PageHeading';
-import { useAuthContext } from './AuthProvider';
 import PinInput from './PinInput';
 
-export default function PinOverlay() {
+export default function PinOverlay({
+  setPinStorage,
+}: { setPinStorage: (value: string | undefined) => void }) {
   const [pin, setPin] = useState<Pin | undefined>();
-  const { notification, notifyError, clear } = useNotification();
-  const { decryptKey, cancelDecrypt } = useAuthContext();
+  const { notification, notifyError, clearNotification } = useNotification();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -21,7 +21,7 @@ export default function PinOverlay() {
       return;
     }
 
-    decryptKey(pin.getPin());
+    setPinStorage(pin.getPin());
   };
 
   return (
@@ -36,10 +36,10 @@ export default function PinOverlay() {
         </div>
 
         <div className="flex flex-col gap-y-2 w-fit">
-          <PinInput pin={pin} onChange={setPin} type="password" />
+          <PinInput pin={pin} onChange={setPin} type="password" overlay />
           <div className="flex justify-between items-center">
-            <Button type="button" secondary onClick={cancelDecrypt}>
-              Cancel
+            <Button type="button" secondary onClick={() => setPin(undefined)}>
+              Clear
             </Button>
             <Button>Submit</Button>
           </div>
@@ -50,7 +50,7 @@ export default function PinOverlay() {
           title={notification.title}
           type={notification.type}
           description={notification.description}
-          onClose={clear}
+          onClose={clearNotification}
         />
       )}
     </form>

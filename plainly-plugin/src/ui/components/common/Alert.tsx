@@ -4,7 +4,8 @@ import { CheckCircleIcon, TriangleAlertIcon, XCircleIcon } from 'lucide-react';
 export default function Alert({
   title,
   type,
-}: { title: string; type: 'danger' | 'warning' }) {
+  className,
+}: { title: string; type: 'danger' | 'warning'; className?: string }) {
   const Icon = ({ type }: { type: 'danger' | 'warning' }) => {
     switch (type) {
       case 'danger':
@@ -25,6 +26,7 @@ export default function Alert({
         'rounded-md bg-[rgb(29,29,30)] border p-2 border-green-400',
         danger && 'border-red-400',
         warning && 'border-yellow-400',
+        className,
       )}
     >
       <div className="flex items-center">
