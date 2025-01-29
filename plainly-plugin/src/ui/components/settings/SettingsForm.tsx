@@ -11,7 +11,7 @@ import { useSettings } from '../../hooks/useSettings';
 import { Pin } from '../../types';
 import { handleLinkClick } from '../../utils';
 import Button from '../common/Button';
-import Notification from '../common/Notification';
+import NotificationsOverlay from '../common/Notification';
 import Description from '../typography/Description';
 import Label from '../typography/Label';
 import PageHeading from '../typography/PageHeading';
@@ -22,7 +22,7 @@ export default function SettingsForm() {
   const [edit, setEdit] = useState(false);
 
   const [loading, setLoading] = useState(false);
-  const { notification, notifySuccess, notifyError, clearNotification } =
+  const { notifications, notifySuccess, notifyError, clearNotification } =
     useNotification();
   const {
     settings,
@@ -223,14 +223,10 @@ export default function SettingsForm() {
         </Button>
       )}
 
-      {notification && (
-        <Notification
-          title={notification.title}
-          type={notification.type}
-          description={notification.description}
-          onClose={clearNotification}
-        />
-      )}
+      <NotificationsOverlay
+        notifications={notifications}
+        onClose={clearNotification}
+      />
     </form>
   );
 }

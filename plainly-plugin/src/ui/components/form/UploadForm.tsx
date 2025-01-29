@@ -12,7 +12,7 @@ import { LoaderCircleIcon } from 'lucide-react';
 import { useNotification } from '../../hooks/useNotification';
 import { useSettings } from '../../hooks/useSettings';
 import Alert from '../common/Alert';
-import Notification from '../common/Notification';
+import NotificationsOverlay from '../common/Notification';
 
 export default function UploadForm() {
   const [inputs, setInputs] = useState<{
@@ -21,7 +21,7 @@ export default function UploadForm() {
     tags?: string[];
   }>({});
   const [loading, setLoading] = useState(false);
-  const { notification, notifySuccess, notifyError, clearNotification } =
+  const { notifications, notifySuccess, notifyError, clearNotification } =
     useNotification();
   const { getSettingsApiKey, loading: settingsLoading } = useSettings();
 
@@ -160,14 +160,10 @@ export default function UploadForm() {
         Upload
       </Button>
 
-      {notification && (
-        <Notification
-          title={notification.title}
-          type={notification.type}
-          description={notification.description}
-          onClose={clearNotification}
-        />
-      )}
+      <NotificationsOverlay
+        notifications={notifications}
+        onClose={clearNotification}
+      />
     </form>
   );
 }

@@ -1,20 +1,25 @@
 import { useCallback, useState } from 'react';
-import { type Notification, NotificationType } from '../types';
+import { NotificationType } from '../types';
 
 export const useNotification = () => {
-  const [notification, setNotification] = useState<Notification>();
+  const [notifications, setNotifications] = useState<
+    { title: string; type: NotificationType; description?: string }[]
+  >([]);
 
   const clearNotification = useCallback(() => {
-    setNotification(undefined);
+    setNotifications((prev) => prev.filter((n) => n !== prev[0]));
   }, []);
 
   const notifySuccess = useCallback(
     (title: string, description?: string) => {
-      setNotification({
-        title,
-        type: NotificationType.SUCCESS,
-        description,
-      });
+      setNotifications((prev) => [
+        ...prev,
+        {
+          title,
+          type: NotificationType.SUCCESS,
+          description,
+        },
+      ]);
 
       setTimeout(() => {
         clearNotification();
@@ -24,15 +29,18 @@ export const useNotification = () => {
   );
 
   const notifyError = useCallback((title: string, description?: string) => {
-    setNotification({
-      title,
-      type: NotificationType.ERROR,
-      description,
-    });
+    setNotifications((prev) => [
+      ...prev,
+      {
+        title,
+        type: NotificationType.ERROR,
+        description,
+      },
+    ]);
   }, []);
 
   return {
-    notification,
+    notifications,
     notifySuccess,
     notifyError,
     clearNotification,

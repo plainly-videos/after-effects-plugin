@@ -10,7 +10,7 @@ import { openFolder } from '../../../node/utils';
 import { useNotification } from '../../hooks/useNotification';
 import Button from '../common/Button';
 import Checkbox from '../common/Checkbox';
-import Notification from '../common/Notification';
+import NotificationsOverlay from '../common/Notification';
 import Description from '../typography/Description';
 import Label from '../typography/Label';
 import PageHeading from '../typography/PageHeading';
@@ -20,7 +20,7 @@ export default function ExportForm() {
   const [loading, setLoading] = useState(false);
   const [openLocation, setOpenLocation] = useState(true);
 
-  const { notification, notifySuccess, notifyError, clearNotification } =
+  const { notifications, notifySuccess, notifyError, clearNotification } =
     useNotification();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -122,14 +122,10 @@ export default function ExportForm() {
         Export
       </Button>
 
-      {notification && (
-        <Notification
-          title={notification.title}
-          type={notification.type}
-          description={notification.description}
-          onClose={clearNotification}
-        />
-      )}
+      <NotificationsOverlay
+        notifications={notifications}
+        onClose={clearNotification}
+      />
     </form>
   );
 }
