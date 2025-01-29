@@ -1,5 +1,7 @@
+import classNames from 'classnames';
 import { useState } from 'react';
 import { useNotification } from '../../hooks/useNotification';
+import { State, useGlobalState } from '../../state/store';
 import type { Pin } from '../../types';
 import Button from '../common/Button';
 import Notification from '../common/Notification';
@@ -10,8 +12,11 @@ import PinInput from './PinInput';
 export default function PinOverlay({
   setPinStorage,
 }: { setPinStorage: (value: string | undefined) => void }) {
-  const [pin, setPin] = useState<Pin | undefined>();
   const { notification, notifyError, clearNotification } = useNotification();
+  const [settings] = useGlobalState(State.SETTINGS);
+  const sidebarOpen = settings.sidebarOpen;
+
+  const [pin, setPin] = useState<Pin | undefined>();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -26,7 +31,10 @@ export default function PinOverlay({
 
   return (
     <form
-      className="absolute inset-0 w-full h-screen flex items-center justify-center bg-[rgb(29,29,30)] z-10"
+      className={classNames(
+        'absolute inset-0 w-full h-screen flex items-center justify-center bg-[rgb(29,29,30)] z-10',
+        sidebarOpen ? 'pl-[3.75rem] xs:pl-48' : 'pl-[3.75rem]',
+      )}
       onSubmit={handleSubmit}
     >
       <div className="flex flex-col gap-y-4 items-center">
