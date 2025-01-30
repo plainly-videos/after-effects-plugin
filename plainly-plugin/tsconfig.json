@@ -6,8 +6,9 @@
     "esModuleInterop": true,
     "jsx": "react-jsx",
     "strict": true,
+    "baseUrl": ".",
     "paths": {
-      "@src/*": ["./src/*"]
+      "@src/*": ["src/*"]
     }
   },
   "include": ["src", "index.d.ts"],

@@ -33,6 +33,9 @@ module.exports = (_, options) => ({
   },
   resolve: {
     extensions: ['.wasm', '.mjs', '.json', '.jsx', '.js', '.ts', '.tsx'], // resolve file extensions
+    alias: {
+      '@src': path.resolve(__dirname, 'src'),
+    },
   },
   plugins: [
     new HtmlWebpackPlugin({

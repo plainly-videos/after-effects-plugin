@@ -2,6 +2,7 @@ import { Transition } from '@headlessui/react';
 import classNames from 'classnames';
 import { CircleCheckBigIcon, XIcon } from 'lucide-react';
 import type { NotificationType } from '../../types';
+import { useNotifications } from '@src/ui/hooks';
 
 function Notification({
   title,
@@ -69,20 +70,8 @@ function Notification({
   );
 }
 
-export default function NotificationsOverlay({
-  notifications,
-  onClose,
-}: {
-  notifications: {
-    title: string;
-    type: NotificationType;
-    description?: string;
-  }[];
-  onClose: () => void;
-}) {
-  if (notifications.length === 0) {
-    return null;
-  }
+export default function NotificationsOverlay() {
+  const { notifications, clearNotification } = useNotifications();
 
   return (
     <div
@@ -95,7 +84,7 @@ export default function NotificationsOverlay({
           title={notification.title}
           type={notification.type}
           description={notification.description}
-          onClose={onClose}
+          onClose={() => clearNotification(notification.id)}
           isFirst={notifications.indexOf(notification) === 0}
           isLast={
             notifications.indexOf(notification) === notifications.length - 1

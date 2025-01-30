@@ -1,8 +1,9 @@
 import { createGlobalState } from 'react-hooks-global-state';
-import { type GlobalSettings, Routes } from '../types';
+import { type GlobalSettings, type Notification, Routes } from '../types';
 
 export enum State {
   SETTINGS = 'settings',
+  NOTIFICATIONS = 'notifications',
 }
 
 const initialState = {
@@ -10,6 +11,7 @@ const initialState = {
     currentPage: Routes.EXPORT,
     sidebarOpen: false,
   } as GlobalSettings,
+  [State.NOTIFICATIONS]: [] as Notification[],
 };
 
 const { useGlobalState, getGlobalState, setGlobalState } =
@@ -20,6 +22,7 @@ function resetGlobalState() {
     currentPage: Routes.EXPORT,
     sidebarOpen: false,
   });
+  setGlobalState(State.NOTIFICATIONS, []);
 }
 
 export { useGlobalState, getGlobalState, setGlobalState, resetGlobalState };

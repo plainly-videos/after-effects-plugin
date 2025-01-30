@@ -1,5 +1,6 @@
 import classNames from 'classnames';
 import { State, useGlobalState } from '../../state/store';
+import NotificationsOverlay from '../common/NotificationsOverlay';
 
 export default function MainWrapper({
   children,
@@ -20,6 +21,7 @@ export default function MainWrapper({
       <div className="p-6 sm:p-14 lg:p-20 min-h-screen justify-between items-center flex flex-col">
         {children}
       </div>
+      <NotificationsOverlay />
     </main>
   );
 }
