@@ -1,7 +1,7 @@
-import { useCallback, useState } from 'react';
-import { type Notification, NotificationType } from '../types';
-import { getGlobalState, State, useGlobalState } from '../state/store';
 import crypto from 'crypto';
+import { useCallback, useState } from 'react';
+import { State, getGlobalState, useGlobalState } from '../state/store';
+import { type Notification, NotificationType } from '../types';
 
 export const useNotifications = () => {
   const [notifications, setNotifications] = useGlobalState(State.NOTIFICATIONS);

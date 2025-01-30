@@ -1,8 +1,8 @@
 import { Transition } from '@headlessui/react';
+import { useNotifications } from '@src/ui/hooks';
 import classNames from 'classnames';
 import { CircleCheckBigIcon, XIcon } from 'lucide-react';
 import type { NotificationType } from '../../types';
-import { useNotifications } from '@src/ui/hooks';
 
 function Notification({
   title,
