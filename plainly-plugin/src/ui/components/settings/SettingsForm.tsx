@@ -1,3 +1,4 @@
+import { useNotifications, useSettings } from '@src/ui/hooks';
 import {
   CheckCircleIcon,
   EyeIcon,
@@ -6,12 +7,9 @@ import {
   XCircleIcon,
 } from 'lucide-react';
 import { useState } from 'react';
-import { useNotification } from '../../hooks/useNotification';
-import { useSettings } from '../../hooks/useSettings';
 import { Pin } from '../../types';
 import { handleLinkClick } from '../../utils';
 import Button from '../common/Button';
-import Notification from '../common/Notification';
 import Description from '../typography/Description';
 import Label from '../typography/Label';
 import PageHeading from '../typography/PageHeading';
@@ -22,8 +20,7 @@ export default function SettingsForm() {
   const [edit, setEdit] = useState(false);
 
   const [loading, setLoading] = useState(false);
-  const { notification, notifySuccess, notifyError, clearNotification } =
-    useNotification();
+  const { notifySuccess, notifyError } = useNotifications();
   const {
     settings,
     loading: settingsLoading,
@@ -221,15 +218,6 @@ export default function SettingsForm() {
         >
           Save
         </Button>
-      )}
-
-      {notification && (
-        <Notification
-          title={notification.title}
-          type={notification.type}
-          description={notification.description}
-          onClose={clearNotification}
-        />
       )}
     </form>
   );

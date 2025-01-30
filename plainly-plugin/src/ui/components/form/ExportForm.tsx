@@ -1,3 +1,4 @@
+import { useNotifications } from '@src/ui/hooks';
 import classNames from 'classnames';
 import { FolderIcon } from 'lucide-react';
 import { useState } from 'react';
@@ -7,10 +8,8 @@ import {
   selectFolder,
 } from '../../../node/index';
 import { openFolder } from '../../../node/utils';
-import { useNotification } from '../../hooks/useNotification';
 import Button from '../common/Button';
 import Checkbox from '../common/Checkbox';
-import Notification from '../common/Notification';
 import Description from '../typography/Description';
 import Label from '../typography/Label';
 import PageHeading from '../typography/PageHeading';
@@ -20,8 +19,8 @@ export default function ExportForm() {
   const [loading, setLoading] = useState(false);
   const [openLocation, setOpenLocation] = useState(true);
 
-  const { notification, notifySuccess, notifyError, clearNotification } =
-    useNotification();
+  const { notifications, notifySuccess, notifyError, clearNotification } =
+    useNotifications();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -121,15 +120,6 @@ export default function ExportForm() {
       >
         Export
       </Button>
-
-      {notification && (
-        <Notification
-          title={notification.title}
-          type={notification.type}
-          description={notification.description}
-          onClose={clearNotification}
-        />
-      )}
     </form>
   );
 }
