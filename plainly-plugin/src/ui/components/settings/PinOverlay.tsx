@@ -1,10 +1,9 @@
+import { useNotifications } from '@src/ui/hooks';
 import classNames from 'classnames';
 import { useState } from 'react';
-import { useNotification } from '../../hooks/useNotification';
 import { State, useGlobalState } from '../../state/store';
 import type { Pin } from '../../types';
 import Button from '../common/Button';
-import Notification from '../common/Notification';
 import Description from '../typography/Description';
 import PageHeading from '../typography/PageHeading';
 import PinInput from './PinInput';
@@ -12,7 +11,7 @@ import PinInput from './PinInput';
 export default function PinOverlay({
   setPinStorage,
 }: { setPinStorage: (value: string | undefined) => void }) {
-  const { notification, notifyError, clearNotification } = useNotification();
+  const { notifyError } = useNotifications();
   const [settings] = useGlobalState(State.SETTINGS);
   const sidebarOpen = settings.sidebarOpen;
 
@@ -53,14 +52,6 @@ export default function PinOverlay({
           </div>
         </div>
       </div>
-      {notification && (
-        <Notification
-          title={notification.title}
-          type={notification.type}
-          description={notification.description}
-          onClose={clearNotification}
-        />
-      )}
     </form>
   );
 }
