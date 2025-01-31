@@ -1,5 +1,5 @@
 import crypto from 'crypto';
-import { useCallback, useState } from 'react';
+import { useCallback } from 'react';
 import { State, getGlobalState, useGlobalState } from '../state/store';
 import { type Notification, NotificationType } from '../types';
 

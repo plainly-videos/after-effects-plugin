@@ -1,7 +1,7 @@
 import {
   useNotifications,
-  useSettings,
   useSessionStorage,
+  useSettings,
 } from '@src/ui/hooks';
 import {
   CheckCircleIcon,
