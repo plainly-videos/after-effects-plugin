@@ -22,7 +22,8 @@ import PinInput from './PinInput';
 export default function SettingsForm() {
   const { notifySuccess, notifyError } = useNotifications();
   const {
-    settings,
+    apiKeySet,
+    apiKeyEncrypted,
     loading: settingsLoading,
     setSettingsApiKey,
     clearApiKey,
@@ -135,7 +136,7 @@ export default function SettingsForm() {
                   .
                 </Description>
               </div>
-              {(!settings.apiKey || edit) && (
+              {(!apiKeySet || edit) && (
                 <div className="mt-2 grid grid-cols-1">
                   <input
                     id="api-key"
@@ -159,7 +160,7 @@ export default function SettingsForm() {
                   </button>
                 </div>
               )}
-              {settings.apiKey && !edit && (
+              {apiKeySet && !edit && (
                 <div className="mt-2 flex flex-col gap-1">
                   <div className="flex items-center">
                     <CheckCircleIcon className="size-4 text-green-400" />
@@ -167,7 +168,7 @@ export default function SettingsForm() {
                       Your API key is set
                     </p>
                   </div>
-                  {settings.apiKey.encrypted === true && (
+                  {apiKeyEncrypted === true && (
                     <div className="flex items-center">
                       <CheckCircleIcon className="size-4 text-green-400" />
                       <p className="text-xs text-white ml-1">
@@ -175,7 +176,7 @@ export default function SettingsForm() {
                       </p>
                     </div>
                   )}
-                  {settings.apiKey.encrypted === false && (
+                  {apiKeyEncrypted === false && (
                     <div className="flex items-center">
                       <XCircleIcon className="size-4 text-red-400" />
                       <p className="text-xs text-white ml-1">
@@ -187,7 +188,7 @@ export default function SettingsForm() {
               )}
             </div>
 
-            {(!settings.apiKey || edit) && (
+            {(!apiKeySet || edit) && (
               <div className="col-span-full">
                 <div>
                   <Label label="PIN (recommended)" htmlFor="pin" />
@@ -221,7 +222,7 @@ export default function SettingsForm() {
         )}
       </div>
 
-      {settings.apiKey && !edit ? (
+      {apiKeySet && !edit ? (
         <div className="float-right flex items-center gap-2">
           <Button type="button" onClick={() => setEdit(true)}>
             Edit

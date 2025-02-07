@@ -9,8 +9,8 @@ import PageHeading from '../typography/PageHeading';
 import PinInput from './PinInput';
 
 export default function PinOverlay({
-  setPinStorage,
-}: { setPinStorage: (value: string | undefined) => void }) {
+  onPinSubmitted,
+}: { onPinSubmitted: (value: string | undefined) => void }) {
   const { notifyError } = useNotifications();
   const [settings] = useGlobalState(State.SETTINGS);
   const sidebarOpen = settings.sidebarOpen;
@@ -25,7 +25,7 @@ export default function PinOverlay({
       return;
     }
 
-    setPinStorage(pin.getPin());
+    onPinSubmitted(pin.getPin());
   };
 
   return (

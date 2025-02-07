@@ -42,15 +42,11 @@ export default function UploadForm() {
   }>({});
 
   const disabledEdit = uploadMode === 'edit' && !projectExists;
-  const disabled = loading || !apiKey || disabledEdit;
+  const disabled = loading || disabledEdit;
 
   const handleSubmit = async (e: React.FormEvent) => {
-    setLoading(true);
     e.preventDefault();
-    if (disabled) {
-      setLoading(false);
-      return;
-    }
+    setLoading(true);
 
     let collectFilesDirValue: string | undefined;
     let zipPathValue: string | undefined;
@@ -78,12 +74,12 @@ export default function UploadForm() {
       );
 
       const projectId = project.id;
-      const revision = project.revisionHistory?.length || 0;
+      const revisionCount = project.revisionHistory?.length || 0;
       const projectName = project.name;
 
       setProjectData({
         id: projectId,
-        revision: revision.toString(),
+        revisionCount: revisionCount,
         name: projectName,
       });
 
@@ -106,7 +102,7 @@ export default function UploadForm() {
     const fetchProject = async (
       key: string,
       projectId: string,
-      revision: string,
+      revisionCount: number,
     ) => {
       try {
         const { data } = await get<Project>(
@@ -117,32 +113,27 @@ export default function UploadForm() {
         const revisionHistory = data.revisionHistory;
         const latestRevision = revisionHistory?.length || 0;
 
-        if (latestRevision.toString() !== revision) {
+        if (latestRevision !== revisionCount) {
           setBadRevision(true);
         }
 
         setProjectExists(true);
-        notifySuccess('Project fetched successfully');
       } catch (error) {
         setProjectExists(false);
-        notifyError('Failed to fetch project', (error as Error).message);
       } finally {
         setLoading(false);
       }
     };
 
-    if (uploadMode === 'edit' && projectData?.id && projectData.revision) {
+    if (
+      uploadMode === 'edit' &&
+      projectData?.id &&
+      (projectData.revisionCount || projectData?.revisionCount === 0)
+    ) {
       setLoading(true);
-      fetchProject(apiKey, projectData.id, projectData.revision);
+      fetchProject(apiKey, projectData.id, projectData.revisionCount);
     }
-  }, [
-    apiKey,
-    projectData?.id,
-    projectData?.revision,
-    uploadMode,
-    notifyError,
-    notifySuccess,
-  ]);
+  }, [apiKey, projectData?.id, projectData?.revisionCount, uploadMode]);
 
   useEffect(() => {
     if (projectData) {
@@ -181,6 +172,7 @@ export default function UploadForm() {
                     onChange={(e) => {
                       setUploadMode(e.target.value as 'edit' | 'new');
                     }}
+                    disabled={!projectExists && mode.value === 'edit'}
                     className="relative size-4 appearance-none rounded-full border border-gray-300 bg-[rgb(29,29,30)] before:absolute before:inset-1 before:rounded-full before:bg-white checked:border-indigo-600 checked:bg-indigo-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:border-gray-300 disabled:bg-gray-100 disabled:before:bg-gray-400 forced-colors:appearance-auto forced-colors:before:hidden [&:not(:checked)]:before:hidden"
                   />
                   <label
@@ -204,6 +196,7 @@ export default function UploadForm() {
               <Alert
                 title="Local project is out of date with the platform."
                 type="warning"
+                className="mt-4"
               />
             )}
           </div>

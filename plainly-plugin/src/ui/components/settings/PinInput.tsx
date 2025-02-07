@@ -1,11 +1,5 @@
 import classNames from 'classnames';
-import {
-  type Dispatch,
-  type SetStateAction,
-  useCallback,
-  useEffect,
-  useRef,
-} from 'react';
+import { type Dispatch, type SetStateAction, useCallback, useRef } from 'react';
 import { Pin } from '../../types';
 
 export default function PinInput({
@@ -72,12 +66,6 @@ export default function PinInput({
     [pin, onChange],
   );
 
-  useEffect(() => {
-    if (overlay) {
-      firstInputRef.current?.focus();
-    }
-  }, [overlay]);
-
   return (
     <div
       className={classNames('w-full flex gap-x-2 justify-center', className)}
@@ -92,6 +80,7 @@ export default function PinInput({
         maxLength={1}
         value={pin?.first || ''}
         onInput={(e) => changeDigit('first', e.currentTarget.value)}
+        autoFocus={overlay}
       />
       <input
         ref={secondInputRef}

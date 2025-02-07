@@ -1,5 +1,5 @@
 import classNames from 'classnames';
-import { XCircleIcon } from 'lucide-react';
+import { InfoIcon } from 'lucide-react';
 import { useBreakpoint } from '../../hooks/useBreakpoint';
 import { State, setGlobalState, useGlobalState } from '../../state/store';
 import { Routes } from '../../types';
@@ -19,7 +19,7 @@ export default function MissingApiKey() {
       )}
     >
       <div className="p-6 sm:p-14 lg:p-20 flex flex-col items-center justify-center">
-        <XCircleIcon className="text-red-400" />
+        <InfoIcon className="text-blue-400" />
         <PageHeading heading="Missing API key" />
         <Description>
           To use this feature you need to add your{' '}

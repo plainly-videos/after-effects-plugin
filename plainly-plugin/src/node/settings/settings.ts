@@ -7,12 +7,15 @@ import type { Settings } from '../types';
 export const defaultSettings: Settings = {};
 
 async function retrieveSettings(): Promise<Settings> {
+  if (!fs.existsSync(settingsPath)) {
+    return defaultSettings;
+  }
+
   try {
     const file = await fsPromises.readFile(settingsPath, 'utf-8');
     return JSON.parse(file);
   } catch (error) {
     console.error(`Failed to read settings: ${error}`);
-    fsPromises.writeFile(settingsPath, JSON.stringify(defaultSettings));
     return defaultSettings;
   }
 }

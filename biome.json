@@ -29,6 +29,9 @@
         "noNonNullAssertion": "off",
         "useNodejsImportProtocol": "off"
       },
+      "a11y": {
+        "noAutofocus": "off"
+      },
       "correctness": {
         "noUnusedImports": "error"
       }

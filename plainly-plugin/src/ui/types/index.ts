@@ -56,6 +56,6 @@ export class Pin {
 
 export interface ProjectData {
   id: string;
-  revision: string;
+  revisionCount: number;
   name: string;
 }

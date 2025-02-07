@@ -128,7 +128,8 @@ export const useSettings = () => {
   }, []);
 
   return {
-    settings,
+    apiKeySet: !!settings.apiKey,
+    apiKeyEncrypted: settings.apiKey?.encrypted,
     loading,
     getSettingsApiKey,
     setSettingsApiKey,
