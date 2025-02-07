@@ -1,10 +1,10 @@
+import { useNotifications } from '@src/ui/hooks';
 import { LoaderCircleIcon } from 'lucide-react';
 import { createContext, useCallback } from 'react';
 import { useSessionStorage } from '../../hooks/useSessionStorage';
 import { useSettings } from '../../hooks/useSettings';
 import MissingApiKey from './MissingApiKey';
 import PinOverlay from './PinOverlay';
-import { useNotifications } from '@src/ui/hooks';
 
 interface AuthContextProps {
   apiKey: string;
