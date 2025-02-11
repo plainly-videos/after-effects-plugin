@@ -57,5 +57,13 @@ export class Pin {
 export interface ProjectData {
   id: string;
   revisionCount: number;
-  name: string;
+}
+
+export interface ModelBase {
+  id: string;
+}
+
+export interface ModelBaseWithDates extends ModelBase {
+  createdDate: string;
+  lastModified: string;
 }

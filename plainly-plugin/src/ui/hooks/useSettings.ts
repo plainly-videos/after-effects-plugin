@@ -98,25 +98,31 @@ export const useSettings = () => {
   );
 
   const getSettingsApiKey = useCallback(
-    (
-      pin: string | undefined = undefined,
-    ): {
-      key: string | undefined;
-      encrypted?: boolean;
-      error?: string | undefined;
-    } => {
+    (pin: string | undefined = undefined): string => {
       const { key, encrypted } = settings.apiKey ?? {};
 
-      if (pin) {
-        const [decoded, error] = decode(pin, key ?? '');
-        return {
-          key: decoded,
-          encrypted: encrypted,
-          error: error ? 'Invalid PIN entered' : undefined,
-        };
+      if (!key) {
+        throw new Error('API key is not set.');
       }
 
-      return { key: key ?? undefined, encrypted: encrypted };
+      if (pin && !encrypted) {
+        throw new Error('API key is not encrypted, pin is not required.');
+      }
+
+      if (!pin && encrypted) {
+        throw new Error('API key is encrypted, pin is required.');
+      }
+
+      if (pin && encrypted) {
+        try {
+          const decoded = decode(pin, key);
+          return decoded;
+        } catch (error) {
+          throw new Error('Invalid PIN entered.');
+        }
+      }
+
+      return key;
     },
     [settings.apiKey],
   );

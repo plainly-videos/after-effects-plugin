@@ -1,7 +1,6 @@
 import FormData from 'form-data';
-import { useContext, useEffect, useState } from 'react';
+import { useCallback, useContext, useState } from 'react';
 import { makeProjectZipTmpDir, removeFolder } from '../../../node';
-import { get, postFormData } from '../../../node/request';
 import Button from '../common/Button';
 import Description from '../typography/Description';
 import Label from '../typography/Label';
@@ -9,44 +8,62 @@ import PageHeading from '../typography/PageHeading';
 
 import fs from 'fs';
 import { useNotifications } from '@src/ui/hooks';
+import {
+  useEditProject,
+  useGetProjectDetails,
+  useUploadProject,
+} from '@src/ui/hooks/api';
 import { useProjectData } from '../../hooks/useProjectData';
-import type { Project } from '../../types/model';
+import type { Project } from '../../types/project';
 import Alert from '../common/Alert';
 import { AuthContext } from '../settings/AuthProvider';
-
-const uploadModes = [
-  {
-    value: 'new',
-    label: 'Upload new',
-  },
-  {
-    value: 'edit',
-    label: 'Re-upload existing',
-  },
-];
 
 export default function UploadForm() {
   const { apiKey } = useContext(AuthContext);
   const [projectData, setProjectData] = useProjectData();
+  const { isLoading, data } = useGetProjectDetails(projectData?.id, apiKey);
+  const { isPending: isUploading, mutateAsync: uploadProject } =
+    useUploadProject();
+  const { isPending: isEditing, mutateAsync: editProject } = useEditProject();
   const { notifySuccess, notifyError } = useNotifications();
 
-  const [loading, setLoading] = useState(false);
-  const [badRevision, setBadRevision] = useState(false);
-  const [projectExists, setProjectExists] = useState<boolean | undefined>();
+  const projectExists = !!(projectData?.id && data);
+  const removedFromDatabase = !!(projectData?.id && !data);
 
-  const [uploadMode, setUploadMode] = useState<'edit' | 'new'>();
+  const revisionHistoryCount = data?.revisionHistory?.length || 0;
+  const badRevision = projectData?.revisionCount !== revisionHistoryCount;
+
   const [inputs, setInputs] = useState<{
     projectName?: string;
     description?: string;
     tags?: string[];
   }>({});
+  const [uploadMode, setUploadMode] = useState<'new' | 'edit'>();
 
-  const disabledEdit = uploadMode === 'edit' && !projectExists;
-  const disabled = loading || disabledEdit;
+  const uploadModes = [
+    {
+      value: 'new',
+      label: 'Upload new',
+      checked: uploadMode === 'new' || !projectExists,
+      disabled: false,
+      onChange: () => setUploadMode('new'),
+    },
+    {
+      value: 'edit',
+      label: 'Re-upload existing',
+      checked: uploadMode === 'edit' || (projectExists && uploadMode !== 'new'),
+      disabled: !projectExists,
+      onChange: () => setUploadMode('edit'),
+    },
+  ];
+
+  const loading = isLoading || isUploading || isEditing;
+  const disabled =
+    loading || (data && !(data?.analysis?.done || data?.analysis?.failed));
+  const editing = uploadMode === 'edit' || uploadModes[1].checked;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
 
     let collectFilesDirValue: string | undefined;
     let zipPathValue: string | undefined;
@@ -67,24 +84,28 @@ export default function UploadForm() {
         }
       }
 
-      const { data: project } = await postFormData<Project>(
-        `/api/v2/projects${uploadMode === 'edit' ? `/${projectData?.id}` : ''}`,
-        apiKey,
-        formData,
+      let project: Project | undefined = undefined;
+
+      if (projectExists && editing) {
+        project = await editProject({
+          apiKey,
+          projectId: projectData.id,
+          formData,
+        });
+      } else {
+        project = await uploadProject({ apiKey, formData });
+      }
+
+      if (project) {
+        const projectId = project.id;
+        const revisionCount = project.revisionHistory?.length || 0;
+        setProjectData({ id: projectId, revisionCount });
+      }
+
+      notifySuccess(
+        'Project uploaded',
+        `Successfully uploaded project ${project?.name}, analysis started.`,
       );
-
-      const projectId = project.id;
-      const revisionCount = project.revisionHistory?.length || 0;
-      const projectName = project.name;
-
-      setProjectData({
-        id: projectId,
-        revisionCount: revisionCount,
-        name: projectName,
-      });
-
-      notifySuccess('Project uploaded');
-      setInputs({});
     } catch (error) {
       notifyError('Failed to upload project', (error as Error).message);
     } finally {
@@ -94,54 +115,28 @@ export default function UploadForm() {
       if (zipPathValue) {
         fs.rmSync(zipPathValue);
       }
-      setLoading(false);
     }
   };
 
-  useEffect(() => {
-    const fetchProject = async (
-      key: string,
-      projectId: string,
-      revisionCount: number,
-    ) => {
-      try {
-        const { data } = await get<Project>(
-          `/api/v2/projects/${projectId}`,
-          key,
-        );
-
-        const revisionHistory = data.revisionHistory;
-        const latestRevision = revisionHistory?.length || 0;
-
-        if (latestRevision !== revisionCount) {
-          setBadRevision(true);
-        }
-
-        setProjectExists(true);
-      } catch (error) {
-        setProjectExists(false);
-      } finally {
-        setLoading(false);
+  const handleChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+      const { name, value } = e.target;
+      if (name === 'tags') {
+        setInputs((prev) => ({
+          ...prev,
+          tags: value.split(','),
+        }));
       }
-    };
 
-    if (
-      uploadMode === 'edit' &&
-      projectData?.id &&
-      (projectData.revisionCount || projectData?.revisionCount === 0)
-    ) {
-      setLoading(true);
-      fetchProject(apiKey, projectData.id, projectData.revisionCount);
-    }
-  }, [apiKey, projectData?.id, projectData?.revisionCount, uploadMode]);
-
-  useEffect(() => {
-    if (projectData) {
-      setUploadMode('edit');
-    } else {
-      setUploadMode('new');
-    }
-  }, [projectData]);
+      if (name === 'projectName' || name === 'description') {
+        setInputs((prev) => ({
+          ...prev,
+          [name]: value,
+        }));
+      }
+    },
+    [],
+  );
 
   return (
     <form className="space-y-4 w-full text-white" onSubmit={handleSubmit}>
@@ -168,11 +163,9 @@ export default function UploadForm() {
                     name="upload-mode"
                     type="radio"
                     value={mode.value}
-                    checked={uploadMode === mode.value}
-                    onChange={(e) => {
-                      setUploadMode(e.target.value as 'edit' | 'new');
-                    }}
-                    disabled={!projectExists && mode.value === 'edit'}
+                    checked={mode.checked}
+                    onChange={mode.onChange}
+                    disabled={mode.disabled}
                     className="relative size-4 appearance-none rounded-full border border-gray-300 bg-[rgb(29,29,30)] before:absolute before:inset-1 before:rounded-full before:bg-white checked:border-indigo-600 checked:bg-indigo-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:border-gray-300 disabled:bg-gray-100 disabled:before:bg-gray-400 forced-colors:appearance-auto forced-colors:before:hidden [&:not(:checked)]:before:hidden"
                   />
                   <label
@@ -184,15 +177,14 @@ export default function UploadForm() {
                 </div>
               ))}
             </div>
-            {uploadMode === 'edit' && !projectExists && !loading && (
+            {removedFromDatabase && (
               <Alert
-                title="Couldn't find a project on the platform. Please upload a new project."
-                type="danger"
+                title="Local project that used to exist on the platform, has been removed."
+                type="warning"
                 className="mt-4"
               />
             )}
-
-            {uploadMode === 'edit' && badRevision && !loading && (
+            {editing && badRevision && (
               <Alert
                 title="Local project is out of date with the platform."
                 type="warning"
@@ -208,7 +200,7 @@ export default function UploadForm() {
               name="projectName"
               type="text"
               className="col-start-1 row-start-1 block w-full rounded-md bg-white/5 px-3 py-1 text-xs text-white outline outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500"
-              defaultValue={inputs.projectName}
+              defaultValue={data?.name || inputs.projectName || ''}
               onChange={(e) =>
                 setInputs((prev) => ({
                   ...prev,
@@ -224,7 +216,7 @@ export default function UploadForm() {
               id="description"
               name="description"
               className="col-start-1 row-start-1 block w-full rounded-md bg-white/5 px-3 py-1 text-xs text-white outline outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500"
-              defaultValue={inputs.description}
+              defaultValue={data?.description || inputs.description || ''}
               onChange={(e) =>
                 setInputs((prev) => ({
                   ...prev,
@@ -245,13 +237,8 @@ export default function UploadForm() {
               name="tags"
               type="text"
               className="mt-2 col-start-1 row-start-1 block w-full rounded-md bg-white/5 px-3 py-1 text-xs text-white outline outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500"
-              onChange={(e) =>
-                setInputs((prev) => ({
-                  ...prev,
-                  tags: e.target.value.split(','),
-                }))
-              }
-              defaultValue={inputs.tags}
+              defaultValue={data?.attributes?.tags || inputs.tags || ''}
+              onChange={handleChange}
               placeholder="Example: Sports, Fitness, Gym"
             />
           </div>

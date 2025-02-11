@@ -26,10 +26,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const onPinSubmitted = useCallback(
     (pin: string | undefined) => {
-      const { error } = getSettingsApiKey(pin);
-
-      if (error) {
-        notifyError(error);
+      try {
+        getSettingsApiKey(pin);
+      } catch (error) {
+        notifyError((error as Error).message);
         return;
       }
 
@@ -52,7 +52,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
               {showOverlay && <PinOverlay onPinSubmitted={onPinSubmitted} />}
               {!showOverlay && (
                 <AuthContext.Provider
-                  value={{ apiKey: getSettingsApiKey(pin).key! }}
+                  value={{ apiKey: getSettingsApiKey(pin) }}
                 >
                   {children}
                 </AuthContext.Provider>
