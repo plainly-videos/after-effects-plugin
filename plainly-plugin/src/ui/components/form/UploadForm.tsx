@@ -13,6 +13,8 @@ import {
   useGetProjectDetails,
   useUploadProject,
 } from '@src/ui/hooks/api';
+import classNames from 'classnames';
+import { LoaderCircleIcon } from 'lucide-react';
 import { useProjectData } from '../../hooks/useProjectData';
 import type { Project } from '../../types/project';
 import Alert from '../common/Alert';
@@ -58,7 +60,7 @@ export default function UploadForm() {
     },
   ];
 
-  const loading = isLoading || isUploading || isEditing;
+  const loading = isUploading || isEditing;
   const editing = uploadMode === 'edit' || uploadModes[1].checked;
   const analysisPending = !(data?.analysis?.done || data?.analysis?.failed);
   const disabled = loading || (editing && analysisPending);
@@ -143,7 +145,12 @@ export default function UploadForm() {
     <form className="space-y-4 w-full text-white" onSubmit={handleSubmit}>
       <div className="space-y-4 border-b border-white/10 pb-4">
         <div>
-          <PageHeading heading="Upload" />
+          <div className="flex items-center gap-2">
+            <PageHeading heading="Upload" />
+            {isLoading && (
+              <LoaderCircleIcon className="animate-spin shrink-0 size-4 text-white" />
+            )}
+          </div>
           <Description className="mt-1">
             Upload your working project directly to Plainly Videos.
           </Description>
@@ -158,7 +165,13 @@ export default function UploadForm() {
             </Description>
             <div className="mt-4 space-y-4 xs:flex xs:items-center xs:space-x-10 xs:space-y-0">
               {uploadModes.map((mode) => (
-                <div key={mode.value} className="flex items-center">
+                <div
+                  key={mode.value}
+                  className={classNames(
+                    'flex items-center',
+                    mode.disabled && 'opacity-50',
+                  )}
+                >
                   <input
                     id={mode.value}
                     name="upload-mode"
@@ -181,21 +194,21 @@ export default function UploadForm() {
             {removedFromDatabase && (
               <Alert
                 title="Local project that used to exist on the platform, has been removed."
-                type="warning"
+                type="info"
                 className="mt-4"
               />
             )}
             {editing && badRevision && (
               <Alert
-                title="Local project is out of date with the platform."
-                type="warning"
+                title="Local project is out of date with the platform. Re-uploading it will overwrite any changes made on the platform."
+                type="info"
                 className="mt-4"
               />
             )}
             {editing && analysisPending && (
               <Alert
-                title="Analysis is still in progress."
-                type="warning"
+                title="Project analysis is still in progress..."
+                type="info"
                 className="mt-4"
               />
             )}
@@ -208,13 +221,8 @@ export default function UploadForm() {
               name="projectName"
               type="text"
               className="col-start-1 row-start-1 block w-full rounded-md bg-white/5 px-3 py-1 text-xs text-white outline outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500"
-              defaultValue={data?.name || inputs.projectName || ''}
-              onChange={(e) =>
-                setInputs((prev) => ({
-                  ...prev,
-                  projectName: e.target.value,
-                }))
-              }
+              defaultValue={data?.name}
+              onChange={handleChange}
             />
           </div>
 
@@ -224,13 +232,8 @@ export default function UploadForm() {
               id="description"
               name="description"
               className="col-start-1 row-start-1 block w-full rounded-md bg-white/5 px-3 py-1 text-xs text-white outline outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500"
-              defaultValue={data?.description || inputs.description || ''}
-              onChange={(e) =>
-                setInputs((prev) => ({
-                  ...prev,
-                  description: e.target.value,
-                }))
-              }
+              defaultValue={data?.description}
+              onChange={handleChange}
             />
           </div>
 
@@ -245,7 +248,7 @@ export default function UploadForm() {
               name="tags"
               type="text"
               className="mt-2 col-start-1 row-start-1 block w-full rounded-md bg-white/5 px-3 py-1 text-xs text-white outline outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500"
-              defaultValue={data?.attributes?.tags || inputs.tags || ''}
+              defaultValue={data?.attributes?.tags?.join(', ')}
               onChange={handleChange}
               placeholder="Example: Sports, Fitness, Gym"
             />
@@ -253,7 +256,11 @@ export default function UploadForm() {
         </div>
       </div>
 
-      <Button className="float-right" loading={loading} disabled={disabled}>
+      <Button
+        className="float-right"
+        loading={loading}
+        disabled={disabled || isLoading}
+      >
         Upload
       </Button>
     </form>

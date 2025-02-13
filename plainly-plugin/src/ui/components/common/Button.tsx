@@ -33,10 +33,10 @@ export default function Button({
       type={type}
       disabled={disabled}
     >
-      {children}
       {loading && (
-        <LoaderCircleIcon className="ml-1 size-4 shrink-0 animate-spin" />
+        <LoaderCircleIcon className="mr-1 size-4 shrink-0 animate-spin" />
       )}
+      {children}
     </button>
   );
 }
