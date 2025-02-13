@@ -25,9 +25,7 @@ export const useProjectData = (): [
   const setData = async (data: ProjectData) => {
     const { id, revisionCount } = data;
 
-    await evalScriptAsync(
-      `setProjectData("${id}", "${revisionCount.toString()}")`,
-    );
+    await evalScriptAsync(`setProjectData("${id}", "${revisionCount}")`);
     setProjectData(data);
   };
 

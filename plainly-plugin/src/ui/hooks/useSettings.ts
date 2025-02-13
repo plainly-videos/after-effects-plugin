@@ -72,15 +72,13 @@ export const useSettings = () => {
   }, []);
 
   const setSettingsApiKey = useCallback(
-    async (apiKey: string, pin: Pin | undefined, skipCheck = false) => {
-      if (skipCheck === false) {
-        try {
-          await get('/api/v2/integrations/appmixer/user-profile', apiKey);
-        } catch (error) {
-          throw new Error(
-            'Invalid API key, please make sure to copy a valid API key from Plainly web-app and try again.',
-          );
-        }
+    async (apiKey: string, pin: Pin | undefined) => {
+      try {
+        await get('/api/v2/integrations/appmixer/user-profile', apiKey);
+      } catch (error) {
+        throw new Error(
+          'Invalid API key, please make sure to copy a valid API key from Plainly web-app and try again.',
+        );
       }
 
       let newApiKey = apiKey;
@@ -120,9 +118,9 @@ export const useSettings = () => {
         } catch (error) {
           throw new Error('Invalid PIN entered.');
         }
+      } else {
+        return key;
       }
-
-      return key;
     },
     [settings.apiKey],
   );

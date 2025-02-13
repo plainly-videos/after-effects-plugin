@@ -28,12 +28,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     (pin: string | undefined) => {
       try {
         getSettingsApiKey(pin);
+        setPinStorage(pin);
       } catch (error) {
         notifyError((error as Error).message);
         return;
       }
-
-      setPinStorage(pin);
     },
     [getSettingsApiKey, notifyError, setPinStorage],
   );

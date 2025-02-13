@@ -31,7 +31,8 @@ export default function UploadForm() {
   const removedFromDatabase = !!(projectData?.id && !data);
 
   const revisionHistoryCount = data?.revisionHistory?.length || 0;
-  const badRevision = projectData?.revisionCount !== revisionHistoryCount;
+  const badRevision =
+    projectExists && projectData?.revisionCount !== revisionHistoryCount;
 
   const [inputs, setInputs] = useState<{
     projectName?: string;
@@ -58,9 +59,9 @@ export default function UploadForm() {
   ];
 
   const loading = isLoading || isUploading || isEditing;
-  const disabled =
-    loading || (data && !(data?.analysis?.done || data?.analysis?.failed));
   const editing = uploadMode === 'edit' || uploadModes[1].checked;
+  const analysisPending = !(data?.analysis?.done || data?.analysis?.failed);
+  const disabled = loading || (editing && analysisPending);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -187,6 +188,13 @@ export default function UploadForm() {
             {editing && badRevision && (
               <Alert
                 title="Local project is out of date with the platform."
+                type="warning"
+                className="mt-4"
+              />
+            )}
+            {editing && analysisPending && (
+              <Alert
+                title="Analysis is still in progress."
                 type="warning"
                 className="mt-4"
               />
