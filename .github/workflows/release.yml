@@ -7,10 +7,18 @@ on:
 
 jobs:
 
-  # create release first, save upload url as output
+  # call workflow to sign the plugin first
+  sign_plugin:
+    name: Sign Plugin
+    runs-on: macos-latest
+    uses: ./.github/workflows/sign-extension.yml
+    secrets: inherit
+
+  # create release then, save upload url as output
   create_release:
     name: Create GitHub Release
     runs-on: ubuntu-latest
+    needs: sign_plugin
     outputs:
       release_upload_url: ${{ steps.create_release.outputs.upload_url }}
     steps:
@@ -24,14 +32,6 @@ jobs:
           prerelease: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-  # call workflow to sign the plugin
-  sign_plugin:
-    name: Sign Plugin
-    runs-on: macos-latest
-    needs: create_release
-    uses: ./.github/workflows/sign-extension.yml
-    secrets: inherit
 
   # then upload the signed plugin to the release
   upload_artifact_to_release:
