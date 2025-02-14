@@ -26,11 +26,11 @@ export default function About() {
   const applicationFeatures = [
     {
       label: 'Export zip',
-      version: '1.0.1',
+      version: '1.0.0',
     },
     {
       label: 'Upload project',
-      version: '1.0.0',
+      version: '1.1.0',
     },
   ];
 
@@ -99,7 +99,7 @@ export default function About() {
         <div className="grid grid-cols-3 border-t border-l border-r border-white/10 text-xs mt-2">
           <div className="col-span-3 grid grid-cols-3 bg-[rgb(43,43,43)] divide-x divide-white/10">
             <p className="px-1 py-1">Name</p>
-            <p className="px-1 py-1">Version</p>
+            <p className="px-1 py-1">Since version</p>
           </div>
           <div className="col-span-3 grid grid-cols-3">
             {applicationFeatures.map(({ label, version }) => (
