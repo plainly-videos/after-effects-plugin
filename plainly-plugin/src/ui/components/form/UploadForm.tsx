@@ -46,7 +46,10 @@ export default function UploadForm() {
       label: 'Upload new',
       checked: !editSelected,
       disabled: false,
-      onChange: () => setUploadMode('new'),
+      onChange: () => {
+        setUploadMode('new');
+        setInputs({});
+      },
     },
     {
       value: 'edit',
@@ -85,7 +88,7 @@ export default function UploadForm() {
       formData.append('file', file);
       inputs.projectName && formData.append('name', inputs.projectName);
       inputs.description && formData.append('description', inputs.description);
-      if (tags) {
+      if (tags && tags.length > 0) {
         for (const tag of tags) {
           formData.append('tags', tag);
         }
@@ -228,49 +231,23 @@ export default function UploadForm() {
               />
             )}
           </div>
-
-          <div className="col-span-full">
-            <Label label="Name" htmlFor="projectName" />
-            <input
-              id="projectName"
-              name="projectName"
-              type="text"
-              className="col-start-1 row-start-1 block w-full rounded-md bg-white/5 px-3 py-1 text-xs text-white outline outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500"
-              defaultValue={editSelected ? data?.name : undefined}
-              onChange={handleChange}
-            />
-          </div>
-
-          <div className="col-span-full">
-            <Label label="Description" htmlFor="description" />
-            <textarea
-              id="description"
-              name="description"
-              className="col-start-1 row-start-1 block w-full rounded-md bg-white/5 px-3 py-1 text-xs text-white outline outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500"
-              defaultValue={editSelected ? data?.description : undefined}
-              onChange={handleChange}
-            />
-          </div>
-
-          <div className="col-span-full">
-            <Label label="Tags" htmlFor="tags" />
-            <Description>
-              Tags help you group, filter and categorize your projects on
-              Plainly Videos. Separate tags with a comma.
-            </Description>
-            <input
-              id="tags"
-              name="tags"
-              type="text"
-              className="mt-2 col-start-1 row-start-1 block w-full rounded-md bg-white/5 px-3 py-1 text-xs text-white outline outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500"
-              defaultValue={
-                editSelected ? data?.attributes?.tags?.join(', ') : undefined
-              }
-              onChange={handleChange}
-              placeholder="Example: Sports, Fitness, Gym"
-            />
-          </div>
         </div>
+
+        {editSelected ? (
+          <Inputs
+            projectName={inputs.projectName || data?.name}
+            description={inputs.description || data?.description}
+            tags={inputs.tags || data?.attributes?.tags}
+            onChange={handleChange}
+          />
+        ) : (
+          <Inputs
+            projectName={inputs.projectName}
+            description={inputs.description}
+            tags={inputs.tags}
+            onChange={handleChange}
+          />
+        )}
       </div>
 
       <Button
@@ -281,5 +258,63 @@ export default function UploadForm() {
         Upload
       </Button>
     </form>
+  );
+}
+
+function Inputs({
+  projectName,
+  description,
+  tags,
+  onChange,
+}: {
+  projectName?: string;
+  description?: string;
+  tags?: string[];
+  onChange: (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => void;
+}) {
+  return (
+    <>
+      <div className="col-span-full">
+        <Label label="Name" htmlFor="projectName" />
+        <input
+          id="projectName"
+          name="projectName"
+          type="text"
+          className="col-start-1 row-start-1 block w-full rounded-md bg-white/5 px-3 py-1 text-xs text-white outline outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500"
+          value={projectName || ''}
+          onChange={onChange}
+        />
+      </div>
+
+      <div className="col-span-full">
+        <Label label="Description" htmlFor="description" />
+        <textarea
+          id="description"
+          name="description"
+          className="col-start-1 row-start-1 block w-full rounded-md bg-white/5 px-3 py-1 text-xs text-white outline outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500"
+          value={description || ''}
+          onChange={onChange}
+        />
+      </div>
+
+      <div className="col-span-full">
+        <Label label="Tags" htmlFor="tags" />
+        <Description>
+          Tags help you group, filter and categorize your projects on Plainly
+          Videos. Separate tags with a comma.
+        </Description>
+        <input
+          id="tags"
+          name="tags"
+          type="text"
+          className="mt-2 col-start-1 row-start-1 block w-full rounded-md bg-white/5 px-3 py-1 text-xs text-white outline outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500"
+          value={tags?.join(',') || ''}
+          onChange={onChange}
+          placeholder="Example: Sports, Fitness, Gym"
+        />
+      </div>
+    </>
   );
 }
