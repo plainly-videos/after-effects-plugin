@@ -40,10 +40,11 @@ async function collectProjectFiles(targetPath: string): Promise<string> {
   if (!projectPath) {
     throw new Error('Project not opened or not saved');
   }
+  const finalizedProjectPath = finalizePath(projectPath);
 
   const projectInfo: ProjectInfo = JSON.parse(result);
 
-  const projectName = path.basename(projectPath, '.aep');
+  const projectName = path.basename(finalizedProjectPath, '.aep');
   const pathResolved = finalizePath(targetPath); // Normalize and resolve
 
   const folderName = crypto.randomUUID();
@@ -51,7 +52,7 @@ async function collectProjectFiles(targetPath: string): Promise<string> {
   const projectDir = path.join(pathResolved, folderName);
 
   const dest = path.join(projectDir, `${projectName}.aep`);
-  await fsPromises.copyFile(finalizePath(projectPath), dest);
+  await fsPromises.copyFile(finalizedProjectPath, dest);
 
   await copyFonts(projectInfo.fonts, projectDir);
   await copyFootage(projectInfo.footage, projectDir);
@@ -193,8 +194,9 @@ async function makeProjectZip(targetPath: string) {
   if (!projectPath) {
     throw new Error('Project not opened or not saved');
   }
+  const finalizedProjectPath = finalizePath(projectPath);
 
-  const projectName = path.basename(projectPath, '.aep');
+  const projectName = path.basename(finalizedProjectPath, '.aep');
   const zipPath = await zip(collectFilesDir, projectName);
   return { collectFilesDir, zipPath };
 }
