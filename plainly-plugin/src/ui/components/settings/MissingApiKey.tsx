@@ -1,15 +1,12 @@
+import { useNavigate } from '@src/ui/hooks';
 import classNames from 'classnames';
 import { InfoIcon } from 'lucide-react';
-import { useBreakpoint } from '../../hooks/useBreakpoint';
-import { State, setGlobalState, useGlobalState } from '../../state/store';
 import { Routes } from '../../types';
 import Description from '../typography/Description';
 import PageHeading from '../typography/PageHeading';
 
 export default function MissingApiKey() {
-  const biggerThanXS = useBreakpoint('xs');
-  const [settings] = useGlobalState(State.SETTINGS);
-  const sidebarOpen = settings.sidebarOpen;
+  const { navigate, sidebarOpen } = useNavigate();
 
   return (
     <div
@@ -27,13 +24,7 @@ export default function MissingApiKey() {
           <button
             type="button"
             className="text-white underline"
-            onClick={() => {
-              setGlobalState(State.SETTINGS, {
-                ...settings,
-                currentPage: Routes.SETTINGS,
-                sidebarOpen: biggerThanXS === false ? false : sidebarOpen,
-              });
-            }}
+            onClick={() => navigate(Routes.SETTINGS)}
           >
             Settings
           </button>
