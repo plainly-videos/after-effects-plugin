@@ -7,11 +7,13 @@ export default function PinInput({
   className,
   onChange,
   type = 'password',
+  overlay = false,
 }: {
   pin: Pin | undefined;
   onChange: Dispatch<SetStateAction<Pin | undefined>>;
   className?: string;
   type?: 'text' | 'password';
+  overlay?: boolean;
 }) {
   // Create refs for each input
   const firstInputRef = useRef<HTMLInputElement>(null);
@@ -78,6 +80,7 @@ export default function PinInput({
         maxLength={1}
         value={pin?.first || ''}
         onInput={(e) => changeDigit('first', e.currentTarget.value)}
+        autoFocus={overlay}
       />
       <input
         ref={secondInputRef}

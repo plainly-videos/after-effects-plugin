@@ -1,4 +1,8 @@
-import { useNotifications, useSettings } from '@src/ui/hooks';
+import {
+  useNotifications,
+  useSessionStorage,
+  useSettings,
+} from '@src/ui/hooks';
 import {
   CheckCircleIcon,
   EyeIcon,
@@ -16,17 +20,20 @@ import PageHeading from '../typography/PageHeading';
 import PinInput from './PinInput';
 
 export default function SettingsForm() {
-  const [showApiKey, setShowApiKey] = useState(false);
-  const [edit, setEdit] = useState(false);
-
-  const [loading, setLoading] = useState(false);
   const { notifySuccess, notifyError } = useNotifications();
   const {
-    settings,
+    apiKeySet,
+    apiKeyEncrypted,
     loading: settingsLoading,
     setSettingsApiKey,
+    clearApiKey,
   } = useSettings();
 
+  const [showApiKey, setShowApiKey] = useState(false);
+  const [edit, setEdit] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  const [, , clearPinFromSessionStorage] = useSessionStorage('pin', undefined);
   const [apiKey, setApiKey] = useState<string>();
   const [pin, setPin] = useState<Pin>();
   const [confirmPin, setConfirmPin] = useState<Pin>();
@@ -72,12 +79,25 @@ export default function SettingsForm() {
           setPin(undefined);
           setConfirmPin(undefined);
         }
-        setLoading(false);
         setEdit(false);
       } catch (error) {
         notifyError('Failed to save settings', (error as Error).message);
+      } finally {
         setLoading(false);
       }
+    }
+  };
+
+  const removeApiKey = async () => {
+    setLoading(true);
+    try {
+      await clearApiKey();
+      clearPinFromSessionStorage();
+      notifySuccess('API key removed successfully');
+    } catch (error) {
+      notifyError('Failed to remove API key', (error as Error).message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -116,7 +136,7 @@ export default function SettingsForm() {
                   .
                 </Description>
               </div>
-              {(!settings.apiKey || edit) && (
+              {(!apiKeySet || edit) && (
                 <div className="mt-2 grid grid-cols-1">
                   <input
                     id="api-key"
@@ -140,7 +160,7 @@ export default function SettingsForm() {
                   </button>
                 </div>
               )}
-              {settings.apiKey && !edit && (
+              {apiKeySet && !edit && (
                 <div className="mt-2 flex flex-col gap-1">
                   <div className="flex items-center">
                     <CheckCircleIcon className="size-4 text-green-400" />
@@ -148,7 +168,7 @@ export default function SettingsForm() {
                       Your API key is set
                     </p>
                   </div>
-                  {settings.apiKey.encrypted === true && (
+                  {apiKeyEncrypted === true && (
                     <div className="flex items-center">
                       <CheckCircleIcon className="size-4 text-green-400" />
                       <p className="text-xs text-white ml-1">
@@ -156,7 +176,7 @@ export default function SettingsForm() {
                       </p>
                     </div>
                   )}
-                  {settings.apiKey.encrypted === false && (
+                  {apiKeyEncrypted === false && (
                     <div className="flex items-center">
                       <XCircleIcon className="size-4 text-red-400" />
                       <p className="text-xs text-white ml-1">
@@ -168,7 +188,7 @@ export default function SettingsForm() {
               )}
             </div>
 
-            {(!settings.apiKey || edit) && (
+            {(!apiKeySet || edit) && (
               <div className="col-span-full">
                 <div>
                   <Label label="PIN (recommended)" htmlFor="pin" />
@@ -202,14 +222,15 @@ export default function SettingsForm() {
         )}
       </div>
 
-      {settings.apiKey && !edit ? (
-        <Button
-          type="button"
-          onClick={() => setEdit(true)}
-          className="float-right"
-        >
-          Edit
-        </Button>
+      {apiKeySet && !edit ? (
+        <div className="float-right flex items-center gap-2">
+          <Button type="button" onClick={() => setEdit(true)}>
+            Edit
+          </Button>
+          <Button type="button" secondary onClick={removeApiKey}>
+            Remove
+          </Button>
+        </div>
       ) : (
         <Button
           className="float-right"

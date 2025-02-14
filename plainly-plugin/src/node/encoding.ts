@@ -10,7 +10,7 @@ export function encode(secret: string, data: string) {
   return encoded;
 }
 
-export function decode(secret: string, encoded: string) {
+export function decode(secret: string, encoded: string): string {
   const key = crypto.createHash('sha256').update(secret).digest();
 
   const decipher = crypto.createDecipheriv('aes-256-ecb', key, null); // No IV for ECB mode

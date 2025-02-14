@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useReducer, useState } from 'react';
-import { encode } from '../../node/encoding';
+import { decode, encode } from '../../node/encoding';
 import { get } from '../../node/request';
 import {
   defaultSettings,
@@ -17,6 +17,9 @@ type Action =
   | {
       type: 'SET_SETTINGS_API_KEY';
       payload: Settings['apiKey'];
+    }
+  | {
+      type: 'CLEAR_SETTINGS_API_KEY';
     };
 
 function settingsReducer(settings: Settings, action: Action) {
@@ -29,6 +32,12 @@ function settingsReducer(settings: Settings, action: Action) {
         return {
           ...settings,
           apiKey: action.payload,
+        };
+      }
+      case 'CLEAR_SETTINGS_API_KEY': {
+        return {
+          ...settings,
+          apiKey: undefined,
         };
       }
       default:
@@ -86,8 +95,48 @@ export const useSettings = () => {
     [],
   );
 
-  // TODO: handle decrypt
-  const getSettingsApiKey = () => settings.apiKey;
+  const getSettingsApiKey = useCallback(
+    (pin: string | undefined = undefined): string => {
+      const { key, encrypted } = settings.apiKey ?? {};
 
-  return { settings, setSettingsApiKey, loading, getSettingsApiKey };
+      if (!key) {
+        throw new Error('API key is not set.');
+      }
+
+      if (pin && !encrypted) {
+        throw new Error('API key is not encrypted, pin is not required.');
+      }
+
+      if (!pin && encrypted) {
+        throw new Error('API key is encrypted, pin is required.');
+      }
+
+      if (pin && encrypted) {
+        try {
+          const decoded = decode(pin, key);
+          return decoded;
+        } catch (error) {
+          throw new Error('Invalid PIN entered.');
+        }
+      } else {
+        return key;
+      }
+    },
+    [settings.apiKey],
+  );
+
+  const clearApiKey = useCallback(async () => {
+    dispatch({
+      type: 'CLEAR_SETTINGS_API_KEY',
+    });
+  }, []);
+
+  return {
+    apiKeySet: !!settings.apiKey,
+    apiKeyEncrypted: settings.apiKey?.encrypted,
+    loading,
+    getSettingsApiKey,
+    setSettingsApiKey,
+    clearApiKey,
+  };
 };

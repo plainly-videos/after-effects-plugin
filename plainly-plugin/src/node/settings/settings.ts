@@ -7,6 +7,10 @@ import type { Settings } from '../types';
 export const defaultSettings: Settings = {};
 
 async function retrieveSettings(): Promise<Settings> {
+  if (!fs.existsSync(settingsPath)) {
+    return defaultSettings;
+  }
+
   try {
     const file = await fsPromises.readFile(settingsPath, 'utf-8');
     return JSON.parse(file);
@@ -25,7 +29,7 @@ async function saveSettings(settings: Settings) {
     const settingsContent = JSON.stringify(settings, null, 2);
     await fsPromises.writeFile(settingsPath, settingsContent, 'utf-8');
   } catch (error) {
-    console.error(`Failed to save settings: ${error}`);
+    throw new Error(`Failed to save settings: ${error}`);
   }
 }
 

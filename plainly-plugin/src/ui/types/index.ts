@@ -53,3 +53,17 @@ export class Pin {
     );
   }
 }
+
+export interface ProjectData {
+  id: string;
+  revisionCount: number;
+}
+
+export interface ModelBase {
+  id: string;
+}
+
+export interface ModelBaseWithDates extends ModelBase {
+  createdDate: string;
+  lastModified: string;
+}
