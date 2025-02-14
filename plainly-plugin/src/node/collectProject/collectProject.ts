@@ -48,7 +48,9 @@ async function collectProjectFiles(targetPath: string): Promise<string> {
   const pathResolved = finalizePath(targetPath); // Normalize and resolve
 
   const folderName = crypto.randomUUID();
-  await fsPromises.mkdir(path.join(pathResolved, folderName));
+  await fsPromises.mkdir(path.join(pathResolved, folderName), {
+    recursive: true,
+  });
   const projectDir = path.join(pathResolved, folderName);
 
   const dest = path.join(projectDir, `${projectName}.aep`);
