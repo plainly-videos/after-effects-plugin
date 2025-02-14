@@ -1,5 +1,5 @@
 import FormData from 'form-data';
-import { useCallback, useContext, useState } from 'react';
+import { useCallback, useContext, useEffect, useState } from 'react';
 import { makeProjectZipTmpDir, removeFolder } from '../../../node';
 import Button from '../common/Button';
 import Description from '../typography/Description';
@@ -13,7 +13,6 @@ import {
   useGetProjectDetails,
   useUploadProject,
 } from '@src/ui/hooks/api';
-import type { AxiosError } from 'axios';
 import classNames from 'classnames';
 import { LoaderCircleIcon } from 'lucide-react';
 import { useProjectData } from '../../hooks/useProjectData';
@@ -40,19 +39,19 @@ export default function UploadForm() {
   const localProjectExists = !!projectData?.id;
   const remoteProjectExists = !!(localProjectExists && data);
 
+  const editSelected = uploadMode === 'edit';
   const uploadModes = [
     {
       value: 'new',
       label: 'Upload new',
-      checked: uploadMode === 'new' || !remoteProjectExists,
+      checked: !editSelected,
       disabled: false,
       onChange: () => setUploadMode('new'),
     },
     {
       value: 'edit',
       label: 'Re-upload existing',
-      checked:
-        uploadMode === 'edit' || (remoteProjectExists && uploadMode !== 'new'),
+      checked: editSelected,
       disabled: !remoteProjectExists,
       onChange: () => setUploadMode('edit'),
     },
@@ -111,13 +110,10 @@ export default function UploadForm() {
       }
 
       notifySuccess('Project uploaded');
+      setUploadMode('edit');
+      setInputs({});
     } catch (error) {
       notifyError('Failed to upload project', (error as Error).message);
-
-      // reset radio to 'new' if project not found
-      if ((error as AxiosError).response?.status === 404) {
-        setUploadMode('new');
-      }
     } finally {
       if (collectFilesDirValue) {
         await removeFolder(collectFilesDirValue);
@@ -147,6 +143,18 @@ export default function UploadForm() {
     },
     [],
   );
+
+  useEffect(() => {
+    if (remoteProjectExists) {
+      if (uploadMode === undefined) {
+        setUploadMode('edit');
+      }
+    } else {
+      if (uploadMode === 'edit') {
+        setUploadMode(undefined);
+      }
+    }
+  }, [remoteProjectExists, uploadMode]);
 
   return (
     <form className="space-y-4 w-full text-white" onSubmit={handleSubmit}>
@@ -228,7 +236,7 @@ export default function UploadForm() {
               name="projectName"
               type="text"
               className="col-start-1 row-start-1 block w-full rounded-md bg-white/5 px-3 py-1 text-xs text-white outline outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500"
-              defaultValue={data?.name}
+              defaultValue={editSelected ? data?.name : undefined}
               onChange={handleChange}
             />
           </div>
@@ -239,7 +247,7 @@ export default function UploadForm() {
               id="description"
               name="description"
               className="col-start-1 row-start-1 block w-full rounded-md bg-white/5 px-3 py-1 text-xs text-white outline outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500"
-              defaultValue={data?.description}
+              defaultValue={editSelected ? data?.description : undefined}
               onChange={handleChange}
             />
           </div>
@@ -255,7 +263,9 @@ export default function UploadForm() {
               name="tags"
               type="text"
               className="mt-2 col-start-1 row-start-1 block w-full rounded-md bg-white/5 px-3 py-1 text-xs text-white outline outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500"
-              defaultValue={data?.attributes?.tags?.join(', ')}
+              defaultValue={
+                editSelected ? data?.attributes?.tags?.join(', ') : undefined
+              }
               onChange={handleChange}
               placeholder="Example: Sports, Fitness, Gym"
             />
