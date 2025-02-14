@@ -21,6 +21,11 @@ const projectCacheReplace = (client: QueryClient, project: Project) => {
   client.setQueryData([PROJECTS_CACHE_ROOT, project.id], project);
 };
 
+export const projectsCacheRemove = (client: QueryClient, projectId: string) => {
+  // Remove cache
+  client.removeQueries({ queryKey: [PROJECTS_CACHE_ROOT, projectId] });
+};
+
 export const useGetProjectDetails = (
   projectId: string | undefined,
   apiKey: string,
@@ -85,6 +90,7 @@ export const useEditProject = () => {
       return data;
     },
     onSuccess: (edited: Project) => projectCacheReplace(queryClient, edited),
+    onError: (_, { projectId }) => projectsCacheRemove(queryClient, projectId),
   });
 
   return { isPending, isError, mutateAsync };

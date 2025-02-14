@@ -13,6 +13,7 @@ import {
   useGetProjectDetails,
   useUploadProject,
 } from '@src/ui/hooks/api';
+import type { AxiosError } from 'axios';
 import classNames from 'classnames';
 import { LoaderCircleIcon } from 'lucide-react';
 import { useProjectData } from '../../hooks/useProjectData';
@@ -29,13 +30,6 @@ export default function UploadForm() {
   const { isPending: isEditing, mutateAsync: editProject } = useEditProject();
   const { notifySuccess, notifyError } = useNotifications();
 
-  const projectExists = !!(projectData?.id && data);
-  const removedFromDatabase = !!(projectData?.id && !data);
-
-  const revisionHistoryCount = data?.revisionHistory?.length || 0;
-  const badRevision =
-    projectExists && projectData?.revisionCount !== revisionHistoryCount;
-
   const [inputs, setInputs] = useState<{
     projectName?: string;
     description?: string;
@@ -43,26 +37,37 @@ export default function UploadForm() {
   }>({});
   const [uploadMode, setUploadMode] = useState<'new' | 'edit'>();
 
+  const localProjectExists = !!projectData?.id;
+  const remoteProjectExists = !!(localProjectExists && data);
+
   const uploadModes = [
     {
       value: 'new',
       label: 'Upload new',
-      checked: uploadMode === 'new' || !projectExists,
+      checked: uploadMode === 'new' || !remoteProjectExists,
       disabled: false,
       onChange: () => setUploadMode('new'),
     },
     {
       value: 'edit',
       label: 'Re-upload existing',
-      checked: uploadMode === 'edit' || (projectExists && uploadMode !== 'new'),
-      disabled: !projectExists,
+      checked:
+        uploadMode === 'edit' || (remoteProjectExists && uploadMode !== 'new'),
+      disabled: !remoteProjectExists,
       onChange: () => setUploadMode('edit'),
     },
   ];
 
   const loading = isUploading || isEditing;
+
+  const analysisPending =
+    remoteProjectExists && !(data?.analysis?.done || data?.analysis?.failed);
+
+  const revisionHistoryCount = data?.revisionHistory?.length || 0;
+  const badRevision =
+    remoteProjectExists && projectData?.revisionCount !== revisionHistoryCount;
+
   const editing = uploadMode === 'edit' || uploadModes[1].checked;
-  const analysisPending = !(data?.analysis?.done || data?.analysis?.failed);
   const disabled = loading || (editing && analysisPending);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -89,7 +94,7 @@ export default function UploadForm() {
 
       let project: Project | undefined = undefined;
 
-      if (projectExists && editing) {
+      if (remoteProjectExists && editing) {
         project = await editProject({
           apiKey,
           projectId: projectData.id,
@@ -105,12 +110,14 @@ export default function UploadForm() {
         setProjectData({ id: projectId, revisionCount });
       }
 
-      notifySuccess(
-        'Project uploaded',
-        `Successfully uploaded project ${project?.name}, analysis started.`,
-      );
+      notifySuccess('Project uploaded');
     } catch (error) {
       notifyError('Failed to upload project', (error as Error).message);
+
+      // reset radio to 'new' if project not found
+      if ((error as AxiosError).response?.status === 404) {
+        setUploadMode('new');
+      }
     } finally {
       if (collectFilesDirValue) {
         await removeFolder(collectFilesDirValue);
@@ -191,7 +198,7 @@ export default function UploadForm() {
                 </div>
               ))}
             </div>
-            {removedFromDatabase && (
+            {localProjectExists && !remoteProjectExists && (
               <Alert
                 title="Local project that used to exist on the platform, has been removed."
                 type="info"
