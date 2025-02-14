@@ -4,6 +4,7 @@ This repository contains code for the After Effects Plugin created to support [P
 
 ## Plugin features
 * **Export zip**: Gather all project assets and fonts, then compress them into a single zip file for easy sharing.
+* **Upload project**: Upload active project directly to Plainly platform.
 
 ## Installation
 

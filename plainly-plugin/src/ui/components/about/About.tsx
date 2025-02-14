@@ -26,6 +26,10 @@ export default function About() {
   const applicationFeatures = [
     {
       label: 'Export zip',
+      version: '1.0.1',
+    },
+    {
+      label: 'Upload project',
       version: '1.0.0',
     },
   ];
