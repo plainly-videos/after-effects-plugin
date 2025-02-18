@@ -178,8 +178,9 @@ export default function UploadForm() {
           <div className="col-span-full">
             <Label label="Upload mode" htmlFor="upload-mode" />
             <Description>
-              Select how you want to upload your project. Either upload a new
-              project to the platform, or edit an existing project.
+              Select how you want to upload your working project. Either upload
+              a new project to the platform, or if you already have this project
+              uploaded, you can edit it.
             </Description>
             <div className="mt-4 space-y-4 xs:flex xs:items-center xs:space-x-10 xs:space-y-0">
               {uploadModes.map((mode) => (
