@@ -1,12 +1,12 @@
-import UploadForm from '../components/form/UploadForm';
+import { Projects } from '../components';
 import MainWrapper from '../components/layout/MainWrapper';
 import { AuthProvider } from '../components/settings/AuthProvider';
 
-export function UploadRoute() {
+export function ProjectsRoute() {
   return (
     <MainWrapper>
       <AuthProvider>
-        <UploadForm />
+        <Projects />
       </AuthProvider>
     </MainWrapper>
   );

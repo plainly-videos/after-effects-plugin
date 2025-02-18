@@ -4,7 +4,7 @@ import {
   useSettings,
 } from '@src/ui/hooks';
 import {
-  CheckCircleIcon,
+  CircleCheckIcon,
   EyeIcon,
   EyeOffIcon,
   LoaderCircleIcon,
@@ -163,14 +163,14 @@ export default function SettingsForm() {
               {apiKeySet && !edit && (
                 <div className="mt-2 flex flex-col gap-1">
                   <div className="flex items-center">
-                    <CheckCircleIcon className="size-4 text-green-400" />
+                    <CircleCheckIcon className="size-4 text-green-400" />
                     <p className="text-xs text-white ml-1">
                       Your API key is set
                     </p>
                   </div>
                   {apiKeyEncrypted === true && (
                     <div className="flex items-center">
-                      <CheckCircleIcon className="size-4 text-green-400" />
+                      <CircleCheckIcon className="size-4 text-green-400" />
                       <p className="text-xs text-white ml-1">
                         API key is protected with PIN
                       </p>

@@ -1,4 +1,10 @@
-import { FolderOutput, InfoIcon, SettingsIcon, UploadIcon } from 'lucide-react';
+import {
+  FolderOutput,
+  FoldersIcon,
+  InfoIcon,
+  SettingsIcon,
+  UploadIcon,
+} from 'lucide-react';
 import { Routes } from '../types';
 
 export const pages = [
@@ -11,6 +17,11 @@ export const pages = [
     name: 'Upload',
     to: Routes.UPLOAD,
     icon: UploadIcon,
+  },
+  {
+    name: 'Projects',
+    to: Routes.PROJECTS,
+    icon: FoldersIcon,
   },
   {
     name: 'Settings',
