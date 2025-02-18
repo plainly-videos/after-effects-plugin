@@ -1,7 +1,7 @@
 import { get } from '@src/node/request';
 import { useMutation } from '@tanstack/react-query';
 
-export const useAppmixerUserProfile = () => {
+export const useUserProfile = () => {
   const { isPending, error, mutateAsync } = useMutation({
     mutationFn: async (apiKey: string) => {
       const { data } = await get(

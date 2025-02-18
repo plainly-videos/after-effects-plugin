@@ -7,7 +7,7 @@ import {
 } from '../../node/settings';
 import type { Settings } from '../../node/types';
 import type { Pin } from '../types';
-import { useAppmixerUserProfile } from './api';
+import { useUserProfile } from './api';
 
 type Action =
   | {
@@ -55,7 +55,7 @@ function settingsReducer(settings: Settings, action: Action) {
 export const useSettings = () => {
   const [settings, dispatch] = useReducer(settingsReducer, defaultSettings);
   const [loading, setLoading] = useState(true);
-  const { mutateAsync: appmixerUserProfile } = useAppmixerUserProfile();
+  const { mutateAsync: appmixerUserProfile } = useUserProfile();
 
   useEffect(() => {
     const fetchSettings = async () => {
