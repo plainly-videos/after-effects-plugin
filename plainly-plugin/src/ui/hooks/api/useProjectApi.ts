@@ -11,7 +11,7 @@ import { API_REFETCH_INTERVAL } from '.';
 
 const PROJECTS_CACHE_ROOT = 'projects';
 
-// refresh project list and search as long as one in analysis, each 15s
+// refresh project list and search as long as one in analysis
 const getProjectListRefreshInterval = (
   projects?: Project[],
 ): number | false => {
