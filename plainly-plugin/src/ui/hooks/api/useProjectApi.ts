@@ -11,12 +11,37 @@ import { API_REFETCH_INTERVAL } from '.';
 
 const PROJECTS_CACHE_ROOT = 'projects';
 
+// refresh project list and search as long as one in analysis, each 15s
+const getProjectListRefreshInterval = (
+  projects?: Project[],
+): number | false => {
+  if (projects) {
+    const anyNotDone = projects.some(
+      (project) => !(project.analysis?.done || project.analysis?.failed),
+    );
+    if (anyNotDone) {
+      return API_REFETCH_INTERVAL;
+    }
+  }
+  return false;
+};
+
 const projectsCacheAdd = (client: QueryClient, project: Project) => {
+  // Add new project to the list
+  client.setQueryData<Project[]>([PROJECTS_CACHE_ROOT], (projects) =>
+    projects ? [...projects, project] : [project],
+  );
   // Add new project details
   client.setQueryData([PROJECTS_CACHE_ROOT, project.id], project);
 };
 
 const projectCacheReplace = (client: QueryClient, project: Project) => {
+  // Update the list
+  client.setQueryData<Project[]>([PROJECTS_CACHE_ROOT], (projects) =>
+    projects
+      ? projects.map((p) => (p.id === project.id ? project : p))
+      : [project],
+  );
   // Update the details
   client.setQueryData([PROJECTS_CACHE_ROOT, project.id], project);
 };
@@ -24,6 +49,24 @@ const projectCacheReplace = (client: QueryClient, project: Project) => {
 export const projectsCacheRemove = (client: QueryClient, projectId: string) => {
   // Remove cache
   client.removeQueries({ queryKey: [PROJECTS_CACHE_ROOT, projectId] });
+};
+
+export const useGetProjects = (apiKey: string) => {
+  const { isLoading, error, data } = useQuery({
+    queryKey: [PROJECTS_CACHE_ROOT],
+    queryFn: async () => {
+      const { data } = await get<Project[]>('/api/v2/projects', apiKey);
+      const sortedByLastModified = data.sort(
+        (a, b) =>
+          new Date(b.lastModified).getTime() -
+          new Date(a.lastModified).getTime(),
+      );
+      return sortedByLastModified;
+    },
+    refetchInterval: (): number | false => getProjectListRefreshInterval(data),
+  });
+
+  return { isLoading, error, data };
 };
 
 export const useGetProjectDetails = (

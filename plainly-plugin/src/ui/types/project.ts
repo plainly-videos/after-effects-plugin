@@ -10,6 +10,7 @@ export interface Project extends ModelBaseWithDates {
   };
   revisionHistory?: ProjectRevision[];
   analyzed: boolean;
+  size: number;
 }
 
 interface ProjectAnalysis {
