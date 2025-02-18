@@ -2,15 +2,15 @@ import { useMemo } from 'react';
 import { isDev } from '../env';
 import Button from './components/common/Button';
 import Sidebar from './components/navigation/Sidebar';
+import {
+  AboutRoute,
+  ExportRoute,
+  ProjectsRoute,
+  SettingsRoute,
+  UploadRoute,
+} from './routes';
 import { State, useGlobalState } from './state/store';
 import { reloadExtension } from './utils';
-import {
-  ExportRoute,
-  UploadRoute,
-  SettingsRoute,
-  AboutRoute,
-  ProjectsRoute,
-} from './routes';
 
 export default function App() {
   const [settings] = useGlobalState(State.SETTINGS);
