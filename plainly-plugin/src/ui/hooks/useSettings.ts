@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useReducer, useState } from 'react';
 import { decode, encode } from '../../node/encoding';
-import { get } from '../../node/request';
 import {
   defaultSettings,
   retrieveSettings,
@@ -8,6 +7,7 @@ import {
 } from '../../node/settings';
 import type { Settings } from '../../node/types';
 import type { Pin } from '../types';
+import { useAppmixerUserProfile } from './api';
 
 type Action =
   | {
@@ -55,6 +55,7 @@ function settingsReducer(settings: Settings, action: Action) {
 export const useSettings = () => {
   const [settings, dispatch] = useReducer(settingsReducer, defaultSettings);
   const [loading, setLoading] = useState(true);
+  const { mutateAsync: appmixerUserProfile } = useAppmixerUserProfile();
 
   useEffect(() => {
     const fetchSettings = async () => {
@@ -74,7 +75,7 @@ export const useSettings = () => {
   const setSettingsApiKey = useCallback(
     async (apiKey: string, pin: Pin | undefined) => {
       try {
-        await get('/api/v2/integrations/appmixer/user-profile', apiKey);
+        await appmixerUserProfile(apiKey);
       } catch (error) {
         throw new Error(
           'Invalid API key, please make sure to copy a valid API key from Plainly web-app and try again.',
@@ -92,7 +93,7 @@ export const useSettings = () => {
         payload: { key: newApiKey, encrypted: !!pin },
       });
     },
-    [],
+    [appmixerUserProfile],
   );
 
   const getSettingsApiKey = useCallback(
