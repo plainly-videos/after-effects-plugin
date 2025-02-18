@@ -122,7 +122,7 @@ export default function SettingsForm() {
                 <Label label="API key" htmlFor="api-key" required />
                 <Description>
                   Setup your Plainly Videos API key to communicate directly with
-                  Plainly app. Your API key can be found on the{' '}
+                  the Plainly app. Your API key can be found on the{' '}
                   <button
                     type="button"
                     className="underline text-white"
@@ -193,7 +193,7 @@ export default function SettingsForm() {
                 <div>
                   <Label label="PIN (recommended)" htmlFor="pin" />
                   <Description>
-                    Add PIN to protect your Plainly Videos API key. Otherwise,
+                    Add a PIN to protect your Plainly Videos API key. Otherwise,
                     the API key could be leaked to anyone using this computer.
                   </Description>
                 </div>
