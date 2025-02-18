@@ -1,8 +1,7 @@
+import { useNavigate } from '@src/ui/hooks';
 import classNames from 'classnames';
 import type { LucideProps } from 'lucide-react';
 import type { ForwardRefExoticComponent, RefAttributes } from 'react';
-import { useBreakpoint } from '../../hooks/useBreakpoint';
-import { State, setGlobalState, useGlobalState } from '../../state/store';
 import type { Routes } from '../../types';
 
 export default function SidebarLinks({
@@ -16,9 +15,7 @@ export default function SidebarLinks({
     >;
   }[];
 }) {
-  const biggerThanXS = useBreakpoint('xs');
-  const [settings] = useGlobalState(State.SETTINGS);
-  const { currentPage, sidebarOpen } = settings;
+  const { navigate, currentPage, sidebarOpen } = useNavigate();
 
   return (
     <ul className="flex flex-1 flex-col gap-y-7">
@@ -28,13 +25,7 @@ export default function SidebarLinks({
             <li key={link.name} className="w-full">
               <button
                 type="button"
-                onClick={() => {
-                  setGlobalState(State.SETTINGS, {
-                    ...settings,
-                    currentPage: link.to,
-                    sidebarOpen: biggerThanXS === false ? false : sidebarOpen,
-                  });
-                }}
+                onClick={() => navigate(link.to)}
                 className={classNames(
                   link.to === currentPage
                     ? 'bg-[rgb(43,43,43)] text-white'
