@@ -1,9 +1,9 @@
+import { useGetProjects } from '@src/ui/hooks';
+import { isEmpty } from '@src/ui/utils';
+import { LoaderCircleIcon } from 'lucide-react';
 import { useContext } from 'react';
 import { AuthContext } from '../settings/AuthProvider';
-import { useGetProjects } from '@src/ui/hooks';
 import { ProjectsListItem } from './ProjectsListItem';
-import { LoaderCircleIcon } from 'lucide-react';
-import { isEmpty } from '@src/ui/utils';
 
 export function ProjectsList() {
   const { apiKey } = useContext(AuthContext);
