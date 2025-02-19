@@ -8,7 +8,7 @@
     "package": "rm -rf package && yarn prepare-aescripts && yarn prepare-plugin && node ./scripts/preparePackage.cjs",
     "prepare": "rm -rf package && node ./scripts/preparePackage.cjs",
     "postinstall": "husky",
-    "husky-check": "cd plainly-aescripts && yarn biome && cd .. && cd plainly-plugin && yarn biome"
+    "husky-check": "yarn --cwd ./plainly-aescripts/ biome && yarn --cwd ./plainly-plugin/ biome"
   },
   "devDependencies": {
     "husky": "^9.1.7"
