@@ -55,7 +55,7 @@ function settingsReducer(settings: Settings, action: Action) {
 export const useSettings = () => {
   const [settings, dispatch] = useReducer(settingsReducer, defaultSettings);
   const [loading, setLoading] = useState(true);
-  const { mutateAsync: appmixerUserProfile } = useUserProfile();
+  const { mutateAsync: getUserProfile } = useUserProfile();
 
   useEffect(() => {
     const fetchSettings = async () => {
@@ -75,7 +75,7 @@ export const useSettings = () => {
   const setSettingsApiKey = useCallback(
     async (apiKey: string, pin: Pin | undefined) => {
       try {
-        await appmixerUserProfile(apiKey);
+        await getUserProfile(apiKey);
       } catch (error) {
         throw new Error(
           'Invalid API key, please make sure to copy a valid API key from Plainly web-app and try again.',
@@ -93,7 +93,7 @@ export const useSettings = () => {
         payload: { key: newApiKey, encrypted: !!pin },
       });
     },
-    [appmixerUserProfile],
+    [getUserProfile],
   );
 
   const getSettingsApiKey = useCallback(
