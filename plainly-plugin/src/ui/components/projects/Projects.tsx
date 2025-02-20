@@ -8,7 +8,8 @@ export function Projects() {
       <div>
         <PageHeading heading="Custom projects" />
         <Description className="mt-1">
-          List of all uploaded projects that exist on platform.
+          List of all custom projects that you have access to. Here you can link
+          projects from the platform to the working project.
         </Description>
       </div>
       <ProjectsList />

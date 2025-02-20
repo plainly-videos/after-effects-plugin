@@ -56,12 +56,7 @@ export const useGetProjects = (apiKey: string) => {
     queryKey: [PROJECTS_CACHE_ROOT],
     queryFn: async () => {
       const { data } = await get<Project[]>('/api/v2/projects', apiKey);
-      const sortedByLastModified = data.sort(
-        (a, b) =>
-          new Date(b.lastModified).getTime() -
-          new Date(a.lastModified).getTime(),
-      );
-      return sortedByLastModified;
+      return data;
     },
     refetchInterval: (): number | false => getProjectListRefreshInterval(data),
   });
