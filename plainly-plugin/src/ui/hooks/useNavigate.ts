@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 import { State, setGlobalState, useGlobalState } from '../state/store';
-import type { GlobalSettings } from '../types';
+import type { Routes } from '../types';
 import { useBreakpoint } from './useBreakpoint';
 
 export const useNavigate = () => {
@@ -9,7 +9,7 @@ export const useNavigate = () => {
   const { sidebarOpen, currentPage } = settings;
 
   const navigate = useCallback(
-    (to: GlobalSettings['currentPage']) => {
+    (to: Routes) => {
       setGlobalState(State.SETTINGS, {
         ...settings,
         currentPage: to,
