@@ -21,18 +21,6 @@ export function handleLinkClick(link: string | undefined) {
   cep.util.openURLInDefaultBrowser(link);
 }
 
-export function getSizeWithUnit(size: number): {
-  value: number;
-  unit: 'MB' | 'GB';
-} {
-  const mb = size / (1024 * 1024);
-  const gb = size / (1024 * 1024 * 1024);
-
-  if (gb < 1) return { value: mb, unit: 'MB' };
-
-  return { value: gb, unit: 'GB' };
-}
-
 export function isEmpty<T>(
   list: T[] | null | undefined,
 ): list is undefined | null | [] {

@@ -1,11 +1,11 @@
 import axios, { type AxiosResponse } from 'axios';
 import type FormData from 'form-data';
 
-import { baseURL } from '../env';
+import { apiBaseURL } from '../env';
 
 const instance = axios.create({
   adapter: 'http',
-  baseURL: baseURL,
+  baseURL: apiBaseURL,
   headers: {
     'Content-Type': 'application/json',
   },
