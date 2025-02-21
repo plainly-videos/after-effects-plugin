@@ -11,6 +11,7 @@ export interface Project extends ModelBaseWithDates {
   revisionHistory?: ProjectRevision[];
   analyzed: boolean;
   size: number;
+  templates: Record<string, unknown>[]; // extend when more is needed
 }
 
 interface ProjectAnalysis {

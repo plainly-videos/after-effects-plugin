@@ -1,11 +1,15 @@
+import { platformBaseUrl } from '@src/env';
 import { useGetProjects } from '@src/ui/hooks';
 import { useProjectData } from '@src/ui/hooks/useProjectData';
 import { Routes } from '@src/ui/types';
-import { isEmpty } from '@src/ui/utils';
+import { handleLinkClick, isEmpty } from '@src/ui/utils';
 import { LoaderCircleIcon } from 'lucide-react';
-import { useContext, useMemo } from 'react';
+import { useCallback, useContext, useMemo } from 'react';
 import { InternalLink } from '../common';
 import { AuthContext } from '../settings/AuthProvider';
+import Description from '../typography/Description';
+import Label from '../typography/Label';
+import { LinkedProject } from './LinkedProject';
 import { ProjectsListItem } from './ProjectsListItem';
 
 export function ProjectsList() {
@@ -30,6 +34,12 @@ export function ProjectsList() {
     [data, projectData],
   );
 
+  const linkedExists = useMemo(() => !!linkedProject, [linkedProject]);
+
+  const openInWeb = useCallback((projectId: string) => {
+    handleLinkClick(`${platformBaseUrl}/dashboard/projects/${projectId}`);
+  }, []);
+
   if (isLoading) {
     return (
       <LoaderCircleIcon className="animate-spin shrink-0 mx-auto size-6 text-white my-auto" />
@@ -49,17 +59,28 @@ export function ProjectsList() {
       )}
 
       {!isEmpty(filteredData) && (
-        <ul className="divide-y divide-white/10 overflow-auto w-full">
-          {linkedProject && <ProjectsListItem project={linkedProject} linked />}
-          {filteredData.map((project) => (
-            <ProjectsListItem
-              key={project.id}
-              project={project}
-              linkProject={setProjectData}
-              linkedExists={!!linkedProject}
-            />
-          ))}
-        </ul>
+        <>
+          {linkedProject && (
+            <div className="mb-4">
+              <Label label="Linked project" />
+              <Description className="mb-1">
+                Working project is linked to the project on the platform.
+              </Description>
+              <LinkedProject project={linkedProject} openInWeb={openInWeb} />
+            </div>
+          )}
+          <ul className="divide-y divide-white/10 overflow-auto w-full">
+            {filteredData.map((project) => (
+              <ProjectsListItem
+                key={project.id}
+                project={project}
+                linkProject={setProjectData}
+                openInWeb={openInWeb}
+                linkedExists={linkedExists}
+              />
+            ))}
+          </ul>
+        </>
       )}
     </div>
   );
