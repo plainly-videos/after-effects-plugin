@@ -32,7 +32,7 @@ export default function PinOverlay({
     <form
       className={classNames(
         'absolute inset-0 w-full h-screen flex items-center justify-center bg-[rgb(29,29,30)] z-10',
-        sidebarOpen ? 'pl-[3.75rem] xs:pl-48' : 'pl-[3.75rem]',
+        sidebarOpen ? 'pl-[3.75rem] xs:pl-36' : 'pl-[3.75rem]',
       )}
       onSubmit={handleSubmit}
     >

@@ -14,7 +14,7 @@ export default function MainWrapper({
     <main
       className={classNames(
         sidebarOpen
-          ? 'pl-[3.75rem] blur-md pointer-events-none xs:pl-48 xs:blur-none xs:pointer-events-auto'
+          ? 'pl-[3.75rem] blur-md pointer-events-none xs:pl-36 xs:blur-none xs:pointer-events-auto'
           : 'pl-[3.75rem]',
       )}
     >
