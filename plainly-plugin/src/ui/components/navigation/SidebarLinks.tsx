@@ -23,7 +23,7 @@ export default function SidebarLinks({
       <li>
         <ul className="-mx-2.5 space-y-1">
           {links.map((link) => (
-            <li key={link.name} className="w-full">
+            <li key={link.name} className="w-full h-[25px]">
               <Tooltip text={link.name} position="right" disabled={sidebarOpen}>
                 <button
                   type="button"
@@ -32,7 +32,7 @@ export default function SidebarLinks({
                     link.to === currentPage
                       ? 'bg-[rgb(43,43,43)] text-white'
                       : 'text-gray-400 hover:bg-[rgb(43,43,43)] hover:text-white',
-                    'group flex gap-x-2 rounded-md px-2 py-1 text-xs font-medium relative items-center w-full min-h-[25px]',
+                    'group flex gap-x-2 rounded-md px-2 py-1 text-xs font-medium relative items-center w-full h-[25px]',
                   )}
                 >
                   <link.icon aria-hidden="true" className="size-4 shrink-0" />
