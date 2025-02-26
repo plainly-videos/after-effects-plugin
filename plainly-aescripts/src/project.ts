@@ -50,7 +50,6 @@ function getProjectData() {
   return JSON.stringify(projectData);
 }
 
-// removes project data, not used, left for testing purposes and for future use if needed
 function removeProjectData() {
   const project = app.project;
 

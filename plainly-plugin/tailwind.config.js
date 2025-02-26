@@ -16,8 +16,8 @@ export default {
           'pulse-tailwind 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
       },
       colors: {
-        background: 'var(--background)',
-        foreground: 'var(--foreground)',
+        primary: 'rgba(var(--color-bg-primary), 1)',
+        secondary: 'rgba(var(--color-bg-secondary), 1)',
       },
       fontSize: {
         xs: '0.7rem',

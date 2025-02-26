@@ -5,6 +5,7 @@ import type { ProjectData } from '../types';
 export const useProjectData = (): [
   ProjectData | undefined,
   (data: ProjectData) => void,
+  () => void,
 ] => {
   const [projectData, setProjectData] = useState<ProjectData | undefined>();
 
@@ -29,5 +30,10 @@ export const useProjectData = (): [
     setProjectData(data);
   };
 
-  return [projectData, setData];
+  const removeData = async () => {
+    await evalScriptAsync('removeProjectData()');
+    setProjectData(undefined);
+  };
+
+  return [projectData, setData, removeData];
 };
