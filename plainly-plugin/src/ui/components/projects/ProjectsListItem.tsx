@@ -48,6 +48,9 @@ export function ProjectsListItem({
       id: project.id,
       revisionCount: project.revisionHistory?.length || 0,
     });
+
+    // scroll window to top
+    window.scrollTo(0, 0);
   }, [
     linkedExists,
     showConfirmation,
@@ -84,12 +87,19 @@ export function ProjectsListItem({
             </p>
           </div>
           <div className="flex items-center gap-2 ml-2">
-            <ProjectAction icon={StarIcon} action={link} />
-            <ProjectAction icon={ExternalLinkIcon} action={open} />
+            <Tooltip text="Link project">
+              <ProjectAction icon={StarIcon} action={link} />
+            </Tooltip>
+            <Tooltip text="Open in web">
+              <ProjectAction icon={ExternalLinkIcon} action={open} />
+            </Tooltip>
           </div>
         </div>
       </li>
       <ConfirmationDialog
+        title="Relinking local project"
+        description="Working project is already linked to a project on the platform. Are you sure you want to relink this project to another project?"
+        buttonText="Link"
         open={showConfirmation}
         setOpen={setShowConfirmation}
         action={link}

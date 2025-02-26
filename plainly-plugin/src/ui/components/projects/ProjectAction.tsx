@@ -4,7 +4,6 @@ import type { LucideProps } from 'lucide-react';
 export function ProjectAction({
   icon: Icon,
   action,
-  disabled,
   fill,
   linked,
 }: {
@@ -12,24 +11,21 @@ export function ProjectAction({
     Omit<LucideProps, 'ref'> & React.RefAttributes<SVGSVGElement>
   >;
   action: () => void;
-  disabled?: boolean;
   fill?: string;
   linked?: boolean;
 }) {
   return (
     <button
       className={classNames(
-        'size-5 flex items-center justify-center cursor-pointer disabled:cursor-not-allowed group rounded-sm',
+        'size-4 flex items-center justify-center cursor-pointer disabled:cursor-not-allowed group rounded-sm',
         linked
-          ? 'bg-primary'
+          ? 'bg-primary hover:bg-secondary hover:text-gray-400'
           : 'bg-secondary hover:bg-primary hover:text-gray-400',
-        linked && !disabled && 'hover:bg-secondary hover:text-gray-400',
       )}
       type="button"
       onClick={action}
-      disabled={disabled}
     >
-      <Icon className="size-3" fill={fill} />
+      <Icon className="size-2.5" fill={fill} />
     </button>
   );
 }

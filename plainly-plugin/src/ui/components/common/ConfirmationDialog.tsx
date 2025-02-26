@@ -11,10 +11,20 @@ import Description from '../typography/Description';
 import Button from './Button';
 
 export function ConfirmationDialog({
+  title,
+  description,
+  buttonText,
   open,
   setOpen,
   action,
-}: { open: boolean; setOpen: (open: boolean) => void; action: () => void }) {
+}: {
+  title: string;
+  description?: string;
+  buttonText: string;
+  open: boolean;
+  setOpen: (open: boolean) => void;
+  action: () => void;
+}) {
   const [settings] = useGlobalState(State.SETTINGS);
   const sidebarOpen = settings.sidebarOpen;
 
@@ -46,15 +56,13 @@ export function ConfirmationDialog({
                   as="h3"
                   className="text-sm font-semibold text-white"
                 >
-                  Relinking local project
+                  {title}
                 </DialogTitle>
-                <div className="mt-1">
-                  <Description>
-                    Working project is already linked to a project on the
-                    platform. Are you sure you want to relink this project to
-                    another project?
-                  </Description>
-                </div>
+                {description && (
+                  <div className="mt-1">
+                    <Description>{description}</Description>
+                  </div>
+                )}
               </div>
             </div>
             <div className="mt-4 sm:mt-3 sm:flex sm:flex-row-reverse">
@@ -66,7 +74,7 @@ export function ConfirmationDialog({
                 }}
                 className="inline-flex w-full sm:w-auto justify-center sm:ml-2"
               >
-                Link
+                {buttonText}
               </Button>
               <Button
                 type="button"

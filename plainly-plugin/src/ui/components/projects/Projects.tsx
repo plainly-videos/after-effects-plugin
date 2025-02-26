@@ -1,4 +1,3 @@
-import Description from '../typography/Description';
 import PageHeading from '../typography/PageHeading';
 import { ProjectsList } from './ProjectsList';
 
@@ -6,11 +5,7 @@ export function Projects() {
   return (
     <div className="space-y-4 w-full text-white">
       <div>
-        <PageHeading heading="Custom projects" />
-        <Description className="mt-1">
-          List of all custom projects that you have access to. Here you can link
-          projects from the platform to the working project.
-        </Description>
+        <PageHeading heading="Plainly projects" />
       </div>
       <ProjectsList />
     </div>
