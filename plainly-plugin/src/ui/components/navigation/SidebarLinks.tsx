@@ -5,7 +5,7 @@ import type { ForwardRefExoticComponent, RefAttributes } from 'react';
 import type { Routes } from '../../types';
 import { Tooltip } from '../common/Tooltip';
 
-export default function SidebarLinks({
+export function SidebarLinks({
   links,
 }: {
   links: {

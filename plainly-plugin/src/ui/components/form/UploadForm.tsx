@@ -1,26 +1,22 @@
 import FormData from 'form-data';
 import { useCallback, useContext, useEffect, useState } from 'react';
 import { makeProjectZipTmpDir, removeFolder } from '../../../node';
-import Button from '../common/Button';
-import Description from '../typography/Description';
-import Label from '../typography/Label';
-import PageHeading from '../typography/PageHeading';
 
 import fs from 'fs';
-import { useNotifications } from '@src/ui/hooks';
+import { useNotifications, useProjectData } from '@src/ui/hooks';
 import {
   useEditProject,
   useGetProjectDetails,
   useUploadProject,
 } from '@src/ui/hooks/api';
+import type { Project } from '@src/ui/types/project';
 import classNames from 'classnames';
 import { LoaderCircleIcon } from 'lucide-react';
-import { useProjectData } from '../../hooks/useProjectData';
-import type { Project } from '../../types/project';
-import Alert from '../common/Alert';
-import { AuthContext } from '../settings/AuthProvider';
+import { Alert, Button } from '../common';
+import { AuthContext } from '../settings';
+import { Description, Label, PageHeading } from '../typography';
 
-export default function UploadForm() {
+export function UploadForm() {
   const { apiKey } = useContext(AuthContext);
   const [projectData, setProjectData] = useProjectData();
   const { isLoading, data } = useGetProjectDetails(projectData?.id, apiKey);

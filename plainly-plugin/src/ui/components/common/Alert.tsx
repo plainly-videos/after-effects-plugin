@@ -8,7 +8,7 @@ import {
 
 type AlertType = 'danger' | 'warning' | 'info' | 'success';
 
-export default function Alert({
+export function Alert({
   title,
   type,
   className,

@@ -1,6 +1,6 @@
 import classNames from 'classnames';
 
-export default function Description({
+export function Description({
   children,
   className,
 }: { children: React.ReactNode; className?: string }) {

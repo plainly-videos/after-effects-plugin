@@ -1,7 +1,6 @@
+import { isDev } from '@src/env';
 import { useMemo } from 'react';
-import { isDev } from '../env';
-import Button from './components/common/Button';
-import Sidebar from './components/navigation/Sidebar';
+import { Button, Sidebar } from './components';
 import {
   AboutRoute,
   ExportRoute,
@@ -12,7 +11,7 @@ import {
 import { State, useGlobalState } from './state/store';
 import { reloadExtension } from './utils';
 
-export default function App() {
+export function App() {
   const [settings] = useGlobalState(State.SETTINGS);
   const currentPage = settings.currentPage;
 

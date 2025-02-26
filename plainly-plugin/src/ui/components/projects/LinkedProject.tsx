@@ -12,10 +12,9 @@ import {
   XCircleIcon,
 } from 'lucide-react';
 import { useCallback, useState } from 'react';
-import { ConfirmationDialog } from '../common';
-import { Tooltip } from '../common/Tooltip';
-import Label from '../typography/Label';
-import { ProjectAction } from './ProjectAction';
+import { ProjectAction } from '.';
+import { ConfirmationDialog, Tooltip } from '../common';
+import { Label } from '../typography';
 
 export function LinkedProject({
   project,

@@ -3,6 +3,8 @@ import {
   useSessionStorage,
   useSettings,
 } from '@src/ui/hooks';
+import { Pin } from '@src/ui/types';
+import { handleLinkClick } from '@src/ui/utils';
 import {
   CircleCheckIcon,
   EyeIcon,
@@ -11,15 +13,11 @@ import {
   XCircleIcon,
 } from 'lucide-react';
 import { useState } from 'react';
-import { Pin } from '../../types';
-import { handleLinkClick } from '../../utils';
-import Button from '../common/Button';
-import Description from '../typography/Description';
-import Label from '../typography/Label';
-import PageHeading from '../typography/PageHeading';
-import PinInput from './PinInput';
+import { PinInput } from '.';
+import { Button } from '../common';
+import { Description, Label, PageHeading } from '../typography';
 
-export default function SettingsForm() {
+export function SettingsForm() {
   const { notifySuccess, notifyError } = useNotifications();
   const {
     apiKeySet,

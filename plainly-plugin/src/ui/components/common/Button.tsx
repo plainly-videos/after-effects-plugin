@@ -2,7 +2,7 @@ import classNames from 'classnames';
 import { LoaderCircleIcon } from 'lucide-react';
 import type { ComponentPropsWithRef } from 'react';
 
-export default function Button({
+export function Button({
   children,
   className,
   onClick,

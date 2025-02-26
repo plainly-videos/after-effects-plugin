@@ -1,6 +1,4 @@
-import { Projects } from '../components';
-import MainWrapper from '../components/layout/MainWrapper';
-import { AuthProvider } from '../components/settings/AuthProvider';
+import { AuthProvider, MainWrapper, Projects } from '../components';
 
 export function ProjectsRoute() {
   return (

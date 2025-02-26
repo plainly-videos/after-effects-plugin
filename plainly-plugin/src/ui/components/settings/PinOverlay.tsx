@@ -1,14 +1,13 @@
 import { useNotifications } from '@src/ui/hooks';
+import type { Pin } from '@src/ui/types';
 import classNames from 'classnames';
 import { useState } from 'react';
+import { PinInput } from '.';
 import { State, useGlobalState } from '../../state/store';
-import type { Pin } from '../../types';
-import Button from '../common/Button';
-import Description from '../typography/Description';
-import PageHeading from '../typography/PageHeading';
-import PinInput from './PinInput';
+import { Button } from '../common';
+import { Description, PageHeading } from '../typography';
 
-export default function PinOverlay({
+export function PinOverlay({
   onPinSubmitted,
 }: { onPinSubmitted: (value: string | undefined) => void }) {
   const { notifyError } = useNotifications();

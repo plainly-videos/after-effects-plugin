@@ -1,5 +1,5 @@
-import PageHeading from '../typography/PageHeading';
-import { ProjectsList } from './ProjectsList';
+import { ProjectsList } from '.';
+import { PageHeading } from '../typography';
 
 export function Projects() {
   return (

@@ -1,8 +1,8 @@
 import { Transition } from '@headlessui/react';
 import { useNotifications } from '@src/ui/hooks';
+import type { NotificationType } from '@src/ui/types';
 import classNames from 'classnames';
 import { CircleCheckBigIcon, XIcon } from 'lucide-react';
-import type { NotificationType } from '../../types';
 
 function Notification({
   title,
@@ -70,7 +70,7 @@ function Notification({
   );
 }
 
-export default function NotificationsOverlay() {
+export function NotificationsOverlay() {
   const { notifications, clearNotification } = useNotifications();
 
   return (

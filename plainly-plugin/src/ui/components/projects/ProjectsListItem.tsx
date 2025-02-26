@@ -4,10 +4,9 @@ import classNames from 'classnames';
 import { format } from 'date-fns';
 import { ExternalLinkIcon, StarIcon } from 'lucide-react';
 import { useCallback, useState } from 'react';
-import { ConfirmationDialog } from '../common';
-import { Tooltip } from '../common/Tooltip';
-import Label from '../typography/Label';
-import { ProjectAction } from './ProjectAction';
+import { ProjectAction } from '.';
+import { ConfirmationDialog, Tooltip } from '../common';
+import { Label } from '../typography';
 
 const statuses = {
   failed: 'text-red-400 bg-red-400/10',

@@ -1,6 +1,4 @@
-import UploadForm from '../components/form/UploadForm';
-import MainWrapper from '../components/layout/MainWrapper';
-import { AuthProvider } from '../components/settings/AuthProvider';
+import { AuthProvider, MainWrapper, UploadForm } from '../components';
 
 export function UploadRoute() {
   return (

@@ -1,4 +1,4 @@
-export default function Checkbox({
+export function Checkbox({
   label,
   description,
   onChange,
