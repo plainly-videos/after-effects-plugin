@@ -12,7 +12,7 @@ export default function MissingApiKey() {
     <div
       className={classNames(
         'absolute inset-0 w-full h-screen flex items-center justify-center bg-[rgb(29,29,30)] z-10',
-        sidebarOpen ? 'pl-[3.75rem] xs:pl-48' : 'pl-[3.75rem]',
+        sidebarOpen ? 'pl-[3.75rem] xs:pl-36' : 'pl-[3.75rem]',
       )}
     >
       <div className="p-6 sm:p-14 lg:p-20 flex flex-col items-center justify-center">
