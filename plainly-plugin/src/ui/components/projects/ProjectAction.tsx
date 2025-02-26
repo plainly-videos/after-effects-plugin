@@ -17,7 +17,7 @@ export function ProjectAction({
   return (
     <button
       className={classNames(
-        'size-4 flex items-center justify-center cursor-pointer disabled:cursor-not-allowed group rounded-sm',
+        'size-5 flex items-center justify-center cursor-pointer disabled:cursor-not-allowed group rounded-sm',
         linked
           ? 'bg-primary hover:bg-secondary hover:text-gray-400'
           : 'bg-secondary hover:bg-primary hover:text-gray-400',
@@ -25,7 +25,7 @@ export function ProjectAction({
       type="button"
       onClick={action}
     >
-      <Icon className="size-2.5" fill={fill} />
+      <Icon className="size-3" fill={fill} />
     </button>
   );
 }

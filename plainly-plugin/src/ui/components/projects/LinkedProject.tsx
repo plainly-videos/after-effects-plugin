@@ -36,20 +36,20 @@ export function LinkedProject({
     if (done)
       return (
         <>
-          <CircleCheckIcon className="size-4" />
+          <CircleCheckIcon className="size-3" />
           <p>Analysis done</p>
         </>
       );
     if (failed)
       return (
         <>
-          <XCircleIcon className="size-4 text-red-400" />
+          <XCircleIcon className="size-3 text-red-400" />
           <p className="text-red-400">Analysis failed</p>
         </>
       );
     return (
       <>
-        <LoaderCircleIcon className="animate-spin size-4" />
+        <LoaderCircleIcon className="animate-spin size-3" />
         <p>Analysis pending</p>
       </>
     );
@@ -99,7 +99,7 @@ export function LinkedProject({
               </div>
               <div className="flex items-center gap-1">
                 <Tooltip text="Sync status">
-                  <FolderSync className="size-4" />
+                  <FolderSync className="size-3" />
                 </Tooltip>
                 <p>
                   Local{' '}
@@ -125,7 +125,7 @@ export function LinkedProject({
 
             <div className="flex flex-col gap-1">
               <div className="flex items-center gap-1">
-                <LayoutTemplateIcon className="size-4" />
+                <LayoutTemplateIcon className="size-3" />
                 <p>
                   Templates{' '}
                   <span className="text-gray-300">
@@ -134,7 +134,7 @@ export function LinkedProject({
                 </p>
               </div>
               <div className="flex items-center gap-1">
-                <CalendarIcon className="size-4" />
+                <CalendarIcon className="size-3" />
                 <p>{format(project.lastModified, 'PP')}</p>
               </div>
             </div>
