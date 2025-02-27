@@ -16,8 +16,7 @@ export function ExportForm() {
   const [loading, setLoading] = useState(false);
   const [openLocation, setOpenLocation] = useState(true);
 
-  const { notifications, notifySuccess, notifyError, clearNotification } =
-    useNotifications();
+  const { notifySuccess, notifyError } = useNotifications();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -28,10 +27,7 @@ export function ExportForm() {
       try {
         const { collectFilesDir, zipPath } = await makeProjectZip(targetPath);
         collectFilesDirValue = collectFilesDir;
-        notifySuccess(
-          'Zip file created',
-          `Zip file created at: ${decodeURI(zipPath)}`,
-        );
+        notifySuccess('Zip file created', `Zip file created at: ${zipPath}`);
         setLoading(false);
       } catch (error) {
         notifyError('Failed to collect files', (error as Error).message);

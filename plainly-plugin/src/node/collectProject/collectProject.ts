@@ -140,15 +140,14 @@ function zip(targetPath: string, projectName: string): Promise<string> {
       path.dirname(targetPathResolved),
       `${projectName}.zip`,
     );
-    const outputZipPath = finalizePath(zipPath); // Normalize and resolve
 
-    const output = fs.createWriteStream(outputZipPath);
+    const output = fs.createWriteStream(zipPath);
     const archive = archiver('zip', { zlib: { level: 1 } });
 
     output.on('close', () => {
       console.log(`Zipped ${archive.pointer()} total bytes`);
-      console.log(`Zip file created at: ${outputZipPath}`);
-      resolve(outputZipPath);
+      console.log(`Zip file created at: ${zipPath}`);
+      resolve(zipPath);
     });
 
     archive.on('error', (err: unknown) => {
