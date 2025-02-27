@@ -1,6 +1,6 @@
 import classNames from 'classnames';
 
-export default function Label({
+export function Label({
   label,
   htmlFor,
   className,

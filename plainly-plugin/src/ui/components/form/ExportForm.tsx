@@ -8,13 +8,10 @@ import {
   selectFolder,
 } from '../../../node/index';
 import { openFolder } from '../../../node/utils';
-import Button from '../common/Button';
-import Checkbox from '../common/Checkbox';
-import Description from '../typography/Description';
-import Label from '../typography/Label';
-import PageHeading from '../typography/PageHeading';
+import { Button, Checkbox } from '../common';
+import { Description, Label, PageHeading } from '../typography';
 
-export default function ExportForm() {
+export function ExportForm() {
   const [targetPath, setTargetPath] = useState<string>();
   const [loading, setLoading] = useState(false);
   const [openLocation, setOpenLocation] = useState(true);

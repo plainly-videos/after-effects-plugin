@@ -1,11 +1,9 @@
 import classNames from 'classnames';
 import { pluginBundleVersion } from '../../../env';
 import { handleLinkClick } from '../../utils';
-import Description from '../typography/Description';
-import Label from '../typography/Label';
-import PageHeading from '../typography/PageHeading';
+import { Description, Label, PageHeading } from '../typography';
 
-export default function About() {
+export function About() {
   const applicationBasics = [
     { label: 'Name', value: 'Plainly Videos Plugin' },
     { label: 'Version', value: `${pluginBundleVersion}` },

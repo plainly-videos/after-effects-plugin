@@ -1,8 +1,8 @@
+import { State, useGlobalState } from '@src/ui/state/store';
 import classNames from 'classnames';
-import { State, useGlobalState } from '../../state/store';
-import NotificationsOverlay from '../common/NotificationsOverlay';
+import { NotificationsOverlay } from '../common';
 
-export default function MainWrapper({
+export function MainWrapper({
   children,
 }: {
   children: React.ReactNode;

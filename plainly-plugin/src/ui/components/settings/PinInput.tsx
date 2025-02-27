@@ -1,8 +1,8 @@
+import { Pin } from '@src/ui/types';
 import classNames from 'classnames';
 import { type Dispatch, type SetStateAction, useCallback, useRef } from 'react';
-import { Pin } from '../../types';
 
-export default function PinInput({
+export function PinInput({
   pin,
   className,
   onChange,

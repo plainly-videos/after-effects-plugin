@@ -4,11 +4,12 @@ import {
   DialogPanel,
   DialogTitle,
 } from '@headlessui/react';
+
 import { State, useGlobalState } from '@src/ui/state/store';
 import classNames from 'classnames';
 import { TriangleAlertIcon } from 'lucide-react';
-import Description from '../typography/Description';
-import Button from './Button';
+import { Button } from '.';
+import { Description } from '../typography';
 
 export function ConfirmationDialog({
   title,

@@ -1,5 +1,4 @@
-import MainWrapper from '../components/layout/MainWrapper';
-import SettingsForm from '../components/settings/SettingsForm';
+import { MainWrapper, SettingsForm } from '../components';
 
 export function SettingsRoute() {
   return (

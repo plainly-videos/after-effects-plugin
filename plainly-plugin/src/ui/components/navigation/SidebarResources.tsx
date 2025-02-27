@@ -1,6 +1,6 @@
-import { resources } from '../../routes/pages';
-import SidebarLinks from './SidebarLinks';
+import { resources } from '@src/ui/routes';
+import { SidebarLinks } from '.';
 
-export default function SidebarResources() {
+export function SidebarResources() {
   return <SidebarLinks links={resources} />;
 }

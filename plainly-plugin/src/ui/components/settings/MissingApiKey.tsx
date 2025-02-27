@@ -1,11 +1,10 @@
 import { useNavigate } from '@src/ui/hooks';
+import { Routes } from '@src/ui/types';
 import classNames from 'classnames';
 import { InfoIcon } from 'lucide-react';
-import { Routes } from '../../types';
-import Description from '../typography/Description';
-import PageHeading from '../typography/PageHeading';
+import { Description, PageHeading } from '../typography';
 
-export default function MissingApiKey() {
+export function MissingApiKey() {
   const { navigate, sidebarOpen } = useNavigate();
 
   return (

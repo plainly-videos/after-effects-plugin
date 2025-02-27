@@ -1,16 +1,13 @@
 import { platformBaseUrl } from '@src/env';
-import { useGetProjects } from '@src/ui/hooks';
-import { useProjectData } from '@src/ui/hooks/useProjectData';
+import { useGetProjects, useProjectData } from '@src/ui/hooks';
 import { Routes } from '@src/ui/types';
 import { handleLinkClick, isEmpty } from '@src/ui/utils';
 import { InfoIcon, LoaderCircleIcon } from 'lucide-react';
 import { useCallback, useContext, useMemo } from 'react';
+import { LinkedProject, ProjectsListItem } from '.';
 import { InternalLink } from '../common';
-import { AuthContext } from '../settings/AuthProvider';
-import Description from '../typography/Description';
-import Label from '../typography/Label';
-import { LinkedProject } from './LinkedProject';
-import { ProjectsListItem } from './ProjectsListItem';
+import { AuthContext } from '../settings';
+import { Description, Label } from '../typography';
 
 export function ProjectsList() {
   const { apiKey } = useContext(AuthContext);

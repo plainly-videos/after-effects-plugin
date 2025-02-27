@@ -1,6 +1,6 @@
 import classNames from 'classnames';
 
-export default function PageHeading({
+export function PageHeading({
   heading,
   className,
 }: { heading: string; className?: string }) {

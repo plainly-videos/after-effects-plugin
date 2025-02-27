@@ -1,5 +1,4 @@
-import About from '../components/about/About';
-import MainWrapper from '../components/layout/MainWrapper';
+import { About, MainWrapper } from '../components';
 
 export function AboutRoute() {
   return (

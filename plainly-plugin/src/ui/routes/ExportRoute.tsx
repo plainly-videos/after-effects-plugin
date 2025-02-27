@@ -1,5 +1,4 @@
-import ExportForm from '../components/form/ExportForm';
-import MainWrapper from '../components/layout/MainWrapper';
+import { ExportForm, MainWrapper } from '../components';
 
 export function ExportRoute() {
   return (

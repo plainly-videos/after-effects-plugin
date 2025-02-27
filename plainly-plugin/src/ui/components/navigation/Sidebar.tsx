@@ -1,12 +1,11 @@
+import { pages } from '@src/ui/routes';
+import { State, setGlobalState, useGlobalState } from '@src/ui/state/store';
 import classNames from 'classnames';
 import { ChevronLeftIcon, ChevronRightIcon } from 'lucide-react';
-import { pages } from '../../routes/pages';
-import { State, setGlobalState, useGlobalState } from '../../state/store';
-import PlainlyLogo from '../logo/PlainlyLogo';
-import SidebarLinks from './SidebarLinks';
-import SidebarResources from './SidebarResources';
+import { SidebarLinks, SidebarResources } from '.';
+import { PlainlyLogo } from '../logo';
 
-export default function Sidebar() {
+export function Sidebar() {
   const [settings] = useGlobalState(State.SETTINGS);
   const sidebarOpen = settings.sidebarOpen;
 
