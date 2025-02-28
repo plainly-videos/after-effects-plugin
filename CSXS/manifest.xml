@@ -2,7 +2,7 @@
 <ExtensionManifest
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
 	ExtensionBundleId="com.plainlyvideos.after-effects-plugin" 
-	ExtensionBundleVersion="1.2.0" 
+	ExtensionBundleVersion="1.2.0"
 	ExtensionBundleName="Plainly Videos"
 	Version="11.0"
 >
