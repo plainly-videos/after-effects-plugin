@@ -18,7 +18,7 @@ jobs:
     name: Create GitHub Release
     runs-on: ubuntu-latest
     needs: sign_plugin
- 
+
     steps:
       - name: Download Signed Plugin Artifact
         uses: actions/download-artifact@v4
@@ -26,11 +26,14 @@ jobs:
           name: plainly-plugin
           path: .
 
+      - name: Rename Artifact with Version
+        run: |
+          mv plainly-plugin.zxp plainly-plugin-${{ github.ref_name }}.zxp
+
       - name: Create a Release
         uses: softprops/action-gh-release@v2
         with:
           draft: false
           prerelease: false
           files: |
-            plainly-plugin.zxp
-
+            plainly-plugin-${{ github.ref_name }}.zxp

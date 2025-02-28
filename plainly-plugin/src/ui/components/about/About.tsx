@@ -4,7 +4,7 @@ import { handleLinkClick } from '../../utils';
 import { Description, Label, PageHeading } from '../typography';
 
 export function About() {
-  const applicationBasics = [
+  const pluginBasics = [
     { label: 'Name', value: 'Plainly Videos Plugin' },
     { label: 'Version', value: `${pluginBundleVersion}` },
     { label: 'Author', value: 'contact@plainlyvideos.com' },
@@ -21,7 +21,7 @@ export function About() {
     },
   ];
 
-  const applicationFeatures = [
+  const pluginFeatures = [
     {
       label: 'Export zip',
       version: '1.0.0',
@@ -29,6 +29,10 @@ export function About() {
     {
       label: 'Upload project',
       version: '1.1.0',
+    },
+    {
+      label: 'Projects list',
+      version: '1.2.0',
     },
   ];
 
@@ -62,10 +66,10 @@ export function About() {
         </Description>
       </div>
       <div>
-        <Label label="Application features" />
+        <Label label="Plugin basics" />
         <div className="grid grid-cols-3 border-t border-l border-r border-white/10 text-xs mt-2">
           <div className="col-span-1 font-medium border-r border-white/10">
-            {applicationBasics.map(({ label }) => (
+            {pluginBasics.map(({ label }) => (
               <p
                 className="bg-[rgb(43,43,43)] px-1 py-1 border-b border-white/10"
                 key={label}
@@ -76,7 +80,7 @@ export function About() {
           </div>
 
           <div className="col-span-2">
-            {applicationBasics.map(({ value, link }) => (
+            {pluginBasics.map(({ value, link }) => (
               <button
                 type="button"
                 className={classNames(
@@ -100,7 +104,7 @@ export function About() {
             <p className="px-1 py-1">Since version</p>
           </div>
           <div className="col-span-3 grid grid-cols-3">
-            {applicationFeatures.map(({ label, version }) => (
+            {pluginFeatures.map(({ label, version }) => (
               <div
                 className="col-span-3 grid grid-cols-3 divide-x divide-white/10 border-b border-white/10"
                 key={label}
