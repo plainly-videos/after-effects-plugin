@@ -2,7 +2,7 @@ import type { ProjectData } from '@src/ui/types';
 import type { Project } from '@src/ui/types/project';
 import classNames from 'classnames';
 import { format } from 'date-fns';
-import { ExternalLinkIcon, StarIcon } from 'lucide-react';
+import { ExternalLinkIcon, LinkIcon } from 'lucide-react';
 import { useCallback, useState } from 'react';
 import { ProjectAction } from '.';
 import { ConfirmationDialog, Tooltip } from '../common';
@@ -87,7 +87,7 @@ export function ProjectsListItem({
           </div>
           <div className="flex items-center gap-2 ml-2">
             <Tooltip text="Link project">
-              <ProjectAction icon={StarIcon} action={link} />
+              <ProjectAction icon={LinkIcon} action={link} />
             </Tooltip>
             <Tooltip text="Open in web">
               <ProjectAction icon={ExternalLinkIcon} action={open} />

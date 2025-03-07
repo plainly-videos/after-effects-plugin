@@ -4,14 +4,12 @@ import type { LucideProps } from 'lucide-react';
 export function ProjectAction({
   icon: Icon,
   action,
-  fill,
   linked,
 }: {
   icon: React.ForwardRefExoticComponent<
     Omit<LucideProps, 'ref'> & React.RefAttributes<SVGSVGElement>
   >;
   action: () => void;
-  fill?: string;
   linked?: boolean;
 }) {
   return (
@@ -25,7 +23,7 @@ export function ProjectAction({
       type="button"
       onClick={action}
     >
-      <Icon className="size-3" fill={fill} />
+      <Icon className="size-3" />
     </button>
   );
 }

@@ -206,6 +206,13 @@ export function UploadForm() {
                 </div>
               ))}
             </div>
+            {!remoteProjectExists && (
+              <Alert
+                title="Local project is not linked to any project on the platform. If you have one, you can link it on the Projects page, and re-upload existing, or new one will be uploaded."
+                type="info"
+                className="mt-4"
+              />
+            )}
             {localProjectExists && !remoteProjectExists && (
               <Alert
                 title="Local project that used to exist on the platform, has been removed."

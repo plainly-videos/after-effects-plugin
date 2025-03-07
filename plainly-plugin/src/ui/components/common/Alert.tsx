@@ -13,16 +13,24 @@ export function Alert({
   type,
   className,
 }: { title: string; type: AlertType; className?: string }) {
-  const Icon = ({ type }: { type: AlertType }) => {
+  const Icon = ({
+    type,
+    className,
+  }: { type: AlertType; className?: string }) => {
+    const dangerClassName = classNames('text-red-400', className);
+    const warningClassName = classNames('text-yellow-400', className);
+    const infoClassName = classNames('text-blue-400', className);
+    const successClassName = classNames('text-green-400', className);
+
     switch (type) {
       case 'danger':
-        return <XCircleIcon className="text-red-400" />;
+        return <XCircleIcon className={dangerClassName} />;
       case 'warning':
-        return <TriangleAlertIcon className="text-yellow-400" />;
+        return <TriangleAlertIcon className={warningClassName} />;
       case 'info':
-        return <InfoIcon className="text-blue-400" />;
+        return <InfoIcon className={infoClassName} />;
       case 'success':
-        return <CheckCircleIcon className="text-green-400" />;
+        return <CheckCircleIcon className={successClassName} />;
     }
   };
 
@@ -42,11 +50,11 @@ export function Alert({
         className,
       )}
     >
-      <div className="flex items-center">
+      <div className="flex items-start">
         <div className="shrink-0">
-          <Icon aria-hidden="true" type={type} />
+          <Icon aria-hidden="true" type={type} className="size-4" />
         </div>
-        <div className="ml-3">
+        <div className="ml-2">
           <p className="text-xs font-medium text-white">{title}</p>
         </div>
       </div>
