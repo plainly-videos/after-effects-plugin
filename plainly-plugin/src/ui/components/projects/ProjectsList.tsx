@@ -3,16 +3,14 @@ import { useGetProjects, useProjectData } from '@src/ui/hooks';
 import { Routes } from '@src/ui/types';
 import { handleLinkClick, isEmpty } from '@src/ui/utils';
 import { LoaderCircleIcon } from 'lucide-react';
-import { useCallback, useContext, useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import { LinkedProject, ProjectsListItem } from '.';
 import { Alert, InternalLink } from '../common';
-import { AuthContext } from '../settings';
 import { Description, Label } from '../typography';
 
 export function ProjectsList() {
-  const { apiKey } = useContext(AuthContext);
   const [projectData, setProjectData, removeProjectData] = useProjectData();
-  const { isLoading, data } = useGetProjects(apiKey);
+  const { isLoading, data } = useGetProjects();
 
   const linkedProject = useMemo(
     () => data?.find((p) => p.id === projectData?.id),

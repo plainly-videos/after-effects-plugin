@@ -3,19 +3,18 @@ import type FormData from 'form-data';
 
 import { apiBaseURL } from '../env';
 
+const BASE_PATH = '/api/v2';
 const instance = axios.create({
   adapter: 'http',
   baseURL: apiBaseURL,
-  headers: {
-    'Content-Type': 'application/json',
-  },
+  headers: { 'Content-Type': 'application/json' },
 });
 
 async function get<T>(
   path: string,
   apiKey: string,
 ): Promise<AxiosResponse<T, unknown>> {
-  return instance.get(path, {
+  return instance.get(BASE_PATH + path, {
     auth: {
       username: apiKey,
       password: '',
@@ -24,7 +23,7 @@ async function get<T>(
 }
 
 async function post(path: string, apiKey: string, body: string) {
-  return instance.post(path, body, {
+  return instance.post(BASE_PATH + path, body, {
     auth: {
       username: apiKey,
       password: '',
@@ -37,7 +36,7 @@ async function postFormData<T>(
   apiKey: string,
   body: FormData,
 ): Promise<AxiosResponse<T, unknown>> {
-  return instance.post(path, body, {
+  return instance.post(BASE_PATH + path, body, {
     headers: { ...body.getHeaders() },
     auth: {
       username: apiKey,

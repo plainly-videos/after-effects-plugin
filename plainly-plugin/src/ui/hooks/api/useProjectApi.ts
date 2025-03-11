@@ -1,14 +1,11 @@
 import { get, postFormData } from '@src/node/request';
 import type { Project } from '@src/ui/types/project';
-import {
-  type QueryClient,
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from '@tanstack/react-query';
+import { type QueryClient, useQueryClient } from '@tanstack/react-query';
 import type FormData from 'form-data';
 import { API_REFETCH_INTERVAL } from '.';
+import { useApiMutation, useApiQuery } from './useApi';
 
+const BASE_PATH = '/projects';
 const PROJECTS_CACHE_ROOT = 'projects';
 
 // refresh project list and search as long as one in analysis
@@ -51,41 +48,40 @@ export const projectsCacheRemove = (client: QueryClient, projectId: string) => {
   client.removeQueries({ queryKey: [PROJECTS_CACHE_ROOT, projectId] });
 };
 
-export const useGetProjects = (apiKey: string) => {
-  const { isLoading, error, data } = useQuery({
-    queryKey: [PROJECTS_CACHE_ROOT],
-    queryFn: async () => {
-      const { data } = await get<Project[]>('/api/v2/projects', apiKey);
+export const useGetProjects = () => {
+  const { isLoading, error, data } = useApiQuery(
+    [PROJECTS_CACHE_ROOT],
+    async (apiKey) => {
+      const { data } = await get<Project[]>(BASE_PATH, apiKey);
       return data;
     },
-    refetchInterval: (): number | false => getProjectListRefreshInterval(data),
-  });
+    {
+      refetchInterval: (): number | false =>
+        getProjectListRefreshInterval(data),
+    },
+  );
 
   return { isLoading, error, data };
 };
 
-export const useGetProjectDetails = (
-  projectId: string | undefined,
-  apiKey: string,
-) => {
+export const useGetProjectDetails = (projectId: string | undefined) => {
   const cacheKey = [PROJECTS_CACHE_ROOT, projectId];
 
-  const { isLoading, error, data } = useQuery({
-    queryKey: cacheKey,
-    queryFn: async () => {
-      const { data } = await get<Project>(
-        `/api/v2/projects/${projectId}`,
-        apiKey,
-      );
+  const { isLoading, error, data } = useApiQuery(
+    cacheKey,
+    async (apiKey) => {
+      const { data } = await get<Project>(`${BASE_PATH}/${projectId}`, apiKey);
       return data;
     },
-    enabled: !!projectId,
-    refetchInterval: (): number | false => {
-      return data && !(data.analysis.done || data.analysis.failed)
-        ? API_REFETCH_INTERVAL
-        : false;
+    {
+      enabled: !!projectId,
+      refetchInterval: (): number | false => {
+        return data && !(data.analysis.done || data.analysis.failed)
+          ? API_REFETCH_INTERVAL
+          : false;
+      },
     },
-  });
+  );
 
   return { isLoading, error, data };
 };
@@ -93,20 +89,15 @@ export const useGetProjectDetails = (
 export const useUploadProject = () => {
   const queryClient = useQueryClient();
 
-  const { isPending, isError, mutateAsync } = useMutation({
-    mutationFn: async ({
-      apiKey,
-      formData,
-    }: { apiKey: string; formData: FormData }) => {
-      const { data } = await postFormData<Project>(
-        '/api/v2/projects',
-        apiKey,
-        formData,
-      );
+  const { isPending, isError, mutateAsync } = useApiMutation(
+    async (apiKey, formData: FormData) => {
+      const { data } = await postFormData<Project>(BASE_PATH, apiKey, formData);
       return data;
     },
-    onSuccess: (project) => projectsCacheAdd(queryClient, project),
-  });
+    {
+      onSuccess: (project: Project) => projectsCacheAdd(queryClient, project),
+    },
+  );
 
   return { isPending, isError, mutateAsync };
 };
@@ -114,22 +105,24 @@ export const useUploadProject = () => {
 export const useEditProject = () => {
   const queryClient = useQueryClient();
 
-  const { isPending, isError, mutateAsync } = useMutation({
-    mutationFn: async ({
+  const { isPending, isError, mutateAsync } = useApiMutation(
+    async (
       apiKey,
-      projectId,
-      formData,
-    }: { apiKey: string; projectId: string; formData: FormData }) => {
+      { projectId, formData }: { projectId: string; formData: FormData },
+    ) => {
       const { data } = await postFormData<Project>(
-        `api/v2/projects/${projectId}`,
+        `${BASE_PATH}/${projectId}`,
         apiKey,
         formData,
       );
       return data;
     },
-    onSuccess: (edited: Project) => projectCacheReplace(queryClient, edited),
-    onError: (_, { projectId }) => projectsCacheRemove(queryClient, projectId),
-  });
+    {
+      onSuccess: (edited: Project) => projectCacheReplace(queryClient, edited),
+      onError: (_: unknown, { projectId }: { projectId: string }) =>
+        projectsCacheRemove(queryClient, projectId),
+    },
+  );
 
   return { isPending, isError, mutateAsync };
 };
