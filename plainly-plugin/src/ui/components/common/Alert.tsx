@@ -12,7 +12,7 @@ export function Alert({
   title,
   type,
   className,
-}: { title: string; type: AlertType; className?: string }) {
+}: { title: string | React.ReactNode; type: AlertType; className?: string }) {
   const Icon = ({
     type,
     className,
@@ -43,10 +43,10 @@ export function Alert({
     <div
       className={classNames(
         'rounded-md bg-[rgb(29,29,30)] border p-2',
-        danger && 'border-red-400',
-        warning && 'border-yellow-400',
-        info && 'border-blue-400',
-        success && 'border-green-400',
+        danger && 'border-red-400 text-red-100',
+        warning && 'border-yellow-400 text-yellow-100',
+        info && 'border-blue-400 text-blue-100',
+        success && 'border-green-400 text-green-100',
         className,
       )}
     >
@@ -55,7 +55,11 @@ export function Alert({
           <Icon aria-hidden="true" type={type} className="size-4" />
         </div>
         <div className="ml-2">
-          <p className="text-xs font-medium text-white">{title}</p>
+          {typeof title === 'string' ? (
+            <p className="text-xs font-medium">{title}</p>
+          ) : (
+            <div className="text-xs font-medium">{title}</div>
+          )}
         </div>
       </div>
     </div>
