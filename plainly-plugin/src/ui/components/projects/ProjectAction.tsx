@@ -9,7 +9,7 @@ export function ProjectAction({
   icon: React.ForwardRefExoticComponent<
     Omit<LucideProps, 'ref'> & React.RefAttributes<SVGSVGElement>
   >;
-  action: () => void;
+  action: (e: React.MouseEvent) => void;
   linked?: boolean;
 }) {
   return (

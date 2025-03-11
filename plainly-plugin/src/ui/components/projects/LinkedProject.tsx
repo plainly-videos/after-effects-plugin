@@ -1,4 +1,6 @@
+import { useNavigate } from '@src/ui/hooks';
 import { useProjectData } from '@src/ui/hooks/useProjectData';
+import { Routes } from '@src/ui/types';
 import type { Project } from '@src/ui/types/project';
 import { format } from 'date-fns';
 import {
@@ -25,6 +27,7 @@ export function LinkedProject({
   removeProject: () => void;
   openInWeb: (id: string) => void;
 }) {
+  const { navigate } = useNavigate();
   const [projectData] = useProjectData();
   const [showConfirmation, setShowConfirmation] = useState(false);
 
@@ -54,28 +57,42 @@ export function LinkedProject({
     );
   }
 
-  const unlink = useCallback(() => {
-    if (!showConfirmation) {
-      setShowConfirmation(true);
-      return;
-    }
+  const unlink = useCallback(
+    (e: React.MouseEvent) => {
+      e.stopPropagation();
+      if (!showConfirmation) {
+        setShowConfirmation(true);
+        return;
+      }
 
-    removeProject();
-  }, [showConfirmation, removeProject]);
+      removeProject();
+    },
+    [showConfirmation, removeProject],
+  );
 
   const open = useCallback(
-    () => openInWeb(project.id),
+    (e: React.MouseEvent) => {
+      e.stopPropagation();
+      openInWeb(project.id);
+    },
     [project.id, openInWeb],
   );
 
   return (
     <>
-      <div className="overflow-hidden rounded-md bg-secondary shadow border border-white/10">
+      <button
+        type="button"
+        className="overflow-hidden rounded-md bg-secondary shadow border border-white/10 !cursor-pointer group hover:bg-secondary/50 w-full"
+        onClick={(e) => {
+          e.stopPropagation();
+          navigate(Routes.PROJECT, { id: project.id });
+        }}
+      >
         <div className="px-4 py-2">
           <div className="flex items-center justify-between mb-1 gap-2">
             <Label
               label={project.name}
-              className="font-semibold whitespace-nowrap truncate"
+              className="font-semibold whitespace-nowrap truncate cursor-pointer"
             />
             <div className="flex items-center gap-2">
               <Tooltip text="Unlink project">
@@ -134,7 +151,7 @@ export function LinkedProject({
             </div>
           </div>
         </div>
-      </div>
+      </button>
       <ConfirmationDialog
         title="Unlinking local project"
         description="Are you sure you want to unlink the local project from the remote one? This action cannot be undone."

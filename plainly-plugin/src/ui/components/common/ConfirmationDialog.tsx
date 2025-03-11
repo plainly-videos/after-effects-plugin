@@ -24,7 +24,7 @@ export function ConfirmationDialog({
   buttonText: string;
   open: boolean;
   setOpen: (open: boolean) => void;
-  action: () => void;
+  action: (e: React.MouseEvent) => void;
 }) {
   const [settings] = useGlobalState(State.SETTINGS);
   const sidebarOpen = settings.sidebarOpen;
@@ -69,8 +69,8 @@ export function ConfirmationDialog({
             <div className="mt-4 sm:mt-3 sm:flex sm:flex-row-reverse">
               <Button
                 type="button"
-                onClick={() => {
-                  action();
+                onClick={(e) => {
+                  action(e);
                   setOpen(false);
                 }}
                 className="inline-flex w-full sm:w-auto justify-center sm:ml-2"

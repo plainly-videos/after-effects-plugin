@@ -26,3 +26,17 @@ export function isEmpty<T>(
 ): list is undefined | null | [] {
   return !list || (list && list.length === 0);
 }
+
+export function getIdPage(currentPage: string, match: string): boolean {
+  const pageMatch = currentPage.startsWith(match);
+
+  return pageMatch;
+}
+
+const UUID_REGEX =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
+
+export function extractIdFromPage(page: string) {
+  const id = page.split('/').pop() || '';
+  return id;
+}
