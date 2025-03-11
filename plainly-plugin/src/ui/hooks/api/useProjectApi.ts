@@ -5,7 +5,6 @@ import type FormData from 'form-data';
 import { API_REFETCH_INTERVAL } from '.';
 import { useApiMutation, useApiQuery } from './useApi';
 
-const BASE_PATH = '/projects';
 const PROJECTS_CACHE_ROOT = 'projects';
 
 // refresh project list and search as long as one in analysis
@@ -52,7 +51,7 @@ export const useGetProjects = () => {
   const { isLoading, error, data } = useApiQuery(
     [PROJECTS_CACHE_ROOT],
     async (apiKey) => {
-      const { data } = await get<Project[]>(BASE_PATH, apiKey);
+      const { data } = await get<Project[]>('/projects', apiKey);
       return data;
     },
     {
@@ -70,7 +69,7 @@ export const useGetProjectDetails = (projectId: string | undefined) => {
   const { isLoading, error, data } = useApiQuery(
     cacheKey,
     async (apiKey) => {
-      const { data } = await get<Project>(`${BASE_PATH}/${projectId}`, apiKey);
+      const { data } = await get<Project>(`/projects/${projectId}`, apiKey);
       return data;
     },
     {
@@ -91,7 +90,11 @@ export const useUploadProject = () => {
 
   const { isPending, isError, mutateAsync } = useApiMutation(
     async (apiKey, formData: FormData) => {
-      const { data } = await postFormData<Project>(BASE_PATH, apiKey, formData);
+      const { data } = await postFormData<Project>(
+        '/projects',
+        apiKey,
+        formData,
+      );
       return data;
     },
     {
@@ -111,7 +114,7 @@ export const useEditProject = () => {
       { projectId, formData }: { projectId: string; formData: FormData },
     ) => {
       const { data } = await postFormData<Project>(
-        `${BASE_PATH}/${projectId}`,
+        `/projects/${projectId}`,
         apiKey,
         formData,
       );
