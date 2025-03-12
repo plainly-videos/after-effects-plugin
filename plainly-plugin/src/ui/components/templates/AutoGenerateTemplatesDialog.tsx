@@ -5,14 +5,14 @@ import {
   DialogTitle,
 } from '@headlessui/react';
 import { useNavigate } from '@src/ui/hooks';
-import classNames from 'classnames';
-import { Button, Checkbox, Select } from '../common';
-import { Description, Label } from '../typography';
 import {
   type AnyAutoCreateTemplateDto,
   AutoCreateTemplateType,
 } from '@src/ui/types/template';
+import classNames from 'classnames';
 import { useCallback, useEffect, useState } from 'react';
+import { Button, Checkbox, Select } from '../common';
+import { Description, Label } from '../typography';
 
 const getAutoGenerateIcon = (type: AutoCreateTemplateType) => {
   const className = 'text-base text-white';

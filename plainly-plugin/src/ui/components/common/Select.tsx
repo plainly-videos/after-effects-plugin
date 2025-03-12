@@ -1,13 +1,14 @@
 import {
   Listbox,
   ListboxButton,
-  ListboxOptions,
   ListboxOption,
+  ListboxOptions,
 } from '@headlessui/react';
 import { CheckIcon, ChevronsUpDownIcon } from 'lucide-react';
 import { useState } from 'react';
 
-export function Select<T>({ items }: { items: T[] }) {
+// biome-ignore lint/complexity/noUselessTypeConstraint: <explanation> // fix this
+export function Select<T extends any>({ items }: { items: T[] }) {
   const [selected, setSelected] = useState('-');
 
   return (
@@ -29,12 +30,12 @@ export function Select<T>({ items }: { items: T[] }) {
         >
           {items.map((item) => (
             <ListboxOption
-              key={item.id}
+              key="1"
               value={item}
               className="group relative cursor-default py-1 pr-9 pl-3 text-white select-none data-focus:bg-indigo-500 data-focus:text-white data-focus:outline-hidden"
             >
               <span className="block truncate font-normal group-data-selected:font-semibold">
-                {item}
+                {/* item */}
               </span>
 
               <span className="absolute inset-y-0 right-0 flex items-center pr-4 text-indigo-500 group-not-data-selected:hidden group-data-focus:text-white">

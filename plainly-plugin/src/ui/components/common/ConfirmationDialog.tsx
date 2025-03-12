@@ -5,11 +5,11 @@ import {
   DialogTitle,
 } from '@headlessui/react';
 
+import { useNavigate } from '@src/ui/hooks';
 import classNames from 'classnames';
 import { TriangleAlertIcon } from 'lucide-react';
 import { Button } from '.';
 import { Description } from '../typography';
-import { useNavigate } from '@src/ui/hooks';
 
 export function ConfirmationDialog({
   title,
