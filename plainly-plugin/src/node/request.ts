@@ -1,4 +1,4 @@
-import axios, { type AxiosResponse } from 'axios';
+import axios, { type AxiosRequestConfig, type AxiosResponse } from 'axios';
 import type FormData from 'form-data';
 
 import { apiBaseURL } from '../env';
@@ -14,21 +14,29 @@ const instance = axios.create({
 async function get<T>(
   path: string,
   apiKey: string,
+  config?: AxiosRequestConfig,
 ): Promise<AxiosResponse<T, unknown>> {
   return instance.get(path, {
     auth: {
       username: apiKey,
       password: '',
     },
+    ...config,
   });
 }
 
-async function post(path: string, apiKey: string, body: string) {
+async function post(
+  path: string,
+  apiKey: string,
+  body: string,
+  config?: AxiosRequestConfig,
+) {
   return instance.post(path, body, {
     auth: {
       username: apiKey,
       password: '',
     },
+    ...config,
   });
 }
 
@@ -36,6 +44,7 @@ async function postFormData<T>(
   path: string,
   apiKey: string,
   body: FormData,
+  config?: AxiosRequestConfig,
 ): Promise<AxiosResponse<T, unknown>> {
   return instance.post(path, body, {
     headers: { ...body.getHeaders() },
@@ -43,6 +52,7 @@ async function postFormData<T>(
       username: apiKey,
       password: '',
     },
+    ...config,
   });
 }
 
