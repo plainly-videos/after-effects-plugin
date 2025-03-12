@@ -2,10 +2,10 @@ import { platformBaseUrl } from '@src/env';
 import { useGetProjects, useProjectData } from '@src/ui/hooks';
 import { Routes } from '@src/ui/types';
 import { handleLinkClick, isEmpty } from '@src/ui/utils';
-import { InfoIcon, LoaderCircleIcon } from 'lucide-react';
+import { LoaderCircleIcon } from 'lucide-react';
 import { useCallback, useContext, useMemo } from 'react';
 import { LinkedProject, ProjectsListItem } from '.';
-import { InternalLink } from '../common';
+import { Alert, InternalLink } from '../common';
 import { AuthContext } from '../settings';
 import { Description, Label } from '../typography';
 
@@ -72,11 +72,11 @@ export function ProjectsList() {
                 />
               </>
             ) : (
-              <Description className="flex items-center gap-1 mb-1">
-                <InfoIcon className="size-4 text-blue-400" />
-                Working project is not linked to any project on the Plainly
-                platform.
-              </Description>
+              <Alert
+                title="Working project is not linked to any project on the Plainly platform. If a matching project is listed below, use the Link button to connect it."
+                type="info"
+                className="mb-1"
+              />
             )}
           </div>
 

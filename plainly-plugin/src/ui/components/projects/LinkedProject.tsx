@@ -7,8 +7,8 @@ import {
   ExternalLinkIcon,
   FolderSync,
   LayoutTemplateIcon,
+  LinkIcon,
   LoaderCircleIcon,
-  StarIcon,
   XCircleIcon,
 } from 'lucide-react';
 import { useCallback, useState } from 'react';
@@ -79,12 +79,7 @@ export function LinkedProject({
             />
             <div className="flex items-center gap-2">
               <Tooltip text="Unlink project">
-                <ProjectAction
-                  icon={StarIcon}
-                  action={unlink}
-                  linked
-                  fill="#fff"
-                />
+                <ProjectAction icon={LinkIcon} action={unlink} linked />
               </Tooltip>
               <Tooltip text="Open in web">
                 <ProjectAction icon={ExternalLinkIcon} action={open} linked />

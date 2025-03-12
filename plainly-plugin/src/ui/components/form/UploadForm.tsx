@@ -9,10 +9,11 @@ import {
   useGetProjectDetails,
   useUploadProject,
 } from '@src/ui/hooks/api';
+import { Routes } from '@src/ui/types';
 import type { Project } from '@src/ui/types/project';
 import classNames from 'classnames';
 import { LoaderCircleIcon } from 'lucide-react';
-import { Alert, Button } from '../common';
+import { Alert, Button, InternalLink } from '../common';
 import { AuthContext } from '../settings';
 import { Description, Label, PageHeading } from '../typography';
 
@@ -206,6 +207,20 @@ export function UploadForm() {
                 </div>
               ))}
             </div>
+            {!remoteProjectExists && (
+              <Alert
+                title={
+                  <p>
+                    Working project is not linked to any project on the Plainly
+                    platform. If a matching project exists on the platform, go
+                    to the <InternalLink to={Routes.PROJECTS} text="Projects" />{' '}
+                    tab to link it.
+                  </p>
+                }
+                type="info"
+                className="mt-4"
+              />
+            )}
             {localProjectExists && !remoteProjectExists && (
               <Alert
                 title="Local project that used to exist on the platform, has been removed."
