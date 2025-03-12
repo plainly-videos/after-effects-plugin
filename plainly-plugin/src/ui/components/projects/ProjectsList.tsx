@@ -73,7 +73,7 @@ export function ProjectsList() {
               </>
             ) : (
               <Alert
-                title="Working project is not linked to any project on the Plainly platform. If a matching project exists in the list below, link it with link button."
+                title="Working project is not linked to any project on the Plainly platform. If a matching project is listed below, use the Link button to connect it."
                 type="info"
                 className="mb-1"
               />
