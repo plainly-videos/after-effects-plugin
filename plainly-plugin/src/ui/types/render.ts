@@ -1,7 +1,7 @@
 import type { ModelBaseWithDates } from '.';
 
-// add more if needed
-export type Render = ModelBaseWithDates & {
+// extend when more is needed
+export interface Render extends ModelBaseWithDates {
   projectId: string;
   templateId: string;
   createdBy?: string;
@@ -20,7 +20,7 @@ export type Render = ModelBaseWithDates & {
   thumbnailUris?: string[];
   error: { [key: string]: string | object };
   publicDesign?: boolean;
-};
+}
 
 export enum RenderState {
   PENDING = 'PENDING',

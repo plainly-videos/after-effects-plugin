@@ -78,21 +78,26 @@ export function LinkedProject({
     [project.id, openInWeb],
   );
 
+  const navigateToProjectDetails = useCallback(
+    (e: React.MouseEvent | React.KeyboardEvent) => {
+      e.stopPropagation();
+      navigate(Routes.PROJECT, { id: project.id });
+    },
+    [navigate, project.id],
+  );
+
   return (
     <>
-      <button
-        type="button"
+      <div
         className="overflow-hidden rounded-md bg-secondary shadow border border-white/10 !cursor-pointer group hover:bg-secondary/50 w-full"
-        onClick={(e) => {
-          e.stopPropagation();
-          navigate(Routes.PROJECT, { id: project.id });
-        }}
+        onClick={navigateToProjectDetails}
+        onKeyDown={navigateToProjectDetails}
       >
         <div className="px-4 py-2">
           <div className="flex items-center justify-between mb-1 gap-2">
             <Label
               label={project.name}
-              className="font-semibold whitespace-nowrap truncate cursor-pointer"
+              className="font-medium whitespace-nowrap truncate cursor-pointer"
             />
             <div className="flex items-center gap-2">
               <Tooltip text="Unlink project">
@@ -151,7 +156,7 @@ export function LinkedProject({
             </div>
           </div>
         </div>
-      </button>
+      </div>
       <ConfirmationDialog
         title="Unlinking local project"
         description="Are you sure you want to unlink the local project from the remote one? This action cannot be undone."

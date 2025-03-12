@@ -98,9 +98,12 @@ export function ExportForm() {
 
           <div className="col-span-full">
             <Checkbox
+              id="openLocation"
+              checked={openLocation}
               label="Open location"
               description="Open the folder containing the zip file once the export is done."
               onChange={setOpenLocation}
+              defaultChecked
             />
           </div>
         </div>
