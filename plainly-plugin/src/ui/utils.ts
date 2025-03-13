@@ -69,7 +69,7 @@ export const collectCompositions = (
   }
 
   for (const element of composition.children) {
-    if (element.type === 'COMPOSITION') {
+    if (element.type === AeItemType.COMPOSITION) {
       const children = collectCompositions(
         element as CompositionAeItem,
         maxLevel,

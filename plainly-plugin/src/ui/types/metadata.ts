@@ -1,10 +1,10 @@
-export declare enum AeItemType {
+export enum AeItemType {
   COMPOSITION = 'COMPOSITION',
   MEDIA = 'MEDIA',
   TEXT = 'TEXT',
 }
 
-export declare type AnyAeItem = CompositionAeItem;
+export type AnyAeItem = CompositionAeItem;
 
 export type AeItem<T extends AeItemType> = {
   readonly internalId: string;
