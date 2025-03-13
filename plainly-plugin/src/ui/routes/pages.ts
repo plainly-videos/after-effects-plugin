@@ -35,5 +35,6 @@ export const resources = [
     name: 'About',
     to: Routes.ABOUT,
     icon: InfoIcon,
+    notification: false,
   },
 ];
