@@ -1,24 +1,36 @@
+import classNames from 'classnames';
+
 export function Checkbox({
+  id,
+  checked,
   label,
   description,
   onChange,
+  defaultChecked,
+  disabled,
 }: {
+  id: string;
+  checked: boolean;
   label: string;
   description?: string;
   onChange: React.Dispatch<React.SetStateAction<boolean>>;
+  defaultChecked?: boolean;
+  disabled?: boolean;
 }) {
   return (
-    <div className="flex gap-3">
+    <div className={classNames('flex gap-3', disabled && 'opacity-50')}>
       <div className="flex h-6 shrink-0 items-center">
         <div className="group grid size-4 grid-cols-1">
           <input
-            defaultChecked
-            id="comments"
-            name="comments"
+            defaultChecked={defaultChecked}
+            checked={checked}
+            id={id}
+            name={id}
             type="checkbox"
             aria-describedby="comments-description"
-            className="col-start-1 row-start-1 appearance-none rounded border border-white/10 bg-white/5 checked:border-indigo-600 checked:bg-indigo-600 indeterminate:border-indigo-600 indeterminate:bg-indigo-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:border-white/10 disabled:bg-transparent forced-colors:appearance-auto"
+            className="col-start-1 row-start-1 appearance-none rounded border border-white/10 bg-white/5 checked:border-indigo-600 checked:bg-indigo-600 indeterminate:border-indigo-600 indeterminate:bg-indigo-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:border-white/10 disabled:bg-transparent forced-colors:appearance-auto disabled:cursor-not-allowed"
             onChange={(e) => onChange(e.target.checked)}
+            disabled={disabled}
           />
           <svg
             fill="none"

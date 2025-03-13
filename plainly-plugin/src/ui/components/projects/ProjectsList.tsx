@@ -49,8 +49,8 @@ export function ProjectsList() {
         <div className="p-4 text-center">
           <p className="text-sm text-gray-400">
             No projects found. Start by{' '}
-            <InternalLink to={Routes.UPLOAD} text="uploading" /> your first your
-            first project.
+            <InternalLink to={{ path: Routes.PROJECTS }} text="uploading" />{' '}
+            your first your first project.
           </p>
         </div>
       )}

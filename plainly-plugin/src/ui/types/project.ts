@@ -1,5 +1,8 @@
 import type { ModelBaseWithDates } from '.';
+import type { CompositionAeItem } from './metadata';
+import type { Template } from './template';
 
+// extend when more is needed
 export interface Project extends ModelBaseWithDates {
   analysis: ProjectAnalysis;
   uploaded: boolean;
@@ -11,7 +14,7 @@ export interface Project extends ModelBaseWithDates {
   revisionHistory?: ProjectRevision[];
   analyzed: boolean;
   size: number;
-  templates: Record<string, unknown>[]; // extend when more is needed
+  templates: Template[];
 }
 
 interface ProjectAnalysis {
@@ -28,3 +31,5 @@ interface ProjectRevision {
   expiredDate?: string;
   expired: boolean;
 }
+
+export type ProjectMetaData = CompositionAeItem[];
