@@ -5,10 +5,8 @@ import { apiBaseURL } from '../env';
 
 const instance = axios.create({
   adapter: 'http',
-  baseURL: apiBaseURL,
-  headers: {
-    'Content-Type': 'application/json',
-  },
+  baseURL: `${apiBaseURL}/api/v2`,
+  headers: { 'Content-Type': 'application/json' },
 });
 
 async function get<T>(
