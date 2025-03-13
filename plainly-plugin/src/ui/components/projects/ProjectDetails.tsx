@@ -5,8 +5,7 @@ import { FunctionSquareIcon, LoaderCircleIcon } from 'lucide-react';
 import { useContext, useMemo, useState } from 'react';
 import { Breadcrumb, Breadcrumbs, Tooltip } from '../common';
 import { AuthContext } from '../settings';
-import { AutoGenerateTemplatesDialog } from '../templates';
-import TemplatesList from '../templates/TemplateList';
+import { AutoGenerateTemplatesDialog, TemplatesList } from '../templates';
 import { Description, Label } from '../typography';
 import { ProjectAction } from './ProjectAction';
 
@@ -83,7 +82,7 @@ export function ProjectDetails({ id }: { id: string }) {
         id={project.id}
         title="Auto-generate templates"
         buttonText="Generate"
-        open={true}
+        open={showAutoGenerateModal}
         setOpen={setShowAutoGenerateModal}
       />
     </>

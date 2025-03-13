@@ -1,9 +1,8 @@
 import type { Template } from '@src/ui/types/template';
 import { TemplateListItem } from './TemplateListItem';
 
-export default function TemplatesList({
-  templates,
-}: { templates: Template[] }) {
+// TODO: Finish looks in next PR
+export function TemplatesList({ templates }: { templates: Template[] }) {
   return (
     <div>
       {templates.map((template: Template) => {

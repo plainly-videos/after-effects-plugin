@@ -25,10 +25,10 @@ async function get<T>(
   });
 }
 
-async function post(
+async function post<T>(
   path: string,
   apiKey: string,
-  body: string,
+  body: T,
   config?: AxiosRequestConfig,
 ) {
   return instance.post(path, body, {

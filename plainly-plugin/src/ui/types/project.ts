@@ -1,4 +1,5 @@
 import type { ModelBaseWithDates } from '.';
+import type { CompositionAeItem } from './metadata';
 import type { Template } from './template';
 
 // extend when more is needed
@@ -30,3 +31,5 @@ interface ProjectRevision {
   expiredDate?: string;
   expired: boolean;
 }
+
+export type ProjectMetaData = CompositionAeItem[];

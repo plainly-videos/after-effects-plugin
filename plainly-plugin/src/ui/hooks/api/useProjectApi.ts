@@ -1,5 +1,5 @@
 import { get, postFormData } from '@src/node/request';
-import type { Project } from '@src/ui/types/project';
+import type { Project, ProjectMetaData } from '@src/ui/types/project';
 import {
   type QueryClient,
   useMutation,
@@ -35,7 +35,7 @@ const projectsCacheAdd = (client: QueryClient, project: Project) => {
   client.setQueryData([PROJECTS_CACHE_ROOT, project.id], project);
 };
 
-const projectCacheReplace = (client: QueryClient, project: Project) => {
+export const projectCacheReplace = (client: QueryClient, project: Project) => {
   // Update the list
   client.setQueryData<Project[]>([PROJECTS_CACHE_ROOT], (projects) =>
     projects
@@ -132,4 +132,26 @@ export const useEditProject = () => {
   });
 
   return { isPending, isError, mutateAsync };
+};
+
+export const useGetProjectMetadata = (
+  apiKey: string,
+  projectId: string,
+  enabled: boolean,
+  refetchOnMount?: boolean,
+) => {
+  const cacheKey = [PROJECTS_CACHE_ROOT, projectId, 'metadata'];
+
+  const { isLoading, isRefetching, data } = useQuery({
+    queryKey: cacheKey,
+    queryFn: async () => {
+      const { data } = await get<ProjectMetaData>(
+        `api/v2/projects/${projectId}/meta`,
+        apiKey,
+      );
+      return data;
+    },
+  });
+
+  return { isLoading, isRefetching, data };
 };
