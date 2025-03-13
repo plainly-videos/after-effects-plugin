@@ -19,4 +19,5 @@ export interface Settings {
     key: string;
     encrypted: boolean;
   };
+  showUpdate?: boolean;
 }

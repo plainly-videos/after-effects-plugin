@@ -14,6 +14,7 @@ export function SidebarLinks({
     icon: ForwardRefExoticComponent<
       Omit<LucideProps, 'ref'> & RefAttributes<SVGSVGElement>
     >;
+    notification?: boolean;
   }[];
 }) {
   const { navigate, currentPage, sidebarOpen } = useNavigate();
@@ -35,7 +36,12 @@ export function SidebarLinks({
                     'group flex gap-x-2 rounded-md px-2 py-1 text-xs font-medium relative items-center w-full h-[25px]',
                   )}
                 >
-                  <link.icon aria-hidden="true" className="size-4 shrink-0" />
+                  <div className="relative">
+                    <link.icon aria-hidden="true" className="size-4 shrink-0" />
+                    {link.notification && (
+                      <div className="absolute w-1 h-1 bg-indigo-500 rounded-full top-0 -right-1" />
+                    )}
+                  </div>
                   {sidebarOpen && link.name}
                 </button>
               </Tooltip>

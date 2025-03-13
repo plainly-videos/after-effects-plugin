@@ -11,11 +11,11 @@ const instance = axios.create({
 
 async function get<T>(
   path: string,
-  apiKey: string,
+  apiKey: string | undefined,
 ): Promise<AxiosResponse<T, unknown>> {
   return instance.get(path, {
     auth: {
-      username: apiKey,
+      username: apiKey || '',
       password: '',
     },
   });

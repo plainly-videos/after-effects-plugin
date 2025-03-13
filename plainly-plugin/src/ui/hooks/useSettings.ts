@@ -20,6 +20,10 @@ type Action =
     }
   | {
       type: 'CLEAR_SETTINGS_API_KEY';
+    }
+  | {
+      type: 'SET_SHOW_UPDATE';
+      payload: Settings['showUpdate'];
     };
 
 function settingsReducer(settings: Settings, action: Action) {
@@ -38,6 +42,12 @@ function settingsReducer(settings: Settings, action: Action) {
         return {
           ...settings,
           apiKey: undefined,
+        };
+      }
+      case 'SET_SHOW_UPDATE': {
+        return {
+          ...settings,
+          showUpdate: action.payload,
         };
       }
       default:
@@ -132,6 +142,10 @@ export const useSettings = () => {
     });
   }, []);
 
+  const setShowUpdate = useCallback((showUpdate: boolean) => {
+    dispatch({ type: 'SET_SHOW_UPDATE', payload: showUpdate });
+  }, []);
+
   return {
     apiKeySet: !!settings.apiKey,
     apiKeyEncrypted: settings.apiKey?.encrypted,
@@ -139,5 +153,7 @@ export const useSettings = () => {
     getSettingsApiKey,
     setSettingsApiKey,
     clearApiKey,
+    showUpdate: !!settings.showUpdate,
+    setShowUpdate,
   };
 };
