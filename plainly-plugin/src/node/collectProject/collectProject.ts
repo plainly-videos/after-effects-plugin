@@ -69,10 +69,9 @@ async function copyFonts(fonts: Fonts[], targetDir: string) {
 
   // Remove duplicates based on fontLocation
   const uniqueFonts = fonts.reduce((acc, font) => {
-    if (acc.some((f) => f.fontLocation === font.fontLocation)) {
-      return acc;
+    if (!acc.some((f) => f.fontLocation === font.fontLocation)) {
+      acc.push(font);
     }
-    acc.push(font);
     return acc;
   }, [] as Fonts[]);
 
