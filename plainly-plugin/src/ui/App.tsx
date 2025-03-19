@@ -1,6 +1,12 @@
 import { isDev, pluginBundleVersion } from '@src/env';
 import { useMemo } from 'react';
-import { Button, ExternalLink, NoticeBanner, Sidebar } from './components';
+import {
+  Button,
+  ExternalLink,
+  NoticeBanner,
+  Sidebar,
+  UiProvider,
+} from './components';
 import { useGetLatestGithubRelease, useNavigate } from './hooks';
 import {
   AboutRoute,
@@ -42,7 +48,7 @@ export function App() {
         </Button>
       )}
       <Sidebar />
-      {route}
+      <UiProvider props={{ hasBanner: showBanner }}>{route}</UiProvider>
       <NoticeBanner show={showBanner}>
         <p className="text-white text-xs font-medium">
           New version is out! Read{' '}
