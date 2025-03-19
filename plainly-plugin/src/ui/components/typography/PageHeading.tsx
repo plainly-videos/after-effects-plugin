@@ -14,7 +14,7 @@ export function PageHeading({
         className={classNames(
           'text-sm/7 font-medium text-white',
           className,
-          hasBanner && 'mt-4',
+          hasBanner && 'mt-4 sm:mt-0',
         )}
       >
         {heading}
