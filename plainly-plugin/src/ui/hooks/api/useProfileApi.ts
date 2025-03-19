@@ -4,7 +4,10 @@ import { useMutation } from '@tanstack/react-query';
 export const useUserProfile = () => {
   const { isPending, error, mutateAsync } = useMutation({
     mutationFn: async (apiKey: string) => {
-      const { data } = await get('/user/me', apiKey);
+      const { data } = await get<{
+        organizationId: string;
+        organizationName: string;
+      }>('/me', apiKey);
       return data;
     },
   });
