@@ -15,7 +15,7 @@ async function get<T>(
 ): Promise<AxiosResponse<T, unknown>> {
   return instance.get(path, {
     auth: {
-      username: apiKey || '',
+      username: apiKey,
       password: '',
     },
   });

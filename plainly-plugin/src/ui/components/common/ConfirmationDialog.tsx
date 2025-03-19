@@ -7,7 +7,7 @@ import {
 
 import { State, useGlobalState } from '@src/ui/state/store';
 import classNames from 'classnames';
-import { InfoIcon, TriangleAlertIcon } from 'lucide-react';
+import { TriangleAlertIcon } from 'lucide-react';
 import { Button } from '.';
 import { Description } from '../typography';
 
@@ -18,17 +18,13 @@ export function ConfirmationDialog({
   open,
   setOpen,
   action,
-  type = 'warning',
-  children,
 }: {
   title: string;
-  description?: string | React.ReactNode;
+  description?: string;
   buttonText: string;
   open: boolean;
   setOpen: (open: boolean) => void;
   action: () => void;
-  type?: 'warning' | 'info';
-  children?: React.ReactNode;
 }) {
   const [settings] = useGlobalState(State.SETTINGS);
   const sidebarOpen = settings.sidebarOpen;
@@ -51,18 +47,10 @@ export function ConfirmationDialog({
           >
             <div className="sm:flex sm:items-start">
               <div className="mx-auto flex size-10 shrink-0 items-center justify-center sm:mx-0 sm:size-8">
-                {type === 'warning' && (
-                  <TriangleAlertIcon
-                    aria-hidden="true"
-                    className="size-6 text-red-400"
-                  />
-                )}
-                {type === 'info' && (
-                  <InfoIcon
-                    aria-hidden="true"
-                    className="size-6 text-blue-400"
-                  />
-                )}
+                <TriangleAlertIcon
+                  aria-hidden="true"
+                  className="size-6 text-red-400"
+                />
               </div>
               <div className="mt-2 text-center sm:ml-4 sm:mt-0 sm:text-left">
                 <DialogTitle
@@ -72,11 +60,10 @@ export function ConfirmationDialog({
                   {title}
                 </DialogTitle>
                 {description && (
-                  <div className="mt-1 mb-4">
+                  <div className="mt-1">
                     <Description>{description}</Description>
                   </div>
                 )}
-                {children}
               </div>
             </div>
             <div className="mt-4 sm:mt-3 sm:flex sm:flex-row-reverse">

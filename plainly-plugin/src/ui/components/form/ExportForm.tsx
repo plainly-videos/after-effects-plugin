@@ -101,7 +101,6 @@ export function ExportForm() {
               label="Open location"
               description="Open the folder containing the zip file once the export is done."
               onChange={setOpenLocation}
-              defaultChecked
             />
           </div>
         </div>

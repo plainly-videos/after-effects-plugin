@@ -1,24 +1,18 @@
-import classNames from 'classnames';
-
 export function Checkbox({
   label,
   description,
   onChange,
-  className,
-  defaultChecked,
 }: {
   label: string;
   description?: string;
   onChange: React.Dispatch<React.SetStateAction<boolean>>;
-  className?: string;
-  defaultChecked?: boolean;
 }) {
   return (
-    <div className={classNames('flex gap-3', className)}>
+    <div className="flex gap-3">
       <div className="flex h-6 shrink-0 items-center">
         <div className="group grid size-4 grid-cols-1">
           <input
-            defaultChecked={defaultChecked}
+            defaultChecked
             id="comments"
             name="comments"
             type="checkbox"
