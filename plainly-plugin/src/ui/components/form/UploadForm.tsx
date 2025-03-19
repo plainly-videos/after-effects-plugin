@@ -1,5 +1,5 @@
 import FormData from 'form-data';
-import { useCallback, useContext, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { makeProjectZipTmpDir, removeFolder } from '../../../node';
 
 import fs from 'fs';
@@ -14,13 +14,11 @@ import type { Project } from '@src/ui/types/project';
 import classNames from 'classnames';
 import { LoaderCircleIcon } from 'lucide-react';
 import { Alert, Button, InternalLink } from '../common';
-import { AuthContext } from '../settings';
 import { Description, Label, PageHeading } from '../typography';
 
 export function UploadForm() {
-  const { apiKey } = useContext(AuthContext);
   const [projectData, setProjectData] = useProjectData();
-  const { isLoading, data } = useGetProjectDetails(projectData?.id, apiKey);
+  const { isLoading, data } = useGetProjectDetails(projectData?.id);
   const { isPending: isUploading, mutateAsync: uploadProject } =
     useUploadProject();
   const { isPending: isEditing, mutateAsync: editProject } = useEditProject();
@@ -95,12 +93,11 @@ export function UploadForm() {
 
       if (remoteProjectExists && editing) {
         project = await editProject({
-          apiKey,
           projectId: projectData.id,
           formData,
         });
       } else {
-        project = await uploadProject({ apiKey, formData });
+        project = await uploadProject(formData);
       }
 
       if (project) {
