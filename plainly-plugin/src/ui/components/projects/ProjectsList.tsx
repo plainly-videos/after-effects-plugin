@@ -1,7 +1,7 @@
 import { platformBaseUrl } from '@src/env';
-import { useGetProjects, useProjectData } from '@src/ui/hooks';
+import { useGetProjects, useNavigate, useProjectData } from '@src/ui/hooks';
 import { Routes } from '@src/ui/types';
-import { handleLinkClick, isEmpty } from '@src/ui/utils';
+import { isEmpty } from '@src/ui/utils';
 import { LoaderCircleIcon } from 'lucide-react';
 import { useCallback, useMemo } from 'react';
 import { LinkedProject, ProjectsListItem } from '.';
@@ -9,6 +9,7 @@ import { Alert, InternalLink } from '../common';
 import { Description, Label } from '../typography';
 
 export function ProjectsList() {
+  const { handleLinkClick } = useNavigate();
   const [projectData, setProjectData, removeProjectData] = useProjectData();
   const { isLoading, data } = useGetProjects();
 
@@ -31,9 +32,12 @@ export function ProjectsList() {
 
   const linkedExists = useMemo(() => !!linkedProject, [linkedProject]);
 
-  const openInWeb = useCallback((projectId: string) => {
-    handleLinkClick(`${platformBaseUrl}/dashboard/projects/${projectId}`);
-  }, []);
+  const openInWeb = useCallback(
+    (projectId: string) => {
+      handleLinkClick(`${platformBaseUrl}/dashboard/projects/${projectId}`);
+    },
+    [handleLinkClick],
+  );
 
   if (isLoading) {
     return (

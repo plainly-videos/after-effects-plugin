@@ -11,7 +11,7 @@ const instance = axios.create({
 
 async function get<T>(
   path: string,
-  apiKey: string | undefined,
+  apiKey: string,
 ): Promise<AxiosResponse<T, unknown>> {
   return instance.get(path, {
     auth: {

@@ -1,15 +1,10 @@
-import { useGetLatestGithubRelease } from '@src/ui/hooks';
+import { useNavigate } from '@src/ui/hooks';
 import classNames from 'classnames';
 import { pluginBundleVersion } from '../../../env';
-import { handleLinkClick } from '../../utils';
-import { Alert, ExternalLink } from '../common';
 import { Description, Label, PageHeading } from '../typography';
 
 export function About() {
-  const { data } = useGetLatestGithubRelease();
-
-  const latestReleaseVersion = data?.tag_name.replace('v', '');
-  const newVersionAvailable = pluginBundleVersion !== latestReleaseVersion;
+  const { handleLinkClick } = useNavigate();
 
   const pluginBasics = [
     { label: 'Name', value: 'Plainly Videos Plugin' },
@@ -52,7 +47,7 @@ export function About() {
           <button
             type="button"
             className="underline text-white"
-            onClick={handleLinkClick.bind(null, 'https://plainlyvideos.com')}
+            onClick={() => handleLinkClick('https://plainlyvideos.com')}
           >
             Plainly Videos,
           </button>{' '}
@@ -62,38 +57,15 @@ export function About() {
           <button
             type="button"
             className="underline text-white"
-            onClick={handleLinkClick.bind(
-              null,
-              'https://app.plainlyvideos.com/sign-up',
-            )}
+            onClick={() =>
+              handleLinkClick('https://app.plainlyvideos.com/sign-up')
+            }
           >
             sign up
           </button>{' '}
           at Plainly.
         </Description>
       </div>
-      {newVersionAvailable && data && (
-        <Alert
-          type="info"
-          title={
-            <>
-              A new version of the extension is available! Updating ensures you
-              get the latest features, performance improvements, and critical
-              bug fixes. Check out what's new in the{' '}
-              <ExternalLink
-                to={`https://github.com/plainly-videos/after-effects-plugin/releases/tag/v${data.tag_name}`}
-                text="latest changelog"
-              />{' '}
-              and{' '}
-              <ExternalLink
-                to="https://exchange.adobe.com/apps/cc/202811/plainly-videos"
-                text="update now"
-              />{' '}
-              to stay up to date!
-            </>
-          }
-        />
-      )}
       <div>
         <Label label="Plugin basics" />
         <div className="grid grid-cols-3 border-t border-l border-r border-white/10 text-xs mt-2">
@@ -117,7 +89,7 @@ export function About() {
                   link ? 'cursor-pointer underline' : 'cursor-default',
                 )}
                 key={value}
-                onClick={handleLinkClick.bind(null, link)}
+                onClick={() => handleLinkClick(link)}
               >
                 {value}
               </button>

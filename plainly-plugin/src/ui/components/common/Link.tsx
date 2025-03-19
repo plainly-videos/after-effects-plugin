@@ -1,6 +1,5 @@
 import { useNavigate } from '@src/ui/hooks';
 import type { Routes } from '@src/ui/types';
-import { handleLinkClick } from '@src/ui/utils';
 
 export function Link({ text, onClick }: { text: string; onClick: () => void }) {
   return (
@@ -15,7 +14,8 @@ export function Link({ text, onClick }: { text: string; onClick: () => void }) {
 }
 
 export function ExternalLink({ to, text }: { to: string; text: string }) {
-  return <Link text={text} onClick={handleLinkClick.bind(null, to)} />;
+  const { handleLinkClick } = useNavigate();
+  return <Link text={text} onClick={() => handleLinkClick(to)} />;
 }
 
 export function InternalLink({ to, text }: { to: Routes; text: string }) {
