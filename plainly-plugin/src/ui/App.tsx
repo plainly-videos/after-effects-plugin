@@ -51,7 +51,7 @@ export function App() {
       <UiProvider props={{ hasBanner: showBanner }}>{route}</UiProvider>
       <NoticeBanner show={showBanner}>
         <p className="text-white text-xs font-medium">
-          New version is out! Read{' '}
+          A new version is available! 🚀 See{' '}
           <ExternalLink
             to={`https://github.com/plainly-videos/after-effects-plugin/releases/tag/${data?.tag_name}`}
             text="what's new"
