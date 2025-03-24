@@ -1,6 +1,6 @@
 import { isDev, pluginBundleVersion } from '@src/env';
 import { useMemo } from 'react';
-import { Button, ExternalLink, Banner, Sidebar } from './components';
+import { Banner, Button, ExternalLink, Sidebar } from './components';
 import { useGetLatestGithubRelease, useNavigate } from './hooks';
 import {
   AboutRoute,
