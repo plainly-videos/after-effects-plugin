@@ -5,4 +5,4 @@ export * from './Button';
 export * from './Checkbox';
 export * from './NotificationsOverlay';
 export * from './Tooltip';
-export * from './NoticeBanner';
+export * from './Banner';

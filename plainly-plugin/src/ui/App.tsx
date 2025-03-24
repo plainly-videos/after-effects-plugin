@@ -1,6 +1,6 @@
 import { isDev, pluginBundleVersion } from '@src/env';
 import { useMemo } from 'react';
-import { Button, ExternalLink, NoticeBanner, Sidebar } from './components';
+import { Button, ExternalLink, Banner, Sidebar } from './components';
 import { useGetLatestGithubRelease, useNavigate } from './hooks';
 import {
   AboutRoute,
@@ -42,7 +42,7 @@ export function App() {
         </Button>
       )}
       <Sidebar />
-      <NoticeBanner show={showBanner}>
+      <Banner show={showBanner}>
         <p className="text-white text-xs font-medium">
           A new version is available! 🚀 See{' '}
           <ExternalLink
@@ -56,7 +56,7 @@ export function App() {
           />
           .
         </p>
-      </NoticeBanner>
+      </Banner>
 
       <div className="flex-1 overflow-y-auto">{route}</div>
     </div>
