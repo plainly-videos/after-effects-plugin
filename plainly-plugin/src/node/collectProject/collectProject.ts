@@ -67,10 +67,18 @@ async function copyFonts(fonts: Fonts[], targetDir: string) {
     return;
   }
 
+  // Remove duplicates based on fontLocation
+  const uniqueFonts = fonts.reduce((acc, font) => {
+    if (!acc.some((f) => f.fontLocation === font.fontLocation)) {
+      acc.push(font);
+    }
+    return acc;
+  }, [] as Fonts[]);
+
   const fontsDir = path.join(targetDir, 'Fonts');
   await fsPromises.mkdir(fontsDir);
 
-  const fontPromises = fonts.map(async (font) => {
+  const fontPromises = uniqueFonts.map(async (font) => {
     const src = finalizePath(font.fontLocation);
 
     const dest = path.join(fontsDir, `${font.fontName}.${font.fontExtension}`);
