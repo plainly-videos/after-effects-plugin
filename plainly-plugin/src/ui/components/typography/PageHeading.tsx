@@ -1,22 +1,15 @@
 import classNames from 'classnames';
-import { useContext } from 'react';
-import { UiContext } from '../context';
 
 export function PageHeading({
   heading,
   className,
-}: { heading: string; className?: string }) {
-  const { hasBanner } = useContext(UiContext);
-
+}: {
+  heading: string;
+  className?: string;
+}) {
   return (
     <div>
-      <h2
-        className={classNames(
-          'text-sm/7 font-medium text-white',
-          className,
-          hasBanner && 'mt-4 sm:mt-0',
-        )}
-      >
+      <h2 className={classNames('text-sm/7 font-medium text-white', className)}>
         {heading}
       </h2>
     </div>

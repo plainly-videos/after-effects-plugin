@@ -18,7 +18,7 @@ export function MainWrapper({
           : 'pl-[3.75rem]',
       )}
     >
-      <div className="p-6 sm:p-14 lg:p-20 min-h-screen justify-between items-center flex flex-col">
+      <div className='p-4 sm:p-14 lg:p-20 justify-between items-center flex flex-col'>
         {children}
       </div>
       <NotificationsOverlay />

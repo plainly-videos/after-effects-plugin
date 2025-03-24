@@ -11,7 +11,7 @@ export function NoticeBanner({
     <div
       className={classNames(
         show ? 'flex' : 'hidden',
-        'fixed top-0 h-6 bg-indigo-500 justify-center items-center',
+        'h-6 bg-indigo-500 bg-opacity-50 justify-center items-center',
         sidebarOpen
           ? 'ml-[3.75rem] xs:ml-36 mr-[3.75rem] w-[calc(100%-3.75rem)] xs:w-[calc(100%-9rem)]'
           : 'ml-[3.75rem] w-[calc(100%-3.75rem)]',
