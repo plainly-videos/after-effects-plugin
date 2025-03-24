@@ -1,9 +1,11 @@
+import { useNavigate } from '@src/ui/hooks';
 import classNames from 'classnames';
 import { pluginBundleVersion } from '../../../env';
-import { handleLinkClick } from '../../utils';
 import { Description, Label, PageHeading } from '../typography';
 
 export function About() {
+  const { handleLinkClick } = useNavigate();
+
   const pluginBasics = [
     { label: 'Name', value: 'Plainly Videos Plugin' },
     { label: 'Version', value: `${pluginBundleVersion}` },
@@ -45,7 +47,7 @@ export function About() {
           <button
             type="button"
             className="underline text-white"
-            onClick={handleLinkClick.bind(null, 'https://plainlyvideos.com')}
+            onClick={() => handleLinkClick('https://plainlyvideos.com')}
           >
             Plainly Videos,
           </button>{' '}
@@ -55,10 +57,9 @@ export function About() {
           <button
             type="button"
             className="underline text-white"
-            onClick={handleLinkClick.bind(
-              null,
-              'https://app.plainlyvideos.com/sign-up',
-            )}
+            onClick={() =>
+              handleLinkClick('https://app.plainlyvideos.com/sign-up')
+            }
           >
             sign up
           </button>{' '}
@@ -88,7 +89,7 @@ export function About() {
                   link ? 'cursor-pointer underline' : 'cursor-default',
                 )}
                 key={value}
-                onClick={handleLinkClick.bind(null, link)}
+                onClick={() => handleLinkClick(link)}
               >
                 {value}
               </button>

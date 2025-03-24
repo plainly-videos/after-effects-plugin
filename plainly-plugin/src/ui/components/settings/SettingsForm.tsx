@@ -1,10 +1,10 @@
 import {
+  useNavigate,
   useNotifications,
   useSessionStorage,
   useSettings,
 } from '@src/ui/hooks';
 import { Pin } from '@src/ui/types';
-import { handleLinkClick } from '@src/ui/utils';
 import {
   CircleCheckIcon,
   EyeIcon,
@@ -18,6 +18,7 @@ import { Button } from '../common';
 import { Description, Label, PageHeading } from '../typography';
 
 export function SettingsForm() {
+  const { handleLinkClick } = useNavigate();
   const { notifySuccess, notifyError } = useNotifications();
   const {
     apiKeySet,
@@ -124,10 +125,11 @@ export function SettingsForm() {
                   <button
                     type="button"
                     className="underline text-white"
-                    onClick={handleLinkClick.bind(
-                      null,
-                      'https://app.plainlyvideos.com/dashboard/user/settings/general',
-                    )}
+                    onClick={() =>
+                      handleLinkClick(
+                        'https://app.plainlyvideos.com/dashboard/user/settings/general',
+                      )
+                    }
                   >
                     Settings page
                   </button>

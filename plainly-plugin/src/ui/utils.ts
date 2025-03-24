@@ -15,12 +15,6 @@ export function reloadExtension(): void {
   }
 }
 
-export function handleLinkClick(link: string | undefined) {
-  if (!link) return;
-  // @ts-expect-error
-  cep.util.openURLInDefaultBrowser(link);
-}
-
 export function isEmpty<T>(
   list: T[] | null | undefined,
 ): list is undefined | null | [] {

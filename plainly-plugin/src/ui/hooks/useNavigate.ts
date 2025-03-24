@@ -19,5 +19,11 @@ export const useNavigate = () => {
     [biggerThanXS, settings, sidebarOpen],
   );
 
-  return { navigate, currentPage, sidebarOpen };
+  const handleLinkClick = useCallback((link: string | undefined) => {
+    if (!link) return;
+    // @ts-expect-error
+    cep.util.openURLInDefaultBrowser(link);
+  }, []);
+
+  return { navigate, currentPage, sidebarOpen, handleLinkClick };
 };

@@ -1,6 +1,7 @@
-import { isDev } from '@src/env';
+import { isDev, pluginBundleVersion } from '@src/env';
 import { useMemo } from 'react';
-import { Button, Sidebar } from './components';
+import { Banner, Button, ExternalLink, Sidebar } from './components';
+import { useGetLatestGithubRelease, useNavigate } from './hooks';
 import {
   AboutRoute,
   ExportRoute,
@@ -8,12 +9,15 @@ import {
   SettingsRoute,
   UploadRoute,
 } from './routes';
-import { State, useGlobalState } from './state/store';
 import { reloadExtension } from './utils';
 
 export function App() {
-  const [settings] = useGlobalState(State.SETTINGS);
-  const currentPage = settings.currentPage;
+  const { currentPage } = useNavigate();
+  const { data } = useGetLatestGithubRelease();
+
+  const latestReleaseVersion = data?.tag_name.replace('v', '');
+  const newVersionAvailable = pluginBundleVersion !== latestReleaseVersion;
+  const showBanner = !!data && newVersionAvailable;
 
   // Add new pages here and to pages.ts
   const route = useMemo(() => {
@@ -27,7 +31,7 @@ export function App() {
   }, [currentPage]);
 
   return (
-    <>
+    <div className="h-screen w-screen flex flex-col overflow-hidden">
       {isDev && (
         <Button
           secondary
@@ -38,7 +42,23 @@ export function App() {
         </Button>
       )}
       <Sidebar />
-      {route}
-    </>
+      <Banner show={showBanner}>
+        <p className="text-white text-xs font-medium">
+          A new version is available! 🚀 See{' '}
+          <ExternalLink
+            to={`https://github.com/plainly-videos/after-effects-plugin/releases/tag/${data?.tag_name}`}
+            text="what's new"
+          />{' '}
+          and{' '}
+          <ExternalLink
+            to="https://exchange.adobe.com/apps/cc/202811/plainly-videos"
+            text="upgrade"
+          />
+          .
+        </p>
+      </Banner>
+
+      <div className="flex-1 overflow-y-auto">{route}</div>
+    </div>
   );
 }
