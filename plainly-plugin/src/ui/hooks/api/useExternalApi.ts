@@ -1,4 +1,3 @@
-import type { Endpoints } from '@octokit/types';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 
@@ -6,8 +5,7 @@ const instance = axios.create({
   adapter: 'http',
 });
 
-type LatestReleaseResponse =
-  Endpoints['GET /repos/{owner}/{repo}/releases/latest']['response']['data'];
+type LatestReleaseResponse = { tag_name: string };
 
 export const useGetLatestGithubRelease = (enabled = true) => {
   const { isLoading, error, data } = useQuery({
