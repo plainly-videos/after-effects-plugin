@@ -12,7 +12,7 @@ import {
   VideoIcon,
   XCircleIcon,
 } from 'lucide-react';
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { ProjectAction } from '.';
 import { ConfirmationDialog, Tooltip } from '../common';
 import { Label } from '../typography';
@@ -76,6 +76,8 @@ export function LinkedProject({
     [project.id, openProjectRenders],
   );
 
+  const templatesLength = useMemo(() => project.templates.length, [project]);
+
   return (
     <>
       <div className="overflow-hidden rounded-md bg-secondary shadow border border-white/10">
@@ -121,13 +123,11 @@ export function LinkedProject({
             <div className="flex flex-col gap-1">
               <div className="flex items-center gap-1">
                 <LayoutTemplateIcon className="size-3" />
-                {project.templates.length === 0 && <p>No templates</p>}
-                {project.templates.length === 1 && (
-                  <p>{project.templates.length} template</p>
-                )}
-                {project.templates.length > 1 && (
-                  <p>{project.templates.length} templates</p>
-                )}
+                <p>
+                  {templatesLength === 0 && 'No templates'}
+                  {templatesLength === 1 && '1 template'}
+                  {templatesLength > 1 && `${templatesLength} templates`}
+                </p>
               </div>
               <div className="flex items-center gap-1">
                 <CalendarIcon className="size-3" />
