@@ -39,6 +39,15 @@ export function ProjectsList() {
     [handleLinkClick],
   );
 
+  const openProjectRenders = useCallback(
+    (projectId: string) => {
+      handleLinkClick(
+        `${platformBaseUrl}/dashboard/renders?projectId=${projectId}`,
+      );
+    },
+    [handleLinkClick],
+  );
+
   if (isLoading) {
     return (
       <LoaderCircleIcon className="animate-spin shrink-0 mx-auto size-6 text-white my-auto" />
@@ -71,6 +80,7 @@ export function ProjectsList() {
                   project={linkedProject}
                   removeProject={removeProjectData}
                   openInWeb={openInWeb}
+                  openProjectRenders={openProjectRenders}
                 />
               </>
             ) : (
@@ -94,6 +104,7 @@ export function ProjectsList() {
                   project={project}
                   linkProject={setProjectData}
                   openInWeb={openInWeb}
+                  openProjectRenders={openProjectRenders}
                   linkedExists={linkedExists}
                 />
               ))}

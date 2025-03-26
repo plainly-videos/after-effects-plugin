@@ -9,6 +9,7 @@ import {
   LayoutTemplateIcon,
   LinkIcon,
   LoaderCircleIcon,
+  VideoIcon,
   XCircleIcon,
 } from 'lucide-react';
 import { useCallback, useState } from 'react';
@@ -20,10 +21,12 @@ export function LinkedProject({
   project,
   removeProject,
   openInWeb,
+  openProjectRenders,
 }: {
   project: Project;
   removeProject: () => void;
   openInWeb: (id: string) => void;
+  openProjectRenders: (id: string) => void;
 }) {
   const [projectData] = useProjectData();
   const [showConfirmation, setShowConfirmation] = useState(false);
@@ -68,6 +71,11 @@ export function LinkedProject({
     [project.id, openInWeb],
   );
 
+  const openRenders = useCallback(
+    () => openProjectRenders(project.id),
+    [project.id, openProjectRenders],
+  );
+
   return (
     <>
       <div className="overflow-hidden rounded-md bg-secondary shadow border border-white/10">
@@ -84,6 +92,9 @@ export function LinkedProject({
               <Tooltip text="Open in web">
                 <ProjectAction icon={ExternalLinkIcon} action={open} linked />
               </Tooltip>
+              <Tooltip text="Renders">
+                <ProjectAction icon={VideoIcon} action={openRenders} linked />
+              </Tooltip>
             </div>
           </div>
           <div className="flex items-end justify-between text-xs text-gray-400 whitespace-nowrap flex-wrap gap-1">
@@ -95,37 +106,28 @@ export function LinkedProject({
                 <Tooltip text="Sync status">
                   <FolderSync className="size-3" />
                 </Tooltip>
-                <p>
-                  Local{' '}
-                  <span className="text-gray-300">
-                    v{projectData?.revisionCount}
-                  </span>
-                </p>
+                <p>Local v{projectData?.revisionCount}</p>
                 <svg
                   viewBox="0 0 2 2"
-                  className="size-0.5 flex-none fill-gray-300"
+                  className="size-0.5 flex-none fill-gray-400"
                 >
                   <title>dot</title>
                   <circle r={1} cx={1} cy={1} />
                 </svg>
-                <p>
-                  Remote{' '}
-                  <span className="text-gray-300">
-                    v{project.revisionHistory?.length || 0}
-                  </span>
-                </p>
+                <p>Remote v{project.revisionHistory?.length || 0}</p>
               </div>
             </div>
 
             <div className="flex flex-col gap-1">
               <div className="flex items-center gap-1">
                 <LayoutTemplateIcon className="size-3" />
-                <p>
-                  Templates{' '}
-                  <span className="text-gray-300">
-                    {project.templates.length}
-                  </span>
-                </p>
+                {project.templates.length === 0 && <p>No templates</p>}
+                {project.templates.length === 1 && (
+                  <p>{project.templates.length} template</p>
+                )}
+                {project.templates.length > 1 && (
+                  <p>{project.templates.length} templates</p>
+                )}
               </div>
               <div className="flex items-center gap-1">
                 <CalendarIcon className="size-3" />

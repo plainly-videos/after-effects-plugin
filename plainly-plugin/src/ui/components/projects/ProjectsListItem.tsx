@@ -2,7 +2,7 @@ import type { ProjectData } from '@src/ui/types';
 import type { Project } from '@src/ui/types/project';
 import classNames from 'classnames';
 import { format } from 'date-fns';
-import { ExternalLinkIcon, LinkIcon } from 'lucide-react';
+import { ExternalLinkIcon, LinkIcon, VideoIcon } from 'lucide-react';
 import { useCallback, useState } from 'react';
 import { ProjectAction } from '.';
 import { ConfirmationDialog, Tooltip } from '../common';
@@ -18,11 +18,13 @@ export function ProjectsListItem({
   project,
   linkProject,
   openInWeb,
+  openProjectRenders,
   linkedExists,
 }: {
   project: Project;
   linkProject: (data: ProjectData) => void;
   openInWeb: (id: string) => void;
+  openProjectRenders: (id: string) => void;
   linkedExists?: boolean;
 }) {
   const [showConfirmation, setShowConfirmation] = useState(false);
@@ -62,6 +64,11 @@ export function ProjectsListItem({
     openInWeb(project.id);
   }, [project.id, openInWeb]);
 
+  const openRenders = useCallback(
+    () => openProjectRenders(project.id),
+    [project.id, openProjectRenders],
+  );
+
   return (
     <>
       <li className="p-2 text-xs min-w-fit w-full">
@@ -91,6 +98,9 @@ export function ProjectsListItem({
             </Tooltip>
             <Tooltip text="Open in web">
               <ProjectAction icon={ExternalLinkIcon} action={open} />
+            </Tooltip>
+            <Tooltip text="Renders">
+              <ProjectAction icon={VideoIcon} action={openRenders} />
             </Tooltip>
           </div>
         </div>
