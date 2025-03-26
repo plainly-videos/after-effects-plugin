@@ -8,7 +8,7 @@ export enum State {
 
 const initialState = {
   [State.SETTINGS]: {
-    currentPage: Routes.EXPORT,
+    currentPage: `${Routes.PROJECTS}/cc248d67-87cf-4946-b326-744c6e1b1a0d`,
     sidebarOpen: false,
   } as GlobalSettings,
   [State.NOTIFICATIONS]: [] as Notification[],
@@ -19,7 +19,7 @@ const { useGlobalState, getGlobalState, setGlobalState } =
 
 function resetGlobalState() {
   setGlobalState(State.SETTINGS, {
-    currentPage: Routes.EXPORT,
+    currentPage: `${Routes.PROJECTS}/cc248d67-87cf-4946-b326-744c6e1b1a0d`,
     sidebarOpen: false,
   });
   setGlobalState(State.NOTIFICATIONS, []);
