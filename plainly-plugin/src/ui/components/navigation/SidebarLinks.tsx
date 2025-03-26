@@ -29,7 +29,7 @@ export function SidebarLinks({
                   type="button"
                   onClick={() => navigate(link.to)}
                   className={classNames(
-                    link.to === currentPage
+                    currentPage.includes(link.to)
                       ? 'bg-[rgb(43,43,43)] text-white'
                       : 'text-gray-400 hover:bg-[rgb(43,43,43)] hover:text-white',
                     'group flex gap-x-2 rounded-md px-2 py-1 text-xs font-medium relative items-center w-full h-[25px]',

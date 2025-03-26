@@ -5,11 +5,12 @@ import { useGetLatestGithubRelease, useNavigate } from './hooks';
 import {
   AboutRoute,
   ExportRoute,
+  ProjectRoute,
   ProjectsRoute,
   SettingsRoute,
   UploadRoute,
 } from './routes';
-import { reloadExtension } from './utils';
+import { getId, reloadExtension } from './utils';
 
 export function App() {
   const { currentPage } = useNavigate();
@@ -23,7 +24,11 @@ export function App() {
   const route = useMemo(() => {
     if (currentPage === '/export') return <ExportRoute />;
     if (currentPage === '/upload') return <UploadRoute />;
+
     if (currentPage === '/projects') return <ProjectsRoute />;
+    if (currentPage.startsWith('/projects/'))
+      return <ProjectRoute projectId={getId(currentPage)} />;
+
     if (currentPage === '/settings') return <SettingsRoute />;
     if (currentPage === '/about') return <AboutRoute />;
 

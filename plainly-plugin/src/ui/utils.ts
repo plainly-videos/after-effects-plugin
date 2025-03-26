@@ -20,3 +20,7 @@ export function isEmpty<T>(
 ): list is undefined | null | [] {
   return !list || (list && list.length === 0);
 }
+
+export function getId(page: string) {
+  return page.split('/').pop();
+}
