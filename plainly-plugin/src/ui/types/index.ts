@@ -2,6 +2,7 @@ export enum Routes {
   EXPORT = '/export',
   UPLOAD = '/upload',
   PROJECTS = '/projects',
+  UTILITY = '/utility',
   SETTINGS = '/settings',
   ABOUT = '/about',
 }
