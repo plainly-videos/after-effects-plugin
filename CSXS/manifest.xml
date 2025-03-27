@@ -39,7 +39,7 @@
 				</Lifecycle>
 				<UI>
 					<Type>Panel</Type>
-					<Menu>Plainly Videos</Menu>
+					<Menu>Plainly Videos - Dev mode</Menu>
 					<Geometry>
 						<Size>	
 							<Height>540</Height>

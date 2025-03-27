@@ -8,6 +8,7 @@ import {
   ProjectsRoute,
   SettingsRoute,
   UploadRoute,
+  UtilityRoute,
 } from './routes';
 import { reloadExtension } from './utils';
 
@@ -24,6 +25,7 @@ export function App() {
     if (currentPage === '/export') return <ExportRoute />;
     if (currentPage === '/upload') return <UploadRoute />;
     if (currentPage === '/projects') return <ProjectsRoute />;
+    if (currentPage === '/utility') return <UtilityRoute />;
     if (currentPage === '/settings') return <SettingsRoute />;
     if (currentPage === '/about') return <AboutRoute />;
 
