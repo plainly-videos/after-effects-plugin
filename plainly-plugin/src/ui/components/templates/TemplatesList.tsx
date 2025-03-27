@@ -6,7 +6,7 @@ export function TemplatesList({
   projectId,
 }: { templates: Template[]; projectId: string }) {
   return (
-    <div className="overflow-hidden rounded-md bg-secondary shadow w-full flex flex-col divide-y divide-white/10">
+    <ul className="divide-y divide-white/10 overflow-auto w-full">
       {templates.map((template) => (
         <TemplatesListItem
           key={template.id}
@@ -14,6 +14,6 @@ export function TemplatesList({
           projectId={projectId}
         />
       ))}
-    </div>
+    </ul>
   );
 }
