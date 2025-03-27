@@ -9,7 +9,7 @@ import {
   ListVideoIcon,
   VideoIcon,
 } from 'lucide-react';
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import { Tooltip } from '../common';
 import { ProjectAction } from '../projects';
 import { Label } from '../typography';
@@ -50,6 +50,8 @@ export function TemplatesListItem({
     [projectId, template.id, handleLinkClick],
   );
 
+  const layersLength = useMemo(() => template.layers.length, [template.layers]);
+
   return (
     <div className="px-4 py-2">
       <div className="flex items-center justify-between mb-1 gap-2">
@@ -75,9 +77,9 @@ export function TemplatesListItem({
           <div className="flex items-center gap-1">
             <LayersIcon className="size-3" />
             <p>
-              {template.layers.length === 0 && 'No layers'}
-              {template.layers.length === 1 && '1 layer'}
-              {template.layers.length > 1 && `${template.layers.length} layers`}
+              {layersLength === 0 && 'No layers'}
+              {layersLength === 1 && '1 layer'}
+              {layersLength > 1 && `${layersLength} layers`}
             </p>
           </div>
         </div>

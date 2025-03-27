@@ -6,7 +6,7 @@ export function TemplatesList({
   projectId,
 }: { templates: Template[]; projectId: string }) {
   return (
-    <div className="rounded-md bg-secondary shadow w-full flex flex-col divide-y divide-white/10">
+    <div className="overflow-hidden rounded-md bg-secondary shadow w-full flex flex-col divide-y divide-white/10">
       {templates.map((template) => (
         <TemplatesListItem
           key={template.id}
