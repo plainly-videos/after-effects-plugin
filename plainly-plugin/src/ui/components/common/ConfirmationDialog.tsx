@@ -5,7 +5,7 @@ import {
   DialogTitle,
 } from '@headlessui/react';
 
-import { State, useGlobalState } from '@src/ui/state/store';
+import { useNavigate } from '@src/ui/hooks';
 import classNames from 'classnames';
 import { TriangleAlertIcon } from 'lucide-react';
 import { Button } from '.';
@@ -24,10 +24,9 @@ export function ConfirmationDialog({
   buttonText: string;
   open: boolean;
   setOpen: (open: boolean) => void;
-  action: () => void;
+  action: (e: React.MouseEvent) => void;
 }) {
-  const [settings] = useGlobalState(State.SETTINGS);
-  const sidebarOpen = settings.sidebarOpen;
+  const { sidebarOpen } = useNavigate();
 
   return (
     <Dialog open={open} onClose={setOpen} className="relative">
@@ -53,24 +52,17 @@ export function ConfirmationDialog({
                 />
               </div>
               <div className="mt-2 text-center sm:ml-4 sm:mt-0 sm:text-left">
-                <DialogTitle
-                  as="h3"
-                  className="text-sm font-semibold text-white"
-                >
+                <DialogTitle as="h3" className="text-sm font-medium text-white">
                   {title}
                 </DialogTitle>
-                {description && (
-                  <div className="mt-1">
-                    <Description>{description}</Description>
-                  </div>
-                )}
+                {description && <Description>{description}</Description>}
               </div>
             </div>
             <div className="mt-4 sm:mt-3 sm:flex sm:flex-row-reverse">
               <Button
                 type="button"
-                onClick={() => {
-                  action();
+                onClick={(e) => {
+                  action(e);
                   setOpen(false);
                 }}
                 className="inline-flex w-full sm:w-auto justify-center sm:ml-2"

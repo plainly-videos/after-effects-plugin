@@ -6,3 +6,4 @@ export * from './Checkbox';
 export * from './NotificationsOverlay';
 export * from './Tooltip';
 export * from './Banner';
+export * from './Breadcrumbs';

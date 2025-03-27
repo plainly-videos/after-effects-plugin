@@ -9,10 +9,17 @@ export const useNavigate = () => {
   const { sidebarOpen, currentPage } = settings;
 
   const navigate = useCallback(
-    (to: Routes) => {
+    (to: Routes, params?: { [key: string]: string }) => {
+      let path = to as string;
+      if (params) {
+        for (const [key, value] of Object.entries(params)) {
+          path = path.replace(`:${key}`, value);
+        }
+      }
+
       setGlobalState(State.SETTINGS, {
         ...settings,
-        currentPage: to,
+        currentPage: path,
         sidebarOpen: biggerThanXS === false ? false : sidebarOpen,
       });
     },

@@ -1,4 +1,6 @@
+import { useNavigate } from '@src/ui/hooks';
 import { useProjectData } from '@src/ui/hooks/useProjectData';
+import { Routes } from '@src/ui/types';
 import type { Project } from '@src/ui/types/project';
 import { format } from 'date-fns';
 import {
@@ -25,6 +27,7 @@ export function LinkedProject({
   removeProject: () => void;
   openInWeb: (id: string) => void;
 }) {
+  const { navigate } = useNavigate();
   const [projectData] = useProjectData();
   const [showConfirmation, setShowConfirmation] = useState(false);
 
@@ -54,28 +57,48 @@ export function LinkedProject({
     );
   }
 
-  const unlink = useCallback(() => {
-    if (!showConfirmation) {
-      setShowConfirmation(true);
-      return;
-    }
+  const unlink = useCallback(
+    (e: React.MouseEvent) => {
+      e.stopPropagation();
 
-    removeProject();
-  }, [showConfirmation, removeProject]);
+      if (!showConfirmation) {
+        setShowConfirmation(true);
+        return;
+      }
+
+      removeProject();
+    },
+    [showConfirmation, removeProject],
+  );
 
   const open = useCallback(
-    () => openInWeb(project.id),
+    (e: React.MouseEvent) => {
+      e.stopPropagation();
+      openInWeb(project.id);
+    },
     [project.id, openInWeb],
+  );
+
+  const navigateToProjectDetails = useCallback(
+    (e: React.MouseEvent | React.KeyboardEvent) => {
+      e.stopPropagation();
+      navigate(Routes.PROJECT, { projectId: project.id });
+    },
+    [navigate, project.id],
   );
 
   return (
     <>
-      <div className="overflow-hidden rounded-md bg-secondary shadow border border-white/10">
+      <div
+        className="overflow-hidden rounded-md bg-secondary shadow border border-white/10 !cursor-pointer w-full"
+        onClick={navigateToProjectDetails}
+        onKeyDown={navigateToProjectDetails}
+      >
         <div className="px-4 py-2">
           <div className="flex items-center justify-between mb-1 gap-2">
             <Label
               label={project.name}
-              className="font-semibold whitespace-nowrap truncate"
+              className="whitespace-nowrap truncate cursor-pointer"
             />
             <div className="flex items-center gap-2">
               <Tooltip text="Unlink project">

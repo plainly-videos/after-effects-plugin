@@ -210,7 +210,11 @@ export function UploadForm() {
                   <p>
                     Working project is not linked to any project on the Plainly
                     platform. If a matching project exists on the platform, go
-                    to the <InternalLink to={Routes.PROJECTS} text="Projects" />{' '}
+                    to the{' '}
+                    <InternalLink
+                      to={{ path: Routes.PROJECTS }}
+                      text="Projects"
+                    />{' '}
                     tab to link it.
                   </p>
                 }

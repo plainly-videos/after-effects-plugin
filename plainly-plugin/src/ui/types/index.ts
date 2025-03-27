@@ -2,12 +2,13 @@ export enum Routes {
   EXPORT = '/export',
   UPLOAD = '/upload',
   PROJECTS = '/projects',
+  PROJECT = '/projects/:projectId',
   SETTINGS = '/settings',
   ABOUT = '/about',
 }
 
 export interface GlobalSettings {
-  currentPage: Routes;
+  currentPage: string;
   sidebarOpen: boolean;
 }
 
