@@ -1,6 +1,6 @@
 {
   "name": "com.plainlyvideos.after-effects-plugin",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "author": "Plainly Videos",
   "scripts": {
     "prepare-aescripts": "cd plainly-aescripts && yarn install && yarn build",
