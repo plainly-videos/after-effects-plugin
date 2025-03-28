@@ -96,11 +96,11 @@ export function ProjectsListItem({
             <Tooltip text="Link project">
               <ProjectAction icon={LinkIcon} action={link} />
             </Tooltip>
-            <Tooltip text="Open in web">
-              <ProjectAction icon={ExternalLinkIcon} action={open} />
-            </Tooltip>
             <Tooltip text="Renders">
               <ProjectAction icon={VideoIcon} action={openRenders} />
+            </Tooltip>
+            <Tooltip text="Open in web">
+              <ProjectAction icon={ExternalLinkIcon} action={open} />
             </Tooltip>
           </div>
         </div>

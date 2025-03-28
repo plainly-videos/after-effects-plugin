@@ -12,7 +12,7 @@ import {
   VideoIcon,
   XCircleIcon,
 } from 'lucide-react';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { ProjectAction } from '.';
 import { ConfirmationDialog, Tooltip } from '../common';
 import { Label } from '../typography';
@@ -76,7 +76,7 @@ export function LinkedProject({
     [project.id, openProjectRenders],
   );
 
-  const templatesLength = useMemo(() => project.templates.length, [project]);
+  const templatesLength = project.templates.length;
 
   return (
     <>
@@ -91,11 +91,11 @@ export function LinkedProject({
               <Tooltip text="Unlink project">
                 <ProjectAction icon={LinkIcon} action={unlink} linked />
               </Tooltip>
-              <Tooltip text="Open in web">
-                <ProjectAction icon={ExternalLinkIcon} action={open} linked />
-              </Tooltip>
               <Tooltip text="Renders">
                 <ProjectAction icon={VideoIcon} action={openRenders} linked />
+              </Tooltip>
+              <Tooltip text="Open in web">
+                <ProjectAction icon={ExternalLinkIcon} action={open} linked />
               </Tooltip>
             </div>
           </div>
