@@ -1,10 +1,9 @@
-import { getSelectedLayers } from '@src/node/utility';
-import { Button, MainWrapper } from '../components';
+import { MainWrapper, Utility } from '../components';
 
 export function UtilityRoute() {
   return (
     <MainWrapper>
-      <Button onClick={() => getSelectedLayers()}>Click here</Button>
+      <Utility />
     </MainWrapper>
   );
 }
