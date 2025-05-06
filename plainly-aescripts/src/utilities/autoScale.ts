@@ -105,7 +105,7 @@ function getAllLayers(type: 'text' | 'asset') {
   return JSON.stringify(layers);
 }
 
-function applyTextAutoScale(toAllLayers: string) {
+function applyTextAutoScale(toAllLayers: string, width: string) {
   const booleanToAllLayers = toAllLayers === 'true';
   let layersToAutoScale = [];
 
@@ -130,12 +130,14 @@ function applyTextAutoScale(toAllLayers: string) {
           false,
         ).width;
 
+        const widthToUse = width !== 'undefined' ? width : originalWidth;
+
         const autoScalePointText = `
 var textWidth = sourceRectAtTime(0, false).width;
-var scaleLimit = (${originalWidth}/textWidth) * 100;
+var scaleLimit = (${widthToUse}/textWidth) * 100;
 var fixedScale = scaleLimit > 100 ? 100 : scaleLimit;
 [fixedScale, fixedScale]
-`;
+`.trim();
 
         transform.scale.expression = autoScalePointText;
       }
@@ -149,9 +151,36 @@ left = sourceRectAtTime().left;
 x = left;
 y = top;
 [x, y]
-`;
+`.trim();
 
       transform.anchorPoint.expression = autoScaleBoxText;
+    }
+  }
+}
+
+function removeTextAutoScale(toAllLayers: string) {
+  const booleanToAllLayers = toAllLayers === 'true';
+  let layersToProcess = [];
+
+  if (booleanToAllLayers) {
+    layersToProcess = JSON.parse(getAllLayers('text')) as SelectedLayer[];
+  } else {
+    layersToProcess = JSON.parse(getSelectedLayers('text')) as SelectedLayer[];
+  }
+
+  if (!layersToProcess) return;
+
+  for (const layer of layersToProcess) {
+    const textLayer = app.project.layerByID(layer.id) as TextLayer;
+
+    if (layer.text && layer.textType === 'point') {
+      const transform = textLayer.property('Transform') as _TransformGroup;
+      transform.scale.expression = '';
+    }
+
+    if (layer.text && layer.textType === 'box') {
+      const transform = textLayer.property('Transform') as _TransformGroup;
+      transform.anchorPoint.expression = '';
     }
   }
 }
@@ -201,6 +230,29 @@ if (widthRatio > heightRatio) {
       `;
 
       transform.scale.expression = autoScaleAsset;
+    }
+  }
+}
+
+function removeAssetAutoScale(toAllLayers: string) {
+  const booleanToAllLayers = toAllLayers === 'true';
+  let layersToAutoScale = [];
+
+  if (booleanToAllLayers) {
+    layersToAutoScale = JSON.parse(getAllLayers('asset')) as SelectedLayer[];
+  } else {
+    layersToAutoScale = JSON.parse(
+      getSelectedLayers('asset'),
+    ) as SelectedLayer[];
+  }
+
+  if (!layersToAutoScale) return;
+
+  for (const layer of layersToAutoScale) {
+    const avLayer = app.project.layerByID(layer.id) as AVLayer;
+    if (layer.asset) {
+      const transform = avLayer.property('Transform') as _TransformGroup;
+      transform.scale.expression = '';
     }
   }
 }

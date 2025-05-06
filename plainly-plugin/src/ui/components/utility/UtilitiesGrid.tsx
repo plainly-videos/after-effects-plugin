@@ -1,10 +1,13 @@
-import { ImageAutoScale, TextAutoScale } from '.';
+import { ChangeAnchorPoint, ImageAutoScale, TextAutoScale } from '.';
 
 export const UtilitiesGrid = () => {
   return (
-    <div className="grid grid-cols-1 gap-2">
-      <TextAutoScale />
-      <ImageAutoScale />
+    <div className="relative flex w-full">
+      <div className="columns-2 gap-2 w-full">
+        <TextAutoScale />
+        <ImageAutoScale />
+        <ChangeAnchorPoint />
+      </div>
     </div>
   );
 };
