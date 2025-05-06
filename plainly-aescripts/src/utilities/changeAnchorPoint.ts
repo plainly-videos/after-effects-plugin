@@ -34,7 +34,7 @@ function changeAnchorPoint(location: string) {
           transform.anchorPoint.expression = `
 var r = sourceRectAtTime();
 [r.left, r.top];
-    `;
+    `.trim();
           break;
         }
 
@@ -42,7 +42,7 @@ var r = sourceRectAtTime();
           transform.anchorPoint.expression = `
 var r = sourceRectAtTime();
 [r.left + r.width / 2, r.top];
-    `;
+    `.trim();
           break;
         }
 
@@ -50,7 +50,7 @@ var r = sourceRectAtTime();
           transform.anchorPoint.expression = `
 var r = sourceRectAtTime();
 [r.left + r.width, r.top];
-    `;
+    `.trim();
           break;
         }
 
@@ -58,7 +58,7 @@ var r = sourceRectAtTime();
           transform.anchorPoint.expression = `
 var r = sourceRectAtTime();
 [r.left, r.top + r.height / 2];
-    `;
+    `.trim();
           break;
         }
 
@@ -66,7 +66,7 @@ var r = sourceRectAtTime();
           transform.anchorPoint.expression = `
 var r = sourceRectAtTime();
 [r.left + r.width / 2, r.top + r.height / 2];
-    `;
+    `.trim();
           break;
         }
 
@@ -74,7 +74,7 @@ var r = sourceRectAtTime();
           transform.anchorPoint.expression = `
 var r = sourceRectAtTime();
 [r.left + r.width, r.top + r.height / 2];
-    `;
+    `.trim();
           break;
         }
 
@@ -82,7 +82,7 @@ var r = sourceRectAtTime();
           transform.anchorPoint.expression = `
 var r = sourceRectAtTime();
 [r.left, r.top + r.height];
-    `;
+    `.trim();
           break;
         }
 
@@ -90,7 +90,7 @@ var r = sourceRectAtTime();
           transform.anchorPoint.expression = `
 var r = sourceRectAtTime();
 [r.left + r.width / 2, r.top + r.height];
-    `;
+    `.trim();
           break;
         }
 
@@ -98,7 +98,7 @@ var r = sourceRectAtTime();
           transform.anchorPoint.expression = `
 var r = sourceRectAtTime();
 [r.left + r.width, r.top + r.height];
-    `;
+    `.trim();
           break;
         }
       }

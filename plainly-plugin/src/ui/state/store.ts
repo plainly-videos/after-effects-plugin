@@ -8,7 +8,7 @@ export enum State {
 
 const initialState = {
   [State.SETTINGS]: {
-    currentPage: Routes.UTILITY,
+    currentPage: Routes.EXPORT,
     sidebarOpen: false,
   } as GlobalSettings,
   [State.NOTIFICATIONS]: [] as Notification[],
@@ -19,7 +19,7 @@ const { useGlobalState, getGlobalState, setGlobalState } =
 
 function resetGlobalState() {
   setGlobalState(State.SETTINGS, {
-    currentPage: Routes.UTILITY,
+    currentPage: Routes.EXPORT,
     sidebarOpen: false,
   });
   setGlobalState(State.NOTIFICATIONS, []);

@@ -14,6 +14,14 @@ type SelectedLayer =
       textType?: never;
     };
 
+function isTextLayer(type: string, layer: Layer): layer is TextLayer {
+  return type === 'text' && layer instanceof TextLayer;
+}
+
+function isAssetLayer(type: string, layer: Layer): layer is AVLayer {
+  return type === 'asset' && layer instanceof AVLayer;
+}
+
 function getSelectedLayers(type: 'text' | 'asset') {
   const selectedLayers: SelectedLayer[] = [];
 
@@ -21,22 +29,26 @@ function getSelectedLayers(type: 'text' | 'asset') {
     const item = app.project.item(i);
     if (item instanceof CompItem) {
       for (let j = 0; j < item.selectedLayers.length; j++) {
-        if (type === 'text' && item.selectedLayers[j] instanceof TextLayer) {
-          const layer = item.selectedLayers[j] as TextLayer;
+        const layer = item.selectedLayers[j];
 
-          if (layer.selected && layer.sourceText) {
-            const textType = layer.sourceText.value.pointText ? 'point' : 'box';
+        if (isTextLayer(type, layer)) {
+          const textLayer = layer as TextLayer;
+
+          if (textLayer.selected && textLayer.sourceText) {
+            const textType = textLayer.sourceText.value.pointText
+              ? 'point'
+              : 'box';
 
             selectedLayers.push({
-              id: layer.id,
-              name: layer.name,
+              id: textLayer.id,
+              name: textLayer.name,
               text: true,
               textType,
             });
           }
         }
 
-        if (type === 'asset' && item.selectedLayers[j] instanceof AVLayer) {
+        if (isAssetLayer(type, layer)) {
           const avLayer = item.layer(j + 1) as AVLayer;
           if (avLayer.source instanceof CompItem) {
             continue;
@@ -44,6 +56,14 @@ function getSelectedLayers(type: 'text' | 'asset') {
 
           if (avLayer.source.mainSource instanceof FileSource) {
             if (avLayer.source.mainSource.isStill) {
+              selectedLayers.push({
+                id: avLayer.id,
+                name: avLayer.name,
+                asset: true,
+              });
+            }
+
+            if (!avLayer.source.mainSource.isStill) {
               selectedLayers.push({
                 id: avLayer.id,
                 name: avLayer.name,
@@ -66,8 +86,11 @@ function getAllLayers(type: 'text' | 'asset') {
     const item = app.project.item(i);
     if (item instanceof CompItem) {
       for (let j = 0; j < item.numLayers; j++) {
-        if (type === 'text' && item.layer(j + 1) instanceof TextLayer) {
+        const layer = item.layer(j + 1);
+
+        if (isTextLayer(type, layer)) {
           const textLayer = item.layer(j + 1) as TextLayer;
+
           if (textLayer.sourceText) {
             const textType = textLayer.sourceText.value.pointText
               ? 'point'
@@ -82,14 +105,23 @@ function getAllLayers(type: 'text' | 'asset') {
           }
         }
 
-        if (type === 'asset' && item.layer(j + 1) instanceof AVLayer) {
+        if (isAssetLayer(type, layer)) {
           const avLayer = item.layer(j + 1) as AVLayer;
+
           if (avLayer.source instanceof CompItem) {
             continue;
           }
 
           if (avLayer.source.mainSource instanceof FileSource) {
             if (avLayer.source.mainSource.isStill) {
+              layers.push({
+                id: avLayer.id,
+                name: avLayer.name,
+                asset: true,
+              });
+            }
+
+            if (!avLayer.source.mainSource.isStill) {
               layers.push({
                 id: avLayer.id,
                 name: avLayer.name,
@@ -107,15 +139,9 @@ function getAllLayers(type: 'text' | 'asset') {
 
 function applyTextAutoScale(toAllLayers: string, width: string) {
   const booleanToAllLayers = toAllLayers === 'true';
-  let layersToAutoScale = [];
-
-  if (booleanToAllLayers) {
-    layersToAutoScale = JSON.parse(getAllLayers('text')) as SelectedLayer[];
-  } else {
-    layersToAutoScale = JSON.parse(
-      getSelectedLayers('text'),
-    ) as SelectedLayer[];
-  }
+  const layersToAutoScale: SelectedLayer[] = booleanToAllLayers
+    ? JSON.parse(getAllLayers('text'))
+    : JSON.parse(getSelectedLayers('text'));
 
   if (!layersToAutoScale) return;
 
@@ -133,9 +159,9 @@ function applyTextAutoScale(toAllLayers: string, width: string) {
         const widthToUse = width !== 'undefined' ? width : originalWidth;
 
         const autoScalePointText = `
-var textWidth = sourceRectAtTime(0, false).width;
-var scaleLimit = (${widthToUse}/textWidth) * 100;
-var fixedScale = scaleLimit > 100 ? 100 : scaleLimit;
+textWidth = sourceRectAtTime(0, false).width;
+scaleLimit = (${widthToUse}/textWidth) * 100;
+fixedScale = scaleLimit > 100 ? 100 : scaleLimit;
 [fixedScale, fixedScale]
 `.trim();
 
@@ -187,15 +213,9 @@ function removeTextAutoScale(toAllLayers: string) {
 
 function applyAssetAutoScale(toAllLayers: string) {
   const booleanToAllLayers = toAllLayers === 'true';
-  let layersToAutoScale = [];
-
-  if (booleanToAllLayers) {
-    layersToAutoScale = JSON.parse(getAllLayers('asset')) as SelectedLayer[];
-  } else {
-    layersToAutoScale = JSON.parse(
-      getSelectedLayers('asset'),
-    ) as SelectedLayer[];
-  }
+  const layersToAutoScale: SelectedLayer[] = booleanToAllLayers
+    ? JSON.parse(getAllLayers('asset'))
+    : JSON.parse(getSelectedLayers('asset'));
 
   if (!layersToAutoScale) return;
 
@@ -213,12 +233,12 @@ function applyAssetAutoScale(toAllLayers: string) {
 
       const transform = avLayer.property('Transform') as _TransformGroup;
       const autoScaleAsset = `
-var newWidth = sourceRectAtTime(0, false).width;
-var newHeight = sourceRectAtTime(0, false).height;
-var widthRatio = ${frameWidth} / newWidth;
-var heightRatio = ${frameHeight} / newHeight;
+newWidth = sourceRectAtTime(0, false).width;
+newHeight = sourceRectAtTime(0, false).height;
+widthRatio = ${frameWidth} / newWidth;
+heightRatio = ${frameHeight} / newHeight;
 
-var fixedScale;
+fixedScale;
 
 if (widthRatio > heightRatio) {
   fixedScale = heightRatio * 100;
@@ -227,7 +247,7 @@ if (widthRatio > heightRatio) {
 }
 
 [fixedScale, fixedScale]
-      `;
+      `.trim();
 
       transform.scale.expression = autoScaleAsset;
     }
