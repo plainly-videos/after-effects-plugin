@@ -83,7 +83,7 @@ async function copyFonts(fonts: Fonts[], targetDir: string) {
 
     const dest = path.join(fontsDir, `${font.fontName}.${font.fontExtension}`);
     // if the file doesn't end with .otf or .ttf, copy it, otherwise, throw an error
-    if (font.fontExtension === 'otf' || font.fontExtension === 'ttf') {
+    if (['otf', 'ttf', 'ttc'].includes(font.fontExtension)) {
       return await fsPromises.copyFile(src, dest);
     }
 
