@@ -60,7 +60,7 @@ jobs:
             plainly-plugin.zxp \
             certificate.p12 \
             ${{ secrets.PLUGIN_CERTIFICATE_P12_PASSWORD }} \
-            -tsa http://timestamp.digicert.com/
+            -tsa http://timestamp.apple.com/ts01
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
