@@ -7,3 +7,4 @@ export * from './navigation';
 export * from './projects';
 export * from './settings';
 export * from './typography';
+export * from './utility';
