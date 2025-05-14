@@ -1,4 +1,3 @@
-import crypto from 'crypto';
 import fs from 'fs';
 import path from 'path';
 import archiver from 'archiver';
@@ -26,43 +25,31 @@ function selectFolder(callback: (result: string) => void) {
 }
 
 /**
- * Collects all files necessary for the project and puts them in the target folder.
- *
- * @param targetPath the path of the folder where the files will be copied.
+ * Collects all files necessary for the project and puts them in the folder where original .aep is.
  */
-async function collectProjectFiles(targetPath: string): Promise<string> {
-  const result = await evalScriptAsync(`collectFiles("${targetPath}")`);
-  if (!result) {
-    throw new Error('Failed to collect files');
-  }
-
-  const projectPath = await evalScriptAsync('getProjectPath()');
-  if (!projectPath) {
-    throw new Error('Project not opened or not saved');
-  }
-  const finalizedProjectPath = finalizePath(projectPath);
-
-  const projectInfo: ProjectInfo = JSON.parse(result);
-
-  const projectName = path.basename(finalizedProjectPath, '.aep');
-  const pathResolved = finalizePath(targetPath); // Normalize and resolve
-
-  const folderName = crypto.randomUUID();
-  await fsPromises.mkdir(path.join(pathResolved, folderName), {
-    recursive: true,
-  });
-  const projectDir = path.join(pathResolved, folderName);
-
-  const dest = path.join(projectDir, `${projectName}.aep`);
-  await fsPromises.copyFile(finalizedProjectPath, dest);
-
-  await copyFonts(projectInfo.fonts, projectDir);
-  await copyFootage(projectInfo.footage, projectDir);
-
-  return projectDir;
+async function copyProjectFiles(
+  projectInfo: ProjectInfo,
+  destDir: string,
+  footageDir: string,
+  footageDirRenamed: string,
+  fontsDir: string,
+  fontsDirRenamed: string,
+): Promise<void> {
+  await copyFonts(projectInfo.fonts, destDir, fontsDir, fontsDirRenamed);
+  await copyFootage(
+    projectInfo.footage,
+    destDir,
+    footageDir,
+    footageDirRenamed,
+  );
 }
 
-async function copyFonts(fonts: Fonts[], targetDir: string) {
+async function copyFonts(
+  fonts: Fonts[],
+  targetDir: string,
+  fontsDir: string,
+  fontsDirRenamed: string,
+) {
   if (fonts.length === 0) {
     return;
   }
@@ -75,13 +62,17 @@ async function copyFonts(fonts: Fonts[], targetDir: string) {
     return acc;
   }, [] as Fonts[]);
 
-  const fontsDir = path.join(targetDir, 'Fonts');
-  await fsPromises.mkdir(fontsDir);
+  const newFontsDir = path.join(targetDir, 'Fonts');
+  await fsPromises.mkdir(newFontsDir);
 
   const fontPromises = uniqueFonts.map(async (font) => {
-    const src = finalizePath(font.fontLocation);
+    let src = finalizePath(font.fontLocation);
+    src = src.replace(fontsDir, fontsDirRenamed);
 
-    const dest = path.join(fontsDir, `${font.fontName}.${font.fontExtension}`);
+    const dest = path.join(
+      newFontsDir,
+      `${font.fontName}.${font.fontExtension}`,
+    );
     // if the file doesn't end with .otf or .ttf, copy it, otherwise, throw an error
     if (['otf', 'ttf', 'ttc'].includes(font.fontExtension)) {
       return await fsPromises.copyFile(src, dest);
@@ -98,28 +89,34 @@ async function copyFonts(fonts: Fonts[], targetDir: string) {
   }
 }
 
-async function copyFootage(footage: Footage[], targetDir: string) {
+async function copyFootage(
+  footage: Footage[],
+  targetDir: string,
+  footageDir: string,
+  footageDirRenamed: string,
+) {
   if (footage.length === 0) {
     return;
   }
 
-  const footageDir = path.join(targetDir, '(Footage)');
-  await fsPromises.mkdir(footageDir);
+  const newFootageDir = path.join(targetDir, '(Footage)');
+  await fsPromises.mkdir(newFootageDir);
 
   const footagePromises = footage.map(async (footageItem) => {
-    const src = finalizePath(footageItem.itemName);
+    let src = finalizePath(footageItem.itemName);
+    src = src.replace(footageDir, footageDirRenamed);
     const footageName = path.basename(footageItem.itemName);
     const folder = footageItem.itemFolder;
 
     if (folder === 'Root') {
-      const dest = path.join(footageDir, footageName);
+      const dest = path.join(newFootageDir, footageName);
       return fsPromises.copyFile(finalizePath(footageItem.itemName), dest);
     }
 
     const replaced = folder.replace('Root', '');
-    generateFolders(path.join(footageDir, replaced));
+    generateFolders(path.join(newFootageDir, replaced));
 
-    const dest = path.join(footageDir, replaced, footageName);
+    const dest = path.join(newFootageDir, replaced, footageName);
     try {
       return await fsPromises.copyFile(src, dest);
     } catch (error) {
@@ -139,34 +136,41 @@ async function copyFootage(footage: Footage[], targetDir: string) {
  *
  * @param targetPath The path of the directory to zip.
  */
-function zip(targetPath: string, projectName: string): Promise<string> {
+function zipItems(
+  outputZipPath: string,
+  items: { src: string; dest: string }[],
+) {
   return new Promise((resolve, reject) => {
-    const targetPathResolved = finalizePath(targetPath); // Normalize and resolve
-
-    // replace final part of path (random uuid) with project name to create zip with projectName.zip
-    const zipPath = path.join(
-      path.dirname(targetPathResolved),
-      `${projectName}.zip`,
-    );
-
-    const output = fs.createWriteStream(zipPath);
+    const output = fs.createWriteStream(outputZipPath);
     const archive = archiver('zip', { zlib: { level: 1 } });
 
     output.on('close', () => {
-      console.log(`Zipped ${archive.pointer()} total bytes`);
-      console.log(`Zip file created at: ${zipPath}`);
-      resolve(zipPath);
+      console.log(`Zipped ${archive.pointer()} bytes`);
+      console.log(outputZipPath);
+
+      resolve(outputZipPath);
     });
 
-    archive.on('error', (err: unknown) => {
+    archive.on('error', (err) => {
       reject(err);
-      return;
     });
 
     archive.pipe(output);
 
-    // Append the directory content to the archive
-    archive.directory(targetPathResolved, false);
+    for (const item of items) {
+      try {
+        const stats = fs.statSync(item.src);
+        if (stats.isFile()) {
+          console.log('added file');
+          archive.file(item.src, { name: item.dest });
+        } else if (stats.isDirectory()) {
+          console.log('added dir');
+          archive.directory(item.src, item.dest);
+        }
+      } catch {
+        // fonts or footage not found, ignoring...
+      }
+    }
 
     archive.finalize();
   });
@@ -191,23 +195,77 @@ async function removeFolder(targetPath: string) {
 }
 
 // Function to make a project zip with no target path specified
-async function makeProjectZipTmpDir() {
+async function makeProjectZipTmpDir(): Promise<string> {
   await fsPromises.mkdir(TMP_DIR, { recursive: true });
   return makeProjectZip(TMP_DIR);
 }
 
 // Function to make a project zip with a specified target path
-async function makeProjectZip(targetPath: string) {
-  const collectFilesDir = await collectProjectFiles(targetPath);
-  const projectPath = await evalScriptAsync('getProjectPath()');
-  if (!projectPath) {
+async function makeProjectZip(targetPath: string): Promise<string> {
+  let aepFilePath = await evalScriptAsync('getProjectPath()');
+  if (!aepFilePath) {
     throw new Error('Project not opened or not saved');
   }
-  const finalizedProjectPath = finalizePath(projectPath);
+  aepFilePath = finalizePath(aepFilePath);
+  const aepFileDir = path.dirname(aepFilePath);
 
-  const projectName = path.basename(finalizedProjectPath, '.aep');
-  const zipPath = await zip(collectFilesDir, projectName);
-  return { collectFilesDir, zipPath };
+  // Get project info
+  const result = await evalScriptAsync('collectFiles()');
+  if (!result) {
+    throw new Error('Failed to collect files');
+  }
+  const projectInfo: ProjectInfo = JSON.parse(result);
+
+  // rename (Footage) and (Fonts) folders
+  const footageDir = path.join(aepFileDir, '(Footage)');
+  const fontsDir = path.join(aepFileDir, '(Fonts)');
+  const footageDirRenamed = path.join(aepFileDir, '___(Footage)');
+  const fontsDirRenamed = path.join(aepFileDir, '___(Fonts)');
+  try {
+    await fsPromises.rename(footageDir, footageDirRenamed);
+  } catch {
+    // ignore
+  }
+  try {
+    await fsPromises.rename(fontsDir, fontsDirRenamed);
+  } catch {
+    // ignore
+  }
+  // collect files into the original aep folder
+  await copyProjectFiles(
+    projectInfo,
+    aepFileDir,
+    footageDir,
+    footageDirRenamed,
+    fontsDir,
+    fontsDirRenamed,
+  );
+  // relink and save aep
+  await evalScriptAsync('relinkFootage()');
+  // zip (Footage), (Fonts) and aep files
+  await zipItems(finalizePath(path.join(targetPath, 'aaa.zip')), [
+    { src: aepFilePath, dest: path.basename(aepFilePath) },
+    { src: footageDir, dest: '(Footage)' },
+    { src: fontsDir, dest: '(Fonts)' },
+  ]);
+  // delete (Footage) and (Fonts) folders
+  await removeFolder(footageDir);
+  await removeFolder(fontsDir);
+  // rename (Footage) and (Fonts) folders back
+  try {
+    await fsPromises.rename(footageDirRenamed, footageDir);
+  } catch {
+    // ignore
+  }
+  try {
+    await fsPromises.rename(fontsDirRenamed, fontsDir);
+  } catch {
+    // ignore
+  }
+  // revert and save aep
+  await evalScriptAsync('undoFootage()');
+
+  return path.join(targetPath, 'aaa.zip');
 }
 
 export { makeProjectZipTmpDir, makeProjectZip, removeFolder, selectFolder };
