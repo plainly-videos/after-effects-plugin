@@ -1,6 +1,6 @@
 import FormData from 'form-data';
 import { useCallback, useEffect, useState } from 'react';
-import { makeProjectZipTmpDir, removeFolder } from '../../../node';
+import { makeProjectZipTmpDir } from '../../../node';
 
 import fs from 'fs';
 import { useNotifications, useProjectData } from '@src/ui/hooks';
@@ -70,12 +70,10 @@ export function UploadForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    let collectFilesDirValue: string | undefined;
     let zipPathValue: string | undefined;
 
     try {
-      const { collectFilesDir, zipPath } = await makeProjectZipTmpDir();
-      collectFilesDirValue = collectFilesDir;
+      const zipPath = await makeProjectZipTmpDir();
       zipPathValue = zipPath;
       const file = fs.createReadStream(zipPath);
       const tags = inputs.tags?.map((tag) => tag.trim());
@@ -112,9 +110,6 @@ export function UploadForm() {
     } catch (error) {
       notifyError('Failed to upload project', (error as Error).message);
     } finally {
-      if (collectFilesDirValue) {
-        await removeFolder(collectFilesDirValue);
-      }
       if (zipPathValue) {
         fs.rmSync(zipPathValue);
       }
