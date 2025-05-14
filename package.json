@@ -3,6 +3,7 @@
   "version": "1.2.3",
   "author": "Plainly Videos",
   "scripts": {
+    "build": "yarn --cwd ./plainly-aescripts/ build && yarn --cwd ./plainly-plugin/ build",
     "prepare-aescripts": "cd plainly-aescripts && yarn install && yarn build",
     "prepare-plugin": "cd plainly-plugin && yarn install && yarn build",
     "package": "rm -rf package && yarn prepare-aescripts && yarn prepare-plugin && node ./scripts/preparePackage.cjs",
