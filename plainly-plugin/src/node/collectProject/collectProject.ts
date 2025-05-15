@@ -44,6 +44,12 @@ async function collectProjectFiles(targetPath: string): Promise<string> {
 
   const projectInfo: ProjectInfo = JSON.parse(result);
 
+  for (const footageItem of projectInfo.footage) {
+    if (footageItem.itemFolder === 'missing') {
+      throw new Error(`Footage item is missing.\n ${footageItem.itemName}`);
+    }
+  }
+
   const projectName = path.basename(finalizedProjectPath, '.aep');
   const pathResolved = finalizePath(targetPath); // Normalize and resolve
 
