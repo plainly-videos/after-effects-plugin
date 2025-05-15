@@ -84,7 +84,10 @@ function collectFootage(): FootagePath[] {
       continue;
     }
     if (item.footageMissing) {
-      continue;
+      footagePaths.push({
+        itemName: item.file.fsName,
+        itemFolder: 'missing',
+      });
     }
 
     // Determine the nested folder structure
