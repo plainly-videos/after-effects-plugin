@@ -5,6 +5,7 @@ import path from 'path';
 
 const homeDirectory = os.homedir();
 
+import archiver from 'archiver';
 import { isWindows } from './constants';
 // @ts-ignore
 import CSInterface from './lib/CSInterface';
@@ -79,4 +80,53 @@ export const openFolder = (path: string) => {
   const p = child_process.spawn(command, [finalizedPath]);
 
   p.on('error', () => p.kill());
+};
+
+/**
+ * Zips the contents of the targetPath directory, and creates a zip file with the
+ * project name.
+ * Throws an error if the item src does not exist.
+ *
+ * @param outputZipPath The path to the output zip file.
+ * @param items An array of objects containing the source and destination paths.
+ */
+export const zipItems = async (
+  outputZipPath: string,
+  items: { src: string; dest: string; isRequired: boolean }[],
+): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const output = fs.createWriteStream(outputZipPath);
+    const archive = archiver('zip', { zlib: { level: 1 } });
+
+    output.on('close', () => {
+      console.log(`Zipped ${archive.pointer()} bytes`);
+      console.log(outputZipPath);
+
+      resolve(outputZipPath);
+    });
+
+    archive.on('error', (err) => {
+      fs.unlinkSync(outputZipPath);
+      reject(err);
+    });
+
+    archive.pipe(output);
+
+    for (const item of items) {
+      try {
+        const stats = fs.statSync(item.src);
+        if (stats.isFile()) {
+          archive.file(item.src, { name: item.dest });
+        } else if (stats.isDirectory()) {
+          archive.directory(item.src, item.dest);
+        }
+      } catch (error) {
+        if (item.isRequired) {
+          throw error;
+        }
+      }
+    }
+
+    archive.finalize();
+  });
 };
