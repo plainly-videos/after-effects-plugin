@@ -22,14 +22,14 @@ export async function copyFootage(
   await fsPromises.mkdir(newFootageDir);
 
   const footagePromises = footage.map(async (footageItem) => {
-    let src = finalizePath(footageItem.itemName);
+    let src = finalizePath(footageItem.itemFsPath);
     src = src.replace(footageDir, footageDirRenamed);
-    const footageName = path.basename(footageItem.itemName);
-    const folder = footageItem.itemFolder;
+    const footageName = path.basename(footageItem.itemFsPath);
+    const folder = footageItem.itemAeFolder;
 
     if (folder === 'Root') {
       const dest = path.join(newFootageDir, footageName);
-      return fsPromises.copyFile(finalizePath(footageItem.itemName), dest);
+      return fsPromises.copyFile(finalizePath(footageItem.itemFsPath), dest);
     }
 
     const replaced = folder.replace('Root', '');

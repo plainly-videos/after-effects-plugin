@@ -11,7 +11,9 @@ export interface Fonts {
 
 export interface Footage {
   itemName: string;
-  itemFolder: string;
+  itemFsPath: string;
+  itemAeFolder: string;
+  isMissing: boolean;
 }
 
 export interface Settings {

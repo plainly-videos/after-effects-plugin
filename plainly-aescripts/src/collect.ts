@@ -6,7 +6,9 @@ interface FontPath {
 
 interface FootagePath {
   itemName: string;
-  itemFolder: string;
+  itemFsPath: string;
+  itemAeFolder: string;
+  isMissing: boolean;
 }
 
 /**
@@ -83,14 +85,16 @@ function collectFootage(): FootagePath[] {
     if (item.file == null) {
       continue;
     }
-    if (item.footageMissing) {
-      continue;
-    }
 
     // Determine the nested folder structure
     const relativePath = getFolderPath(item.parentFolder);
 
-    footagePaths.push({ itemName: item.file.fsName, itemFolder: relativePath });
+    footagePaths.push({
+      itemName: item.file.name,
+      itemFsPath: item.file.fsName,
+      itemAeFolder: relativePath,
+      isMissing: item.footageMissing,
+    });
   }
 
   return footagePaths;

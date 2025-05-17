@@ -2,7 +2,7 @@ import path from 'path';
 import fsPromises from 'fs/promises';
 
 import { TMP_DIR, csInterface } from '../constants';
-import type { ProjectInfo } from '../types';
+import type { Footage, ProjectInfo } from '../types';
 import { evalScriptAsync, finalizePath, zipItems } from '../utils';
 import { copyFonts } from './copyFonts';
 import { copyFootage } from './copyFootage';
@@ -50,6 +50,29 @@ async function renameIfExists(src: string, dest: string): Promise<void> {
   }
 }
 
+function validateFootage(footage: Footage[]) {
+  // Throw in case of missing footage
+  const missingFootage = footage.filter((item) => item.isMissing);
+  if (missingFootage.length > 0) {
+    // TODO: Show a missing files
+    throw new Error('Some footage files are missing from the project.');
+  }
+
+  // Throw in case of footage file length > 255
+  const invalidFootage = footage.filter((item) => {
+    return item.itemFsPath.length > 255;
+  });
+  if (invalidFootage.length > 0) {
+    const longFootageNames = invalidFootage
+      .map((item) => item.itemName)
+      .join(', ');
+
+    throw new Error(
+      `One or more footage file names exceed the 255-character limit: ${longFootageNames} `,
+    );
+  }
+}
+
 async function makeProjectZip(targetPath: string): Promise<string> {
   let aepFilePath = await evalScriptAsync('getProjectPath()');
   if (!aepFilePath) throw new Error('Project not opened or not saved');
@@ -61,6 +84,8 @@ async function makeProjectZip(targetPath: string): Promise<string> {
   const result = await evalScriptAsync('collectFiles()');
   if (!result) throw new Error('Failed to collect files');
   const projectInfo: ProjectInfo = JSON.parse(result);
+
+  validateFootage(projectInfo.footage);
 
   const footageDir = path.join(aepFileDir, '(Footage)');
   const fontsDir = path.join(aepFileDir, '(Fonts)');
