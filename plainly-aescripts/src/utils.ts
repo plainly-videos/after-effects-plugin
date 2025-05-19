@@ -1,11 +1,10 @@
 /**
- * @function checkOs
- * @description Determines the OS of the current After Effects instance
- * @returns {string} The current OS, either 'Windows' or 'Mac'
+ * @function isWin
+ * @description Determines if the current OS is Windows
+ * @returns {boolean} True if the OS is Windows, false otherwise
  */
-function checkOs(): string {
-  const appOs = $.os.indexOf('Win') !== -1 ? 'Windows' : 'Mac';
-  return appOs;
+function isWin(): boolean {
+  return $.os.indexOf('Win') !== -1;
 }
 
 /**
@@ -16,8 +15,7 @@ function checkOs(): string {
  * separator for the current OS ('\\' for Windows, '/' for Mac).
  */
 function pathJoin(...args: string[]): string {
-  const os = checkOs();
-  const path = os === 'Windows' ? '\\' : '/';
+  const path = isWin() ? '\\' : '/';
   return args.join(path);
 }
 
@@ -60,7 +58,6 @@ function getTextLayersByComp(comp: CompItem): Array<TextLayer> {
 }
 
 function getFolderPath(folder: FolderItem): string {
-  // If the folder is the root folder, return an empty string
   if (folder.parentFolder == null || folder === app.project.rootFolder) {
     return folder.name;
   }
