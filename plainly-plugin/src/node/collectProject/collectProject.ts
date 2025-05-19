@@ -57,20 +57,36 @@ function validateFootage(footage: Footage[]) {
     // TODO: Show a missing files
     throw new Error('Some footage files are missing from the project.');
   }
+}
 
-  // Throw in case of footage file length > 255
-  const invalidFootage = footage.filter((item) => {
-    return item.itemFsPath.length > 255;
-  });
-  if (invalidFootage.length > 0) {
-    const longFootageNames = invalidFootage
-      .map((item) => item.itemName)
-      .join(', ');
+function makeNewRelinkData(
+  footage: Footage[],
+  footageDir: string,
+): Record<string, string> {
+  return footage.reduce(
+    (acc, item) => {
+      const itemId = item.itemId.toString();
+      const itemPath = path.join(
+        footageDir,
+        item.itemAeFolder.replace('Root', ''),
+        item.itemName,
+      );
+      acc[itemId] = itemPath;
+      return acc;
+    },
+    {} as Record<string, string>,
+  );
+}
 
-    throw new Error(
-      `One or more footage file names exceed the 255-character limit: ${longFootageNames} `,
-    );
-  }
+function makeOriginalRelinkData(footage: Footage[]): Record<string, string> {
+  return footage.reduce(
+    (acc, item) => {
+      const itemId = item.itemId.toString();
+      acc[itemId] = item.itemFsPath;
+      return acc;
+    },
+    {} as Record<string, string>,
+  );
 }
 
 async function makeProjectZip(targetPath: string): Promise<string> {
@@ -81,6 +97,7 @@ async function makeProjectZip(targetPath: string): Promise<string> {
   const aepFileDir = path.dirname(aepFilePath);
   const aepFileName = path.basename(aepFilePath, '.aep');
 
+  // 1. Collect project data
   const result = await evalScriptAsync('collectFiles()');
   if (!result) throw new Error('Failed to collect files');
   const projectInfo: ProjectInfo = JSON.parse(result);
@@ -96,12 +113,15 @@ async function makeProjectZip(targetPath: string): Promise<string> {
   const undoStack: (() => Promise<void>)[] = [];
 
   try {
+    // 2. Rename (Footage) folder to avoid conflicts
     await renameIfExists(footageDir, footageDirRenamed);
     undoStack.push(() => renameIfExists(footageDirRenamed, footageDir));
 
+    // 3. Rename Fonts folder to avoid conflicts
     await renameIfExists(fontsDir, fontsDirRenamed);
     undoStack.push(() => renameIfExists(fontsDirRenamed, fontsDir));
 
+    // 4. Copy project files to the (Footage) folder
     await copyFootage(
       projectInfo.footage,
       aepFileDir,
@@ -110,14 +130,21 @@ async function makeProjectZip(targetPath: string): Promise<string> {
     );
     undoStack.push(() => removeFolder(footageDir));
 
+    // 5. Copy project fonts to the Fonts folder
     await copyFonts(projectInfo.fonts, aepFileDir);
     undoStack.push(() => removeFolder(fontsDir));
 
-    await evalScriptAsync('relinkFootage()');
+    // 6. Relink project files to the (Footage) folder
+    await evalScriptAsync(
+      `relinkFootage(${JSON.stringify(makeNewRelinkData(projectInfo.footage, footageDir))})`,
+    );
     undoStack.unshift(async () => {
-      evalScriptAsync('undoFootage()');
+      evalScriptAsync(
+        `relinkFootage(${JSON.stringify(makeOriginalRelinkData(projectInfo.footage))})`,
+      );
     });
 
+    // 7. Zip the project
     const zipPath = finalizePath(path.join(targetPath, `${aepFileName}.zip`));
     await zipItems(zipPath, [
       { src: aepFilePath, dest: path.basename(aepFilePath), isRequired: true },
@@ -135,6 +162,7 @@ async function makeProjectZip(targetPath: string): Promise<string> {
 
     return zipPath;
   } finally {
+    // 8. Undo all operations in reverse order
     for (let i = undoStack.length - 1; i >= 0; i--) {
       try {
         await undoStack[i]();

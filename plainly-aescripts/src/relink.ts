@@ -1,6 +1,8 @@
-function relinkFootage(): void {
-  app.beginUndoGroup('Relink Footage');
+interface RelinkData {
+  [itemId: string]: string;
+}
 
+function relinkFootage(relinkData: RelinkData): void {
   for (let i = 1; i <= app.project.numItems; i++) {
     const item = app.project.item(i);
     if (!(item instanceof FootageItem)) {
@@ -15,26 +17,17 @@ function relinkFootage(): void {
       continue;
     }
 
-    if (app.project.file == null) {
-      return;
-    }
+    const itemId = item.id.toString();
+    const replacementFilePath = relinkData[itemId];
 
-    const projectDir = app.project.file.parent.fsName;
-    const aeFolderPath = getFolderPath(item.parentFolder).replace(
-      'Root',
-      '(Footage)',
-    );
-    const itemAbsPath = pathJoin(projectDir, aeFolderPath, item.name);
-    // check if file exists
-    item.replace(new File(itemAbsPath));
+    if (!replacementFilePath) {
+      continue;
+    }
+    const replacementFile = new File(replacementFilePath);
+    if (replacementFile.exists) {
+      item.replace(replacementFile);
+    }
   }
 
-  app.endUndoGroup();
-
-  app.project.save();
-}
-
-function undoFootage() {
-  app.executeCommand(16);
   app.project.save();
 }

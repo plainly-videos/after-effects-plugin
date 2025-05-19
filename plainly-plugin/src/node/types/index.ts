@@ -10,6 +10,7 @@ export interface Fonts {
 }
 
 export interface Footage {
+  itemId: number;
   itemName: string;
   itemFsPath: string;
   itemAeFolder: string;
@@ -21,4 +22,8 @@ export interface Settings {
     key: string;
     encrypted: boolean;
   };
+}
+
+export interface RelinkData {
+  [itemId: string]: string;
 }

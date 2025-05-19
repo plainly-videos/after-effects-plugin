@@ -5,6 +5,7 @@ interface FontPath {
 }
 
 interface FootagePath {
+  itemId: number;
   itemName: string;
   itemFsPath: string;
   itemAeFolder: string;
@@ -90,6 +91,7 @@ function collectFootage(): FootagePath[] {
     const relativePath = getFolderPath(item.parentFolder);
 
     footagePaths.push({
+      itemId: item.id,
       itemName: item.file.name,
       itemFsPath: item.file.fsName,
       itemAeFolder: relativePath,
