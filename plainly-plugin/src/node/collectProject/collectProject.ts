@@ -88,10 +88,10 @@ async function makeProjectZip(targetPath: string): Promise<string> {
   validateFootage(projectInfo.footage);
 
   const footageDir = path.join(aepFileDir, '(Footage)');
-  const fontsDir = path.join(aepFileDir, '(Fonts)');
+  const fontsDir = path.join(aepFileDir, 'Fonts');
   const randomPrefix = crypto.randomUUID().split('-')[0];
   const footageDirRenamed = path.join(aepFileDir, `${randomPrefix}-(Footage)`);
-  const fontsDirRenamed = path.join(aepFileDir, `${randomPrefix}-(Fonts)`);
+  const fontsDirRenamed = path.join(aepFileDir, `${randomPrefix}-Fonts`);
 
   const undoStack: (() => Promise<void>)[] = [];
 
@@ -128,7 +128,7 @@ async function makeProjectZip(targetPath: string): Promise<string> {
       },
       {
         src: fontsDir,
-        dest: '(Fonts)',
+        dest: 'Fonts',
         isRequired: projectInfo.fonts.length > 0,
       },
     ]);

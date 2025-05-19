@@ -22,13 +22,14 @@ export function ExportForm() {
         const zipPath = await makeProjectZip(targetPath);
         notifySuccess('Zip file created', `Zip file created at: ${zipPath}`);
         setLoading(false);
-      } catch (error) {
-        notifyError('Failed to collect files', (error as Error).message);
-        setLoading(false);
-      } finally {
+
+        // Open the folder if no errors
         if (openLocation) {
           openFolder(targetPath);
         }
+      } catch (error) {
+        notifyError('Failed to collect files', (error as Error).message);
+        setLoading(false);
       }
     }
   };
