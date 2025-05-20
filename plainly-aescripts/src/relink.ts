@@ -18,12 +18,18 @@ function relinkFootage(relinkData: RelinkData): void {
     }
 
     const itemId = item.id.toString();
-    const replacementFilePath = relinkData[itemId];
+    let fullPath = relinkData[itemId];
 
-    if (!replacementFilePath) {
+    if (!fullPath) {
       continue;
     }
-    const replacementFile = new File(replacementFilePath);
+
+    if (isWin() && fullPath.length > 255) {
+      alert('long path detected'); // TODO: removeme
+      fullPath = `\\\\?\\${fullPath}`;
+    }
+
+    const replacementFile = new File(fullPath);
     if (replacementFile.exists) {
       item.replace(replacementFile);
     }
