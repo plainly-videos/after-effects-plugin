@@ -33,20 +33,11 @@ export async function exists(path: string): Promise<boolean> {
  */
 export async function renameIfExists(src: string, dest: string): Promise<void> {
   if (!(await exists(src))) {
+    // Ignore if the source file doesn't exist
     return;
   }
 
-  try {
-    await fsPromises.rename(src, dest);
-  } catch (error) {
-    if (isWindows && src.length > 260) {
-      // Windows has a maximum path length of 260 characters
-      // Use the long path prefix to rename the file
-      const longPathSrc = `\\\\?\\${src}`;
-      const longPathDest = `\\\\?\\${dest}`;
-      await fsPromises.rename(longPathSrc, longPathDest);
-    }
-  }
+  await fsPromises.rename(src, dest);
 }
 
 /**
