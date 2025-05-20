@@ -2,6 +2,7 @@ import child_process from 'child_process';
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
+import fsPromises from 'fs/promises';
 
 const homeDirectory = os.homedir();
 
@@ -10,6 +11,43 @@ import { isWindows } from './constants';
 // @ts-ignore
 import CSInterface from './lib/CSInterface';
 const csInterface = new CSInterface();
+
+/**
+ * Checks if a file or directory exists at the given path.
+ * @param path - The path to check.
+ * @returns
+ */
+export async function exists(path: string): Promise<boolean> {
+  try {
+    await fsPromises.stat(path);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Renames a file or directory if it exists at the given path.
+ * @param src Source path to rename.
+ * @param dest Destination path to rename to.
+ */
+export async function renameIfExists(src: string, dest: string): Promise<void> {
+  if (!(await exists(src))) {
+    return;
+  }
+
+  try {
+    await fsPromises.rename(src, dest);
+  } catch (error) {
+    if (isWindows && src.length > 260) {
+      // Windows has a maximum path length of 260 characters
+      // Use the long path prefix to rename the file
+      const longPathSrc = `\\\\?\\${src}`;
+      const longPathDest = `\\\\?\\${dest}`;
+      await fsPromises.rename(longPathSrc, longPathDest);
+    }
+  }
+}
 
 /**
  * Replaces the tilde character at the start of a path with the user's home

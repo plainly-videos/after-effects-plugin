@@ -3,7 +3,12 @@ import fsPromises from 'fs/promises';
 
 import { TMP_DIR, csInterface } from '../constants';
 import type { Footage, ProjectInfo } from '../types';
-import { evalScriptAsync, finalizePath, zipItems } from '../utils';
+import {
+  evalScriptAsync,
+  finalizePath,
+  renameIfExists,
+  zipItems,
+} from '../utils';
 import { copyFonts } from './copyFonts';
 import { copyFootage } from './copyFootage';
 
@@ -40,14 +45,6 @@ async function removeFolder(targetPath: string) {
 async function makeProjectZipTmpDir(): Promise<string> {
   await fsPromises.mkdir(TMP_DIR, { recursive: true });
   return makeProjectZip(TMP_DIR);
-}
-
-async function renameIfExists(src: string, dest: string): Promise<void> {
-  try {
-    await fsPromises.rename(src, dest);
-  } catch (error) {
-    // ignore
-  }
 }
 
 function validateFootage(footage: Footage[]) {

@@ -25,7 +25,6 @@ function relinkFootage(relinkData: RelinkData): void {
     }
 
     if (isWin() && fullPath.length > 255) {
-      alert('long path detected'); // TODO: removeme
       fullPath = `\\\\?\\${fullPath}`;
     }
 
