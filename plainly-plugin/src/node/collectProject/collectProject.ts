@@ -114,12 +114,14 @@ async function makeProjectZip(targetPath: string): Promise<string> {
 
   try {
     // 2. Rename (Footage) folder to avoid conflicts
-    await renameIfExists(footageDir, footageDirRenamed);
-    undoStack.push(() => renameIfExists(footageDirRenamed, footageDir));
+    await renameIfExists(footageDir, footageDirRenamed).finally(() =>
+      undoStack.push(() => renameIfExists(footageDirRenamed, footageDir)),
+    );
 
     // 3. Rename Fonts folder to avoid conflicts
-    await renameIfExists(fontsDir, fontsDirRenamed);
-    undoStack.push(() => renameIfExists(fontsDirRenamed, fontsDir));
+    await renameIfExists(fontsDir, fontsDirRenamed).finally(() =>
+      undoStack.push(() => renameIfExists(fontsDirRenamed, fontsDir)),
+    );
 
     // 4. Copy project files to the (Footage) folder
     await copyFootage(
@@ -127,22 +129,23 @@ async function makeProjectZip(targetPath: string): Promise<string> {
       aepFileDir,
       footageDir,
       footageDirRenamed,
-    );
-    undoStack.push(() => removeFolder(footageDir));
+    ).finally(() => undoStack.push(() => removeFolder(footageDir)));
 
     // 5. Copy project fonts to the Fonts folder
-    await copyFonts(projectInfo.fonts, aepFileDir);
-    undoStack.push(() => removeFolder(fontsDir));
+    await copyFonts(projectInfo.fonts, aepFileDir).finally(() =>
+      undoStack.push(() => removeFolder(fontsDir)),
+    );
 
     // 6. Relink project files to the (Footage) folder
     await evalScriptAsync(
       `relinkFootage(${JSON.stringify(makeNewRelinkData(projectInfo.footage, footageDir))})`,
+    ).finally(() =>
+      undoStack.unshift(async () => {
+        evalScriptAsync(
+          `relinkFootage(${JSON.stringify(makeOriginalRelinkData(projectInfo.footage))})`,
+        );
+      }),
     );
-    undoStack.unshift(async () => {
-      evalScriptAsync(
-        `relinkFootage(${JSON.stringify(makeOriginalRelinkData(projectInfo.footage))})`,
-      );
-    });
 
     // 7. Zip the project
     const zipPath = finalizePath(path.join(targetPath, `${aepFileName}.zip`));
