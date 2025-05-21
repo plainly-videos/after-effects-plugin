@@ -1,7 +1,7 @@
 import path from 'path';
 import fsPromises from 'fs/promises';
 
-import { TMP_DIR, csInterface } from '../constants';
+import { TMP_DIR, csInterface, isWindows } from '../constants';
 import type { Footage, ProjectInfo } from '../types';
 import {
   evalScriptAsync,
@@ -99,6 +99,11 @@ async function makeProjectZip(targetPath: string): Promise<string> {
   if (!result) throw new Error('Failed to collect files');
   const projectInfo: ProjectInfo = JSON.parse(result);
 
+  const hasLongFootagePaths = projectInfo.footage.some((item) => {
+    const itemPath = item.itemFsPath;
+    return itemPath.length > 255;
+  });
+
   validateFootage(projectInfo.footage);
 
   const footageDir = path.join(aepFileDir, '(Footage)');
@@ -111,9 +116,18 @@ async function makeProjectZip(targetPath: string): Promise<string> {
 
   try {
     // 2. Rename (Footage) folder to avoid conflicts
-    await renameIfExists(footageDir, footageDirRenamed).finally(() =>
-      undoStack.push(() => renameIfExists(footageDirRenamed, footageDir)),
-    );
+    await renameIfExists(footageDir, footageDirRenamed)
+      .catch((e) => {
+        if (isWindows && hasLongFootagePaths) {
+          throw new Error(
+            'Some footage paths are too long. Please shorten them and try again.',
+          );
+        }
+        throw e;
+      })
+      .finally(() =>
+        undoStack.push(() => renameIfExists(footageDirRenamed, footageDir)),
+      );
 
     // 3. Rename Fonts folder to avoid conflicts
     await renameIfExists(fontsDir, fontsDirRenamed).finally(() =>

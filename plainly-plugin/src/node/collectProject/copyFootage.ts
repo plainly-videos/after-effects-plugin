@@ -1,6 +1,5 @@
 import path from 'path';
 import fsPromises from 'fs/promises';
-import { isWindows } from '../constants';
 import { CollectFootageError } from '../errors';
 import type { Footage } from '../types';
 import {
@@ -25,10 +24,6 @@ export async function copyFootage(
   const footagePromises = footage.map(async (footageItem) => {
     let src = finalizePath(footageItem.itemFsPath);
     src = src.replace(footageDir, footageDirRenamed);
-    if (isWindows && src.length > 255) {
-      src = `\\\\?\\${src}`;
-    }
-
     const footageName = path.basename(footageItem.itemFsPath);
     const folder = footageItem.itemAeFolder.replace('Root', '');
 
