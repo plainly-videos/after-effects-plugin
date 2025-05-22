@@ -71,5 +71,5 @@ function getFolderPath(folder: FolderItem): string {
 }
 
 function getProjectPath() {
-  return app.project.file?.absoluteURI;
+  return app.project.file?.fsName;
 }

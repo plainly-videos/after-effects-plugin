@@ -210,4 +210,41 @@ async function makeProjectZip(targetPath: string) {
   return { collectFilesDir, zipPath };
 }
 
+function getExistingAncestorPath(p: string) {
+  let current = path.resolve(p);
+  while (!fs.existsSync(current)) {
+    const parent = path.dirname(current);
+    if (parent === current) {
+      throw new Error(`No part of the path exists: ${p}`);
+    }
+    current = parent;
+  }
+  return current;
+}
+
+function getVolumeRoot(filePath: string) {
+  const current = getExistingAncestorPath(filePath);
+  return current;
+
+  // let current = filePath;
+
+  // while (true) {
+  //   const parent = path.dirname(filePath);
+  //   if (parent === current) {
+  //     return current;
+  //   }
+
+  //   console.log('do not break here');
+  //   const currentStat = fs.statSync(current);
+  //   console.log('breaks here');
+  //   const parentStat = fs.statSync(parent);
+
+  //   if (currentStat.dev !== parentStat.dev) {
+  //     return current;
+  //   }
+
+  //   current = parent;
+  // }
+}
+
 export { makeProjectZipTmpDir, makeProjectZip, removeFolder, selectFolder };
