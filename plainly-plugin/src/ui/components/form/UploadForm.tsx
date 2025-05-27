@@ -74,10 +74,17 @@ export function UploadForm() {
     let zipPathValue: string | undefined;
 
     try {
-      const { collectFilesDir, zipPath } = await makeProjectZipTmpDir();
+      const result = await makeProjectZipTmpDir();
+
+      if (result.issues) {
+        const { issuesObject } = result;
+        return '';
+      }
+
+      const { collectFilesDir, zipPath } = result;
       collectFilesDirValue = collectFilesDir;
       zipPathValue = zipPath;
-      const file = fs.createReadStream(zipPath);
+      const file = fs.createReadStream(zipPath!);
       const tags = inputs.tags?.map((tag) => tag.trim());
       const formData = new FormData();
       formData.append('file', file);

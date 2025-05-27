@@ -68,3 +68,12 @@ export interface ModelBaseWithDates extends ModelBase {
   createdDate: string;
   lastModified: string;
 }
+
+export interface TextLayerIssue {
+  name: string;
+  type: 'allCaps';
+}
+
+export interface Issues {
+  allCaps: TextLayerIssue[];
+}

@@ -9,6 +9,11 @@ interface FootagePath {
   itemFolder: string;
 }
 
+interface TextLayerIssue {
+  name: string;
+  type: 'allCaps';
+}
+
 /**
  * Prompts the user to select a folder, which will be used to collect project files.
  *
@@ -27,14 +32,22 @@ function selectFolder(): Folder | string {
  *
  * @returns {string|undefined} The name of the collected project folder, or undefined if no project is saved.
  */
-function collectFiles(): string | undefined {
+function collectFiles() {
   // save project at the start
   app.project.save();
 
-  const collectedData: { fonts: FontPath[]; footage: FootagePath[] } = {
+  const collectedData: {
+    fonts: FontPath[];
+    footage: FootagePath[];
+    textLayerIssues: TextLayerIssue[];
+  } = {
     fonts: [],
     footage: [],
+    textLayerIssues: [],
   };
+
+  // check text layer issues
+  collectedData.textLayerIssues = checkForTextLayerIssues();
 
   // collect paths
   collectedData.fonts = collectFonts();
@@ -94,4 +107,23 @@ function collectFootage(): FootagePath[] {
   }
 
   return footagePaths;
+}
+
+function checkForTextLayerIssues() {
+  const issues: TextLayerIssue[] = [];
+  const comps = getAllComps(app.project);
+
+  for (let i = 0; i < comps.length; i++) {
+    const layers = getTextLayersByComp(comps[i]);
+    for (let j = 0; j < layers.length; j++) {
+      if (layers[j].sourceText.value.allCaps) {
+        issues.push({
+          name: layers[j].name,
+          type: 'allCaps',
+        });
+      }
+    }
+  }
+
+  return issues;
 }
