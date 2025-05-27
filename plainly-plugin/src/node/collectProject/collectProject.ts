@@ -6,7 +6,7 @@ import fsPromises from 'fs/promises';
 
 import { TMP_DIR, csInterface } from '../constants';
 import { CollectFontsError, CollectFootageError } from '../errors';
-import type { Fonts, Footage, ProjectInfo } from '../types';
+import type { Fonts, Footage, Issues, ProjectInfo } from '../types';
 import {
   evalScriptAsync,
   finalizePath,
@@ -30,10 +30,24 @@ function selectFolder(callback: (result: string) => void) {
  *
  * @param targetPath the path of the folder where the files will be copied.
  */
-async function collectProjectFiles(targetPath: string): Promise<string> {
+async function collectProjectFiles(
+  targetPath: string,
+  skipChecks = false,
+): Promise<string | Issues> {
   const result = await evalScriptAsync(`collectFiles("${targetPath}")`);
   if (!result) {
     throw new Error('Failed to collect files');
+  }
+
+  const projectInfo: ProjectInfo = JSON.parse(result);
+  if (!skipChecks && projectInfo.textLayerIssues.length > 0) {
+    const issues = {
+      allCaps: projectInfo.textLayerIssues.filter(
+        (issue) => issue.type === 'allCaps',
+      ),
+    };
+
+    return issues;
   }
 
   const projectPath = await evalScriptAsync('getProjectPath()');
@@ -41,8 +55,6 @@ async function collectProjectFiles(targetPath: string): Promise<string> {
     throw new Error('Project not opened or not saved');
   }
   const finalizedProjectPath = finalizePath(projectPath);
-
-  const projectInfo: ProjectInfo = JSON.parse(result);
 
   const projectName = path.basename(finalizedProjectPath, '.aep');
   const pathResolved = finalizePath(targetPath); // Normalize and resolve
@@ -198,7 +210,12 @@ async function makeProjectZipTmpDir() {
 
 // Function to make a project zip with a specified target path
 async function makeProjectZip(targetPath: string) {
-  const collectFilesDir = await collectProjectFiles(targetPath);
+  const result = await collectProjectFiles(targetPath);
+  if (typeof result !== 'string') {
+    // If issues were found, return the issues instead of zipping
+    return { issues: true, issuesObject: result };
+  }
+
   const projectPath = await evalScriptAsync('getProjectPath()');
   if (!projectPath) {
     throw new Error('Project not opened or not saved');
@@ -206,8 +223,8 @@ async function makeProjectZip(targetPath: string) {
   const finalizedProjectPath = finalizePath(projectPath);
 
   const projectName = path.basename(finalizedProjectPath, '.aep');
-  const zipPath = await zip(collectFilesDir, projectName);
-  return { collectFilesDir, zipPath };
+  const zipPath = await zip(result, projectName);
+  return { issues: false, collectFilesDir: result, zipPath };
 }
 
 export { makeProjectZipTmpDir, makeProjectZip, removeFolder, selectFolder };
