@@ -9,6 +9,7 @@ export enum Routes {
 export interface GlobalSettings {
   currentPage: Routes;
   sidebarOpen: boolean;
+  documentId: string;
 }
 
 export enum NotificationType {

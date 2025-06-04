@@ -10,6 +10,7 @@ const initialState = {
   [State.SETTINGS]: {
     currentPage: Routes.EXPORT,
     sidebarOpen: false,
+    documentId: '',
   } as GlobalSettings,
   [State.NOTIFICATIONS]: [] as Notification[],
 };
@@ -21,6 +22,7 @@ function resetGlobalState() {
   setGlobalState(State.SETTINGS, {
     currentPage: Routes.EXPORT,
     sidebarOpen: false,
+    documentId: '',
   });
   setGlobalState(State.NOTIFICATIONS, []);
 }

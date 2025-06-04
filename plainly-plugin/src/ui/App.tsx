@@ -1,6 +1,13 @@
 import { isDev, pluginBundleVersion } from '@src/env';
-import { useMemo } from 'react';
-import { Banner, Button, ExternalLink, Sidebar } from './components';
+import { evalScriptAsync } from '@src/node/utils';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import {
+  Banner,
+  Button,
+  ConfirmationDialog,
+  ExternalLink,
+  Sidebar,
+} from './components';
 import { useGetLatestGithubRelease, useNavigate } from './hooks';
 import {
   AboutRoute,
@@ -9,11 +16,18 @@ import {
   SettingsRoute,
   UploadRoute,
 } from './routes';
+import { State, getGlobalState, setGlobalState } from './state/store';
 import { reloadExtension } from './utils';
 
 export function App() {
   const { currentPage } = useNavigate();
   const { data } = useGetLatestGithubRelease();
+
+  const [projectChanged, setProjectChanged] = useState(false);
+  const [dismissedReload, setDismissedReload] = useState(false);
+
+  const settings = getGlobalState(State.SETTINGS);
+  const { documentId } = settings;
 
   const latestReleaseVersion = data?.tag_name.replace('v', '');
   const newVersionAvailable = pluginBundleVersion !== latestReleaseVersion;
@@ -29,6 +43,35 @@ export function App() {
 
     return null;
   }, [currentPage]);
+
+  const handleDialogClose = useCallback(() => {
+    setProjectChanged(false);
+    setDismissedReload(true);
+  }, []);
+
+  useEffect(() => {
+    const interval = setInterval(async () => {
+      const data = await evalScriptAsync('getProjectBasicData()');
+      if (data) {
+        const parsedData: { documentId: string | undefined } = JSON.parse(data);
+        if (
+          documentId &&
+          !dismissedReload &&
+          parsedData.documentId !== documentId
+        ) {
+          setProjectChanged(true);
+        } else {
+          setDismissedReload(false);
+          setGlobalState(State.SETTINGS, {
+            ...settings,
+            documentId: parsedData.documentId || '',
+          });
+        }
+      }
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [settings, documentId, dismissedReload]);
 
   return (
     <div className="h-screen w-screen flex flex-col overflow-hidden">
@@ -58,7 +101,18 @@ export function App() {
         </p>
       </Banner>
 
-      <div className="flex-1 overflow-y-auto">{route}</div>
+      <div className="flex-1 overflow-y-auto">
+        {route}
+        <ConfirmationDialog
+          title="Working project changed."
+          description="We have detected that the project you are working on has changed. We recommend reloading the extension to ensure everything works correctly."
+          buttonText="Reload"
+          open={projectChanged}
+          setOpen={setProjectChanged}
+          action={reloadExtension}
+          onClose={handleDialogClose}
+        />
+      </div>
     </div>
   );
 }
