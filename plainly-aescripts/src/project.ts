@@ -68,3 +68,11 @@ function removeProjectData() {
 
   project.save();
 }
+
+function getProjectPath() {
+  return app.project.file?.absoluteURI;
+}
+
+function saveProject() {
+  app.project.save();
+}

@@ -87,6 +87,9 @@ function makeOriginalRelinkData(footage: Footage[]): Record<string, string> {
 }
 
 async function makeProjectZip(targetPath: string): Promise<string> {
+  // save project first
+  await evalScriptAsync('saveProject()');
+
   let aepFilePath = await evalScriptAsync('getProjectPath()');
   if (!aepFilePath) throw new Error('Project not opened or not saved');
   aepFilePath = finalizePath(aepFilePath);

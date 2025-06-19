@@ -66,7 +66,3 @@ function getFolderPath(folder: FolderItem): string {
   const parentPath = getFolderPath(folder.parentFolder);
   return pathJoin(parentPath, folder.name);
 }
-
-function getProjectPath() {
-  return app.project.file?.fsName;
-}
