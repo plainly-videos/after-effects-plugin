@@ -2,11 +2,7 @@ import { useNotifications } from '@src/ui/hooks';
 import classNames from 'classnames';
 import { FolderIcon } from 'lucide-react';
 import { useState } from 'react';
-import {
-  makeProjectZip,
-  removeFolder,
-  selectFolder,
-} from '../../../node/index';
+import { makeProjectZip, selectFolder } from '../../../node/index';
 import { openFolder } from '../../../node/utils';
 import { Button, Checkbox } from '../common';
 import { Description, Label, PageHeading } from '../typography';
@@ -22,24 +18,18 @@ export function ExportForm() {
     e.preventDefault();
     setLoading(true);
     if (targetPath) {
-      let collectFilesDirValue: string | undefined;
-
       try {
-        const { collectFilesDir, zipPath } = await makeProjectZip(targetPath);
-        collectFilesDirValue = collectFilesDir;
+        const zipPath = await makeProjectZip(targetPath);
         notifySuccess('Zip file created', `Zip file created at: ${zipPath}`);
         setLoading(false);
-      } catch (error) {
-        notifyError('Failed to collect files', (error as Error).message);
-        setLoading(false);
-      } finally {
-        if (collectFilesDirValue) {
-          await removeFolder(collectFilesDirValue);
-        }
 
+        // Open the folder if no errors
         if (openLocation) {
           openFolder(targetPath);
         }
+      } catch (error) {
+        notifyError('Failed to collect files', (error as Error).message);
+        setLoading(false);
       }
     }
   };

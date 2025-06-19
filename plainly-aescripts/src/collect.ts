@@ -5,8 +5,11 @@ interface FontPath {
 }
 
 interface FootagePath {
+  itemId: number;
   itemName: string;
-  itemFolder: string;
+  itemFsPath: string;
+  itemAeFolder: string;
+  isMissing: boolean;
 }
 
 /**
@@ -28,9 +31,6 @@ function selectFolder(): Folder | string {
  * @returns {string|undefined} The name of the collected project folder, or undefined if no project is saved.
  */
 function collectFiles(): string | undefined {
-  // save project at the start
-  app.project.save();
-
   const collectedData: { fonts: FontPath[]; footage: FootagePath[] } = {
     fonts: [],
     footage: [],
@@ -83,14 +83,17 @@ function collectFootage(): FootagePath[] {
     if (item.file == null) {
       continue;
     }
-    if (item.footageMissing) {
-      continue;
-    }
 
     // Determine the nested folder structure
     const relativePath = getFolderPath(item.parentFolder);
 
-    footagePaths.push({ itemName: item.file.fsName, itemFolder: relativePath });
+    footagePaths.push({
+      itemId: item.id,
+      itemName: item.file.name,
+      itemFsPath: item.file.fsName,
+      itemAeFolder: relativePath,
+      isMissing: item.footageMissing,
+    });
   }
 
   return footagePaths;
