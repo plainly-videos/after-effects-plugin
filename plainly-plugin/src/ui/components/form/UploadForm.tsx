@@ -1,8 +1,9 @@
 import FormData from 'form-data';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useContext, useEffect, useState } from 'react';
 import { makeProjectZipTmpDir } from '../../../node';
 
 import fs from 'fs';
+import { GlobalContext } from '@src/ui/context/GlobalProvider';
 import { useNotifications, useProjectData } from '@src/ui/hooks';
 import {
   useEditProject,
@@ -17,8 +18,10 @@ import { Alert, Button, InternalLink } from '../common';
 import { Description, Label, PageHeading } from '../typography';
 
 export function UploadForm() {
-  const [projectData, setProjectData] = useProjectData();
-  const { isLoading, data } = useGetProjectDetails(projectData?.id);
+  const plainlyProject = useContext(GlobalContext)?.plainlyProject;
+
+  const [setProjectData] = useProjectData();
+  const { isLoading, data } = useGetProjectDetails(plainlyProject?.id);
   const { isPending: isUploading, mutateAsync: uploadProject } =
     useUploadProject();
   const { isPending: isEditing, mutateAsync: editProject } = useEditProject();
@@ -31,7 +34,7 @@ export function UploadForm() {
   }>({});
   const [uploadMode, setUploadMode] = useState<'new' | 'edit'>();
 
-  const localProjectExists = !!projectData?.id;
+  const localProjectExists = !!plainlyProject?.id;
   const remoteProjectExists = !!(localProjectExists && data);
 
   const editSelected = uploadMode === 'edit';
@@ -62,7 +65,8 @@ export function UploadForm() {
 
   const revisionHistoryCount = data?.revisionHistory?.length || 0;
   const badRevision =
-    remoteProjectExists && projectData?.revisionCount !== revisionHistoryCount;
+    remoteProjectExists &&
+    plainlyProject?.revisionCount !== revisionHistoryCount;
 
   const editing = uploadMode === 'edit' || uploadModes[1].checked;
   const disabled = loading || (editing && analysisPending);
@@ -91,7 +95,7 @@ export function UploadForm() {
 
       if (remoteProjectExists && editing) {
         project = await editProject({
-          projectId: projectData.id,
+          projectId: plainlyProject.id,
           formData,
         });
       } else {

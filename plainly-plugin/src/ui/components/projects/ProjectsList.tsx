@@ -1,33 +1,35 @@
 import { platformBaseUrl } from '@src/env';
+import { GlobalContext } from '@src/ui/context/GlobalProvider';
 import { useGetProjects, useNavigate, useProjectData } from '@src/ui/hooks';
 import { Routes } from '@src/ui/types';
 import { isEmpty } from '@src/ui/utils';
 import { LoaderCircleIcon } from 'lucide-react';
-import { useCallback, useMemo } from 'react';
+import { useCallback, useContext, useMemo } from 'react';
 import { LinkedProject, ProjectsListItem } from '.';
 import { Alert, InternalLink } from '../common';
 import { Description, Label } from '../typography';
 
 export function ProjectsList() {
   const { handleLinkClick } = useNavigate();
-  const [projectData, setProjectData, removeProjectData] = useProjectData();
+  const plainlyProject = useContext(GlobalContext)?.plainlyProject;
+  const [setProjectData, removeProjectData] = useProjectData();
   const { isLoading, data } = useGetProjects();
 
   const linkedProject = useMemo(
-    () => data?.find((p) => p.id === projectData?.id),
-    [data, projectData],
+    () => data?.find((p) => p.id === plainlyProject?.id),
+    [data, plainlyProject],
   );
 
   const filteredData = useMemo(
     () =>
       data
-        ?.filter((p) => p.id !== projectData?.id)
+        ?.filter((p) => p.id !== plainlyProject?.id)
         .sort(
           (p1, p2) =>
             new Date(p2.lastModified).getTime() -
             new Date(p1.lastModified).getTime(),
         ),
-    [data, projectData],
+    [data, plainlyProject],
   );
 
   const linkedExists = useMemo(() => !!linkedProject, [linkedProject]);

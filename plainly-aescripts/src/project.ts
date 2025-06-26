@@ -37,12 +37,10 @@ function getProjectData() {
 
   const mdata = new XMPMeta!(project.xmpPacket); //get the project's XMPmetadata
   const schemaNS = XMPMeta!.getNamespaceURI('xmp');
-
-  if (!mdata.doesPropertyExist(schemaNS, propNameId)) {
-    return undefined;
-  }
+  const schemaNSMM = XMPMeta!.getNamespaceURI('xmpMM');
 
   const projectData = {
+    documentId: String(mdata.getProperty(schemaNSMM, 'DocumentID')),
     id: String(mdata.getProperty(schemaNS, propNameId)),
     revisionCount: Number(mdata.getProperty(schemaNS, propNameRevisionCount)),
   };
@@ -58,7 +56,7 @@ function removeProjectData() {
     ExternalObject.AdobeXMPScript = new ExternalObject('lib:AdobeXMPScript');
   }
 
-  const mdata = new XMPMeta!(project.xmpPacket); //get the project's XMPmetadata
+  const mdata = new XMPMeta!(project.xmpPacket); // get the project's XMPmetadata
   const schemaNS = XMPMeta!.getNamespaceURI('xmp');
 
   mdata.deleteProperty(schemaNS, propNameId);
@@ -75,22 +73,4 @@ function getProjectPath() {
 
 function saveProject() {
   app.project.save();
-}
-
-function getProjectBasicData() {
-  const project = app.project;
-
-  if (ExternalObject.AdobeXMPScript === undefined) {
-    // load the XMPlibrary as an ExtendScript ExternalObject
-    ExternalObject.AdobeXMPScript = new ExternalObject('lib:AdobeXMPScript');
-  }
-
-  const mdata = new XMPMeta!(project.xmpPacket); //get the project's XMPmetadata
-  const schemaNS = XMPMeta!.getNamespaceURI('xmpMM');
-
-  const data = {
-    documentId: String(mdata.getProperty(schemaNS, 'DocumentID')),
-  };
-
-  return JSON.stringify(data);
 }

@@ -56,10 +56,26 @@ export const useNotifications = () => {
     [newNotification],
   );
 
+  const notifyInfo = useCallback(
+    (title: string, description?: string) => {
+      const notification = newNotification(
+        title,
+        NotificationType.INFO,
+        description,
+      );
+
+      setTimeout(() => {
+        clearNotification(notification.id);
+      }, 5000);
+    },
+    [newNotification, clearNotification],
+  );
+
   return {
     notifications,
     notifySuccess,
     notifyError,
+    notifyInfo,
     clearNotification,
   };
 };

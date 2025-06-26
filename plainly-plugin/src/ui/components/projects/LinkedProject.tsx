@@ -1,4 +1,4 @@
-import { useProjectData } from '@src/ui/hooks/useProjectData';
+import { GlobalContext } from '@src/ui/context/GlobalProvider';
 import type { Project } from '@src/ui/types/project';
 import { format } from 'date-fns';
 import {
@@ -12,7 +12,7 @@ import {
   VideoIcon,
   XCircleIcon,
 } from 'lucide-react';
-import { useCallback, useState } from 'react';
+import { useCallback, useContext, useState } from 'react';
 import { ProjectAction } from '.';
 import { ConfirmationDialog, Tooltip } from '../common';
 import { Label } from '../typography';
@@ -28,7 +28,7 @@ export function LinkedProject({
   openInWeb: (id: string) => void;
   openProjectRenders: (id: string) => void;
 }) {
-  const [projectData] = useProjectData();
+  const plainlyProject = useContext(GlobalContext)?.plainlyProject;
   const [showConfirmation, setShowConfirmation] = useState(false);
 
   const analysisDone = project.analysis.done;
@@ -108,7 +108,7 @@ export function LinkedProject({
                 <Tooltip text="Sync status">
                   <FolderSync className="size-3" />
                 </Tooltip>
-                <p>Local v{projectData?.revisionCount}</p>
+                <p>Local v{plainlyProject?.revisionCount}</p>
                 <svg
                   viewBox="0 0 2 2"
                   className="size-0.5 flex-none fill-gray-400"
