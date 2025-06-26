@@ -22,7 +22,7 @@ export function ProjectsListItem({
   linkedExists,
 }: {
   project: Project;
-  linkProject: (data: ProjectData) => void;
+  linkProject: (data: Omit<ProjectData, 'documentId'>) => void;
   openInWeb: (id: string) => void;
   openProjectRenders: (id: string) => void;
   linkedExists?: boolean;

@@ -19,8 +19,9 @@ import { Description, Label, PageHeading } from '../typography';
 
 export function UploadForm() {
   const plainlyProject = useContext(GlobalContext)?.plainlyProject;
+  const documentId = useContext(GlobalContext)?.documentId;
 
-  const [setProjectData] = useProjectData();
+  const [setProjectData, _, getData] = useProjectData();
   const { isLoading, data } = useGetProjectDetails(plainlyProject?.id);
   const { isPending: isUploading, mutateAsync: uploadProject } =
     useUploadProject();
@@ -93,14 +94,25 @@ export function UploadForm() {
 
       let project: Project | undefined = undefined;
 
-      if (remoteProjectExists && editing) {
-        project = await editProject({
-          projectId: plainlyProject.id,
-          formData,
-        });
-      } else {
-        project = await uploadProject(formData);
+      // check if the `documentId` and project from `getData` have the same ID
+      const projectData = await getData();
+      if (documentId && projectData?.documentId !== documentId) {
+        notifyError(
+          'Project mismatch',
+          'The project you are trying to upload does not match the current document.',
+        );
+        return;
       }
+
+      if (plainlyProject)
+        if (remoteProjectExists && editing) {
+          project = await editProject({
+            projectId: plainlyProject.id,
+            formData,
+          });
+        } else {
+          project = await uploadProject(formData);
+        }
 
       if (project) {
         const projectId = project.id;

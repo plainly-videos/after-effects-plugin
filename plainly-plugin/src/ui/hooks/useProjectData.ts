@@ -2,16 +2,24 @@ import { evalScriptAsync } from '../../node/utils';
 import type { ProjectData } from '../types';
 
 export const useProjectData = (): [
-  (data: ProjectData) => void,
+  (data: Omit<ProjectData, 'documentId'>) => void,
   () => void,
-  () => Promise<string | undefined>,
+  () => Promise<ProjectData | undefined>,
 ] => {
   const getData = async () => {
-    const projectData = await evalScriptAsync('getProjectData()');
-    return projectData;
+    try {
+      const projectData = await evalScriptAsync('getProjectData()');
+      const parsedData: ProjectData | undefined = projectData
+        ? JSON.parse(projectData)
+        : undefined;
+      return parsedData;
+    } catch (error) {
+      console.error('Error getting project data:', error);
+      return undefined;
+    }
   };
 
-  const setData = async (data: ProjectData) => {
+  const setData = async (data: Omit<ProjectData, 'documentId'>) => {
     const { id, revisionCount } = data;
 
     await evalScriptAsync(`setProjectData("${id}", "${revisionCount}")`);

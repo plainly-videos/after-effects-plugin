@@ -9,9 +9,13 @@ function setProjectData(id: string, revisionCount: number) {
     ExternalObject.AdobeXMPScript = new ExternalObject('lib:AdobeXMPScript');
   }
 
-  const mdata = new XMPMeta!(project.xmpPacket); //get the project's XMPmetadata
+  if (!XMPMeta) {
+    return 'Error: XMPMeta is not available';
+  }
+
+  const mdata = new XMPMeta(project.xmpPacket); //get the project's XMPmetadata
   // update the Label project metadata's value
-  const schemaNS = XMPMeta!.getNamespaceURI('xmp');
+  const schemaNS = XMPMeta.getNamespaceURI('xmp');
   try {
     mdata.setProperty(schemaNS, propNameId, id);
     mdata.setProperty(
@@ -27,6 +31,12 @@ function setProjectData(id: string, revisionCount: number) {
   project.save();
 }
 
+interface ProjectData {
+  documentId: string;
+  id: string;
+  revisionCount: number;
+}
+
 function getProjectData() {
   const project = app.project;
 
@@ -35,11 +45,15 @@ function getProjectData() {
     ExternalObject.AdobeXMPScript = new ExternalObject('lib:AdobeXMPScript');
   }
 
-  const mdata = new XMPMeta!(project.xmpPacket); //get the project's XMPmetadata
-  const schemaNS = XMPMeta!.getNamespaceURI('xmp');
-  const schemaNSMM = XMPMeta!.getNamespaceURI('xmpMM');
+  if (!XMPMeta) {
+    throw new Error('XMPMeta is not available');
+  }
 
-  const projectData = {
+  const mdata = new XMPMeta(project.xmpPacket); //get the project's XMPmetadata
+  const schemaNS = XMPMeta.getNamespaceURI('xmp');
+  const schemaNSMM = XMPMeta.getNamespaceURI('xmpMM');
+
+  const projectData: ProjectData = {
     documentId: String(mdata.getProperty(schemaNSMM, 'DocumentID')),
     id: String(mdata.getProperty(schemaNS, propNameId)),
     revisionCount: Number(mdata.getProperty(schemaNS, propNameRevisionCount)),
@@ -56,8 +70,12 @@ function removeProjectData() {
     ExternalObject.AdobeXMPScript = new ExternalObject('lib:AdobeXMPScript');
   }
 
-  const mdata = new XMPMeta!(project.xmpPacket); // get the project's XMPmetadata
-  const schemaNS = XMPMeta!.getNamespaceURI('xmp');
+  if (!XMPMeta) {
+    throw new Error('XMPMeta is not available');
+  }
+
+  const mdata = new XMPMeta(project.xmpPacket); // get the project's XMPmetadata
+  const schemaNS = XMPMeta.getNamespaceURI('xmp');
 
   mdata.deleteProperty(schemaNS, propNameId);
   mdata.deleteProperty(schemaNS, propNameRevisionCount);
