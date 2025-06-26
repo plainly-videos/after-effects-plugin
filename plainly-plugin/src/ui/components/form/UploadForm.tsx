@@ -104,15 +104,14 @@ export function UploadForm() {
         return;
       }
 
-      if (plainlyProject)
-        if (remoteProjectExists && editing) {
-          project = await editProject({
-            projectId: plainlyProject.id,
-            formData,
-          });
-        } else {
-          project = await uploadProject(formData);
-        }
+      if (remoteProjectExists && editing) {
+        project = await editProject({
+          projectId: plainlyProject.id,
+          formData,
+        });
+      } else {
+        project = await uploadProject(formData);
+      }
 
       if (project) {
         const projectId = project.id;

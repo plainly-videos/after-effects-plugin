@@ -50,9 +50,13 @@ export const GlobalProvider = ({ children }: { children: React.ReactNode }) => {
           notifyInfo("We've detected a new project.");
           newData = { documentId: parsedData.documentId, ...newData };
           setProjectData(newData);
+        } else {
+          // Update only the plainlyProject if documentId is the same
+          newData = { ...projectData, ...newData };
+          setProjectData(newData);
         }
       }
-    }, 5000);
+    }, 3000);
 
     return () => clearInterval(interval);
   }, [notifyInfo, projectData]);
