@@ -1,4 +1,4 @@
-import { GlobalContext } from '@src/ui/context/GlobalProvider';
+import { GlobalContext } from '@src/ui/components/context/GlobalProvider';
 import type { Project } from '@src/ui/types/project';
 import { format } from 'date-fns';
 import {
@@ -28,7 +28,7 @@ export function LinkedProject({
   openInWeb: (id: string) => void;
   openProjectRenders: (id: string) => void;
 }) {
-  const plainlyProject = useContext(GlobalContext)?.plainlyProject;
+  const { plainlyProject } = useContext(GlobalContext) || {};
   const [showConfirmation, setShowConfirmation] = useState(false);
 
   const analysisDone = project.analysis.done;
@@ -108,7 +108,7 @@ export function LinkedProject({
                 <Tooltip text="Sync status">
                   <FolderSync className="size-3" />
                 </Tooltip>
-                <p>Local v{plainlyProject?.revisionCount}</p>
+                <p>Local v{plainlyProject?.revisionCount || 0}</p>
                 <svg
                   viewBox="0 0 2 2"
                   className="size-0.5 flex-none fill-gray-400"

@@ -3,7 +3,6 @@ import { useCallback, useContext, useEffect, useState } from 'react';
 import { makeProjectZipTmpDir } from '../../../node';
 
 import fs from 'fs';
-import { GlobalContext } from '@src/ui/context/GlobalProvider';
 import { useNotifications, useProjectData } from '@src/ui/hooks';
 import {
   useEditProject,
@@ -15,11 +14,11 @@ import type { Project } from '@src/ui/types/project';
 import classNames from 'classnames';
 import { LoaderCircleIcon } from 'lucide-react';
 import { Alert, Button, InternalLink } from '../common';
+import { GlobalContext } from '../context';
 import { Description, Label, PageHeading } from '../typography';
 
 export function UploadForm() {
-  const plainlyProject = useContext(GlobalContext)?.plainlyProject;
-  const documentId = useContext(GlobalContext)?.documentId;
+  const { plainlyProject, documentId } = useContext(GlobalContext) || {};
 
   const [setProjectData, _, getData] = useProjectData();
   const { isLoading, data } = useGetProjectDetails(plainlyProject?.id);

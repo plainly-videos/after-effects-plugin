@@ -1,5 +1,5 @@
 import { isDev, pluginBundleVersion } from '@src/env';
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { Banner, Button, ExternalLink, Sidebar } from './components';
 import { useGetLatestGithubRelease, useNavigate } from './hooks';
 import {
@@ -9,18 +9,11 @@ import {
   SettingsRoute,
   UploadRoute,
 } from './routes';
-import { State, getGlobalState } from './state/store';
 import { reloadExtension } from './utils';
 
 export function App() {
   const { currentPage } = useNavigate();
   const { data } = useGetLatestGithubRelease();
-
-  const [projectChanged, setProjectChanged] = useState(false);
-  const [dismissedReload, setDismissedReload] = useState(false);
-
-  const settings = getGlobalState(State.SETTINGS);
-  const { documentId } = settings;
 
   const latestReleaseVersion = data?.tag_name.replace('v', '');
   const newVersionAvailable = pluginBundleVersion !== latestReleaseVersion;

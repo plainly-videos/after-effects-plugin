@@ -146,16 +146,18 @@ async function makeProjectZip(targetPath: string): Promise<string> {
       footageDirRenamed,
     ).finally(() =>
       undoStack.push(async () => {
-        const footageExists = await exists(footageDir);
-        return footageExists ? removeFolder(footageDir) : undefined;
+        if (await exists(footageDir)) {
+          await removeFolder(footageDir);
+        }
       }),
     );
 
     // 5. Copy project fonts to the Fonts folder
     await copyFonts(projectInfo.fonts, aepFileDir).finally(() =>
       undoStack.push(async () => {
-        const fontsExists = await exists(fontsDir);
-        return fontsExists ? removeFolder(fontsDir) : undefined;
+        if (await exists(fontsDir)) {
+          await removeFolder(fontsDir);
+        }
       }),
     );
 

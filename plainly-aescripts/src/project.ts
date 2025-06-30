@@ -10,7 +10,7 @@ function setProjectData(id: string, revisionCount: number) {
   }
 
   if (!XMPMeta) {
-    return 'Error: XMPMeta is not available';
+    return 'Error: Project metadata functionality is unavailable';
   }
 
   const mdata = new XMPMeta(project.xmpPacket); //get the project's XMPmetadata

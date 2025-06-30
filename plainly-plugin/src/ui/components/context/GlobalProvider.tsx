@@ -1,6 +1,6 @@
 import { evalScriptAsync } from '@src/node/utils';
 import { createContext, useEffect, useState } from 'react';
-import { useNotifications } from '../hooks';
+import { useNotifications } from '../../hooks';
 
 interface GlobalContextProps {
   documentId?: string;
