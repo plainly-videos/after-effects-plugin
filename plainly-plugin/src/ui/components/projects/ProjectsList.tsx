@@ -20,7 +20,7 @@ export function ProjectsList() {
     [data, plainlyProject],
   );
 
-  const projectsWithoutLinkedProject = useMemo(
+  const unlinkedProjects = useMemo(
     () =>
       data
         ?.filter((p) => p.id !== plainlyProject?.id)
@@ -58,7 +58,7 @@ export function ProjectsList() {
 
   return (
     <div className="rounded-md">
-      {isEmpty(projectsWithoutLinkedProject) && (
+      {isEmpty(unlinkedProjects) && (
         <div className="p-4 text-center">
           <p className="text-sm text-gray-400">
             No projects found. Start by{' '}
@@ -68,7 +68,7 @@ export function ProjectsList() {
         </div>
       )}
 
-      {!isEmpty(projectsWithoutLinkedProject) && (
+      {!isEmpty(unlinkedProjects) && (
         <>
           <div className="mb-4">
             <Label label="Linked project" />
@@ -100,7 +100,7 @@ export function ProjectsList() {
               List of all of your existing projects on the Plainly platform.
             </Description>
             <ul className="divide-y divide-white/10 overflow-auto w-full">
-              {projectsWithoutLinkedProject.map((project) => (
+              {unlinkedProjects.map((project) => (
                 <ProjectsListItem
                   key={project.id}
                   project={project}

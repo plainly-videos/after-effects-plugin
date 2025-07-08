@@ -18,7 +18,6 @@ export function ConfirmationDialog({
   open,
   setOpen,
   action,
-  onClose,
 }: {
   title: string;
   description?: string;
@@ -26,7 +25,6 @@ export function ConfirmationDialog({
   open: boolean;
   setOpen: (open: boolean) => void;
   action: () => void;
-  onClose?: () => void;
 }) {
   const [settings] = useGlobalState(State.SETTINGS);
   const sidebarOpen = settings.sidebarOpen;
@@ -81,7 +79,7 @@ export function ConfirmationDialog({
               </Button>
               <Button
                 type="button"
-                onClick={() => (onClose ? onClose() : setOpen(false))}
+                onClick={() => setOpen(false)}
                 secondary
                 className="inline-flex mt-2 sm:mt-0 w-full sm:w-auto justify-center"
               >

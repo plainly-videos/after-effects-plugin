@@ -10,7 +10,7 @@ function setProjectData(id: string, revisionCount: number) {
   }
 
   if (!XMPMeta) {
-    return 'Error: Project metadata functionality is unavailable';
+    return 'Error: Unable to link project due to missing metadata.';
   }
 
   const mdata = new XMPMeta(project.xmpPacket); //get the project's XMPmetadata
@@ -46,7 +46,7 @@ function getProjectData() {
   }
 
   if (!XMPMeta) {
-    throw new Error('XMPMeta is not available');
+    return 'Error: Unable to link project due to missing metadata.';
   }
 
   const mdata = new XMPMeta(project.xmpPacket); //get the project's XMPmetadata
@@ -71,7 +71,7 @@ function removeProjectData() {
   }
 
   if (!XMPMeta) {
-    throw new Error('XMPMeta is not available');
+    return 'Error: Unable to link project due to missing metadata.';
   }
 
   const mdata = new XMPMeta(project.xmpPacket); // get the project's XMPmetadata
