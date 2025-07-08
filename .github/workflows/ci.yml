@@ -16,16 +16,16 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+      
+      - name: Enable Corepack
+        run: |
+          corepack enable
+
       - uses: actions/setup-node@v4
         with:
           node-version: '20.11.1'
           cache: 'yarn'
           cache-dependency-path: 'plainly-aescripts/yarn.lock'
-
-      - name: Enable and prepare Corepack
-        run: |
-          corepack enable
-          corepack prepare yarn@3.8.7 --activate
 
       - name: Run Biome check
         working-directory: plainly-aescripts
@@ -43,16 +43,16 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+      
+      - name: Enable Corepack
+        run: |
+          corepack enable
+
       - uses: actions/setup-node@v4
         with:
           node-version: '20.11.1'
           cache: 'yarn'
           cache-dependency-path: 'plainly-aescripts/yarn.lock'
-
-      - name: Enable and prepare Corepack
-        run: |
-          corepack enable
-          corepack prepare yarn@3.8.7 --activate
 
       - name: Run build
         working-directory: plainly-aescripts
@@ -69,17 +69,17 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        
+      - name: Enable Corepack
+        run: |
+          corepack enable
+
       - uses: actions/setup-node@v4
         with:
           node-version: '20.11.1'
           cache: 'yarn'
           cache-dependency-path: 'plainly-plugin/yarn.lock'
           
-      - name: Enable and prepare Corepack
-        run: |
-          corepack enable
-          corepack prepare yarn@3.8.7 --activate
-
       - name: Run Biome check
         working-directory: plainly-plugin
         run: |
@@ -96,16 +96,16 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        
+      - name: Enable Corepack
+        run: |
+          corepack enable
+
       - uses: actions/setup-node@v4
         with:
           node-version: '20.11.1'
           cache: 'yarn'
           cache-dependency-path: 'plainly-plugin/yarn.lock'
-
-      - name: Enable and prepare Corepack
-        run: |
-          corepack enable
-          corepack prepare yarn@3.8.7 --activate
 
       - name: Run build
         working-directory: plainly-plugin
