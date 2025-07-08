@@ -2,7 +2,7 @@ import { Transition } from '@headlessui/react';
 import { useNotifications } from '@src/ui/hooks';
 import type { NotificationType } from '@src/ui/types';
 import classNames from 'classnames';
-import { CircleCheckBigIcon, XIcon } from 'lucide-react';
+import { CircleCheckBigIcon, InfoIcon, XIcon } from 'lucide-react';
 
 function Notification({
   title,
@@ -43,6 +43,12 @@ function Notification({
                   )}
                   {type === 'error' && (
                     <XIcon aria-hidden="true" className="size-6 text-red-400" />
+                  )}
+                  {type === 'info' && (
+                    <InfoIcon
+                      aria-hidden="true"
+                      className="size-6 text-blue-400"
+                    />
                   )}
                 </div>
                 <div className="ml-3 w-0 flex-1 pt-0.5">

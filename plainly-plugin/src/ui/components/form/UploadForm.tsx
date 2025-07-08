@@ -1,5 +1,5 @@
 import FormData from 'form-data';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useContext, useEffect, useState } from 'react';
 import { makeProjectZipTmpDir } from '../../../node';
 
 import fs from 'fs';
@@ -14,11 +14,14 @@ import type { Project } from '@src/ui/types/project';
 import classNames from 'classnames';
 import { LoaderCircleIcon } from 'lucide-react';
 import { Alert, Button, InternalLink } from '../common';
+import { GlobalContext } from '../context';
 import { Description, Label, PageHeading } from '../typography';
 
 export function UploadForm() {
-  const [projectData, setProjectData] = useProjectData();
-  const { isLoading, data } = useGetProjectDetails(projectData?.id);
+  const { plainlyProject, documentId } = useContext(GlobalContext) || {};
+
+  const [setProjectData, _, getData] = useProjectData();
+  const { isLoading, data } = useGetProjectDetails(plainlyProject?.id);
   const { isPending: isUploading, mutateAsync: uploadProject } =
     useUploadProject();
   const { isPending: isEditing, mutateAsync: editProject } = useEditProject();
@@ -31,7 +34,7 @@ export function UploadForm() {
   }>({});
   const [uploadMode, setUploadMode] = useState<'new' | 'edit'>();
 
-  const localProjectExists = !!projectData?.id;
+  const localProjectExists = !!plainlyProject?.id;
   const remoteProjectExists = !!(localProjectExists && data);
 
   const editSelected = uploadMode === 'edit';
@@ -62,7 +65,8 @@ export function UploadForm() {
 
   const revisionHistoryCount = data?.revisionHistory?.length || 0;
   const badRevision =
-    remoteProjectExists && projectData?.revisionCount !== revisionHistoryCount;
+    remoteProjectExists &&
+    plainlyProject?.revisionCount !== revisionHistoryCount;
 
   const editing = uploadMode === 'edit' || uploadModes[1].checked;
   const disabled = loading || (editing && analysisPending);
@@ -89,9 +93,19 @@ export function UploadForm() {
 
       let project: Project | undefined = undefined;
 
+      // check if the `documentId` and project from `getData` have the same ID
+      const projectData = await getData();
+      if (documentId && projectData?.documentId !== documentId) {
+        notifyError(
+          'Project mismatch',
+          'The project you are trying to upload does not match the current document.',
+        );
+        return;
+      }
+
       if (remoteProjectExists && editing) {
         project = await editProject({
-          projectId: projectData.id,
+          projectId: plainlyProject.id,
           formData,
         });
       } else {

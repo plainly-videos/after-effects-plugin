@@ -5,6 +5,7 @@ import { TMP_DIR, csInterface, isWindows } from '../constants';
 import type { Footage, ProjectInfo } from '../types';
 import {
   evalScriptAsync,
+  exists,
   finalizePath,
   renameIfExists,
   zipItems,
@@ -143,11 +144,21 @@ async function makeProjectZip(targetPath: string): Promise<string> {
       aepFileDir,
       footageDir,
       footageDirRenamed,
-    ).finally(() => undoStack.push(() => removeFolder(footageDir)));
+    ).finally(() =>
+      undoStack.push(async () => {
+        if (await exists(footageDir)) {
+          await removeFolder(footageDir);
+        }
+      }),
+    );
 
     // 5. Copy project fonts to the Fonts folder
     await copyFonts(projectInfo.fonts, aepFileDir).finally(() =>
-      undoStack.push(() => removeFolder(fontsDir)),
+      undoStack.push(async () => {
+        if (await exists(fontsDir)) {
+          await removeFolder(fontsDir);
+        }
+      }),
     );
 
     // 6. Relink project files to the (Footage) folder

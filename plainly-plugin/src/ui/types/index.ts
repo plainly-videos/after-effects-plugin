@@ -9,11 +9,13 @@ export enum Routes {
 export interface GlobalSettings {
   currentPage: Routes;
   sidebarOpen: boolean;
+  documentId: string;
 }
 
 export enum NotificationType {
   SUCCESS = 'success',
   ERROR = 'error',
+  INFO = 'info',
 }
 
 export interface Notification {
@@ -56,6 +58,7 @@ export class Pin {
 }
 
 export interface ProjectData {
+  documentId: string;
   id: string;
   revisionCount: number;
 }
