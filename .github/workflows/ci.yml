@@ -22,9 +22,10 @@ jobs:
           cache: 'yarn'
           cache-dependency-path: 'plainly-aescripts/yarn.lock'
 
-      - name: Enable Corepack
+      - name: Enable and prepare Corepack
         run: |
           corepack enable
+          corepack prepare yarn@3.8.7 --activate
 
       - name: Run Biome check
         working-directory: plainly-aescripts
@@ -48,9 +49,10 @@ jobs:
           cache: 'yarn'
           cache-dependency-path: 'plainly-aescripts/yarn.lock'
 
-      - name: Enable Corepack
+      - name: Enable and prepare Corepack
         run: |
           corepack enable
+          corepack prepare yarn@3.8.7 --activate
 
       - name: Run build
         working-directory: plainly-aescripts
@@ -72,10 +74,11 @@ jobs:
           node-version: '20.11.1'
           cache: 'yarn'
           cache-dependency-path: 'plainly-plugin/yarn.lock'
-
-      - name: Enable Corepack
+          
+      - name: Enable and prepare Corepack
         run: |
           corepack enable
+          corepack prepare yarn@3.8.7 --activate
 
       - name: Run Biome check
         working-directory: plainly-plugin
@@ -99,9 +102,10 @@ jobs:
           cache: 'yarn'
           cache-dependency-path: 'plainly-plugin/yarn.lock'
 
-      - name: Enable Corepack
+      - name: Enable and prepare Corepack
         run: |
           corepack enable
+          corepack prepare yarn@3.8.7 --activate
 
       - name: Run build
         working-directory: plainly-plugin
