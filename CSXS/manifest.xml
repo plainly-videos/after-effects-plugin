@@ -2,13 +2,13 @@
 <ExtensionManifest
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
 	ExtensionBundleId="com.plainlyvideos.after-effects-plugin" 
-	ExtensionBundleVersion="1.2.4"
+	ExtensionBundleVersion="1.2.5"
 	ExtensionBundleName="Plainly Videos"
 	Version="11.0"
 >
 	<!-- MAJOR-VERSION-UPDATE-MARKER -->
 	<ExtensionList>
-		<Extension Id="com.plainlyvideos.after-effects-plugin.Panel" Version="1.2.4"/>
+		<Extension Id="com.plainlyvideos.after-effects-plugin.Panel" Version="1.2.5"/>
 	</ExtensionList>
 	<ExecutionEnvironment>
 		<HostList>
