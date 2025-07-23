@@ -17,8 +17,11 @@ function relinkFootage(relinkData: RelinkData): void {
       continue;
     }
 
-    // Important: Skip PSD files
-    if (originalFile.fsName.endsWith('.psd')) {
+    // Important: Skip PSD (Photoshop) and AI (illustrator) files
+    if (
+      originalFile.fsName.endsWith('.psd') ||
+      originalFile.fsName.endsWith('.ai')
+    ) {
       continue;
     }
 
