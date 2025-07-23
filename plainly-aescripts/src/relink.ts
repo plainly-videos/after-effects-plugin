@@ -17,6 +17,11 @@ function relinkFootage(relinkData: RelinkData): void {
       continue;
     }
 
+    // Important: Skip PSD files
+    if (originalFile.fsName.endsWith('.psd')) {
+      continue;
+    }
+
     const itemId = item.id.toString();
     let fullPath = relinkData[itemId];
 
