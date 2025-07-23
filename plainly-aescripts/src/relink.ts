@@ -17,6 +17,14 @@ function relinkFootage(relinkData: RelinkData): void {
       continue;
     }
 
+    // Important: Skip PSD (Photoshop) and AI (illustrator) files
+    if (
+      originalFile.fsName.endsWith('.psd') ||
+      originalFile.fsName.endsWith('.ai')
+    ) {
+      continue;
+    }
+
     const itemId = item.id.toString();
     let fullPath = relinkData[itemId];
 
