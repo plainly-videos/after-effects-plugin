@@ -22,17 +22,23 @@ export async function copyFootage(
   await fsPromises.mkdir(newFootageDir);
 
   const footagePromises = footage.map(async (footageItem) => {
-    let src = finalizePath(footageItem.itemFsPath);
-    src = src.replace(footageDir, footageDirRenamed);
-    const footageName = path.basename(footageItem.itemFsPath);
-    const folder = footageItem.itemAeFolder.replace('Root', '');
-
-    generateFolders(path.join(newFootageDir, folder));
-    const dest = path.join(newFootageDir, folder, footageName);
     try {
+      let src = finalizePath(footageItem.itemFsPath);
+
+      src = src.replace(footageDir, footageDirRenamed);
+      const footageName = path.basename(footageItem.itemFsPath);
+      const folder = footageItem.itemAeFolder.replace('Root', '');
+
+      generateFolders(path.join(newFootageDir, folder));
+      const dest = path.join(newFootageDir, folder, footageName);
+
       return await fsPromises.copyFile(src, dest);
     } catch (error) {
-      throw new Error(src);
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
+      throw new Error(
+        `Failed to copy footage ${footageItem.itemName}: ${errorMessage}. Original path: ${footageItem.itemFsPath}`,
+      );
     }
   });
 

@@ -93,7 +93,14 @@ async function makeProjectZip(targetPath: string): Promise<string> {
 
   let aepFilePath = await evalScriptAsync('getProjectPath()');
   if (!aepFilePath) throw new Error('Project not opened or not saved');
-  aepFilePath = finalizePath(aepFilePath);
+
+  try {
+    aepFilePath = finalizePath(aepFilePath);
+  } catch (error) {
+    throw new Error(
+      `Failed to process project file path. Raw path: ${aepFilePath}`,
+    );
+  }
 
   const aepFileDir = path.dirname(aepFilePath);
   const aepFileName = path.basename(aepFilePath, '.aep');

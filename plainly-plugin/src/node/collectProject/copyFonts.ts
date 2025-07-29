@@ -21,20 +21,29 @@ export async function copyFonts(fonts: Fonts[], targetDir: string) {
   await fsPromises.mkdir(newFontsDir);
 
   const fontPromises = uniqueFonts.map(async (font) => {
-    const src = finalizePath(font.fontLocation);
+    try {
+      const src = finalizePath(font.fontLocation);
 
-    const dest = path.join(
-      newFontsDir,
-      `${font.fontName}.${font.fontExtension}`,
-    );
-    // if the file doesn't end with .otf or .ttf, copy it, otherwise, throw an error
-    if (['otf', 'ttf', 'ttc'].includes(font.fontExtension)) {
-      return await fsPromises.copyFile(src, dest);
+      const dest = path.join(
+        newFontsDir,
+        `${font.fontName}.${font.fontExtension}`,
+      );
+
+      // if the file doesn't end with .otf or .ttf, copy it, otherwise, throw an error
+      if (['otf', 'ttf', 'ttc'].includes(font.fontExtension)) {
+        return await fsPromises.copyFile(src, dest);
+      }
+
+      throw new Error(
+        `Unsupported font format: ${font.fontExtension} for font ${font.fontName} (Source Path: ${src})`,
+      );
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
+      throw new Error(
+        `Failed to copy font ${font.fontName}: ${errorMessage}. Original path: ${font.fontLocation}`,
+      );
     }
-
-    throw new Error(
-      `Unsupported font format: ${font.fontExtension} for font ${font.fontName} (Source Path: ${src})`,
-    );
   });
 
   const errors = await runInParallelReturnRejected(fontPromises);

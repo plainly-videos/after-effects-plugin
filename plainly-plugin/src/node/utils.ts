@@ -60,7 +60,40 @@ export function untildify(pathWithTilde: string): string {
 }
 
 export function finalizePath(entry: string) {
-  return path.resolve(decodeURI(untildify(entry)));
+  try {
+    // Handle file:// URIs specifically
+    if (entry.startsWith('file://')) {
+      // On Windows, file URIs can be like file:///C:/path or file://server/path
+      // Remove the file:// prefix
+      let filePath = entry.slice(7); // Remove 'file://'
+
+      // On Windows, handle UNC paths and drive letters properly
+      if (isWindows) {
+        // If it's a UNC path (starts with //) keep the slashes
+        if (filePath.startsWith('//')) {
+          // Do nothing, keep the leading slashes
+        } else if (
+          filePath.startsWith('/') &&
+          filePath.length > 1 &&
+          filePath[2] === ':'
+        ) {
+          // Remove leading slash for drive letters: /C:/path -> C:/path
+          filePath = filePath.slice(1);
+        }
+        // Convert forward slashes to backslashes on Windows
+        filePath = filePath.replace(/\//g, '\\');
+      }
+
+      return path.resolve(decodeURI(untildify(filePath)));
+    }
+
+    return path.resolve(decodeURI(untildify(entry)));
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    throw new Error(
+      `Failed to process file path: ${entry}. Original error: ${errorMessage}`,
+    );
+  }
 }
 
 export function generateFolders(folderPath: string) {
