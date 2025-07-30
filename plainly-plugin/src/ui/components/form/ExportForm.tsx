@@ -3,7 +3,7 @@ import classNames from 'classnames';
 import { FolderIcon } from 'lucide-react';
 import { useState } from 'react';
 import { makeProjectZip, selectFolder } from '../../../node/index';
-import { finalizePath, openFolder } from '../../../node/utils';
+import { openFolder } from '../../../node/utils';
 import { Button, Checkbox } from '../common';
 import { Description, Label, PageHeading } from '../typography';
 
@@ -77,7 +77,7 @@ export function ExportForm() {
                   >
                     <span>
                       {targetPath && targetPath !== 'undefined'
-                        ? finalizePath(targetPath)
+                        ? decodeURI(targetPath)
                         : 'Select folder'}
                     </span>
                   </label>

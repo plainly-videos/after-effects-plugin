@@ -1,6 +1,7 @@
 import child_process from 'child_process';
 import fs from 'fs';
 import os from 'os';
+import path from 'path';
 import fsPromises from 'fs/promises';
 
 const homeDirectory = os.homedir();
@@ -59,7 +60,7 @@ export function untildify(pathWithTilde: string): string {
 }
 
 export function finalizePath(entry: string) {
-  return decodeURI(untildify(entry));
+  return path.resolve(decodeURI(untildify(entry)));
 }
 
 export function generateFolders(folderPath: string) {
