@@ -27,6 +27,24 @@ export async function exists(path: string): Promise<boolean> {
 }
 
 /**
+ * Checks if the specified file or directory is accessible.
+ *
+ * Attempts to access the given path using `fsPromises.access`.
+ * Returns `true` if the path is accessible, otherwise returns `false`.
+ *
+ * @param path - The file or directory path to check for access.
+ * @returns A promise that resolves to `true` if the path is accessible, or `false` otherwise.
+ */
+export async function hasAccess(path: string): Promise<boolean> {
+  try {
+    await fsPromises.access(path);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/**
  * Renames a file or directory if it exists at the given path.
  * @param src Source path to rename.
  * @param dest Destination path to rename to.
@@ -34,6 +52,11 @@ export async function exists(path: string): Promise<boolean> {
 export async function renameIfExists(src: string, dest: string): Promise<void> {
   if (!(await exists(src))) {
     // Ignore if the source file doesn't exist
+    return;
+  }
+
+  if (!(await hasAccess(src))) {
+    // Ignore if the source file is not accessible
     return;
   }
 
