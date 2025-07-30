@@ -86,7 +86,7 @@ function removeProjectData() {
 }
 
 function getProjectPath() {
-  return app.project.file?.absoluteURI;
+  return app.project.file?.fsName;
 }
 
 function saveProject() {

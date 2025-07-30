@@ -1,4 +1,4 @@
-import { isDev, pluginBundleVersion } from '@src/env';
+import { pluginBundleVersion } from '@src/env';
 import { useMemo } from 'react';
 import { Banner, Button, ExternalLink, Sidebar } from './components';
 import { useGetLatestGithubRelease, useNavigate } from './hooks';
@@ -32,15 +32,13 @@ export function App() {
 
   return (
     <div className="h-screen w-screen flex flex-col overflow-hidden">
-      {isDev && (
-        <Button
-          secondary
-          onClick={reloadExtension}
-          className="absolute top-3 right-3 cursor-pointer z-40"
-        >
-          Reload extension
-        </Button>
-      )}
+      <Button
+        secondary
+        onClick={reloadExtension}
+        className="absolute top-3 right-3 cursor-pointer z-40"
+      >
+        Reload extension
+      </Button>
       <Sidebar />
       <Banner show={showBanner}>
         <p className="text-white text-xs font-medium">

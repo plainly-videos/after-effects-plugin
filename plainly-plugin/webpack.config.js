@@ -43,6 +43,6 @@ module.exports = (_, options) => ({
       filename: 'index.html',
       inject: 'body',
     }),
-    new Dotenv({ path: `./.env.${process.env.NODE_ENV}` }),
+    new Dotenv({ path: `./.env.${options.mode}` }),
   ],
 });
