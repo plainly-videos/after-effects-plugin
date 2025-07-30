@@ -1,7 +1,6 @@
 import child_process from 'child_process';
 import fs from 'fs';
 import os from 'os';
-import path from 'path';
 import fsPromises from 'fs/promises';
 
 const homeDirectory = os.homedir();
@@ -60,11 +59,11 @@ export function untildify(pathWithTilde: string): string {
 }
 
 export function finalizePath(entry: string) {
-  return path.resolve(decodeURI(untildify(entry)));
+  return decodeURI(untildify(entry));
 }
 
 export function generateFolders(folderPath: string) {
-  const pathResolved = path.resolve(decodeURI(untildify(folderPath))); // Normalize and resolve
+  const pathResolved = finalizePath(folderPath); // Normalize and resolve
 
   if (!fs.existsSync(pathResolved)) {
     fs.mkdirSync(pathResolved, { recursive: true });
