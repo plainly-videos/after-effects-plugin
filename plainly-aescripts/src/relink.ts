@@ -18,9 +18,10 @@ function relinkFootage(relinkData: RelinkData): void {
     }
 
     // Important: Skip PSD (Photoshop) and AI (illustrator) files
+    const name = originalFile.fsName.toLowerCase();
     if (
-      originalFile.fsName.endsWith('.psd') ||
-      originalFile.fsName.endsWith('.ai')
+      name.substring(name.length - 4) === '.psd' ||
+      name.substring(name.length - 3) === '.ai'
     ) {
       continue;
     }
