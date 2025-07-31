@@ -11,21 +11,24 @@ jobs:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
-
       - uses: actions/setup-node@v4
         with:
           node-version: '20.11.1'
 
+      - name: Install root dependencies
+        run: |
+          yarn install --immutable
+
       - name: Prepare plainly-aescripts
         working-directory: plainly-aescripts
         run: |
-          yarn install --frozen-lockfile
+          yarn install --immutable
           yarn build
 
       - name: Prepare plainly-plugin
         working-directory: plainly-plugin
         run: |
-          yarn install --frozen-lockfile
+          yarn install --immutable
           yarn build
 
       - name: Prepare package for signing
