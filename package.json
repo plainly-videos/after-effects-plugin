@@ -3,16 +3,17 @@
   "version": "1.2.6",
   "author": "Plainly Videos",
   "scripts": {
-    "build": "cd plainly-aescripts && yarn build && cd ../plainly-plugin && yarn build",
+    "build": "cd plainly-aescripts && yarn install && yarn build && cd ../plainly-plugin && yarn install && yarn build",
     "prepare-aescripts": "cd plainly-aescripts && yarn install && yarn build",
     "prepare-plugin": "cd plainly-plugin && yarn install && yarn build",
-    "package": "rm -rf package && yarn prepare-aescripts && yarn prepare-plugin && node ./scripts/preparePackage.cjs",
-    "prepare": "rm -rf package && node ./scripts/preparePackage.cjs",
+    "package": "rimraf package && yarn build && node ./scripts/preparePackage.cjs",
+    "prepare": "rimraf package && node ./scripts/preparePackage.cjs",
     "postinstall": "husky",
     "husky-check": "cd plainly-aescripts && yarn biome && cd ../plainly-plugin && yarn biome"
   },
   "devDependencies": {
-    "husky": "^9.1.7"
+    "husky": "^9.1.7",
+    "rimraf": "^6.0.1"
   },
   "packageManager": "yarn@3.8.7"
 }
