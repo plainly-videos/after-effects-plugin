@@ -5,7 +5,7 @@
   "author": "Plainly Videos",
   "license": "Apache-2.0",
   "scripts": {
-    "clean": "rm -rf dist",
+    "clean": "rimraf dist",
     "compile": "yarn clean && tsc",
     "dev": "yarn compile && concurrently \"tsc --watch\" \"webpack --mode development --watch\"",
     "build-test": "yarn compile && webpack --mode production",
@@ -20,6 +20,7 @@
     "@biomejs/biome": "1.9.4",
     "@types/node": "^22.10.5",
     "concurrently": "^9.1.2",
+    "rimraf": "^6.0.1",
     "typescript": "^5.7.2",
     "webpack": "^5.97.1",
     "webpack-cli": "^6.0.1"

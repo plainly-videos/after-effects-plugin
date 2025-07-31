@@ -19,7 +19,7 @@ interface FootagePath {
  */
 function selectFolder(): Folder | string {
   const folder = Folder.selectDialog('Select folder to collect project files:');
-  if (folder) return new Folder(folder.fsName); // Return selected folder
+  if (folder) return folder.fsName; // Return selected folder
 
   // NOTE: this always returns undefined as a string if no folder is selected
   return 'undefined';
