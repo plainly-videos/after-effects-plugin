@@ -25,7 +25,7 @@ jobs:
       - name: Run Biome check
         working-directory: plainly-aescripts
         run: |
-          yarn install --frozen-lockfile
+          yarn install --immutable
           yarn biome
 
   build-aescripts:
@@ -47,7 +47,7 @@ jobs:
       - name: Run build
         working-directory: plainly-aescripts
         run: |
-          yarn install --frozen-lockfile
+          yarn install --immutable
           yarn build
 
   biome-check-plugin:
@@ -68,7 +68,7 @@ jobs:
       - name: Run Biome check
         working-directory: plainly-plugin
         run: |
-          yarn install --frozen-lockfile
+          yarn install --immutable
           yarn biome
 
   build-plugin:
@@ -90,5 +90,5 @@ jobs:
       - name: Run build
         working-directory: plainly-plugin
         run: |
-          yarn install --frozen-lockfile
+          yarn install --immutable
           yarn build

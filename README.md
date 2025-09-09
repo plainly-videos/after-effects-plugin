@@ -78,11 +78,11 @@ To install and run the extension:
    ```
 4. Install `aescripts` dependencies and build for production
    ```bash
-   cd plainly-aescripts && yarn install && yarn build
+   cd plainly-aescripts && yarn install --immutable && yarn build
    ```
 5. Install `plugin` dependencies and build for production
    ```bash
-   cd plainly-plugin && yarn install && yarn build
+   cd plainly-plugin && yarn install --immutable && yarn build
    ```
 6. Open Adobe After Effects, navigate to **Window -> Extensions**, and select **Plainly Videos** to start the extension.
 
