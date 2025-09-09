@@ -3,9 +3,9 @@
   "version": "1.2.7",
   "author": "Plainly Videos",
   "scripts": {
-    "build": "cd plainly-aescripts && yarn install --immutable && yarn build && cd ../plainly-plugin && yarn install --immutable && yarn build",
-    "prepare-aescripts": "cd plainly-aescripts && yarn install --immutable && yarn build",
-    "prepare-plugin": "cd plainly-plugin && yarn install --immutable && yarn build",
+    "build": "yarn build-aescripts && yarn build-plugin",
+    "build-aescripts": "cd plainly-aescripts && yarn install --immutable && yarn build && cd ..",
+    "build-plugin": "cd plainly-plugin && yarn install --immutable && yarn build && cd ..",
     "package": "rimraf package && yarn build && node ./scripts/preparePackage.cjs",
     "prepare": "rimraf package && node ./scripts/preparePackage.cjs",
     "postinstall": "husky",

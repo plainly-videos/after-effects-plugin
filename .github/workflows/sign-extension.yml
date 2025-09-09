@@ -19,16 +19,8 @@ jobs:
         run: |
           yarn install --immutable
 
-      - name: Prepare plainly-aescripts
-        working-directory: plainly-aescripts
+      - name: Build the project
         run: |
-          yarn install --immutable
-          yarn build
-
-      - name: Prepare plainly-plugin
-        working-directory: plainly-plugin
-        run: |
-          yarn install --immutable
           yarn build
 
       - name: Prepare package for signing
