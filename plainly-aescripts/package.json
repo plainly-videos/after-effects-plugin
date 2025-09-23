@@ -11,6 +11,7 @@
     "build-test": "yarn compile && webpack --mode production",
     "build": "yarn compile && webpack --mode production",
     "biome": "biome check ./src",
+    "biome-ci": "biome ci ./src",
     "biome-write": "biome check --write ./src"
   },
   "dependencies": {
