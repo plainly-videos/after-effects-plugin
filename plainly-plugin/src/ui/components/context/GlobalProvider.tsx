@@ -16,7 +16,6 @@ export interface ProjectValidation {
     allCaps: {
       layerId: string;
       layerName: string;
-      isValid: false;
     }[];
   };
 }

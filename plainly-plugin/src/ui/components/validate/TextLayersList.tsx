@@ -1,7 +1,9 @@
+import { isEmpty } from '@src/ui/utils';
 import classNames from 'classnames';
 import { ChevronDownIcon } from 'lucide-react';
-import React, { useState } from 'react';
+import { useState } from 'react';
 import type { ProjectValidation } from '../context';
+import { AllCaps } from './text/AllCaps';
 
 export function TextLayersList({
   textLayers,
@@ -52,18 +54,7 @@ export function TextLayersList({
               <p>Layer name</p>
             </div>
           </div>
-          <div className="col-span-3 grid grid-cols-3">
-            {allCaps?.map((details) => (
-              <React.Fragment key={details.layerId}>
-                <div className="col-span-1 border-r border-white/10 px-1 py-1">
-                  <p>allCaps</p>
-                </div>
-                <div className="col-span-2 px-1 py-1 w-full">
-                  <p className="text-left">{details.layerName}</p>
-                </div>
-              </React.Fragment>
-            ))}
-          </div>
+          {!isEmpty(allCaps) && <AllCaps allCaps={allCaps} />}
         </>
       )}
     </div>

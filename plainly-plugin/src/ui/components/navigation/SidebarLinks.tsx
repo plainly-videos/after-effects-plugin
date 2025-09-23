@@ -36,7 +36,7 @@ export function SidebarLinks({ links }: { links: (Page | Separator)[] }) {
                   >
                     <link.icon aria-hidden="true" className="size-4 shrink-0" />
                     {valid === false && link.name === 'Validate' && (
-                      <span className="absolute top-0.5 right-1 inline-flex items-center justify-center h-2 w-2 bg-red-600 rounded-full" />
+                      <span className="absolute top-0.5 right-1 inline-flex items-center justify-center h-2 w-2 bg-yellow-600 rounded-full" />
                     )}
                     {sidebarOpen && link.name}
                   </button>
