@@ -2,11 +2,7 @@ import { State, useGlobalState } from '@src/ui/state/store';
 import classNames from 'classnames';
 import { NotificationsOverlay } from '../common';
 
-export function MainWrapper({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export function MainWrapper({ children }: { children: React.ReactNode }) {
   const [settings] = useGlobalState(State.SETTINGS);
   const sidebarOpen = settings.sidebarOpen;
 

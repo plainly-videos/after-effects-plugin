@@ -1,7 +1,7 @@
-import path from 'path';
 import fsPromises from 'fs/promises';
+import path from 'path';
 
-import { TMP_DIR, csInterface, isWindows } from '../constants';
+import { csInterface, isWindows, TMP_DIR } from '../constants';
 import type { Footage, ProjectInfo } from '../types';
 import {
   evalScriptAsync,

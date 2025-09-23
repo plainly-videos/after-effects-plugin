@@ -2,14 +2,16 @@ import { useNotifications } from '@src/ui/hooks';
 import type { Pin } from '@src/ui/types';
 import classNames from 'classnames';
 import { useState } from 'react';
-import { PinInput } from '.';
 import { State, useGlobalState } from '../../state/store';
 import { Button } from '../common';
 import { Description, PageHeading } from '../typography';
+import { PinInput } from '.';
 
 export function PinOverlay({
   onPinSubmitted,
-}: { onPinSubmitted: (value: string | undefined) => void }) {
+}: {
+  onPinSubmitted: (value: string | undefined) => void;
+}) {
   const { notifyError } = useNotifications();
   const [settings] = useGlobalState(State.SETTINGS);
   const sidebarOpen = settings.sidebarOpen;

@@ -26,7 +26,7 @@ jobs:
         working-directory: plainly-aescripts
         run: |
           yarn install --immutable
-          yarn biome
+          yarn biome-ci
 
   build-aescripts:
     name: Run build AeScripts
@@ -69,7 +69,7 @@ jobs:
         working-directory: plainly-plugin
         run: |
           yarn install --immutable
-          yarn biome
+          yarn biome-ci
 
   build-plugin:
     name: Run build Plugin

@@ -1,8 +1,3 @@
-import FormData from 'form-data';
-import { useCallback, useContext, useEffect, useState } from 'react';
-import { makeProjectZipTmpDir } from '../../../node';
-
-import fs from 'fs';
 import { useNotifications, useProjectData } from '@src/ui/hooks';
 import {
   useEditProject,
@@ -12,7 +7,11 @@ import {
 import { Routes } from '@src/ui/types';
 import type { Project } from '@src/ui/types/project';
 import classNames from 'classnames';
+import FormData from 'form-data';
+import fs from 'fs';
 import { LoaderCircleIcon } from 'lucide-react';
+import { useCallback, useContext, useEffect, useState } from 'react';
+import { makeProjectZipTmpDir } from '../../../node';
 import { Alert, Button, InternalLink } from '../common';
 import { GlobalContext } from '../context';
 import { Description, Label, PageHeading } from '../typography';
@@ -91,7 +90,7 @@ export function UploadForm() {
         }
       }
 
-      let project: Project | undefined = undefined;
+      let project: Project | undefined;
 
       // check if the `documentId` and project from `getData` have the same ID
       const projectData = await getData();

@@ -76,7 +76,7 @@ export const useSettings = () => {
     async (apiKey: string, pin: Pin | undefined) => {
       try {
         await getUserProfile(apiKey);
-      } catch (error) {
+      } catch {
         throw new Error(
           'Invalid API key, please make sure to copy a valid API key from Plainly web-app and try again.',
         );
@@ -116,7 +116,7 @@ export const useSettings = () => {
         try {
           const decoded = decode(pin, key);
           return decoded;
-        } catch (error) {
+        } catch {
           throw new Error('Invalid PIN entered.');
         }
       } else {

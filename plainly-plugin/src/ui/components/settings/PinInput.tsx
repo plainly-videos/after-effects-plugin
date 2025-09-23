@@ -26,7 +26,7 @@ export function PinInput({
       digit: 'first' | 'second' | 'third' | 'fourth',
       value: string | undefined,
     ) => {
-      const parsedValue = value ? Number.parseInt(value) : undefined;
+      const parsedValue = value ? Number.parseInt(value, 10) : undefined;
 
       onChange(
         new Pin(

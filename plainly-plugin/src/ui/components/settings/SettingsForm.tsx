@@ -13,9 +13,9 @@ import {
   XCircleIcon,
 } from 'lucide-react';
 import { useState } from 'react';
-import { PinInput } from '.';
 import { Button } from '../common';
 import { Description, Label, PageHeading } from '../typography';
+import { PinInput } from '.';
 
 export function SettingsForm() {
   const { handleLinkClick } = useNavigate();

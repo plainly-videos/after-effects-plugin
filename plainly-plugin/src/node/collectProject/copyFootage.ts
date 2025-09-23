@@ -1,5 +1,5 @@
-import path from 'path';
 import fsPromises from 'fs/promises';
+import path from 'path';
 import { CollectFootageError } from '../errors';
 import type { Footage } from '../types';
 import {
@@ -31,7 +31,7 @@ export async function copyFootage(
     const dest = path.join(newFootageDir, folder, footageName);
     try {
       return await fsPromises.copyFile(src, dest);
-    } catch (error) {
+    } catch {
       throw new Error(src);
     }
   });
