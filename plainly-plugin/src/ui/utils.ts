@@ -20,3 +20,7 @@ export function isEmpty<T>(
 ): list is undefined | null | [] {
   return !list || (list && list.length === 0);
 }
+
+export function isEmptyObject<T>(obj?: T): obj is undefined | T {
+  return Object.keys(obj || {}).length === 0;
+}
