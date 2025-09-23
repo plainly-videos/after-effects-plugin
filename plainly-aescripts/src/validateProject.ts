@@ -3,7 +3,6 @@ interface ProjectValidation {
     allCaps: {
       layerId: string;
       layerName: string;
-      isValid: false;
     }[];
   };
 }
@@ -29,7 +28,6 @@ function checkTextLayers(): ProjectValidation['textLayers'] | undefined {
       textLayers.allCaps.push({
         layerId: layer.id.toString(),
         layerName: layer.name,
-        isValid: false,
       });
     }
   }
