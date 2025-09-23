@@ -1,15 +1,16 @@
 import child_process from 'child_process';
 import fs from 'fs';
+import fsPromises from 'fs/promises';
 import os from 'os';
 import path from 'path';
-import fsPromises from 'fs/promises';
 
 const homeDirectory = os.homedir();
 
 import archiver from 'archiver';
 import { isWindows } from './constants';
-// @ts-ignore
+// @ts-expect-error
 import CSInterface from './lib/CSInterface';
+
 const csInterface = new CSInterface();
 
 /**

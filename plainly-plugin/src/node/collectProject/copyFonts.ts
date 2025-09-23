@@ -1,5 +1,5 @@
-import path from 'path';
 import fsPromises from 'fs/promises';
+import path from 'path';
 import { CollectFontsError } from '../errors';
 import type { Fonts } from '../types';
 import { finalizePath, runInParallelReturnRejected } from '../utils';

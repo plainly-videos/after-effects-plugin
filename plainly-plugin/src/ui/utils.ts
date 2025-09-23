@@ -10,7 +10,7 @@ export function reloadExtension(): void {
   try {
     process.removeAllListeners();
     window.location.reload();
-  } catch (e) {
+  } catch {
     window.location.reload();
   }
 }

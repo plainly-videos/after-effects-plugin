@@ -4,7 +4,10 @@ import classNames from 'classnames';
 export function Banner({
   show,
   children,
-}: { show: boolean; children: React.ReactNode }) {
+}: {
+  show: boolean;
+  children: React.ReactNode;
+}) {
   const { sidebarOpen } = useNavigate();
 
   return (

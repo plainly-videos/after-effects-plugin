@@ -8,8 +8,8 @@ import {
 import { State, useGlobalState } from '@src/ui/state/store';
 import classNames from 'classnames';
 import { TriangleAlertIcon } from 'lucide-react';
-import { Button } from '.';
 import { Description } from '../typography';
+import { Button } from '.';
 
 export function ConfirmationDialog({
   title,

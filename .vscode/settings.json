@@ -1,4 +1,8 @@
 {
   "cSpell.words": ["plainlyvideos", "aescripts", "mdata", "appmixer"],
-  "editor.defaultFormatter": "biomejs.biome"
+  "editor.defaultFormatter": "biomejs.biome",
+  "editor.codeActionsOnSave": {
+    "source.organizeImports.biome": "explicit",
+    "source.fixAll.biome": "explicit"
+  }
 }

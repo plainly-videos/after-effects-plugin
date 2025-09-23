@@ -1,5 +1,5 @@
-import { ProjectsList } from '.';
 import { PageHeading } from '../typography';
+import { ProjectsList } from '.';
 
 export function Projects() {
   return (

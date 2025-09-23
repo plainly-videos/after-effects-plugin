@@ -1,0 +1,16 @@
+{
+  "$schema": "https://biomejs.dev/schemas/2.2.2/schema.json",
+  "root": false,
+  "extends": "//",
+  "files": {
+    "ignoreUnknown": false,
+    "includes": ["**", "!**/src/shims.js"]
+  },
+  "linter": {
+    "rules": {
+      "correctness": {
+        "noUnusedVariables": "off"
+      }
+    }
+  }
+}

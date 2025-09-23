@@ -5,9 +5,9 @@ import { Routes } from '@src/ui/types';
 import { isEmpty } from '@src/ui/utils';
 import { LoaderCircleIcon } from 'lucide-react';
 import { useCallback, useContext, useMemo } from 'react';
-import { LinkedProject, ProjectsListItem } from '.';
 import { Alert, InternalLink } from '../common';
 import { Description, Label } from '../typography';
+import { LinkedProject, ProjectsListItem } from '.';
 
 export function ProjectsList() {
   const { handleLinkClick } = useNavigate();

@@ -12,11 +12,18 @@ export function Alert({
   title,
   type,
   className,
-}: { title: string | React.ReactNode; type: AlertType; className?: string }) {
+}: {
+  title: string | React.ReactNode;
+  type: AlertType;
+  className?: string;
+}) {
   const Icon = ({
     type,
     className,
-  }: { type: AlertType; className?: string }) => {
+  }: {
+    type: AlertType;
+    className?: string;
+  }) => {
     const dangerClassName = classNames('text-red-400', className);
     const warningClassName = classNames('text-yellow-400', className);
     const infoClassName = classNames('text-blue-400', className);

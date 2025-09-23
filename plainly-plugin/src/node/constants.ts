@@ -1,7 +1,7 @@
 import os from 'os';
 import path from 'path';
 
-// @ts-ignore
+// @ts-expect-error
 import CSInterface from './lib/CSInterface';
 
 // csInterface related
