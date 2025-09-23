@@ -8,6 +8,17 @@ interface GlobalContextProps {
     id: string;
     revisionCount: number;
   };
+  projectValidation?: ProjectValidation;
+}
+
+export interface ProjectValidation {
+  textLayers?: {
+    allCaps: {
+      layerId: string;
+      layerName: string;
+      isValid: false;
+    }[];
+  };
 }
 
 export const GlobalContext = createContext<GlobalContextProps | undefined>(
@@ -54,6 +65,28 @@ export const GlobalProvider = ({ children }: { children: React.ReactNode }) => {
 
     return () => clearInterval(interval);
   }, [notifyInfo, globalData]);
+
+  useEffect(() => {
+    const interval = setInterval(async () => {
+      const data = await evalScriptAsync('validateProject()');
+
+      if (data) {
+        const parsedData: ProjectValidation = JSON.parse(data);
+
+        if (
+          JSON.stringify(parsedData) !==
+          JSON.stringify(projectData?.projectValidation)
+        ) {
+          setProjectData((prev) => ({
+            ...prev,
+            projectValidation: parsedData,
+          }));
+        }
+      }
+    }, 6000);
+
+    return () => clearInterval(interval);
+  }, [projectData?.projectValidation]);
 
   return (
     <GlobalContext.Provider value={globalData}>

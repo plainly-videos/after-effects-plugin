@@ -9,6 +9,7 @@ import {
   SettingsRoute,
   UploadRoute,
 } from './routes';
+import { ValidateRoute } from './routes/ValidateRoute';
 import { reloadExtension } from './utils';
 
 export function App() {
@@ -24,6 +25,7 @@ export function App() {
     if (currentPage === '/export') return <ExportRoute />;
     if (currentPage === '/upload') return <UploadRoute />;
     if (currentPage === '/projects') return <ProjectsRoute />;
+    if (currentPage === '/validate') return <ValidateRoute />;
     if (currentPage === '/settings') return <SettingsRoute />;
     if (currentPage === '/about') return <AboutRoute />;
 
