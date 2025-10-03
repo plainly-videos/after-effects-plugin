@@ -1,45 +1,66 @@
-interface ProjectValidation {
-  textLayers?: {
-    allCaps: {
-      layerId: string;
-      layerName: string;
-    }[];
-  };
+enum ProjectIssueType {
+  AllCaps = 'AllCaps',
 }
 
-function checkTextLayers(): ProjectValidation['textLayers'] | undefined {
+interface ProjectIssue<T extends ProjectIssueType> {
+  type: T;
+}
+
+interface ProjectLayerIssue<T extends ProjectIssueType>
+  extends ProjectIssue<T> {
+  layerId: string;
+  layerName: string;
+}
+
+interface TextAllCapsEnabledIssue
+  extends ProjectLayerIssue<ProjectIssueType.AllCaps> {}
+
+type TextLayerIssues = TextAllCapsEnabledIssue & {
+  text: true;
+};
+
+function checkTextLayers(): TextLayerIssues[] | undefined {
   const comps = getAllComps(app.project);
-  let layers: Array<TextLayer> = [];
+  let textLayers: TextLayerIssues[] | undefined;
 
   for (let i = 0; i < comps.length; i++) {
-    layers = getTextLayersByComp(comps[i]);
-  }
+    const comp = comps[i];
+    const layers = getTextLayersByComp(comp);
+    if (layers.length === 0) {
+      continue;
+    }
 
-  if (layers.length === 0) return;
-
-  let textLayers: ProjectValidation['textLayers'] | undefined;
-
-  for (let i = 0; i < layers.length; i++) {
-    const layer = layers[i];
-    if (layer.sourceText.value.allCaps) {
-      if (!textLayers) {
-        textLayers = { allCaps: [] };
+    for (let j = 0; j < layers.length; j++) {
+      const layer = layers[j];
+      if (layer.sourceText.value.allCaps) {
+        if (!textLayers) {
+          textLayers = [];
+        }
+        textLayers.push({
+          type: 'AllCaps' as ProjectIssueType.AllCaps,
+          layerId: layer.id.toString(),
+          layerName: `${comp.name} > ${layer.name}`,
+          text: true,
+        });
       }
-      textLayers.allCaps.push({
-        layerId: layer.id.toString(),
-        layerName: layer.name,
-      });
     }
   }
 
   return textLayers;
 }
 
-function validateProject(): string {
-  const textLayers = checkTextLayers();
+type AnyProjectIssue = TextLayerIssues;
 
-  if (textLayers) {
-    return JSON.stringify({ textLayers });
+function validateProject(): string {
+  const textIssues: TextLayerIssues[] | undefined = checkTextLayers();
+  let issues: AnyProjectIssue[] = [];
+
+  if (textIssues && textIssues.length > 0) {
+    issues = issues.concat(textIssues);
+  }
+
+  if (issues.length > 0) {
+    return JSON.stringify(issues);
   }
 
   return 'undefined';

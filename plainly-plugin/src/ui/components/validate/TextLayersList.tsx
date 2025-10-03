@@ -1,18 +1,23 @@
+import {
+  ProjectIssueType,
+  type TextLayerIssues,
+} from '@src/ui/types/validation';
 import { isEmpty } from '@src/ui/utils';
 import classNames from 'classnames';
 import { ChevronDownIcon } from 'lucide-react';
 import { useState } from 'react';
-import type { ProjectValidation } from '../context';
 import { AllCaps } from './text/AllCaps';
 
 export function TextLayersList({
   textLayers,
 }: {
-  textLayers?: ProjectValidation['textLayers'];
+  textLayers?: TextLayerIssues[];
 }) {
   const [isOpen, setIsOpen] = useState(false);
 
-  const { allCaps } = textLayers || {};
+  const allCaps = textLayers?.filter(
+    (issue) => issue.type === ProjectIssueType.AllCaps,
+  );
 
   const issueCount = allCaps?.length || 0;
 

@@ -1,6 +1,6 @@
 import { useNavigate } from '@src/ui/hooks';
 import type { Page, Separator } from '@src/ui/routes';
-import { isEmptyObject } from '@src/ui/utils';
+import { isEmpty } from '@src/ui/utils';
 import classNames from 'classnames';
 import { useContext } from 'react';
 import { Tooltip } from '../common/Tooltip';
@@ -8,9 +8,9 @@ import { GlobalContext } from '../context';
 
 export function SidebarLinks({ links }: { links: (Page | Separator)[] }) {
   const { navigate, currentPage, sidebarOpen } = useNavigate();
-  const { projectValidation } = useContext(GlobalContext) || {};
+  const { projectIssues } = useContext(GlobalContext) || {};
 
-  const valid = isEmptyObject(projectValidation);
+  const valid = isEmpty(projectIssues);
 
   return (
     <ul className="flex flex-1 flex-col gap-y-7">

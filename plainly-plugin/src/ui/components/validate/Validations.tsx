@@ -4,8 +4,8 @@ import { Description, PageHeading } from '../typography';
 import { TextLayersList } from './TextLayersList';
 
 export function Validations() {
-  const { projectValidation } = useContext(GlobalContext) || {};
-  const { textLayers } = projectValidation || {};
+  const { projectIssues } = useContext(GlobalContext) || {};
+  const textLayers = projectIssues?.filter((issue) => issue.text === true);
 
   return (
     <div className="space-y-4 w-full text-white">
