@@ -1,4 +1,5 @@
 import { evalScriptAsync } from '@src/node/utils';
+import type { AnyProjectIssue } from '@src/ui/types/validation';
 import { createContext, useEffect, useState } from 'react';
 import { useNotifications } from '../../hooks';
 
@@ -8,16 +9,7 @@ interface GlobalContextProps {
     id: string;
     revisionCount: number;
   };
-  projectValidation?: ProjectValidation;
-}
-
-export interface ProjectValidation {
-  textLayers?: {
-    allCaps: {
-      layerId: string;
-      layerName: string;
-    }[];
-  };
+  projectIssues?: AnyProjectIssue[];
 }
 
 export const GlobalContext = createContext<GlobalContextProps | undefined>(
@@ -76,22 +68,22 @@ export const GlobalProvider = ({ children }: { children: React.ReactNode }) => {
       const data = await evalScriptAsync('validateProject()');
 
       if (data) {
-        const parsedData: ProjectValidation = JSON.parse(data);
+        const parsedData: AnyProjectIssue[] | undefined = JSON.parse(data);
 
         if (
           JSON.stringify(parsedData) !==
-          JSON.stringify(projectData?.projectValidation)
+          JSON.stringify(projectData?.projectIssues)
         ) {
           setProjectData((prev) => ({
             ...prev,
-            projectValidation: parsedData,
+            projectIssues: parsedData,
           }));
         }
       }
-    }, 6000);
+    }, 4000);
 
     return () => clearInterval(interval);
-  }, [projectData?.projectValidation]);
+  }, [projectData?.projectIssues]);
 
   return (
     <GlobalContext.Provider value={projectData}>
