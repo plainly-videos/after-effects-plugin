@@ -12,7 +12,7 @@ interface ProjectLayerIssue<T extends ProjectIssueType>
   layerName: string;
 }
 
-interface TextAllCapsEnabledIssue
+export interface TextAllCapsEnabledIssue
   extends ProjectLayerIssue<ProjectIssueType.AllCaps> {}
 
 export type TextLayerIssues = TextAllCapsEnabledIssue & {

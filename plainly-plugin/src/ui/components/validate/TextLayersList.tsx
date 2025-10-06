@@ -1,5 +1,6 @@
 import {
   ProjectIssueType,
+  type TextAllCapsEnabledIssue,
   type TextLayerIssues,
 } from '@src/ui/types/validation';
 import { isEmpty } from '@src/ui/utils';
@@ -15,7 +16,7 @@ export function TextLayersList({
 }) {
   const [isOpen, setIsOpen] = useState(false);
 
-  const allCaps = textLayers?.filter(
+  const allCaps: TextAllCapsEnabledIssue[] | undefined = textLayers?.filter(
     (issue) => issue.type === ProjectIssueType.AllCaps,
   );
 
