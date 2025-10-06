@@ -1547,7 +1547,7 @@ __metadata:
     form-data: ^4.0.4
     globals: ^15.11.0
     html-webpack-plugin: ^5.6.3
-    lucide-react: ^0.456.0
+    lucide-react: ^0.544.0
     postcss: ^8.4.49
     postcss-loader: ^8.1.1
     react: ^18.3.1
@@ -3985,12 +3985,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lucide-react@npm:^0.456.0":
-  version: 0.456.0
-  resolution: "lucide-react@npm:0.456.0"
+"lucide-react@npm:^0.544.0":
+  version: 0.544.0
+  resolution: "lucide-react@npm:0.544.0"
   peerDependencies:
-    react: ^16.5.1 || ^17.0.0 || ^18.0.0 || ^19.0.0-rc
-  checksum: 12077fdb291e72906dc7950efa1672f857cde89638452d0e1bed6aea36893194f5da14b64157f6c333c2f7a0c54dbd65292ad6f945d11ba54b641eba8a98e7f8
+    react: ^16.5.1 || ^17.0.0 || ^18.0.0 || ^19.0.0
+  checksum: d823339cb0d0bd4c038fef6223ffa9d81e337a86d09833e6b6ff54f936fc7a5e2e8e672e8c1fae55e6a835ddcf620f7fe4e1f564b4de31d12ae8895e3ab52ed3
   languageName: node
   linkType: hard
 

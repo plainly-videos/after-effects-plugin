@@ -65,3 +65,10 @@ function validateProject(): string {
 
   return 'undefined';
 }
+
+function selectLayer(layerId: string) {
+  const layer = app.project.layerByID(parseInt(layerId, 10));
+  if (layer) {
+    layer.selected = true;
+  }
+}
