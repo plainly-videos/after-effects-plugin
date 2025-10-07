@@ -11,6 +11,10 @@ function checkTextLayers(): TextLayerIssues[] | undefined {
 
     for (let j = 0; j < layers.length; j++) {
       const layer = layers[j];
+      if (layer.guideLayer) {
+        continue;
+      }
+
       if (layer.sourceText.value.allCaps) {
         if (!textLayers) {
           textLayers = [];
