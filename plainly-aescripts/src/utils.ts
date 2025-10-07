@@ -106,6 +106,7 @@ function selectLayer(layerId: string): void {
   if (layer) {
     // open the comp that contains the layer, so it is visible to the user in timeline
     const comp = layer.containingComp;
+    comp.time = layer.inPoint;
     const viewer = comp.openInViewer();
     if (viewer?.active === false) viewer.setActive();
 

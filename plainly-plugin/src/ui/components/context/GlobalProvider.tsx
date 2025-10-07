@@ -21,9 +21,11 @@ export const GlobalProvider = ({ children }: { children: React.ReactNode }) => {
   const [projectData, setProjectData] = useState<
     GlobalContextProps | undefined
   >();
+  const [validating, setValidating] = useState(false);
 
   useEffect(() => {
     const interval = setInterval(async () => {
+      let newData: GlobalContextProps = {};
       const data = await evalScriptAsync('getProjectData()');
 
       if (data) {
@@ -33,7 +35,7 @@ export const GlobalProvider = ({ children }: { children: React.ReactNode }) => {
           revisionCount?: number;
         } = JSON.parse(data);
 
-        let newData: GlobalContextProps = {
+        newData = {
           plainlyProject: parsedData.id
             ? {
                 id: parsedData.id,
@@ -44,48 +46,39 @@ export const GlobalProvider = ({ children }: { children: React.ReactNode }) => {
 
         if (!projectData?.documentId && parsedData.documentId) {
           newData = { documentId: parsedData.documentId, ...newData };
-          setProjectData(newData);
         } else if (
           projectData?.documentId &&
           parsedData.documentId !== projectData.documentId
         ) {
           notifyInfo("We've detected a new project.");
           newData = { documentId: parsedData.documentId, ...newData };
-          setProjectData(newData);
         } else {
           // Update only the plainlyProject if documentId is the same
           newData = { ...projectData, ...newData };
-          setProjectData(newData);
+        }
+      }
+
+      let issues: string | undefined;
+      if (!validating) {
+        setValidating(true);
+        issues = await evalScriptAsync('validateProject()');
+        setValidating(false);
+      }
+      if (!issues) {
+        setProjectData({ ...newData, projectIssues: [] });
+      } else {
+        const parsedIssues: AnyProjectIssue[] | undefined = JSON.parse(issues);
+        if (
+          JSON.stringify(parsedIssues) !==
+          JSON.stringify(projectData?.projectIssues)
+        ) {
+          setProjectData({ ...newData, projectIssues: parsedIssues });
         }
       }
     }, 3000);
 
     return () => clearInterval(interval);
-  }, [notifyInfo, projectData]);
-
-  useEffect(() => {
-    const interval = setInterval(async () => {
-      const data = await evalScriptAsync('validateProject()');
-      if (!data) {
-        setProjectData((prev) => ({ ...prev, projectIssues: [] }));
-        return;
-      }
-
-      const parsedData: AnyProjectIssue[] | undefined = JSON.parse(data);
-
-      if (
-        JSON.stringify(parsedData) !==
-        JSON.stringify(projectData?.projectIssues)
-      ) {
-        setProjectData((prev) => ({
-          ...prev,
-          projectIssues: parsedData,
-        }));
-      }
-    }, 4000);
-
-    return () => clearInterval(interval);
-  }, [projectData?.projectIssues]);
+  }, [notifyInfo, projectData, validating]);
 
   return (
     <GlobalContext.Provider value={projectData}>

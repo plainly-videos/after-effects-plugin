@@ -17,7 +17,7 @@ export function AllCaps({ allCaps }: { allCaps: TextAllCapsEnabledIssue[] }) {
           <div className="col-span-1 border-r border-white/10 px-1 py-1 flex items-center justify-between">
             <p>All Caps enabled</p>
             <Tooltip
-              text='Using "All Caps" may lead to unexpected results in renders.'
+              text="Using ALL CAPS text may result in poor font rendering."
               className="max-w-40 whitespace-break-spaces"
             >
               <CircleQuestionMark className="size-3 cursor-help" />
