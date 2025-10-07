@@ -6,6 +6,7 @@ import { Tooltip } from '../../common';
 
 export function AllCaps({ allCaps }: { allCaps: TextAllCapsEnabledIssue[] }) {
   const onLayerNameClick = async (layerId: string) => {
+    await evalScriptAsync('unselectAllLayers()');
     await evalScriptAsync(`selectLayer(${layerId})`);
   };
 
