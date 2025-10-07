@@ -66,19 +66,21 @@ export const GlobalProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     const interval = setInterval(async () => {
       const data = await evalScriptAsync('validateProject()');
+      if (!data) {
+        setProjectData((prev) => ({ ...prev, projectIssues: [] }));
+        return;
+      }
 
-      if (data) {
-        const parsedData: AnyProjectIssue[] | undefined = JSON.parse(data);
+      const parsedData: AnyProjectIssue[] | undefined = JSON.parse(data);
 
-        if (
-          JSON.stringify(parsedData) !==
-          JSON.stringify(projectData?.projectIssues)
-        ) {
-          setProjectData((prev) => ({
-            ...prev,
-            projectIssues: parsedData,
-          }));
-        }
+      if (
+        JSON.stringify(parsedData) !==
+        JSON.stringify(projectData?.projectIssues)
+      ) {
+        setProjectData((prev) => ({
+          ...prev,
+          projectIssues: parsedData,
+        }));
       }
     }, 4000);
 
