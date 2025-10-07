@@ -18,9 +18,7 @@ export const GlobalContext = createContext<GlobalContextProps | undefined>(
 
 export const GlobalProvider = ({ children }: { children: React.ReactNode }) => {
   const { notifyInfo } = useNotifications();
-  const [globalData, setGlobalData] = useState<
-    GlobalContextProps | undefined
-  >();
+  const [globalData, setGlobalData] = useState<GlobalContextProps>();
 
   useEffect(() => {
     const interval = setInterval(async () => {
