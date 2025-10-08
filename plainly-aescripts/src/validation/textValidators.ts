@@ -31,3 +31,18 @@ function checkTextLayers(): TextLayerIssues[] | undefined {
 
   return textLayers;
 }
+
+function fixAllCapsIssue(layerId: string) {
+  const layer = app.project.layerByID(parseInt(layerId, 10));
+  if (!(layer && layer instanceof TextLayer)) return;
+
+  type CapsAware = typeof layer.sourceText.value & { fontCapsOption?: number };
+  const val = layer.sourceText.value as CapsAware;
+  const isAllCaps = val.fontCapsOption === 11014;
+  if (!isAllCaps) return;
+
+  const newValue = val;
+  newValue.fontCapsOption = 11012; // FONT_NORMAL_CAPS;
+  newValue.text = newValue.text.toUpperCase();
+  layer.sourceText.setValue(newValue);
+}
