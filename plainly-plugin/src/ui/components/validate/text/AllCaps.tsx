@@ -29,7 +29,7 @@ export function AllCaps({
   };
 
   return (
-    <div className="col-span-3 grid grid-cols-3">
+    <div className="col-span-3 grid grid-cols-3 border border-white/10 text-xs divide-y divide-white/10 rounded-md">
       <button
         type="button"
         onClick={onExpandClick}

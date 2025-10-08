@@ -12,3 +12,12 @@ function validateProject(): string {
 
   return 'undefined';
 }
+
+function fixAllIssues(issues: AnyProjectIssue[]) {
+  for (let i = 0; i < issues.length; i++) {
+    const issue = issues[i];
+    if (issue.type === ('AllCaps' as ProjectIssueType.AllCaps)) {
+      fixAllCapsIssue(issue.layerId);
+    }
+  }
+}
