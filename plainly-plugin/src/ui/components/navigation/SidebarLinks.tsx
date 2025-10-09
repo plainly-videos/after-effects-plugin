@@ -8,7 +8,7 @@ import { GlobalContext } from '../context';
 
 export function SidebarLinks({ links }: { links: (Page | Separator)[] }) {
   const { navigate, currentPage, sidebarOpen } = useNavigate();
-  const { projectIssues } = useContext(GlobalContext) || {};
+  const { projectIssues } = useContext(GlobalContext);
 
   const valid = isEmpty(projectIssues);
 

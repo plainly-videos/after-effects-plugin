@@ -15,7 +15,21 @@ function checkTextLayers(): TextLayerIssues[] | undefined {
         continue;
       }
 
-      if (layer.sourceText.value.allCaps) {
+      const textDocument = layer.sourceText.value;
+      // check if characterRange exists in textDocument (After Effects 24.3+)
+      if (typeof textDocument.characterRange !== 'function') {
+        continue;
+      }
+
+      for (let k = 0; k < textDocument.text.length; k++) {
+        const characterRange = textDocument.characterRange(k, k + 1);
+        if (
+          !characterRange.isRangeValid ||
+          characterRange.fontCapsOption !== 11014
+        ) {
+          continue;
+        }
+
         if (!textLayers) {
           textLayers = [];
         }
@@ -25,6 +39,7 @@ function checkTextLayers(): TextLayerIssues[] | undefined {
           layerName: layer.name,
           text: true,
         });
+        break;
       }
     }
   }
@@ -32,17 +47,42 @@ function checkTextLayers(): TextLayerIssues[] | undefined {
   return textLayers;
 }
 
+/**
+ * Fixes all caps issue for a specific text layer.
+ *
+ * **NOTE**: Works only on `After Effects 24.3` and later due to the use of `characterRange` method and `fontCapsOption`.
+ *
+ * @param layerId string
+ * @returns void
+ */
 function fixAllCapsIssue(layerId: string) {
   const layer = app.project.layerByID(parseInt(layerId, 10));
-  if (!(layer && layer instanceof TextLayer)) return;
+  if (!(layer && layer instanceof TextLayer)) {
+    return;
+  }
 
-  type CapsAware = typeof layer.sourceText.value & { fontCapsOption?: number };
-  const val = layer.sourceText.value as CapsAware;
-  const isAllCaps = val.fontCapsOption === 11014;
-  if (!isAllCaps) return;
+  const textDocument = layer.sourceText.value;
+  // check if characterRange exists in textDocument (After Effects 24.3+)
+  if (typeof textDocument.characterRange !== 'function') {
+    return;
+  }
 
-  const newValue = val;
-  newValue.fontCapsOption = 11012; // FONT_NORMAL_CAPS;
-  newValue.text = newValue.text.toUpperCase();
+  const newValue = textDocument;
+
+  for (let i = 0; i < newValue.text.length; i++) {
+    const characterRange = newValue.characterRange(i, i + 1);
+    if (
+      !characterRange.isRangeValid ||
+      characterRange.fontCapsOption !== 11014
+    ) {
+      continue;
+    }
+
+    newValue.characterRange(i, i + 1).fontCapsOption = 11012;
+    newValue.characterRange(i, i + 1).text = newValue
+      .characterRange(i, i + 1)
+      .text.toUpperCase();
+  }
+
   layer.sourceText.setValue(newValue);
 }

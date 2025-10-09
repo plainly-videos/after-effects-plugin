@@ -1,3 +1,4 @@
+import type { AnyProjectIssue } from '@src/ui/types/validation';
 import type { ProjectData } from '../../ui/types';
 import { csInterface } from '../constants';
 import type { ProjectInfo, RelinkData } from '../types';
@@ -99,6 +100,14 @@ class AeScriptsApiClass {
    */
   async relinkFootage(relinkData: RelinkData): Promise<void> {
     await evalScriptAsync(`relinkFootage(${JSON.stringify(relinkData)})`);
+  }
+
+  async validateProject(): Promise<string | undefined> {
+    return await evalScriptAsync('validateProject()');
+  }
+
+  async fixAllIssues(issues: AnyProjectIssue[]): Promise<void> {
+    await evalScriptAsync(`fixAllIssues(${JSON.stringify(issues)})`);
   }
 }
 

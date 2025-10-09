@@ -38,7 +38,7 @@ export function AllCaps({
         <div className="flex items-center gap-2">
           <p>All Caps enabled</p>
           <Tooltip
-            text="Using ALL CAPS text may result in poor font rendering."
+            text="Using ALL CAPS text may result in poor font rendering. Auto-fixable in After Effects >= 24.3."
             className="max-w-40 whitespace-break-spaces"
           >
             <div className="flex items-center justify-center cursor-help size-4 group">
@@ -47,10 +47,10 @@ export function AllCaps({
           </Tooltip>
         </div>
         <div className="flex items-center gap-2">
-          <div className="bg-white/10 flex items-center justify-center rounded-full size-5">
+          <div className="bg-white/10 flex items-center justify-center rounded-full size-4">
             <p className="leading-tight text-red-400">{allCaps.length}</p>
           </div>
-          <div className="size-5 text-gray-400 hover:text-white hover:bg-[rgb(29,29,30)] rounded-full cursor-pointer flex items-center justify-center">
+          <div className="size-4 text-gray-400 hover:text-white hover:bg-[rgb(29,29,30)] rounded-full cursor-pointer flex items-center justify-center">
             <ChevronDownIcon
               className={classNames('size-4 duration-200', {
                 'rotate-180': isOpen === ProjectIssueType.AllCaps,

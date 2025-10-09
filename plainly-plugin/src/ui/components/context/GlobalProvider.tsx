@@ -4,6 +4,7 @@ import { createContext, useEffect, useState } from 'react';
 import { useNotifications } from '../../hooks';
 
 interface GlobalContextProps {
+  contextReady?: boolean;
   documentId?: string;
   plainlyProject?: {
     id: string;
@@ -12,8 +13,13 @@ interface GlobalContextProps {
   projectIssues?: AnyProjectIssue[];
 }
 
-export const GlobalContext = createContext<GlobalContextProps | undefined>(
-  {} as GlobalContextProps,
+// Extended value type to also expose the React state setter so children can update.
+interface GlobalContextValue extends GlobalContextProps {
+  setGlobalData: React.Dispatch<React.SetStateAction<GlobalContextProps>>;
+}
+
+export const GlobalContext = createContext<GlobalContextValue>(
+  {} as GlobalContextValue,
 );
 
 export const GlobalProvider = ({ children }: { children: React.ReactNode }) => {
@@ -46,17 +52,24 @@ export const GlobalProvider = ({ children }: { children: React.ReactNode }) => {
           setGlobalData(newData);
         } else {
           // Update only the plainlyProject if documentId is the same
-          newData = { ...globalData, ...newData };
+          newData = { ...globalData, ...newData, contextReady: true };
           setGlobalData(newData);
         }
+      } else {
+        setGlobalData({ contextReady: true });
       }
     }, 3000);
 
     return () => clearInterval(interval);
   }, [notifyInfo, globalData]);
 
+  const contextValue: GlobalContextValue = {
+    ...globalData,
+    setGlobalData,
+  } as GlobalContextValue; // cast because spread of possibly undefined
+
   return (
-    <GlobalContext.Provider value={globalData}>
+    <GlobalContext.Provider value={contextValue}>
       {children}
     </GlobalContext.Provider>
   );
