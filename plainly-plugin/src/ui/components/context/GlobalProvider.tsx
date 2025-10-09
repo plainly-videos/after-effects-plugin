@@ -4,6 +4,7 @@ import { createContext, useEffect, useState } from 'react';
 import { useNotifications } from '../../hooks';
 
 interface GlobalContextProps {
+  contextReady?: boolean;
   documentId?: string;
   plainlyProject?: {
     id: string;
@@ -12,20 +13,21 @@ interface GlobalContextProps {
   projectIssues?: AnyProjectIssue[];
 }
 
-export const GlobalContext = createContext<GlobalContextProps | undefined>(
-  {} as GlobalContextProps,
+// Extended value type to also expose the React state setter so children can update.
+interface GlobalContextValue extends GlobalContextProps {
+  setProjectData: React.Dispatch<React.SetStateAction<GlobalContextProps>>;
+}
+
+export const GlobalContext = createContext<GlobalContextValue>(
+  {} as GlobalContextValue,
 );
 
 export const GlobalProvider = ({ children }: { children: React.ReactNode }) => {
   const { notifyInfo } = useNotifications();
-  const [projectData, setProjectData] = useState<
-    GlobalContextProps | undefined
-  >();
-  const [validating, setValidating] = useState(false);
+  const [projectData, setProjectData] = useState<GlobalContextProps>();
 
   useEffect(() => {
     const interval = setInterval(async () => {
-      let newData: GlobalContextProps = {};
       const data = await evalScriptAsync('getProjectData()');
 
       if (data) {
@@ -35,7 +37,7 @@ export const GlobalProvider = ({ children }: { children: React.ReactNode }) => {
           revisionCount?: number;
         } = JSON.parse(data);
 
-        newData = {
+        let newData: GlobalContextProps = {
           plainlyProject: parsedData.id
             ? {
                 id: parsedData.id,
@@ -56,32 +58,25 @@ export const GlobalProvider = ({ children }: { children: React.ReactNode }) => {
           // Update only the plainlyProject if documentId is the same
           newData = { ...projectData, ...newData };
         }
-      }
-
-      let issues: string | undefined;
-      if (!validating) {
-        setValidating(true);
-        issues = await evalScriptAsync('validateProject()');
-        setValidating(false);
-      }
-      if (!issues) {
-        setProjectData({ ...newData, projectIssues: [] });
+        setProjectData({
+          ...newData,
+          contextReady: true,
+        });
       } else {
-        const parsedIssues: AnyProjectIssue[] | undefined = JSON.parse(issues);
-        if (
-          JSON.stringify(parsedIssues) !==
-          JSON.stringify(projectData?.projectIssues)
-        ) {
-          setProjectData({ ...newData, projectIssues: parsedIssues });
-        }
+        setProjectData({ contextReady: true });
       }
     }, 3000);
 
     return () => clearInterval(interval);
-  }, [notifyInfo, projectData, validating]);
+  }, [notifyInfo, projectData]);
+
+  const contextValue: GlobalContextValue = {
+    ...projectData,
+    setProjectData,
+  } as GlobalContextValue; // cast because spread of possibly undefined
 
   return (
-    <GlobalContext.Provider value={projectData}>
+    <GlobalContext.Provider value={contextValue}>
       {children}
     </GlobalContext.Provider>
   );
