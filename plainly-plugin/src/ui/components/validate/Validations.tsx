@@ -4,8 +4,10 @@ import type {
   AnyProjectIssue,
   ProjectIssueType,
 } from '@src/ui/types/validation';
+import { isEqual } from 'lodash-es';
 import { ShieldCheckIcon, WrenchIcon } from 'lucide-react';
-import { useContext, useState } from 'react';
+import { useCallback, useContext, useRef, useState } from 'react';
+import { flushSync } from 'react-dom';
 import { Alert, Button } from '../common';
 import { GlobalContext } from '../context';
 import { Description, PageHeading } from '../typography';
@@ -19,43 +21,84 @@ export function Validations() {
   const [isOpen, setIsOpen] = useState<ProjectIssueType>();
   const [loading, setLoading] = useState(false);
 
+  // Prevent re-entrancy while expensive operations are running
+  const testInFlightRef = useRef(false);
+  const fixInFlightRef = useRef(false);
+
+  // Let the UI paint (e.g., disabled state) before starting heavy work
+  const nextFrame = useCallback(
+    () =>
+      new Promise<void>((resolve) => requestAnimationFrame(() => resolve())),
+    [],
+  );
+
   const textLayers = projectIssues?.filter((issue) => issue.text === true);
-  const totalCount = projectIssues?.length ?? 0;
+  const totalCount = projectIssues?.length ?? undefined;
 
-  const handleTestForIssues = async (notify = true) => {
-    setLoading(true);
-    const issues = await AeScriptsApi.validateProject();
-
-    if (!issues) {
-      setGlobalData((prev) => ({ ...prev, projectIssues: [] }));
-    } else {
-      const parsedIssues: AnyProjectIssue[] = JSON.parse(issues);
-      if (JSON.stringify(parsedIssues) !== JSON.stringify(projectIssues)) {
-        setGlobalData((prev) => ({ ...prev, projectIssues: parsedIssues }));
+  const handleTestForIssues = useCallback(
+    async (notify = true) => {
+      if (testInFlightRef.current) {
+        return;
       }
-    }
-    setLoading(false);
-    if (notify) {
-      notifyInfo(
-        'Project validation completed.',
-        !issues
-          ? 'No issues found.'
-          : 'Please review the issues and consider fixing them, some may require manual intervention.',
-      );
-    }
-  };
+
+      testInFlightRef.current = true;
+      flushSync(() => setLoading(true));
+      await nextFrame();
+
+      try {
+        const issues = await AeScriptsApi.validateProject();
+        if (!issues) {
+          setGlobalData((prev) => ({ ...prev, projectIssues: [] }));
+        } else {
+          const parsedIssues: AnyProjectIssue[] = JSON.parse(issues);
+          if (
+            !isEqual(
+              JSON.stringify(parsedIssues),
+              JSON.stringify(projectIssues),
+            )
+          ) {
+            setGlobalData((prev) => ({
+              ...prev,
+              projectIssues: parsedIssues,
+            }));
+          }
+        }
+        if (notify) {
+          notifyInfo(
+            'Project validation completed.',
+            !issues
+              ? 'No issues found.'
+              : 'Please review the issues and consider fixing them, some may require manual intervention.',
+          );
+        }
+      } finally {
+        setLoading(false);
+        testInFlightRef.current = false;
+      }
+    },
+    [nextFrame, notifyInfo, projectIssues, setGlobalData],
+  );
 
   const handleFixAll = async () => {
-    if (totalCount === 0) return;
+    if (!totalCount || fixInFlightRef.current) {
+      return;
+    }
 
-    setLoading(true);
-    await AeScriptsApi.fixAllIssues(projectIssues || []);
-    await handleTestForIssues(false);
-    setLoading(false);
-    notifyInfo(
-      'Attempted to fix all issues.',
-      'Please review the project again. Some issues may require manual intervention.',
-    );
+    fixInFlightRef.current = true;
+    flushSync(() => setLoading(true));
+    await nextFrame();
+
+    try {
+      await AeScriptsApi.fixAllIssues(projectIssues || []);
+      await handleTestForIssues(false);
+      notifyInfo(
+        'Attempted to fix all issues.',
+        'Please review the project again. Some issues may require manual intervention.',
+      );
+    } finally {
+      setLoading(false);
+      fixInFlightRef.current = false;
+    }
   };
 
   return (
@@ -63,11 +106,14 @@ export function Validations() {
       <div>
         <PageHeading heading="Project validations" />
         <Description className="mt-1">
-          Here you can see potential issues in your project that might cause problems on the Plainly platform.
+          Here you can see potential issues in your project that might cause
+          problems on the Plainly platform.
         </Description>
       </div>
       {totalCount === 0 ? (
         <Alert title="There are no issues with your project." type="success" />
+      ) : totalCount === undefined ? (
+        <Alert title="Project validation has not been run yet." type="info" />
       ) : (
         <TextLayersList
           textLayers={textLayers}
@@ -78,7 +124,7 @@ export function Validations() {
       <div className="flex items-center gap-2 float-right">
         <Button
           secondary
-          onClick={handleTestForIssues.bind(null, true)}
+          onClick={() => handleTestForIssues(false)}
           loading={loading}
           disabled={loading || !contextReady}
           icon={ShieldCheckIcon}
@@ -86,7 +132,7 @@ export function Validations() {
           Test for issues
         </Button>
         <Button
-          disabled={totalCount === 0 || loading || !contextReady}
+          disabled={!totalCount || loading || !contextReady}
           onClick={handleFixAll}
           loading={loading}
           icon={WrenchIcon}
