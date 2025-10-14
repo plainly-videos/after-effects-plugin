@@ -63,12 +63,11 @@ export function Validations() {
       <div>
         <PageHeading heading="Project validations" />
         <Description className="mt-1">
-          Here you can see potential issues with your project that might cause
-          problems when used on the Plainly platform.
+          Here you can see potential issues in your project that might cause problems on the Plainly platform.
         </Description>
       </div>
       {totalCount === 0 ? (
-        <Alert title="There are no issues with your layers." type="success" />
+        <Alert title="There are no issues with your project." type="success" />
       ) : (
         <TextLayersList
           textLayers={textLayers}
