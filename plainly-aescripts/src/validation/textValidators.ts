@@ -1,6 +1,6 @@
 function checkTextLayers(): TextLayerIssues[] | undefined {
   const comps = getAllComps(app.project);
-  let textLayers: TextLayerIssues[] | undefined;
+  const textLayers: TextLayerIssues[] = [];
 
   for (let i = 0; i < comps.length; i++) {
     const comp = comps[i];
@@ -21,30 +21,44 @@ function checkTextLayers(): TextLayerIssues[] | undefined {
         continue;
       }
 
-      for (let k = 0; k < textDocument.text.length; k++) {
-        const characterRange = textDocument.characterRange(k, k + 1);
-        if (
-          !characterRange.isRangeValid ||
-          characterRange.fontCapsOption !== 11014
-        ) {
-          continue;
+      let hasCharacterAllCaps = false;
+      const range = textDocument.characterRange(0, textDocument.text.length);
+      // this means that there are different attributes in the text per character,
+      // thus, we can check per-character basis to find if any character is all-caps
+      if (range.fontCapsOption === undefined) {
+        for (let k = 0; k < textDocument.text.length; k++) {
+          const cRange = textDocument.characterRange(k, k + 1);
+          if (cRange.isRangeValid && cRange.fontCapsOption === 11014) {
+            hasCharacterAllCaps = true;
+            textLayers.push({
+              type: 'AllCaps' as ProjectIssueType.AllCaps,
+              layerId: layer.id.toString(),
+              layerName: layer.name,
+              text: true,
+            });
+            break;
+          }
         }
+      }
 
-        if (!textLayers) {
-          textLayers = [];
-        }
+      // if we already found a character with all-caps, skip further checks
+      if (hasCharacterAllCaps) {
+        continue;
+      }
+
+      // if the whole text has the same attribute, we can check it directly
+      if (range.isRangeValid && range.fontCapsOption === 11014) {
         textLayers.push({
           type: 'AllCaps' as ProjectIssueType.AllCaps,
           layerId: layer.id.toString(),
           layerName: layer.name,
           text: true,
         });
-        break;
       }
     }
   }
 
-  return textLayers;
+  return textLayers.length > 0 ? textLayers : undefined;
 }
 
 /**
@@ -69,20 +83,24 @@ function fixAllCapsIssue(layerId: string) {
 
   const newValue = textDocument;
 
-  for (let i = 0; i < newValue.text.length; i++) {
-    const characterRange = newValue.characterRange(i, i + 1);
-    if (
-      !characterRange.isRangeValid ||
-      characterRange.fontCapsOption !== 11014
-    ) {
-      continue;
-    }
-
-    newValue.characterRange(i, i + 1).fontCapsOption = 11012;
-    newValue.characterRange(i, i + 1).text = newValue
-      .characterRange(i, i + 1)
-      .text.toUpperCase();
+  // first check if the whole text has the same attribute
+  const range = newValue.characterRange(0, newValue.text.length);
+  if (range.isRangeValid && range.fontCapsOption === 11014) {
+    newValue.fontCapsOption = 11012;
+    newValue.text = newValue.text.toUpperCase();
+    layer.sourceText.setValue(newValue);
+    return;
   }
 
+  // otherwise, check per-character basis
+  for (let i = 0; i < newValue.text.length; i++) {
+    const cRange = newValue.characterRange(i, i + 1);
+    if (cRange.isRangeValid && cRange.fontCapsOption === 11014) {
+      newValue.characterRange(i, i + 1).fontCapsOption = 11012;
+      newValue.characterRange(i, i + 1).text = newValue
+        .characterRange(i, i + 1)
+        .text.toUpperCase();
+    }
+  }
   layer.sourceText.setValue(newValue);
 }
