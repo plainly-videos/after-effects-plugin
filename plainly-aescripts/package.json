@@ -21,7 +21,7 @@
     "@biomejs/biome": "2.2.4",
     "@types/node": "^22.10.5",
     "concurrently": "^9.1.2",
-    "rimraf": "^6.0.1",
+    "rimraf": "^6.1.2",
     "typescript": "^5.7.2",
     "webpack": "^5.97.1",
     "webpack-cli": "^6.0.1"
