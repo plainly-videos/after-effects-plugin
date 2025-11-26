@@ -1,3 +1,4 @@
+import crypto from 'crypto';
 import fsPromises from 'fs/promises';
 import path from 'path';
 

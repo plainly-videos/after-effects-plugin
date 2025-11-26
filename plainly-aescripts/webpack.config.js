@@ -5,7 +5,7 @@ module.exports = (_, options) => {
 
   return {
     entry: { index: './dist/index.js' },
-    target: ['node', 'es3'],
+    target: ['node15.9', 'es3'],
     devtool: isProdEnv ? false : 'source-map',
     output: {
       filename: 'plainly.[name].jsx',

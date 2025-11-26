@@ -3,7 +3,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const Dotenv = require('dotenv-webpack');
 
 module.exports = (_, options) => ({
-  target: 'node',
+  target: 'node15.9',
   entry: './src/ui/main.tsx', // entry point of your application
   output: {
     path: path.resolve(__dirname, 'dist'), // output directory
