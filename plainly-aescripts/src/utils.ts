@@ -26,7 +26,7 @@ function pathJoin(...args: string[]): string {
  * @returns {Array<CompItem>} An array of CompItem objects
  */
 function getAllComps(project: Project): Array<CompItem> {
-  const comps = [];
+  const comps: CompItem[] = [];
 
   for (let i = 1; i <= project.numItems; i++) {
     const item = project.item(i);
@@ -45,7 +45,7 @@ function getAllComps(project: Project): Array<CompItem> {
  * @returns {Array<TextLayer>} An array of TextLayer objects
  */
 function getTextLayersByComp(comp: CompItem): Array<TextLayer> {
-  const layers = [];
+  const layers: TextLayer[] = [];
 
   for (let i = 1; i <= comp.numLayers; i++) {
     const layer = comp.layer(i);
@@ -66,3 +66,5 @@ function getFolderPath(folder: FolderItem): string {
   const parentPath = getFolderPath(folder.parentFolder);
   return pathJoin(parentPath, folder.name);
 }
+
+export { isWin, pathJoin, getAllComps, getTextLayersByComp, getFolderPath };
