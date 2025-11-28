@@ -2,7 +2,7 @@ import crypto from 'crypto';
 import fsPromises from 'fs/promises';
 import path from 'path';
 
-import { csInterface, isWindows, TMP_DIR } from '../constants';
+import { isWindows, TMP_DIR } from '../constants';
 import type { Footage, ProjectInfo } from '../types';
 import {
   evalScriptAsync,
@@ -19,10 +19,9 @@ import { copyFootage } from './copyFootage';
  *
  * @param callback a callback that will be called with the path of the selected folder.
  */
-function selectFolder(callback: (result: string) => void) {
-  csInterface.evalScript('selectFolder()', (result: string) =>
-    callback(result),
-  );
+async function selectFolder(callback: (result: string) => void) {
+  const result = await evalScriptAsync('selectFolder()');
+  callback(result || '');
 }
 
 /**

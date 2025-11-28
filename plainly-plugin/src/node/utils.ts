@@ -100,7 +100,8 @@ export async function evalScriptAsync(
 ): Promise<string | undefined> {
   return new Promise((resolve, reject) => {
     try {
-      csInterface.evalScript(func, (result: string) => {
+      const finalFunc = `$['com.plainlyvideos.after-effects-plugin.Panel'].${func};`;
+      csInterface.evalScript(finalFunc, (result: string) => {
         if (result.includes('Error: ')) {
           reject(new Error(result));
         }
