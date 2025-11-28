@@ -92,3 +92,11 @@ function getProjectPath() {
 function saveProject() {
   app.project.save();
 }
+
+export {
+  setProjectData,
+  getProjectData,
+  removeProjectData,
+  getProjectPath,
+  saveProject,
+};

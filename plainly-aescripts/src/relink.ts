@@ -1,3 +1,5 @@
+import { isWin } from './utils';
+
 interface RelinkData {
   [itemId: string]: string;
 }
@@ -45,3 +47,5 @@ function relinkFootage(relinkData: RelinkData): void {
 
   app.project.save();
 }
+
+export { relinkFootage };
