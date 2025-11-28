@@ -1,4 +1,4 @@
-function checkTextLayers(): TextLayerIssues[] | undefined {
+function checkTextLayers(): TextLayerIssues[] {
   const comps = getAllComps(app.project);
   const textLayers: TextLayerIssues[] = [];
 
@@ -28,7 +28,10 @@ function checkTextLayers(): TextLayerIssues[] | undefined {
       if (range.fontCapsOption === undefined) {
         for (let k = 0; k < textDocument.text.length; k++) {
           const cRange = textDocument.characterRange(k, k + 1);
-          if (cRange.isRangeValid && cRange.fontCapsOption === 11014) {
+          if (
+            cRange.isRangeValid &&
+            cRange.fontCapsOption === FontCapsOption.FONT_ALL_CAPS
+          ) {
             hasCharacterAllCaps = true;
             textLayers.push({
               type: 'AllCaps' as ProjectIssueType.AllCaps,
@@ -47,7 +50,10 @@ function checkTextLayers(): TextLayerIssues[] | undefined {
       }
 
       // if the whole text has the same attribute, we can check it directly
-      if (range.isRangeValid && range.fontCapsOption === 11014) {
+      if (
+        range.isRangeValid &&
+        range.fontCapsOption === FontCapsOption.FONT_ALL_CAPS
+      ) {
         textLayers.push({
           type: 'AllCaps' as ProjectIssueType.AllCaps,
           layerId: layer.id.toString(),
@@ -58,7 +64,7 @@ function checkTextLayers(): TextLayerIssues[] | undefined {
     }
   }
 
-  return textLayers.length > 0 ? textLayers : undefined;
+  return textLayers.length > 0 ? textLayers : [];
 }
 
 /**
@@ -85,8 +91,11 @@ function fixAllCapsIssue(layerId: string) {
 
   // first check if the whole text has the same attribute
   const range = newValue.characterRange(0, newValue.text.length);
-  if (range.isRangeValid && range.fontCapsOption === 11014) {
-    newValue.fontCapsOption = 11012;
+  if (
+    range.isRangeValid &&
+    range.fontCapsOption === FontCapsOption.FONT_ALL_CAPS
+  ) {
+    newValue.fontCapsOption = FontCapsOption.FONT_NORMAL_CAPS;
     newValue.text = newValue.text.toUpperCase();
     layer.sourceText.setValue(newValue);
     return;
@@ -95,8 +104,12 @@ function fixAllCapsIssue(layerId: string) {
   // otherwise, check per-character basis
   for (let i = 0; i < newValue.text.length; i++) {
     const cRange = newValue.characterRange(i, i + 1);
-    if (cRange.isRangeValid && cRange.fontCapsOption === 11014) {
-      newValue.characterRange(i, i + 1).fontCapsOption = 11012;
+    if (
+      cRange.isRangeValid &&
+      cRange.fontCapsOption === FontCapsOption.FONT_ALL_CAPS
+    ) {
+      newValue.characterRange(i, i + 1).fontCapsOption =
+        FontCapsOption.FONT_NORMAL_CAPS;
       newValue.characterRange(i, i + 1).text = newValue
         .characterRange(i, i + 1)
         .text.toUpperCase();

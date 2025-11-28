@@ -51,12 +51,7 @@ export function Validations() {
           setGlobalData((prev) => ({ ...prev, projectIssues: [] }));
         } else {
           const parsedIssues: AnyProjectIssue[] = JSON.parse(issues);
-          if (
-            !isEqual(
-              JSON.stringify(parsedIssues),
-              JSON.stringify(projectIssues),
-            )
-          ) {
+          if (!isEqual(parsedIssues, projectIssues)) {
             setGlobalData((prev) => ({
               ...prev,
               projectIssues: parsedIssues,
