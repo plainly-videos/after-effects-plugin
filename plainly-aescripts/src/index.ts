@@ -4,3 +4,4 @@ import './relink';
 import './shims';
 import './types';
 import './utils';
+import './validateProject';

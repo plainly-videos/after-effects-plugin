@@ -203,4 +203,4 @@ async function makeProjectZip(targetPath: string): Promise<string> {
   }
 }
 
-export { makeProjectZipTmpDir, makeProjectZip, removeFolder, selectFolder };
+export { makeProjectZip, makeProjectZipTmpDir, removeFolder, selectFolder };
