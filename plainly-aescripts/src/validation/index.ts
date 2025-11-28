@@ -1,8 +1,8 @@
 function validateProject(): string {
-  const textIssues: TextLayerIssues[] | undefined = checkTextLayers();
+  const textIssues = checkTextLayers();
   let issues: AnyProjectIssue[] = [];
 
-  if (textIssues && textIssues.length > 0) {
+  if (textIssues.length > 0) {
     issues = issues.concat(textIssues);
   }
 

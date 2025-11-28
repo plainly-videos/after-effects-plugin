@@ -4,6 +4,7 @@ import type {
   AnyProjectIssue,
   ProjectIssueType,
 } from '@src/ui/types/validation';
+import { isEqual } from 'lodash-es';
 import { ShieldCheckIcon, WrenchIcon } from 'lucide-react';
 import { useCallback, useContext, useRef, useState } from 'react';
 import { flushSync } from 'react-dom';
@@ -50,7 +51,7 @@ export function Validations() {
           setProjectData((prev) => ({ ...prev, projectIssues: [] }));
         } else {
           const parsedIssues: AnyProjectIssue[] = JSON.parse(issues);
-          if (JSON.stringify(parsedIssues) !== JSON.stringify(projectIssues)) {
+          if (!isEqual(parsedIssues, projectIssues)) {
             setProjectData((prev) => ({
               ...prev,
               projectIssues: parsedIssues,
