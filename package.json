@@ -9,9 +9,11 @@
     "package": "rimraf package && yarn build && node ./scripts/preparePackage.cjs",
     "prepare": "rimraf package && node ./scripts/preparePackage.cjs",
     "postinstall": "husky",
-    "husky-check": "cd plainly-aescripts && yarn biome && cd ../plainly-plugin && yarn biome"
+    "biome:check:all": "cd plainly-aescripts && yarn biome && cd ../plainly-plugin && yarn biome",
+    "husky-check": "yarn biome:check:all"
   },
   "devDependencies": {
+    "@biomejs/biome": "^2.3.8",
     "husky": "^9.1.7",
     "rimraf": "^6.1.2"
   },

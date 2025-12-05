@@ -10,7 +10,6 @@
     "build-test": "yarn clean && cross-env NODE_ENV=production node ./../scripts/updateManifest.cjs && cross-env NODE_ENV=test webpack --mode production",
     "build": "yarn clean && cross-env NODE_ENV=production node ./../scripts/updateManifest.cjs && cross-env NODE_ENV=production webpack --mode production",
     "biome": "biome check ./src",
-    "biome-ci": "biome ci ./src",
     "biome-write": "biome check --write ./src"
   },
   "dependencies": {
@@ -31,7 +30,6 @@
     "@babel/core": "^7.26.0",
     "@babel/preset-env": "^7.26.0",
     "@babel/preset-react": "^7.26.3",
-    "@biomejs/biome": "2.2.4",
     "@tailwindcss/forms": "^0.5.9",
     "@tailwindcss/typography": "^0.5.15",
     "@types/archiver": "^6.0.3",

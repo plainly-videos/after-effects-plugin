@@ -2,9 +2,9 @@ name: CI Workflow
 
 on:
   push:
-    branches: [ master ]
+    branches: [master]
   pull_request:
-    branches: [ master ]
+    branches: [master]
 
 jobs:
   biome-check-aescripts:
@@ -15,18 +15,21 @@ jobs:
         working-directory: plainly-aescripts
 
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
         with:
           node-version: '20.11.1'
           cache: 'yarn'
           cache-dependency-path: 'plainly-aescripts/yarn.lock'
 
+      - name: Setup Biome
+        uses: biomejs/setup-biome@v2
+        with:
+          version: latest
+
       - name: Run Biome check
         working-directory: plainly-aescripts
-        run: |
-          yarn install --immutable
-          yarn biome-ci
+        run: biome ci ./src
 
   build-aescripts:
     name: Run build AeScripts
@@ -37,8 +40,8 @@ jobs:
         working-directory: plainly-aescripts
 
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
         with:
           node-version: '20.11.1'
           cache: 'yarn'
@@ -58,18 +61,21 @@ jobs:
         working-directory: plainly-plugin
 
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
         with:
           node-version: '20.11.1'
           cache: 'yarn'
           cache-dependency-path: 'plainly-plugin/yarn.lock'
 
+      - name: Setup Biome
+        uses: biomejs/setup-biome@v2
+        with:
+          version: latest
+
       - name: Run Biome check
-        working-directory: plainly-plugin
-        run: |
-          yarn install --immutable
-          yarn biome-ci
+        working-directory: plainly-aescripts
+        run: biome ci ./src
 
   build-plugin:
     name: Run build Plugin
