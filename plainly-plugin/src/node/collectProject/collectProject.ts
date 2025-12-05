@@ -65,11 +65,7 @@ function makeNewRelinkData(
   return footage.reduce(
     (acc, item) => {
       const itemId = item.itemId.toString();
-      const itemPath = path.join(
-        footageDir,
-        item.itemAeFolder.replace('Root', ''),
-        item.itemName,
-      );
+      const itemPath = path.join(footageDir, item.itemAeFolder, item.itemName);
       acc[itemId] = itemPath;
       return acc;
     },
@@ -164,11 +160,15 @@ async function makeProjectZip(targetPath: string): Promise<string> {
 
     // 6. Relink project files to the (Footage) folder
     await evalScriptAsync(
-      `relinkFootage(${JSON.stringify(makeNewRelinkData(projectInfo.footage, footageDir))})`,
+      `relinkFootage(${JSON.stringify(
+        makeNewRelinkData(projectInfo.footage, footageDir),
+      )})`,
     ).finally(() =>
       undoStack.unshift(async () => {
         evalScriptAsync(
-          `relinkFootage(${JSON.stringify(makeOriginalRelinkData(projectInfo.footage))})`,
+          `relinkFootage(${JSON.stringify(
+            makeOriginalRelinkData(projectInfo.footage),
+          )})`,
         );
       }),
     );

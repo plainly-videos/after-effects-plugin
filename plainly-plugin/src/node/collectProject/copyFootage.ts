@@ -25,7 +25,7 @@ export async function copyFootage(
     let src = finalizePath(footageItem.itemFsPath);
     src = src.replace(footageDir, footageDirRenamed);
     const footageName = path.basename(footageItem.itemFsPath);
-    const folder = footageItem.itemAeFolder.replace('Root', '');
+    const folder = footageItem.itemAeFolder;
 
     generateFolders(path.join(newFootageDir, folder));
     const dest = path.join(newFootageDir, folder, footageName);
