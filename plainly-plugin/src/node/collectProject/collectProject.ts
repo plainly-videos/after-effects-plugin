@@ -1,16 +1,10 @@
 import crypto from 'crypto';
 import fsPromises from 'fs/promises';
 import path from 'path';
-
+import { AeScriptsApi } from '../bridge/AeScriptsApi';
 import { isWindows, TMP_DIR } from '../constants';
-import type { Footage, ProjectInfo } from '../types';
-import {
-  evalScriptAsync,
-  exists,
-  finalizePath,
-  renameIfExists,
-  zipItems,
-} from '../utils';
+import type { Footage } from '../types';
+import { exists, finalizePath, renameIfExists, zipItems } from '../utils';
 import { copyFonts } from './copyFonts';
 import { copyFootage } from './copyFootage';
 
@@ -20,7 +14,7 @@ import { copyFootage } from './copyFootage';
  * @param callback a callback that will be called with the path of the selected folder.
  */
 async function selectFolder(callback: (result: string) => void) {
-  const result = await evalScriptAsync('selectFolder()');
+  const result = await AeScriptsApi.selectFolder();
   callback(result || '');
 }
 
@@ -85,9 +79,9 @@ function makeOriginalRelinkData(footage: Footage[]): Record<string, string> {
 
 async function makeProjectZip(targetPath: string): Promise<string> {
   // save project first
-  await evalScriptAsync('saveProject()');
+  await AeScriptsApi.saveProject();
 
-  let aepFilePath = await evalScriptAsync('getProjectPath()');
+  let aepFilePath = await AeScriptsApi.getProjectPath();
   if (!aepFilePath) throw new Error('Project not opened or not saved');
   aepFilePath = finalizePath(aepFilePath);
 
@@ -95,9 +89,7 @@ async function makeProjectZip(targetPath: string): Promise<string> {
   const aepFileName = path.basename(aepFilePath, '.aep');
 
   // 1. Collect project data
-  const result = await evalScriptAsync('collectFiles()');
-  if (!result) throw new Error('Failed to collect files');
-  const projectInfo: ProjectInfo = JSON.parse(result);
+  const projectInfo = await AeScriptsApi.collectFiles();
 
   const hasLongFootagePaths = projectInfo.footage.some((item) => {
     const itemPath = item.itemFsPath;
@@ -158,17 +150,11 @@ async function makeProjectZip(targetPath: string): Promise<string> {
     );
 
     // 6. Relink project files to the (Footage) folder
-    await evalScriptAsync(
-      `relinkFootage(${JSON.stringify(
-        makeNewRelinkData(projectInfo.footage, footageDir),
-      )})`,
+    await AeScriptsApi.relinkFootage(
+      makeNewRelinkData(projectInfo.footage, footageDir),
     ).finally(() =>
       undoStack.unshift(async () => {
-        evalScriptAsync(
-          `relinkFootage(${JSON.stringify(
-            makeOriginalRelinkData(projectInfo.footage),
-          )})`,
-        );
+        AeScriptsApi.relinkFootage(makeOriginalRelinkData(projectInfo.footage));
       }),
     );
 

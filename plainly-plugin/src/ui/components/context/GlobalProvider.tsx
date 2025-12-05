@@ -1,4 +1,4 @@
-import { evalScriptAsync } from '@src/node/utils';
+import { AeScriptsApi } from '@src/node/bridge/AeScriptsApi';
 import { createContext, useEffect, useState } from 'react';
 import { useNotifications } from '../../hooks';
 
@@ -22,33 +22,33 @@ export const GlobalProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     const interval = setInterval(async () => {
-      const data = await evalScriptAsync('getProjectData()');
+      const parsedData = await AeScriptsApi.getProjectData();
 
-      if (data) {
-        const parsedData: {
+      if (parsedData) {
+        const data: {
           documentId?: string;
           id?: string;
           revisionCount?: number;
-        } = JSON.parse(data);
+        } = parsedData;
 
         let newData: GlobalContextProps = {
-          plainlyProject: parsedData.id
+          plainlyProject: data.id
             ? {
-                id: parsedData.id,
-                revisionCount: parsedData.revisionCount || 0,
+                id: data.id,
+                revisionCount: data.revisionCount || 0,
               }
             : undefined,
         };
 
-        if (!projectData?.documentId && parsedData.documentId) {
-          newData = { documentId: parsedData.documentId, ...newData };
+        if (!projectData?.documentId && data.documentId) {
+          newData = { documentId: data.documentId, ...newData };
           setProjectData(newData);
         } else if (
           projectData?.documentId &&
-          parsedData.documentId !== projectData.documentId
+          data.documentId !== projectData.documentId
         ) {
           notifyInfo("We've detected a new project.");
-          newData = { documentId: parsedData.documentId, ...newData };
+          newData = { documentId: data.documentId, ...newData };
           setProjectData(newData);
         } else {
           // Update only the plainlyProject if documentId is the same
