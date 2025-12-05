@@ -1,4 +1,4 @@
-import { evalScriptAsync } from '@src/node/utils';
+import { AeScriptsApi } from '@src/node/bridge/AeScriptsApi';
 import { createContext, useEffect, useState } from 'react';
 import { useNotifications } from '../../hooks';
 
@@ -22,15 +22,9 @@ export const GlobalProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     const interval = setInterval(async () => {
-      const data = await evalScriptAsync('getProjectData()');
+      const parsedData = await AeScriptsApi.getProjectData();
 
-      if (data) {
-        const parsedData: {
-          documentId?: string;
-          id?: string;
-          revisionCount?: number;
-        } = JSON.parse(data);
-
+      if (parsedData) {
         let newData: GlobalContextProps = {
           plainlyProject: parsedData.id
             ? {
