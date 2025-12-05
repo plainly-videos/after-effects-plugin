@@ -80,6 +80,9 @@ To install and run the extension:
    ```bash
    cd plainly-aescripts && yarn install --immutable && yarn build
    ```
+
+   `plainly-aescripts` uses `typescript` version `4.x`, because `ExtendScript` uses an older version of `javascript (es3)`, and newer versions of `typescript` don't support compiling to `es3`.
+
 5. Install `plugin` dependencies and build for production
    ```bash
    cd plainly-plugin && yarn install --immutable && yarn build
