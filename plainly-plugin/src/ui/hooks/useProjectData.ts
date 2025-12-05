@@ -9,10 +9,6 @@ export const useProjectData = (): [
   const getData = async () => {
     try {
       const parsedData = await AeScriptsApi.getProjectData();
-      if (!parsedData) {
-        console.warn('No project data found.');
-        return undefined;
-      }
       return parsedData;
     } catch (error) {
       console.error('Error getting project data:', error);

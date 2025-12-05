@@ -25,30 +25,24 @@ export const GlobalProvider = ({ children }: { children: React.ReactNode }) => {
       const parsedData = await AeScriptsApi.getProjectData();
 
       if (parsedData) {
-        const data: {
-          documentId?: string;
-          id?: string;
-          revisionCount?: number;
-        } = parsedData;
-
         let newData: GlobalContextProps = {
-          plainlyProject: data.id
+          plainlyProject: parsedData.id
             ? {
-                id: data.id,
-                revisionCount: data.revisionCount || 0,
+                id: parsedData.id,
+                revisionCount: parsedData.revisionCount || 0,
               }
             : undefined,
         };
 
-        if (!projectData?.documentId && data.documentId) {
-          newData = { documentId: data.documentId, ...newData };
+        if (!projectData?.documentId && parsedData.documentId) {
+          newData = { documentId: parsedData.documentId, ...newData };
           setProjectData(newData);
         } else if (
           projectData?.documentId &&
-          data.documentId !== projectData.documentId
+          parsedData.documentId !== projectData.documentId
         ) {
           notifyInfo("We've detected a new project.");
-          newData = { documentId: data.documentId, ...newData };
+          newData = { documentId: parsedData.documentId, ...newData };
           setProjectData(newData);
         } else {
           // Update only the plainlyProject if documentId is the same

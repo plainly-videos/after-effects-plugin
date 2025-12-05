@@ -22,10 +22,13 @@ class AeScriptsApiClass {
    */
   async collectFiles(): Promise<ProjectInfo> {
     const result = await evalScriptAsync('collectFiles()');
-    if (!result) {
-      throw new Error('Failed to collect files');
+    if (!result) throw new Error('Failed to collect files');
+
+    try {
+      return JSON.parse(result);
+    } catch {
+      throw new Error('Failed to parse collected files data.');
     }
-    return JSON.parse(result) as ProjectInfo;
   }
 
   /**
@@ -34,11 +37,7 @@ class AeScriptsApiClass {
    * @param revisionCount - The project revision count
    */
   async setProjectData(id: string, revisionCount: number): Promise<void> {
-    const safeId = JSON.stringify(id).slice(1, -1);
-    const safeRevisionCount = Number(revisionCount);
-    await evalScriptAsync(
-      `setProjectData("${safeId}", "${safeRevisionCount}")`,
-    );
+    await evalScriptAsync(`setProjectData("${id}", "${revisionCount}")`);
   }
 
   /**
@@ -47,7 +46,13 @@ class AeScriptsApiClass {
    */
   async getProjectData(): Promise<ProjectData | undefined> {
     const result = await evalScriptAsync('getProjectData()');
-    return result ? (JSON.parse(result) as ProjectData) : undefined;
+    if (!result) return undefined;
+
+    try {
+      return JSON.parse(result);
+    } catch {
+      throw new Error('Failed to parse project data.');
+    }
   }
 
   /**
