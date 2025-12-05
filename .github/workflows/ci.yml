@@ -74,7 +74,7 @@ jobs:
           version: latest
 
       - name: Run Biome check
-        working-directory: plainly-aescripts
+        working-directory: plainly-plugin
         run: biome ci ./src
 
   build-plugin:
