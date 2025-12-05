@@ -58,8 +58,8 @@ function getTextLayersByComp(comp: CompItem): Array<TextLayer> {
 }
 
 function getFolderPath(folder: FolderItem): string {
-  if (folder.parentFolder == null || folder === app.project.rootFolder) {
-    return folder.name;
+  if (folder.parentFolder === null || folder === app.project.rootFolder) {
+    return '';
   }
 
   // Recursively build the folder path
