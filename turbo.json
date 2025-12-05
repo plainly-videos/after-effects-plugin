@@ -2,9 +2,6 @@
   "$schema": "https://turborepo.com/schema.json",
   "globalDependencies": ["yarn.lock"],
   "tasks": {
-    "install": {
-      "cache": false
-    },
     "build": {
       "dependsOn": ["^build"],
       "outputs": ["dist/**"]
