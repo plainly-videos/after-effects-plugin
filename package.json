@@ -3,19 +3,28 @@
   "version": "1.2.9",
   "author": "Plainly Videos",
   "scripts": {
-    "build": "yarn build-aescripts && yarn build-plugin",
-    "build-aescripts": "cd plainly-aescripts && yarn install --immutable && yarn build && cd ..",
-    "build-plugin": "cd plainly-plugin && yarn install --immutable && yarn build && cd ..",
-    "package": "rimraf package && yarn build && node ./scripts/preparePackage.cjs",
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "build:test": "turbo run build-test",
+    "biome": "biome check .",
+    "biome:fix": "biome check --write .",
+    "build:clean": "yarn build:aescripts && yarn build:plugin",
+    "build:aescripts": "cd plainly-aescripts && yarn install --immutable && yarn build && cd ..",
+    "build:plugin": "cd plainly-plugin && yarn install --immutable && yarn build && cd ..",
+    "package": "rimraf package && yarn build:clean && node ./scripts/preparePackage.cjs",
     "prepare": "rimraf package && node ./scripts/preparePackage.cjs",
     "postinstall": "husky",
-    "biome:check:all": "cd plainly-aescripts && yarn biome && cd ../plainly-plugin && yarn biome",
-    "husky-check": "yarn biome:check:all"
+    "husky-check": "yarn biome"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.3.8",
     "husky": "^9.1.7",
-    "rimraf": "^6.1.2"
+    "rimraf": "^6.1.2",
+    "turbo": "^2.6.3"
   },
-  "packageManager": "yarn@3.8.7"
+  "packageManager": "yarn@3.8.7",
+  "workspaces": [
+    "plainly-aescripts",
+    "plainly-plugin"
+  ]
 }

@@ -1,16 +1,14 @@
 {
-  "name": "@plainly/plugin",
+  "name": "plainly-plugin",
   "version": "1.2.9",
   "description": "Plainly Videos Adobe After Effects plugin",
   "author": "Plainly Videos",
   "license": "Apache-2.0",
   "scripts": {
     "clean": "rimraf dist",
-    "dev": "yarn clean && cross-env NODE_ENV=development node ./../scripts/updateManifest.cjs --dev && cross-env NODE_ENV=development webpack --mode development --watch",
-    "build-test": "yarn clean && cross-env NODE_ENV=production node ./../scripts/updateManifest.cjs && cross-env NODE_ENV=test webpack --mode production",
     "build": "yarn clean && cross-env NODE_ENV=production node ./../scripts/updateManifest.cjs && cross-env NODE_ENV=production webpack --mode production",
-    "biome": "biome check ./src",
-    "biome-write": "biome check --write ./src"
+    "build-test": "yarn clean && cross-env NODE_ENV=production node ./../scripts/updateManifest.cjs && cross-env NODE_ENV=test webpack --mode production",
+    "dev": "yarn clean && cross-env NODE_ENV=development node ./../scripts/updateManifest.cjs --dev && cross-env NODE_ENV=development webpack --mode development --watch"
   },
   "dependencies": {
     "@headlessui/react": "^2.2.0",

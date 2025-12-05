@@ -11,7 +11,8 @@
       "**",
       "!**/plainly-plugin/src/node/lib",
       "!**/dist",
-      "!**/package"
+      "!**/package",
+      "!**/.turbo"
     ]
   },
   "formatter": {
