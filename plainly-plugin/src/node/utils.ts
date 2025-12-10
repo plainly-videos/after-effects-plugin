@@ -8,11 +8,6 @@ const homeDirectory = os.homedir();
 
 import archiver from 'archiver';
 import { isWindows } from './constants';
-// @ts-expect-error
-import CSInterface from './lib/CSInterface';
-
-const csInterface = new CSInterface();
-
 /**
  * Checks if a file or directory exists at the given path.
  * @param path - The path to check.
