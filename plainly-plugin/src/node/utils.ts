@@ -95,25 +95,6 @@ export function generateFolders(folderPath: string) {
   }
 }
 
-export async function evalScriptAsync(
-  func: string,
-): Promise<string | undefined> {
-  return new Promise((resolve, reject) => {
-    try {
-      const finalFunc = `$['com.plainlyvideos.after-effects-plugin.Panel'].${func};`;
-      csInterface.evalScript(finalFunc, (result: string) => {
-        if (result.includes('Error: ')) {
-          reject(new Error(result));
-        }
-
-        resolve(result === 'undefined' ? undefined : result);
-      });
-    } catch (error) {
-      reject(error);
-    }
-  });
-}
-
 export const runInParallelReturnRejected = async <T>(
   promises: Promise<T>[],
 ): Promise<string[]> => {

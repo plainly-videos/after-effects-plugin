@@ -1,7 +1,7 @@
 import { useNotifications } from '@src/ui/hooks';
 import classNames from 'classnames';
 import { FolderIcon } from 'lucide-react';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { makeProjectZip, selectFolder } from '../../../node/index';
 import { openFolder } from '../../../node/utils';
 import { Button, Checkbox } from '../common';
@@ -34,6 +34,11 @@ export function ExportForm() {
     }
   };
 
+  const onSelectFolder = useCallback(async () => {
+    const selectedPath = await selectFolder();
+    setTargetPath(selectedPath);
+  }, []);
+
   return (
     <form className="space-y-4 w-full text-white" onSubmit={handleSubmit}>
       <div className="space-y-4 border-b border-white/10 pb-4">
@@ -62,7 +67,7 @@ export function ExportForm() {
             <button
               type="button"
               disabled={loading}
-              onClick={() => selectFolder(setTargetPath)}
+              onClick={onSelectFolder}
               className="mt-2 flex justify-center rounded-lg border border-dashed border-white/25 px-6 py-4 group w-full hover:border-white/10 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <div className="text-center">

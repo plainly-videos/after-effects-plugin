@@ -8,8 +8,8 @@ export const useProjectData = (): [
 ] => {
   const getData = async () => {
     try {
-      const parsedData = await AeScriptsApi.getProjectData();
-      return parsedData;
+      const projectData = await AeScriptsApi.getProjectData();
+      return projectData;
     } catch (error) {
       console.error('Error getting project data:', error);
       return undefined;
@@ -18,13 +18,10 @@ export const useProjectData = (): [
 
   const setData = async (data: Omit<ProjectData, 'documentId'>) => {
     const { id, revisionCount } = data;
-
     await AeScriptsApi.setProjectData(id, revisionCount);
   };
 
-  const removeData = async () => {
-    await AeScriptsApi.removeProjectData();
-  };
+  const removeData = async () => await AeScriptsApi.removeProjectData();
 
   return [setData, removeData, getData];
 };

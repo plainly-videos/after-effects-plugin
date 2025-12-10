@@ -1,6 +1,23 @@
 import type { ProjectData } from '../../ui/types';
+import { csInterface } from '../constants';
 import type { ProjectInfo, RelinkData } from '../types';
-import { evalScriptAsync } from '../utils';
+
+async function evalScriptAsync(func: string): Promise<string | undefined> {
+  return new Promise((resolve, reject) => {
+    try {
+      const finalFunc = `$['com.plainlyvideos.after-effects-plugin.Panel'].${func};`;
+      csInterface.evalScript(finalFunc, (result: string) => {
+        if (result.includes('Error: ')) {
+          reject(new Error(result));
+        }
+
+        resolve(result === 'undefined' ? undefined : result);
+      });
+    } catch (error) {
+      reject(error);
+    }
+  });
+}
 
 /**
  * Typed API bridge for communicating with After Effects ExtendScript.
@@ -12,8 +29,7 @@ class AeScriptsApiClass {
    * @returns The selected folder path, or undefined if cancelled
    */
   async selectFolder(): Promise<string | undefined> {
-    const result = await evalScriptAsync('selectFolder()');
-    return result;
+    return await evalScriptAsync('selectFolder()');
   }
 
   /**
@@ -67,8 +83,7 @@ class AeScriptsApiClass {
    * @returns The project file path, or undefined if project is not saved
    */
   async getProjectPath(): Promise<string | undefined> {
-    const result = await evalScriptAsync('getProjectPath()');
-    return result;
+    return await evalScriptAsync('getProjectPath()');
   }
 
   /**
@@ -83,8 +98,7 @@ class AeScriptsApiClass {
    * @param relinkData - Object mapping item IDs to new file paths
    */
   async relinkFootage(relinkData: RelinkData): Promise<void> {
-    const serialized = JSON.stringify(relinkData);
-    await evalScriptAsync(`relinkFootage(${serialized})`);
+    await evalScriptAsync(`relinkFootage(${JSON.stringify(relinkData)})`);
   }
 }
 

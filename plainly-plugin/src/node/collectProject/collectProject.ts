@@ -13,9 +13,8 @@ import { copyFootage } from './copyFootage';
  *
  * @param callback a callback that will be called with the path of the selected folder.
  */
-async function selectFolder(callback: (result: string) => void) {
-  const result = await AeScriptsApi.selectFolder();
-  callback(result || '');
+async function selectFolder(): Promise<string | undefined> {
+  return await AeScriptsApi.selectFolder();
 }
 
 /**
