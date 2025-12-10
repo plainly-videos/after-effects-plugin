@@ -1,4 +1,4 @@
-export interface ProjectData {
+interface ProjectData {
   id: string;
   revisionCount: number;
 }

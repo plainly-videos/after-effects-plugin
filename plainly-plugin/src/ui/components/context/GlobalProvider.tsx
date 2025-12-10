@@ -1,4 +1,4 @@
-import { evalScriptAsync } from '@src/node/utils';
+import { AeScriptsApi } from '@src/node/bridge/AeScriptsApi';
 import { createContext, useEffect, useState } from 'react';
 import { useNotifications } from '../../hooks';
 
@@ -16,53 +16,47 @@ export const GlobalContext = createContext<GlobalContextProps | undefined>(
 
 export const GlobalProvider = ({ children }: { children: React.ReactNode }) => {
   const { notifyInfo } = useNotifications();
-  const [projectData, setProjectData] = useState<
+  const [globalData, setGlobalData] = useState<
     GlobalContextProps | undefined
   >();
 
   useEffect(() => {
     const interval = setInterval(async () => {
-      const data = await evalScriptAsync('getProjectData()');
+      const projectData = await AeScriptsApi.getProjectData();
 
-      if (data) {
-        const parsedData: {
-          documentId?: string;
-          id?: string;
-          revisionCount?: number;
-        } = JSON.parse(data);
-
+      if (projectData) {
         let newData: GlobalContextProps = {
-          plainlyProject: parsedData.id
+          plainlyProject: projectData.id
             ? {
-                id: parsedData.id,
-                revisionCount: parsedData.revisionCount || 0,
+                id: projectData.id,
+                revisionCount: projectData.revisionCount || 0,
               }
             : undefined,
         };
 
-        if (!projectData?.documentId && parsedData.documentId) {
-          newData = { documentId: parsedData.documentId, ...newData };
-          setProjectData(newData);
+        if (!globalData?.documentId && projectData.documentId) {
+          newData = { documentId: projectData.documentId, ...newData };
+          setGlobalData(newData);
         } else if (
-          projectData?.documentId &&
-          parsedData.documentId !== projectData.documentId
+          globalData?.documentId &&
+          projectData.documentId !== globalData.documentId
         ) {
           notifyInfo("We've detected a new project.");
-          newData = { documentId: parsedData.documentId, ...newData };
-          setProjectData(newData);
+          newData = { documentId: projectData.documentId, ...newData };
+          setGlobalData(newData);
         } else {
           // Update only the plainlyProject if documentId is the same
-          newData = { ...projectData, ...newData };
-          setProjectData(newData);
+          newData = { ...globalData, ...newData };
+          setGlobalData(newData);
         }
       }
     }, 3000);
 
     return () => clearInterval(interval);
-  }, [notifyInfo, projectData]);
+  }, [notifyInfo, globalData]);
 
   return (
-    <GlobalContext.Provider value={projectData}>
+    <GlobalContext.Provider value={globalData}>
       {children}
     </GlobalContext.Provider>
   );

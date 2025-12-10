@@ -8,11 +8,6 @@ const homeDirectory = os.homedir();
 
 import archiver from 'archiver';
 import { isWindows } from './constants';
-// @ts-expect-error
-import CSInterface from './lib/CSInterface';
-
-const csInterface = new CSInterface();
-
 /**
  * Checks if a file or directory exists at the given path.
  * @param path - The path to check.
@@ -93,24 +88,6 @@ export function generateFolders(folderPath: string) {
   if (!fs.existsSync(pathResolved)) {
     fs.mkdirSync(pathResolved, { recursive: true });
   }
-}
-
-export async function evalScriptAsync(
-  func: string,
-): Promise<string | undefined> {
-  return new Promise((resolve, reject) => {
-    try {
-      csInterface.evalScript(func, (result: string) => {
-        if (result.includes('Error: ')) {
-          reject(new Error(result));
-        }
-
-        resolve(result === 'undefined' ? undefined : result);
-      });
-    } catch (error) {
-      reject(error);
-    }
-  });
 }
 
 export const runInParallelReturnRejected = async <T>(

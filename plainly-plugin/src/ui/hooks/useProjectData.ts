@@ -1,4 +1,4 @@
-import { evalScriptAsync } from '../../node/utils';
+import { AeScriptsApi } from '../../node/bridge/AeScriptsApi';
 import type { ProjectData } from '../types';
 
 export const useProjectData = (): [
@@ -8,11 +8,8 @@ export const useProjectData = (): [
 ] => {
   const getData = async () => {
     try {
-      const projectData = await evalScriptAsync('getProjectData()');
-      const parsedData: ProjectData | undefined = projectData
-        ? JSON.parse(projectData)
-        : undefined;
-      return parsedData;
+      const projectData = await AeScriptsApi.getProjectData();
+      return projectData;
     } catch (error) {
       console.error('Error getting project data:', error);
       return undefined;
@@ -21,13 +18,10 @@ export const useProjectData = (): [
 
   const setData = async (data: Omit<ProjectData, 'documentId'>) => {
     const { id, revisionCount } = data;
-
-    await evalScriptAsync(`setProjectData("${id}", "${revisionCount}")`);
+    await AeScriptsApi.setProjectData(id, revisionCount);
   };
 
-  const removeData = async () => {
-    await evalScriptAsync('removeProjectData()');
-  };
+  const removeData = async () => await AeScriptsApi.removeProjectData();
 
   return [setData, removeData, getData];
 };

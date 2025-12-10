@@ -1,3 +1,5 @@
+import { getAllComps, getFolderPath, getTextLayersByComp } from './utils';
+
 interface FontPath {
   fontName: string;
   fontExtension: string | undefined;
@@ -46,7 +48,7 @@ function collectFiles(): string | undefined {
 
 function collectFonts(): FontPath[] {
   const comps = getAllComps(app.project);
-  const fontPaths = [];
+  const fontPaths: FontPath[] = [];
 
   for (let i = 0; i < comps.length; i++) {
     const layers = getTextLayersByComp(comps[i]);
@@ -72,12 +74,12 @@ function collectFonts(): FontPath[] {
 }
 
 function collectFootage(): FootagePath[] {
-  const footagePaths = [];
+  const footagePaths: FootagePath[] = [];
 
   // Go through all items in the project
   for (let i = 1; i <= app.project.numItems; i++) {
     const item = app.project.item(i);
-    if (item instanceof FootageItem === false) {
+    if (!(item instanceof FootageItem)) {
       continue;
     }
     if (item.file == null) {
@@ -98,3 +100,5 @@ function collectFootage(): FootagePath[] {
 
   return footagePaths;
 }
+
+export { selectFolder, collectFiles };
