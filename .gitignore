@@ -48,3 +48,6 @@ plainly-plugin/.yarn/*
 !plainly-plugin/.yarn/releases
 !plainly-plugin/.yarn/sdks
 !plainly-plugin/.yarn/versions
+
+# turborepo
+.turbo
