@@ -102,10 +102,33 @@ class AeScriptsApiClass {
     await evalScriptAsync(`relinkFootage(${JSON.stringify(relinkData)})`);
   }
 
+  /**
+   * Unselects all layers in the current After Effects composition.
+   */
+  async unselectAllLayers(): Promise<void> {
+    await evalScriptAsync('unselectAllLayers()');
+  }
+
+  /**
+   * Selects a layer in the current After Effects composition by its ID.
+   * @param layerId - The ID of the layer to select
+   */
+  async selectLayer(layerId: string): Promise<void> {
+    await evalScriptAsync(`selectLayer(${layerId})`);
+  }
+
+  /**
+   * Validates the current After Effects project for Plainly issues.
+   * @returns A JSON string of validation results, or undefined if no issues found
+   */
   async validateProject(): Promise<string | undefined> {
     return await evalScriptAsync('validateProject()');
   }
 
+  /**
+   * Fixes all provided Plainly issues in the After Effects project.
+   * @param issues - Array of project issues to fix
+   */
   async fixAllIssues(issues: AnyProjectIssue[]): Promise<void> {
     await evalScriptAsync(`fixAllIssues(${JSON.stringify(issues)})`);
   }

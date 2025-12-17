@@ -49,3 +49,4 @@ function relinkFootage(relinkData: RelinkData): void {
 }
 
 export { relinkFootage };
+export type { RelinkData };

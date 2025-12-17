@@ -8,6 +8,8 @@ import {
 } from './project';
 import { relinkFootage } from './relink';
 import './shims';
+import { selectLayer } from './utils';
+import { fixAllIssues, validateProject } from './validation';
 
 const PlainlyAE = () => ({
   selectFolder,
@@ -18,6 +20,9 @@ const PlainlyAE = () => ({
   getProjectPath,
   saveProject,
   relinkFootage,
+  validateProject,
+  fixAllIssues,
+  selectLayer,
 });
 
 if ($['com.plainlyvideos.after-effects-plugin.Panel']) {

@@ -1,4 +1,4 @@
-import { evalScriptAsync } from '@src/node/utils';
+import { AeScriptsApi } from '@src/node/bridge';
 import {
   ProjectIssueType,
   type TextAllCapsEnabledIssue,
@@ -18,8 +18,8 @@ export function AllCaps({
   setIsOpen: React.Dispatch<React.SetStateAction<ProjectIssueType | undefined>>;
 }) {
   const onLayerNameClick = async (layerId: string) => {
-    await evalScriptAsync('unselectAllLayers()');
-    await evalScriptAsync(`selectLayer(${layerId})`);
+    await AeScriptsApi.unselectAllLayers();
+    await AeScriptsApi.selectLayer(layerId);
   };
 
   const onExpandClick = () => {

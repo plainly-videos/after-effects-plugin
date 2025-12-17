@@ -1,3 +1,6 @@
+import { getAllComps, getTextLayersByComp } from '../utils';
+import { ProjectIssueType, type TextLayerIssues } from './types';
+
 function checkTextLayers(): TextLayerIssues[] {
   const comps = getAllComps(app.project);
   const textLayers: TextLayerIssues[] = [];
@@ -34,7 +37,7 @@ function checkTextLayers(): TextLayerIssues[] {
           ) {
             hasCharacterAllCaps = true;
             textLayers.push({
-              type: 'AllCaps' as ProjectIssueType.AllCaps,
+              type: ProjectIssueType.AllCaps,
               layerId: layer.id.toString(),
               layerName: layer.name,
               text: true,
@@ -55,7 +58,7 @@ function checkTextLayers(): TextLayerIssues[] {
         range.fontCapsOption === FontCapsOption.FONT_ALL_CAPS
       ) {
         textLayers.push({
-          type: 'AllCaps' as ProjectIssueType.AllCaps,
+          type: ProjectIssueType.AllCaps,
           layerId: layer.id.toString(),
           layerName: layer.name,
           text: true,
@@ -117,3 +120,5 @@ function fixAllCapsIssue(layerId: string) {
   }
   layer.sourceText.setValue(newValue);
 }
+
+export { checkTextLayers, fixAllCapsIssue };

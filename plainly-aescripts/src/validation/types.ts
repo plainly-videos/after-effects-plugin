@@ -20,3 +20,13 @@ type TextLayerIssues = TextAllCapsEnabledIssue & {
 };
 
 type AnyProjectIssue = TextLayerIssues;
+
+export type {
+  ProjectIssue,
+  ProjectLayerIssue,
+  TextAllCapsEnabledIssue,
+  TextLayerIssues,
+  AnyProjectIssue,
+};
+
+export { ProjectIssueType };

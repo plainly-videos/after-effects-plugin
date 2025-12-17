@@ -102,3 +102,4 @@ function collectFootage(): FootagePath[] {
 }
 
 export { selectFolder, collectFiles };
+export type { FontPath, FootagePath };
