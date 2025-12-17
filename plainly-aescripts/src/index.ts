@@ -8,7 +8,7 @@ import {
 } from './project';
 import { relinkFootage } from './relink';
 import './shims';
-import { selectLayer } from './utils';
+import { selectLayer, unselectAllLayers } from './utils';
 import { fixAllIssues, validateProject } from './validation';
 
 const PlainlyAE = () => ({
@@ -22,6 +22,7 @@ const PlainlyAE = () => ({
   relinkFootage,
   validateProject,
   fixAllIssues,
+  unselectAllLayers,
   selectLayer,
 });
 
