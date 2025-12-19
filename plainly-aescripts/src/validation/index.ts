@@ -23,6 +23,8 @@ function fixAllIssues(issues: AnyProjectIssue[]) {
       fixAllCapsIssue(issue.layerId);
     }
   }
+
+  validateProject();
 }
 
 export { validateProject, fixAllIssues };
