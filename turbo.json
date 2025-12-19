@@ -1,0 +1,20 @@
+{
+  "$schema": "https://turborepo.com/schema.json",
+  "globalDependencies": ["yarn.lock"],
+  "tasks": {
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": ["dist/**"]
+    },
+    "build-test": {
+      "dependsOn": ["^build-test"],
+      "outputs": ["dist/**"]
+    },
+    "//#biome": {},
+    "//#biome:fix": { "cache": false },
+    "dev": {
+      "persistent": true,
+      "cache": false
+    }
+  }
+}
