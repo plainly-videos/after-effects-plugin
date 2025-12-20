@@ -19,15 +19,31 @@ function checkTextLayers(): TextLayerIssues[] {
       }
 
       const textDocument = layer.sourceText.value;
-      // check if characterRange exists in textDocument (After Effects 24.3+)
+
+      // first check allCaps for older After Effects versions
+      // this checks only the first character of the text layer
+      // IMPORTANT: with this method, on older versions (< 24.3), we can't fix, but we can at least report it
+      if (textDocument.allCaps) {
+        textLayers.push({
+          type: ProjectIssueType.AllCaps,
+          layerId: layer.id.toString(),
+          layerName: layer.name,
+          text: true,
+        });
+        continue;
+      }
+
+      // if we didn't find allCaps above, check for fontCapsOption (After Effects 24.3+)
+      // check if characterRange exists in textDocument (After Effects 24.3+) first
       if (typeof textDocument.characterRange !== 'function') {
         continue;
       }
 
       let hasCharacterAllCaps = false;
       const range = textDocument.characterRange(0, textDocument.text.length);
-      // this means that there are different attributes in the text per character,
-      // thus, we can check per-character basis to find if any character is all-caps
+
+      // `range.fontCapsOption === undefined` this means that there are different attributes in the text per character,
+      // thus, we can check per-character basis to find if any character is allCaps
       if (range.fontCapsOption === undefined) {
         for (let k = 0; k < textDocument.text.length; k++) {
           const cRange = textDocument.characterRange(k, k + 1);
@@ -47,7 +63,7 @@ function checkTextLayers(): TextLayerIssues[] {
         }
       }
 
-      // if we already found a character with all-caps, skip further checks
+      // if we already found a character with allCaps, skip further checks
       if (hasCharacterAllCaps) {
         continue;
       }
@@ -67,7 +83,7 @@ function checkTextLayers(): TextLayerIssues[] {
     }
   }
 
-  return textLayers.length > 0 ? textLayers : [];
+  return textLayers;
 }
 
 /**
@@ -85,6 +101,7 @@ function fixAllCapsIssue(layerId: string) {
   }
 
   const textDocument = layer.sourceText.value;
+
   // check if characterRange exists in textDocument (After Effects 24.3+)
   if (typeof textDocument.characterRange !== 'function') {
     return;
