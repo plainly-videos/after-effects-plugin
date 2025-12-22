@@ -89,3 +89,4 @@ function collectFootage(): Footage[] {
 }
 
 export { selectFolder, collectFiles };
+export type { FontPath, FootagePath };
