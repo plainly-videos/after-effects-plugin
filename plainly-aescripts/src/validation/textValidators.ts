@@ -117,7 +117,7 @@ function fixAllCapsIssue(layerId: string) {
   ) {
     newValue.fontCapsOption = FontCapsOption.FONT_NORMAL_CAPS;
     newValue.text = newValue.text.toUpperCase();
-    layer.sourceText.setValue(newValue);
+    updateLayerTextDocument(layer, newValue);
     return;
   }
 
@@ -135,7 +135,13 @@ function fixAllCapsIssue(layerId: string) {
         .text.toUpperCase();
     }
   }
+  updateLayerTextDocument(layer, newValue);
+}
+
+function updateLayerTextDocument(layer: TextLayer, newValue: TextDocument) {
+  const originalLayerName = layer.name;
   layer.sourceText.setValue(newValue);
+  layer.name = originalLayerName; // Preserve original layer name
 }
 
 export { checkTextLayers, fixAllCapsIssue };
