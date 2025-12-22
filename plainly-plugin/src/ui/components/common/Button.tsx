@@ -1,5 +1,5 @@
 import classNames from 'classnames';
-import { LoaderCircleIcon } from 'lucide-react';
+import { LoaderCircleIcon, type LucideProps } from 'lucide-react';
 import type { ComponentPropsWithRef } from 'react';
 
 export function Button({
@@ -10,9 +10,13 @@ export function Button({
   disabled,
   loading,
   type = 'submit',
+  icon: Icon,
 }: {
   secondary?: boolean;
   loading?: boolean;
+  icon?: React.ForwardRefExoticComponent<
+    Omit<LucideProps, 'ref'> & React.RefAttributes<SVGSVGElement>
+  >;
 } & ComponentPropsWithRef<'button'>) {
   const primary = !secondary;
   const classPrimary =
@@ -24,7 +28,7 @@ export function Button({
     <button
       onClick={onClick}
       className={classNames(
-        'border rounded-md px-2.5 py-1.5 text-xs font-medium shadow-sm disabled:cursor-not-allowed disabled:opacity-50 flex items-center',
+        'border rounded-md px-2.5 py-1.5 text-xs font-medium shadow-sm disabled:cursor-not-allowed disabled:opacity-50 flex items-center gap-1',
         primary && classPrimary,
         secondary && classSecondary,
         loading && 'animate-pulse-tailwind',
@@ -33,9 +37,8 @@ export function Button({
       type={type}
       disabled={disabled}
     >
-      {loading && (
-        <LoaderCircleIcon className="mr-1 size-4 shrink-0 animate-spin" />
-      )}
+      {Icon && !loading && <Icon className="size-4 shrink-0" />}
+      {loading && <LoaderCircleIcon className="size-4 shrink-0 animate-spin" />}
       {children}
     </button>
   );
