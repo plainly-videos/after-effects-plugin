@@ -95,7 +95,17 @@ class AeScriptsApiClass {
   }
 
   /**
-   * Relinks footage items in the After Effects project to new file paths.
+   * Gets the version of After Effects.
+   * @returns The version of After Effects as a string
+   */
+  async getAfterEffectsVersion(): Promise<string> {
+    const result = await evalScriptAsync('getAfterEffectsVersion()');
+    if (!result) throw new Error('Failed to get After Effects version');
+    return result;
+  }
+
+  /**
+   * Re-links footage items in the After Effects project to new file paths.
    * @param relinkData - Object mapping item IDs to new file paths
    */
   async relinkFootage(relinkData: RelinkData): Promise<void> {

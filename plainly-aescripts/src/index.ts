@@ -1,5 +1,6 @@
 import { collectFiles, selectFolder } from './collect';
 import {
+  getAfterEffectsVersion,
   getProjectData,
   getProjectPath,
   removeProjectData,
@@ -19,6 +20,7 @@ const PlainlyAE = () => ({
   removeProjectData,
   getProjectPath,
   saveProject,
+  getAfterEffectsVersion,
   relinkFootage,
   validateProject,
   fixAllIssues,
