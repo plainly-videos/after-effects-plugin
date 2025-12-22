@@ -18,12 +18,12 @@ module.exports = (_, options) => ({
       {
         test: /\.(ts|tsx)$/, // test for TypeScript files
         use: 'ts-loader', // use TS Loader
-        exclude: /node_modules/, // exclude node_modules directory
+        include: [path.resolve(__dirname, 'src')], // include only src directory
       },
       {
         test: /\.(js|jsx)$/, // test for JavaScript files
         use: 'babel-loader', // use Babel loader
-        exclude: /node_modules/, // exclude node_modules directory
+        include: [path.resolve(__dirname, 'src')], // include only src directory
       },
       {
         test: /\.css$/,
@@ -43,6 +43,6 @@ module.exports = (_, options) => ({
       filename: 'index.html',
       inject: 'body',
     }),
-    new Dotenv({ path: `./.env.${options.mode}` }),
+    new Dotenv({ path: path.resolve(__dirname, `.env.${options.mode}`) }),
   ],
 });
