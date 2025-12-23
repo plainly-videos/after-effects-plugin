@@ -8,7 +8,7 @@ module.exports = (_, options) => ({
   output: {
     path: path.resolve(__dirname, 'dist'), // output directory
     filename: 'index-[contenthash].js', // output file name
-    clean: options.mode === 'development', // clean old index.js files in dev
+    clean: options.mode === 'development' || options.watch, // keep dist tidy during watch builds
   },
   optimization: {
     minimize: options.mode === 'production',
@@ -43,6 +43,11 @@ module.exports = (_, options) => ({
       filename: 'index.html',
       inject: 'body',
     }),
-    new Dotenv({ path: path.resolve(__dirname, `.env.${options.mode}`) }),
+    new Dotenv({
+      path: path.resolve(
+        __dirname,
+        `.env.${process.env.PLUGIN_ENV || options.mode}`,
+      ),
+    }),
   ],
 });

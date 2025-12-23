@@ -6,9 +6,9 @@
   "license": "Apache-2.0",
   "scripts": {
     "clean": "rimraf dist",
-    "build": "yarn clean && cross-env NODE_ENV=production node ./../scripts/updateManifest.cjs && cross-env NODE_ENV=production webpack --mode production",
-    "build-test": "yarn clean && cross-env NODE_ENV=production node ./../scripts/updateManifest.cjs && cross-env NODE_ENV=test webpack --mode production",
-    "dev": "yarn clean && cross-env NODE_ENV=development node ./../scripts/updateManifest.cjs --dev && cross-env NODE_ENV=development webpack --mode development --watch"
+    "build": "yarn clean && cross-env NODE_ENV=production node ./../scripts/updateManifest.cjs && cross-env NODE_ENV=production PLUGIN_ENV=production webpack --mode production",
+    "build-test": "yarn clean && cross-env NODE_ENV=production node ./../scripts/updateManifest.cjs && cross-env NODE_ENV=test PLUGIN_ENV=test webpack --mode production",
+    "dev": "yarn clean && cross-env NODE_ENV=development node ./../scripts/updateManifest.cjs --dev && cross-env NODE_ENV=production PLUGIN_ENV=development webpack --mode production --watch"
   },
   "dependencies": {
     "@headlessui/react": "^2.2.0",
