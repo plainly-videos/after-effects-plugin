@@ -1,3 +1,5 @@
+import { isEmpty as lodashIsEmpty } from 'lodash-es';
+
 /**
  * Restart the extension by reloading the page. This is necessary to ensure that any global listeners
  * are removed before reloading the page.
@@ -27,6 +29,6 @@ export function reloadExtension(): void {
  */
 export function isEmpty<T>(
   list: T[] | null | undefined,
-): list is undefined | null | [] {
-  return !list || (list && list.length === 0);
+): list is null | undefined | [] {
+  return lodashIsEmpty(list);
 }

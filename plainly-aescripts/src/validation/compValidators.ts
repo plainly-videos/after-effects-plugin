@@ -1,4 +1,3 @@
-import { getAllComps } from '../utils';
 import { type CompIssues, ProjectIssueType } from './types';
 
 enum RendererType {
@@ -7,8 +6,7 @@ enum RendererType {
   CINEMA_4D = 'ADBE Ernst',
 }
 
-function checkComps(): CompIssues[] {
-  const comps: CompItem[] = getAllComps(app.project);
+function checkComps(comps: CompItem[]): CompIssues[] {
   const compIssues: CompIssues[] = [];
 
   for (let i = 0; i < comps.length; i++) {

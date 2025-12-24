@@ -1,8 +1,7 @@
-import { getAllComps, getTextLayersByComp } from '../utils';
+import { getTextLayersByComp } from '../utils';
 import { ProjectIssueType, type TextLayerIssues } from './types';
 
-function checkTextLayers(): TextLayerIssues[] {
-  const comps = getAllComps(app.project);
+function checkTextLayers(comps: CompItem[]): TextLayerIssues[] {
   const textLayers: TextLayerIssues[] = [];
 
   for (let i = 0; i < comps.length; i++) {
