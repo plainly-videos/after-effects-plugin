@@ -12,6 +12,7 @@ import './shims';
 import {
   getInstalledFontsByFamilyNameAndStyleName,
   getInstalledFontsByPostScriptName,
+  selectComp,
   selectLayer,
   unselectAllLayers,
 } from './utils';
@@ -33,6 +34,7 @@ const PlainlyAE = () => ({
   fixAllIssues,
   unselectAllLayers,
   selectLayer,
+  selectComp,
 });
 
 if ($['com.plainlyvideos.after-effects-plugin.Panel']) {

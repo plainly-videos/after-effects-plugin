@@ -161,6 +161,26 @@ function selectLayer(layerId: string): void {
   }
 }
 
+/**
+ * Selects a composition in the active project by its numeric ID.
+ *
+ * Uses `app.project.itemByID` after parsing the provided string to base-10 integer. If a composition
+ * with the given ID exists, it is opened in a viewer and activated; otherwise the function exits silently.
+ *
+ * @param {string} compId - The string representation of the composition's numeric ID (e.g. value from `CompItem.id`).
+ * @returns {void}
+ * @example
+ * // Select a comp whose id is 5678
+ * selectComp('5678');
+ */
+function selectComp(compId: string): void {
+  const comp = app.project.itemByID(parseInt(compId, 10));
+  if (comp instanceof CompItem) {
+    const viewer = comp.openInViewer();
+    if (viewer?.active === false) viewer.setActive();
+  }
+}
+
 export {
   getAllComps,
   getFolderPath,
@@ -171,4 +191,5 @@ export {
   pathJoin,
   unselectAllLayers,
   selectLayer,
+  selectComp,
 };

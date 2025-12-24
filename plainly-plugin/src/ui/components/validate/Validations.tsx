@@ -1,8 +1,10 @@
 import { AeScriptsApi } from '@src/node/bridge';
 import { useNotifications } from '@src/ui/hooks';
-import type {
-  AnyProjectIssue,
-  ProjectIssueType,
+import {
+  type AnyProjectIssue,
+  isCompIssue,
+  isTextLayerIssue,
+  type ProjectIssueType,
 } from '@src/ui/types/validation';
 import { isEqual } from 'lodash-es';
 import { ShieldCheckIcon, WrenchIcon } from 'lucide-react';
@@ -11,6 +13,7 @@ import { flushSync } from 'react-dom';
 import { Alert, Button } from '../common';
 import { GlobalContext } from '../context';
 import { Description, PageHeading } from '../typography';
+import { CompsList } from './CompsList';
 import { TextLayersList } from './TextLayersList';
 
 export function Validations() {
@@ -32,7 +35,8 @@ export function Validations() {
     [],
   );
 
-  const textLayers = projectIssues?.filter((issue) => issue.text === true);
+  const textLayers = projectIssues?.filter(isTextLayerIssue);
+  const comps = projectIssues?.filter(isCompIssue);
   const totalCount = projectIssues?.length ?? undefined;
 
   const handleTestForIssues = useCallback(
@@ -110,11 +114,14 @@ export function Validations() {
       ) : totalCount === undefined ? (
         <Alert title="Project validation has not been run yet." type="info" />
       ) : (
-        <TextLayersList
-          textLayers={textLayers}
-          isOpen={isOpen}
-          setIsOpen={setIsOpen}
-        />
+        <>
+          <TextLayersList
+            textLayers={textLayers}
+            isOpen={isOpen}
+            setIsOpen={setIsOpen}
+          />
+          <CompsList comps={comps} isOpen={isOpen} setIsOpen={setIsOpen} />
+        </>
       )}
       <div className="flex items-center gap-2 float-right">
         <Button
