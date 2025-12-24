@@ -1,10 +1,8 @@
 import { AeScriptsApi } from '@src/node/bridge';
 import { useNotifications } from '@src/ui/hooks';
-import {
-  type AnyProjectIssue,
-  isCompIssue,
-  isTextLayerIssue,
-  type ProjectIssueType,
+import type {
+  AnyProjectIssue,
+  ProjectIssueType,
 } from '@src/ui/types/validation';
 import { isEqual } from 'lodash-es';
 import { ShieldCheckIcon, WrenchIcon } from 'lucide-react';
@@ -15,6 +13,7 @@ import { GlobalContext } from '../context';
 import { Description, PageHeading } from '../typography';
 import { CompsList } from './CompsList';
 import { TextLayersList } from './TextLayersList';
+import { isCompIssue, isTextLayerIssue } from './utils';
 
 export function Validations() {
   const { contextReady, projectIssues, setGlobalData } =

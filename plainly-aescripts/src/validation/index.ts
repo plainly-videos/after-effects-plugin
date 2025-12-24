@@ -1,18 +1,21 @@
+import { getAllComps } from '../utils';
 import { checkComps } from './compValidators';
 import { checkTextLayers, fixAllCapsIssue } from './textValidators';
 import { type AnyProjectIssue, ProjectIssueType } from './types';
 
 function validateProject(): string {
-  const textIssues = checkTextLayers();
-  const comps = checkComps();
+  const comps = getAllComps(app.project);
+
+  const textIssues = checkTextLayers(comps);
+  const compIssues = checkComps(comps);
   let issues: AnyProjectIssue[] = [];
 
   if (textIssues.length > 0) {
     issues = issues.concat(textIssues);
   }
 
-  if (comps.length > 0) {
-    issues = issues.concat(comps);
+  if (compIssues.length > 0) {
+    issues = issues.concat(compIssues);
   }
 
   if (issues.length > 0) {
