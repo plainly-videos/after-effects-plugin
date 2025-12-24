@@ -1,5 +1,6 @@
 enum ProjectIssueType {
   AllCaps = 'AllCaps',
+  Dimensions = 'Dimensions',
 }
 
 interface ProjectIssue<T extends ProjectIssueType> {
@@ -12,20 +13,32 @@ interface ProjectLayerIssue<T extends ProjectIssueType>
   layerName: string;
 }
 
+interface ProjectCompIssue<T extends ProjectIssueType> extends ProjectIssue<T> {
+  compId: string;
+  compName: string;
+}
+
+// Text layer related issues
 interface TextAllCapsEnabledIssue
   extends ProjectLayerIssue<ProjectIssueType.AllCaps> {}
 
-type TextLayerIssues = TextAllCapsEnabledIssue & {
-  text: true;
-};
+// Comp related issues
+interface CompDimensionsIssue
+  extends ProjectCompIssue<ProjectIssueType.Dimensions> {}
 
-type AnyProjectIssue = TextLayerIssues;
+type TextLayerIssues = TextAllCapsEnabledIssue & { text: true };
+type CompIssues = CompDimensionsIssue & { comp: true };
+
+type AnyProjectIssue = TextLayerIssues | CompIssues;
 
 export type {
   ProjectIssue,
   ProjectLayerIssue,
   TextAllCapsEnabledIssue,
   TextLayerIssues,
+  ProjectCompIssue,
+  CompDimensionsIssue,
+  CompIssues,
   AnyProjectIssue,
 };
 

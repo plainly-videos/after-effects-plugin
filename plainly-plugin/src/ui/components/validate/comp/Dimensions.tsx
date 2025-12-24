@@ -1,40 +1,38 @@
 import { AeScriptsApi } from '@src/node/bridge';
-import { useNavigate, useProjectData } from '@src/ui/hooks';
+import { useNavigate } from '@src/ui/hooks';
 import {
+  type CompDimensionsIssue,
   ProjectIssueType,
-  type TextAllCapsEnabledIssue,
 } from '@src/ui/types/validation';
 import classNames from 'classnames';
 import {
   ChevronDownIcon,
   CircleQuestionMark,
   ExternalLinkIcon,
-  TriangleAlertIcon,
 } from 'lucide-react';
 import type React from 'react';
 import { Tooltip } from '../../common';
 
-export function AllCaps({
-  allCaps,
+export function Dimensions({
+  dimensions,
   isOpen,
   setIsOpen,
 }: {
-  allCaps: TextAllCapsEnabledIssue[];
+  dimensions: CompDimensionsIssue[];
   isOpen: ProjectIssueType | undefined;
   setIsOpen: React.Dispatch<React.SetStateAction<ProjectIssueType | undefined>>;
 }) {
-  const [, , , aeVersion] = useProjectData();
-
   const { handleLinkClick } = useNavigate();
 
-  const onLayerNameClick = async (layerId: string) => {
-    await AeScriptsApi.unselectAllLayers();
-    await AeScriptsApi.selectLayer(layerId);
+  const onCompNameClick = async (compId: string) => {
+    await AeScriptsApi.selectComp(compId);
   };
 
   const onExpandClick = () => {
     setIsOpen((prev) =>
-      prev === ProjectIssueType.AllCaps ? undefined : ProjectIssueType.AllCaps,
+      prev === ProjectIssueType.Dimensions
+        ? undefined
+        : ProjectIssueType.Dimensions,
     );
   };
 
@@ -46,9 +44,9 @@ export function AllCaps({
         className="col-span-3 font-medium flex justify-between items-center px-3 py-2 bg-[rgb(43,43,43)]"
       >
         <div className="flex items-center gap-2">
-          <p>All Caps enabled</p>
+          <p>Dimensions</p>
           <Tooltip
-            text="Using ALL CAPS text may result in poor font rendering. Auto-fixable in After Effects ≥ 24.3."
+            text="Compositions that do not use the Classic 3D renderer are not supported on the Plainly platform."
             className="max-w-40 whitespace-break-spaces"
           >
             <div className="flex items-center justify-center cursor-help size-4 group">
@@ -61,7 +59,7 @@ export function AllCaps({
                 type="button"
                 onClick={handleLinkClick.bind(
                   null,
-                  'https://help.plainlyvideos.com/docs/troubleshooting/rendering-issues#capital-letters-not-working',
+                  'https://help.plainlyvideos.com/docs/faq/projects-faq#is-it-possible-that-cinema-4d-rendered-engine-in-after-effects-doesnt-work-on-the-plainly-platform',
                 )}
                 className="flex items-center justify-center"
               >
@@ -69,37 +67,30 @@ export function AllCaps({
               </button>
             </div>
           </Tooltip>
-          {aeVersion && aeVersion >= 24.3 ? null : (
-            <Tooltip text="Auto-fix for this issue is available in After Effects version 24.3 and later.">
-              <div className="flex items-center justify-center cursor-help size-4 group">
-                <TriangleAlertIcon className="size-4 text-gray-400 group-hover:text-white duration-200" />
-              </div>
-            </Tooltip>
-          )}
         </div>
         <div className="flex items-center gap-2">
           <div className="bg-white/10 flex items-center justify-center rounded-full size-4">
-            <p className="leading-tight text-red-400">{allCaps.length}</p>
+            <p className="leading-tight text-red-400">{dimensions.length}</p>
           </div>
           <div className="size-4 text-gray-400 hover:text-white hover:bg-[rgb(29,29,30)] rounded-full cursor-pointer flex items-center justify-center">
             <ChevronDownIcon
               className={classNames('size-4 duration-200', {
-                'rotate-180': isOpen === ProjectIssueType.AllCaps,
+                'rotate-180': isOpen === ProjectIssueType.Dimensions,
               })}
             />
           </div>
         </div>
       </button>
-      {isOpen === ProjectIssueType.AllCaps && (
+      {isOpen === ProjectIssueType.Dimensions && (
         <div className="divide-y divide-white/10 col-span-3">
-          {allCaps.map((details) => (
-            <div key={details.layerId} className="px-3 py-1 w-full">
+          {dimensions.map((details) => (
+            <div key={details.compId} className="px-3 py-1 w-full">
               <button
                 type="button"
                 className="text-left underline truncate max-w-full"
-                onClick={onLayerNameClick.bind(null, details.layerId)}
+                onClick={onCompNameClick.bind(null, details.compId)}
               >
-                {details.layerName}
+                {details.compName}
               </button>
             </div>
           ))}

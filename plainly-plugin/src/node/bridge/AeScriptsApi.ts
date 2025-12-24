@@ -127,6 +127,14 @@ class AeScriptsApiClass {
   }
 
   /**
+   *  Selects a composition in After Effects by its ID.
+   * @param compId - The ID of the composition to select
+   */
+  async selectComp(compId: string): Promise<void> {
+    await evalScriptAsync(`selectComp(${compId})`);
+  }
+
+  /**
    * Validates the current After Effects project for Plainly issues.
    * @returns A JSON string of validation results, or undefined if no issues found
    */
