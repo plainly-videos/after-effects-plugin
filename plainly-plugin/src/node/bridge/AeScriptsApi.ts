@@ -1,3 +1,4 @@
+import type { AnyProjectIssue } from '@src/ui/types/validation';
 import type { ProjectData, ProjectInfo, RelinkData } from 'plainly-types';
 import { csInterface } from '../constants';
 
@@ -93,11 +94,52 @@ class AeScriptsApiClass {
   }
 
   /**
-   * Relinks footage items in the After Effects project to new file paths.
+   * Gets the version of After Effects.
+   * @returns The version of After Effects as a string
+   */
+  async getAfterEffectsVersion(): Promise<string> {
+    const result = await evalScriptAsync('getAfterEffectsVersion()');
+    if (!result) throw new Error('Failed to get After Effects version');
+    return result;
+  }
+
+  /**
+   * Re-links footage items in the After Effects project to new file paths.
    * @param relinkData - Object mapping item IDs to new file paths
    */
   async relinkFootage(relinkData: RelinkData): Promise<void> {
     await evalScriptAsync(`relinkFootage(${JSON.stringify(relinkData)})`);
+  }
+
+  /**
+   * Unselects all layers in the current After Effects composition.
+   */
+  async unselectAllLayers(): Promise<void> {
+    await evalScriptAsync('unselectAllLayers()');
+  }
+
+  /**
+   * Selects a layer in the current After Effects composition by its ID.
+   * @param layerId - The ID of the layer to select
+   */
+  async selectLayer(layerId: string): Promise<void> {
+    await evalScriptAsync(`selectLayer(${layerId})`);
+  }
+
+  /**
+   * Validates the current After Effects project for Plainly issues.
+   * @returns A JSON string of validation results, or undefined if no issues found
+   */
+  async validateProject(): Promise<string | undefined> {
+    return await evalScriptAsync('validateProject()');
+  }
+
+  /**
+   * Fixes all provided Plainly issues in the After Effects project.
+   * @param issues - Array of project issues to fix
+   */
+  async fixAllIssues(issues: AnyProjectIssue[]): Promise<void> {
+    await evalScriptAsync(`fixAllIssues(${JSON.stringify(issues)})`);
   }
 }
 
