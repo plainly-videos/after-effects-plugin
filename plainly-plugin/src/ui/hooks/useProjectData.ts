@@ -1,5 +1,5 @@
+import type { ProjectData } from 'plainly-types';
 import { AeScriptsApi } from '../../node/bridge/AeScriptsApi';
-import type { ProjectData } from '../types';
 
 export const useProjectData = (): [
   (data: Omit<ProjectData, 'documentId'>) => void,

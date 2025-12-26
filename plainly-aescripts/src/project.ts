@@ -1,3 +1,5 @@
+import type { ProjectData } from 'plainly-types';
+
 const propNameId = 'xmp:PlainlyProjectId';
 const propNameRevisionCount = 'xmp:PlainlyProjectRevisionCount';
 
@@ -29,12 +31,6 @@ function setProjectData(id: string, revisionCount: number) {
   }
 
   project.save();
-}
-
-interface ProjectData {
-  documentId: string;
-  id: string;
-  revisionCount: number;
 }
 
 function getProjectData() {

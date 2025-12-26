@@ -1,6 +1,5 @@
-import type { ProjectData } from '../../ui/types';
+import type { ProjectData, ProjectInfo, RelinkData } from 'plainly-types';
 import { csInterface } from '../constants';
-import type { ProjectInfo, RelinkData } from '../types';
 
 async function evalScriptAsync(func: string): Promise<string | undefined> {
   return new Promise((resolve, reject) => {

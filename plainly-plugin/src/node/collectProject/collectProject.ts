@@ -1,9 +1,9 @@
 import crypto from 'crypto';
 import fsPromises from 'fs/promises';
 import path from 'path';
+import type { Footage } from 'plainly-types';
 import { AeScriptsApi } from '../bridge/AeScriptsApi';
 import { isWindows, TMP_DIR } from '../constants';
-import type { Footage } from '../types';
 import { exists, finalizePath, renameIfExists, zipItems } from '../utils';
 import { copyFonts } from './copyFonts';
 import { copyFootage } from './copyFootage';
