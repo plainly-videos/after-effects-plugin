@@ -4507,9 +4507,9 @@ __metadata:
     form-data: ^4.0.4
     globals: ^15.11.0
     html-webpack-plugin: ^5.6.3
-    lucide-react: ^0.456.0
-    plainly-types: "workspace:*"
     lodash-es: ^4.17.22
+    lucide-react: ^0.544.0
+    plainly-types: "workspace:*"
     postcss: ^8.4.49
     postcss-loader: ^8.1.1
     react: ^18.3.1
