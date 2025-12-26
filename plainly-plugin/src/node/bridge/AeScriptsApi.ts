@@ -149,6 +149,14 @@ class AeScriptsApiClass {
   async fixAllIssues(issues: AnyProjectIssue[]): Promise<void> {
     await evalScriptAsync(`fixAllIssues(${JSON.stringify(issues)})`);
   }
+
+  /**
+   * Fixes the all-caps text issue for a specific layer.
+   * @param layerId - The ID of the layer to fix
+   */
+  async fixAllCapsIssue(layerId: string): Promise<void> {
+    await evalScriptAsync(`fixAllCapsIssue(${layerId})`);
+  }
 }
 
 /**

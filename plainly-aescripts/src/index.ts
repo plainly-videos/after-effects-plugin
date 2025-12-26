@@ -11,22 +11,40 @@ import { relinkFootage } from './relink';
 import './shims';
 import { selectComp, selectLayer, unselectAllLayers } from './utils';
 import { fixAllIssues, validateProject } from './validation';
+import { fixAllCapsIssue } from './validation/textValidators';
 
-const PlainlyAE = () => ({
-  selectFolder,
+const collectFunctions = {
   collectFiles,
+  selectFolder,
+  relinkFootage,
+};
+
+const projectFunctions = {
   setProjectData,
   getProjectData,
   removeProjectData,
   getProjectPath,
   saveProject,
   getAfterEffectsVersion,
-  relinkFootage,
-  validateProject,
-  fixAllIssues,
+};
+
+const utilsFunctions = {
   unselectAllLayers,
   selectLayer,
   selectComp,
+};
+
+const validateFunctions = {
+  validateProject,
+  fixAllIssues,
+  fixAllCapsIssue,
+};
+
+const PlainlyAE = () => ({
+  ...collectFunctions,
+  ...projectFunctions,
+  ...utilsFunctions,
+  ...validateFunctions,
 });
 
 if ($['com.plainlyvideos.after-effects-plugin.Panel']) {

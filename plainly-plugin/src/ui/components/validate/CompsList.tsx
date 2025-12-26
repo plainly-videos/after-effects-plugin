@@ -1,10 +1,10 @@
 import {
-  type CompDimensionsIssue,
   type CompIssues,
+  type CompUnsupported3DRendererIssue,
   ProjectIssueType,
 } from '@src/ui/types/validation';
 import { isEmpty } from '@src/ui/utils';
-import { Dimensions } from './comp/Dimensions';
+import { Dimensions } from './comp/Unsupported3DRenderer';
 
 export function CompsList({
   comps,
@@ -15,9 +15,10 @@ export function CompsList({
   isOpen?: ProjectIssueType;
   setIsOpen: React.Dispatch<React.SetStateAction<ProjectIssueType | undefined>>;
 }) {
-  const dimensions: CompDimensionsIssue[] | undefined = comps?.filter(
-    (issue) => issue.type === ProjectIssueType.Dimensions,
-  );
+  const dimensions: CompUnsupported3DRendererIssue[] | undefined =
+    comps?.filter(
+      (issue) => issue.type === ProjectIssueType.Unsupported3DRenderer,
+    );
 
   return (
     <>
