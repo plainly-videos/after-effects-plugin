@@ -1,0 +1,19 @@
+{
+  "name": "plainly-types",
+  "version": "1.2.9",
+  "description": "Plainly Videos shared TypeScript types",
+  "author": "Plainly Videos",
+  "license": "Apache-2.0",
+  "private": true,
+  "types": "dist/",
+  "scripts": {
+    "clean": "rimraf dist",
+    "build": "yarn clean && tsc --outDir dist",
+    "dev": "tsc --watch --outDir dist"
+  },
+  "devDependencies": {
+    "rimraf": "^6.1.2",
+    "typescript": "^5.9.3"
+  },
+  "packageManager": "yarn@3.8.7"
+}

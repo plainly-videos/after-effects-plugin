@@ -1,18 +1,5 @@
+import type { Font, Footage } from 'plainly-types';
 import { getAllComps, getFolderPath, getTextLayersByComp } from './utils';
-
-interface FontPath {
-  fontName: string;
-  fontExtension: string | undefined;
-  fontLocation: string;
-}
-
-interface FootagePath {
-  itemId: number;
-  itemName: string;
-  itemFsPath: string;
-  itemAeFolder: string;
-  isMissing: boolean;
-}
 
 /**
  * Prompts the user to select a folder, which will be used to collect project files.
@@ -33,7 +20,7 @@ function selectFolder(): Folder | string {
  * @returns {string|undefined} The name of the collected project folder, or undefined if no project is saved.
  */
 function collectFiles(): string | undefined {
-  const collectedData: { fonts: FontPath[]; footage: FootagePath[] } = {
+  const collectedData: { fonts: Font[]; footage: Footage[] } = {
     fonts: [],
     footage: [],
   };
@@ -46,9 +33,9 @@ function collectFiles(): string | undefined {
   return JSON.stringify(collectedData);
 }
 
-function collectFonts(): FontPath[] {
+function collectFonts(): Font[] {
   const comps = getAllComps(app.project);
-  const fontPaths: FontPath[] = [];
+  const fonts: Font[] = [];
 
   for (let i = 0; i < comps.length; i++) {
     const layers = getTextLayersByComp(comps[i]);
@@ -62,7 +49,7 @@ function collectFonts(): FontPath[] {
         ?.toLowerCase();
 
       const fontLocation = layers[j].sourceText.value.fontLocation;
-      fontPaths.push({
+      fonts.push({
         fontName: fontName,
         fontExtension: fontExtension,
         fontLocation: fontLocation,
@@ -70,11 +57,11 @@ function collectFonts(): FontPath[] {
     }
   }
 
-  return fontPaths;
+  return fonts;
 }
 
-function collectFootage(): FootagePath[] {
-  const footagePaths: FootagePath[] = [];
+function collectFootage(): Footage[] {
+  const footage: Footage[] = [];
 
   // Go through all items in the project
   for (let i = 1; i <= app.project.numItems; i++) {
@@ -89,7 +76,7 @@ function collectFootage(): FootagePath[] {
     // Determine the nested folder structure
     const relativePath = getFolderPath(item.parentFolder);
 
-    footagePaths.push({
+    footage.push({
       itemId: item.id,
       itemName: item.file.name,
       itemFsPath: item.file.fsName,
@@ -98,7 +85,7 @@ function collectFootage(): FootagePath[] {
     });
   }
 
-  return footagePaths;
+  return footage;
 }
 
 export { selectFolder, collectFiles };

@@ -1,8 +1,5 @@
+import type { RelinkData } from 'plainly-types';
 import { isWin } from './utils';
-
-interface RelinkData {
-  [itemId: string]: string;
-}
 
 function relinkFootage(relinkData: RelinkData): void {
   for (let i = 1; i <= app.project.numItems; i++) {

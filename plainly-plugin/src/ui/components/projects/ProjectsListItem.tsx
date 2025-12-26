@@ -1,8 +1,8 @@
-import type { ProjectData } from '@src/ui/types';
 import type { Project } from '@src/ui/types/project';
 import classNames from 'classnames';
 import { format } from 'date-fns';
 import { ExternalLinkIcon, LinkIcon, VideoIcon } from 'lucide-react';
+import type { ProjectData } from 'plainly-types';
 import { useCallback, useState } from 'react';
 import { ConfirmationDialog, Tooltip } from '../common';
 import { Label } from '../typography';

@@ -1,7 +1,7 @@
 import fsPromises from 'fs/promises';
 import path from 'path';
+import type { Footage } from 'plainly-types';
 import { CollectFootageError } from '../errors';
-import type { Footage } from '../types';
 import {
   finalizePath,
   generateFolders,

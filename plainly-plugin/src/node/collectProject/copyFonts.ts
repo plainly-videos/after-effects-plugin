@@ -1,10 +1,10 @@
 import fsPromises from 'fs/promises';
 import path from 'path';
+import type { Font } from 'plainly-types';
 import { CollectFontsError } from '../errors';
-import type { Fonts } from '../types';
 import { finalizePath, runInParallelReturnRejected } from '../utils';
 
-export async function copyFonts(fonts: Fonts[], targetDir: string) {
+export async function copyFonts(fonts: Font[], targetDir: string) {
   if (fonts.length === 0) {
     return;
   }
@@ -15,7 +15,7 @@ export async function copyFonts(fonts: Fonts[], targetDir: string) {
       acc.push(font);
     }
     return acc;
-  }, [] as Fonts[]);
+  }, [] as Font[]);
 
   const newFontsDir = path.join(targetDir, 'Fonts');
   await fsPromises.mkdir(newFontsDir);
@@ -23,13 +23,15 @@ export async function copyFonts(fonts: Fonts[], targetDir: string) {
   const fontPromises = uniqueFonts.map(async (font) => {
     const src = finalizePath(font.fontLocation);
 
-    const dest = path.join(
-      newFontsDir,
-      `${font.fontName}.${font.fontExtension}`,
-    );
-    // if the file doesn't end with .otf or .ttf, copy it, otherwise, throw an error
-    if (['otf', 'ttf', 'ttc'].includes(font.fontExtension)) {
-      return await fsPromises.copyFile(src, dest);
+    if (font.fontExtension) {
+      const dest = path.join(
+        newFontsDir,
+        `${font.fontName}.${font.fontExtension}`,
+      );
+      // if the file doesn't end with .otf or .ttf, copy it, otherwise, throw an error
+      if (['otf', 'ttf', 'ttc'].includes(font.fontExtension)) {
+        return await fsPromises.copyFile(src, dest);
+      }
     }
 
     throw new Error(

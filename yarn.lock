@@ -4445,6 +4445,7 @@ __metadata:
   dependencies:
     "@types/node": ^22.10.5
     concurrently: ^9.1.2
+    plainly-types: "workspace:*"
     rimraf: ^6.1.2
     types-for-adobe: ^7.2.2
     typescript: ^4
@@ -4483,6 +4484,7 @@ __metadata:
     globals: ^15.11.0
     html-webpack-plugin: ^5.6.3
     lucide-react: ^0.456.0
+    plainly-types: "workspace:*"
     postcss: ^8.4.49
     postcss-loader: ^8.1.1
     react: ^18.3.1
@@ -4495,6 +4497,15 @@ __metadata:
     typescript: ~5.6.2
     webpack: ^5.97.1
     webpack-cli: ^6.0.1
+  languageName: unknown
+  linkType: soft
+
+"plainly-types@workspace:*, plainly-types@workspace:plainly-types":
+  version: 0.0.0-use.local
+  resolution: "plainly-types@workspace:plainly-types"
+  dependencies:
+    rimraf: ^6.1.2
+    typescript: ^5.9.3
   languageName: unknown
   linkType: soft
 
@@ -5526,6 +5537,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"typescript@npm:^5.9.3":
+  version: 5.9.3
+  resolution: "typescript@npm:5.9.3"
+  bin:
+    tsc: bin/tsc
+    tsserver: bin/tsserver
+  checksum: 0d0ffb84f2cd072c3e164c79a2e5a1a1f4f168e84cb2882ff8967b92afe1def6c2a91f6838fb58b168428f9458c57a2ba06a6737711fdd87a256bbe83e9a217f
+  languageName: node
+  linkType: hard
+
 "typescript@npm:~5.6.2":
   version: 5.6.3
   resolution: "typescript@npm:5.6.3"
@@ -5543,6 +5564,16 @@ __metadata:
     tsc: bin/tsc
     tsserver: bin/tsserver
   checksum: 1f8f3b6aaea19f0f67cba79057674ba580438a7db55057eb89cc06950483c5d632115c14077f6663ea76fd09fce3c190e6414bb98582ec80aa5a4eaf345d5b68
+  languageName: node
+  linkType: hard
+
+"typescript@patch:typescript@^5.9.3#~builtin<compat/typescript>":
+  version: 5.9.3
+  resolution: "typescript@patch:typescript@npm%3A5.9.3#~builtin<compat/typescript>::version=5.9.3&hash=5786d5"
+  bin:
+    tsc: bin/tsc
+    tsserver: bin/tsserver
+  checksum: a5a6dc399d3761ded54192031f11d3ad5df8001c7febe3fbbc8098efcb552cdf8f2f402b3618c56dafcd04fef63dee005f4900f608e185404caedc46480539ed
   languageName: node
   linkType: hard
 

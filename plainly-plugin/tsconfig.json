@@ -8,7 +8,8 @@
     "strict": true,
     "baseUrl": ".",
     "paths": {
-      "@src/*": ["src/*"]
+      "@src/*": ["src/*"],
+      "plainly-types": ["../plainly-types"]
     }
   },
   "include": ["src", "index.d.ts"],

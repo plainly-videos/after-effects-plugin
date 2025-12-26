@@ -105,6 +105,7 @@ The plugin is built using Node.js, React, and it is bundled with Webpack. Below 
 * `plainly-plugin/src/lib` - Contains [Adobe CEP library files](https://github.com/Adobe-CEP/CEP-Resources/tree/master/CEP_11.x)
 * `plainly-plugin/src/ui` - Contains React components and UI related source code
 * `plainly-plugin/src/node` - Contains Node related source code
+* `plainly-types/src` - Contains shared TypeScript types between `plainly-aescripts` and `plainly-plugin`
 * `.debug` - File for debugging the extension
 
 ### Debugging
