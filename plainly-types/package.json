@@ -8,7 +8,8 @@
   "types": "dist/",
   "scripts": {
     "clean": "rimraf dist",
-    "build": "yarn clean && tsc --outDir dist"
+    "build": "yarn clean && tsc --outDir dist",
+    "dev": "tsc --watch --outDir dist"
   },
   "devDependencies": {
     "rimraf": "^6.1.2",
