@@ -4445,7 +4445,7 @@ __metadata:
   dependencies:
     "@types/node": ^22.10.5
     concurrently: ^9.1.2
-    plainly-types: "file:../plainly-types"
+    plainly-types: "workspace:*"
     rimraf: ^6.1.2
     types-for-adobe: ^7.2.2
     typescript: ^4
@@ -4484,7 +4484,7 @@ __metadata:
     globals: ^15.11.0
     html-webpack-plugin: ^5.6.3
     lucide-react: ^0.456.0
-    plainly-types: "file:../plainly-types"
+    plainly-types: "workspace:*"
     postcss: ^8.4.49
     postcss-loader: ^8.1.1
     react: ^18.3.1
@@ -4500,21 +4500,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"plainly-types@file:../plainly-types::locator=plainly-aescripts%40workspace%3Aplainly-aescripts":
-  version: 1.2.9
-  resolution: "plainly-types@file:../plainly-types#../plainly-types::hash=47ffd3&locator=plainly-aescripts%40workspace%3Aplainly-aescripts"
-  checksum: c54e3ade28997aee458e0b2402f5542ff76a722edef99a1ecef472506e677fab5dbe7e173225f44d913d3a1f49e3744c0a6ba80ac6d324a7bc0160a6de7ed0a9
-  languageName: node
-  linkType: hard
-
-"plainly-types@file:../plainly-types::locator=plainly-plugin%40workspace%3Aplainly-plugin":
-  version: 1.2.9
-  resolution: "plainly-types@file:../plainly-types#../plainly-types::hash=47ffd3&locator=plainly-plugin%40workspace%3Aplainly-plugin"
-  checksum: c54e3ade28997aee458e0b2402f5542ff76a722edef99a1ecef472506e677fab5dbe7e173225f44d913d3a1f49e3744c0a6ba80ac6d324a7bc0160a6de7ed0a9
-  languageName: node
-  linkType: hard
-
-"plainly-types@workspace:plainly-types":
+"plainly-types@workspace:*, plainly-types@workspace:plainly-types":
   version: 0.0.0-use.local
   resolution: "plainly-types@workspace:plainly-types"
   dependencies:
