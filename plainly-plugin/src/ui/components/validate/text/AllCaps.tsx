@@ -1,18 +1,23 @@
 import { AeScriptsApi } from '@src/node/bridge';
-import { useNavigate, useProjectData } from '@src/ui/hooks';
+import { useNavigate, useNotifications, useProjectData } from '@src/ui/hooks';
 import {
+  type AnyProjectIssue,
   ProjectIssueType,
   type TextAllCapsEnabledIssue,
 } from '@src/ui/types/validation';
 import classNames from 'classnames';
+import { isEqual } from 'lodash-es';
 import {
   ChevronDownIcon,
   CircleQuestionMark,
   ExternalLinkIcon,
   TriangleAlertIcon,
+  WrenchIcon,
 } from 'lucide-react';
 import type React from 'react';
+import { useContext } from 'react';
 import { Tooltip } from '../../common';
+import { GlobalContext } from '../../context';
 
 export function AllCaps({
   allCaps,
@@ -25,7 +30,9 @@ export function AllCaps({
 }) {
   const [, , , aeVersion] = useProjectData();
 
+  const { projectIssues, setGlobalData } = useContext(GlobalContext);
   const { handleLinkClick } = useNavigate();
+  const { notifyInfo, notifyError } = useNotifications();
 
   const onLayerNameClick = async (layerId: string) => {
     await AeScriptsApi.unselectAllLayers();
@@ -36,6 +43,33 @@ export function AllCaps({
     setIsOpen((prev) =>
       prev === ProjectIssueType.AllCaps ? undefined : ProjectIssueType.AllCaps,
     );
+  };
+
+  const onFixClick = async () => {
+    try {
+      for (const issue of allCaps) {
+        await AeScriptsApi.fixAllCapsIssue(issue.layerId);
+      }
+      const issues = await AeScriptsApi.validateProject();
+      if (!issues) {
+        setGlobalData((prev) => ({ ...prev, projectIssues: [] }));
+      } else {
+        const parsedIssues: AnyProjectIssue[] = JSON.parse(issues);
+        if (!isEqual(parsedIssues, projectIssues)) {
+          setGlobalData((prev) => ({ ...prev, projectIssues: parsedIssues }));
+        }
+      }
+      notifyInfo(
+        'Attempted to fix ALL CAPS issues.',
+        'Please review the project again. Some issues may require manual intervention.',
+      );
+    } catch (error) {
+      console.error('Error fixing ALL CAPS issues:', error);
+      notifyError(
+        'Error fixing ALL CAPS issues.',
+        'An unexpected error occurred while attempting to fix the issues.',
+      );
+    }
   };
 
   return (
@@ -76,6 +110,17 @@ export function AllCaps({
               </div>
             </Tooltip>
           )}
+          <Tooltip text="Fix this issue">
+            <div className="flex items-center justify-center cursor-pointer size-4 group">
+              <button
+                type="button"
+                onClick={onFixClick.bind(null)}
+                className="flex items-center justify-center"
+              >
+                <WrenchIcon className="size-4 text-gray-400 group-hover:text-white duration-200" />
+              </button>
+            </div>
+          </Tooltip>
         </div>
         <div className="flex items-center gap-2">
           <div className="bg-white/10 flex items-center justify-center rounded-full size-4">

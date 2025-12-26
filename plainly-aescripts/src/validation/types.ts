@@ -1,6 +1,6 @@
 enum ProjectIssueType {
   AllCaps = 'AllCaps',
-  Dimensions = 'Dimensions',
+  Unsupported3DRenderer = 'Unsupported3DRenderer',
 }
 
 interface ProjectIssue<T extends ProjectIssueType> {
@@ -23,21 +23,32 @@ interface TextAllCapsEnabledIssue
   extends ProjectLayerIssue<ProjectIssueType.AllCaps> {}
 
 // Comp related issues
-interface CompDimensionsIssue
-  extends ProjectCompIssue<ProjectIssueType.Dimensions> {}
+const rendererTypes = [
+  'Classic 3D',
+  'Advanced 3D',
+  'Cinema 4D',
+  'Unknown Renderer',
+] as const;
+type RendererTypeName = (typeof rendererTypes)[number];
+
+interface CompUnsupported3DRendererIssue
+  extends ProjectCompIssue<ProjectIssueType.Unsupported3DRenderer> {
+  renderer: RendererTypeName;
+}
 
 type TextLayerIssues = TextAllCapsEnabledIssue & { text: true };
-type CompIssues = CompDimensionsIssue & { comp: true };
+type CompIssues = CompUnsupported3DRendererIssue & { comp: true };
 
 type AnyProjectIssue = TextLayerIssues | CompIssues;
 
 export type {
   ProjectIssue,
   ProjectLayerIssue,
+  ProjectCompIssue,
   TextAllCapsEnabledIssue,
   TextLayerIssues,
-  ProjectCompIssue,
-  CompDimensionsIssue,
+  CompUnsupported3DRendererIssue,
+  RendererTypeName,
   CompIssues,
   AnyProjectIssue,
 };
