@@ -4502,15 +4502,15 @@ __metadata:
 
 "plainly-types@file:../plainly-types::locator=plainly-aescripts%40workspace%3Aplainly-aescripts":
   version: 1.2.9
-  resolution: "plainly-types@file:../plainly-types#../plainly-types::hash=5d2fed&locator=plainly-aescripts%40workspace%3Aplainly-aescripts"
-  checksum: 208e1ceb244b07bea452c0dfffcb141e93bd3c21e00f0518c59cf19c94570948762891b0ab25d6234b41412daecf7419554fa00e4ac00bfef33e96f84f5c8e45
+  resolution: "plainly-types@file:../plainly-types#../plainly-types::hash=47ffd3&locator=plainly-aescripts%40workspace%3Aplainly-aescripts"
+  checksum: c54e3ade28997aee458e0b2402f5542ff76a722edef99a1ecef472506e677fab5dbe7e173225f44d913d3a1f49e3744c0a6ba80ac6d324a7bc0160a6de7ed0a9
   languageName: node
   linkType: hard
 
 "plainly-types@file:../plainly-types::locator=plainly-plugin%40workspace%3Aplainly-plugin":
   version: 1.2.9
-  resolution: "plainly-types@file:../plainly-types#../plainly-types::hash=5d2fed&locator=plainly-plugin%40workspace%3Aplainly-plugin"
-  checksum: 208e1ceb244b07bea452c0dfffcb141e93bd3c21e00f0518c59cf19c94570948762891b0ab25d6234b41412daecf7419554fa00e4ac00bfef33e96f84f5c8e45
+  resolution: "plainly-types@file:../plainly-types#../plainly-types::hash=47ffd3&locator=plainly-plugin%40workspace%3Aplainly-plugin"
+  checksum: c54e3ade28997aee458e0b2402f5542ff76a722edef99a1ecef472506e677fab5dbe7e173225f44d913d3a1f49e3744c0a6ba80ac6d324a7bc0160a6de7ed0a9
   languageName: node
   linkType: hard
 
