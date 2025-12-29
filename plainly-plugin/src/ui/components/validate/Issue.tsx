@@ -1,5 +1,6 @@
 import { AeScriptsApi } from '@src/node/bridge';
 import { useNavigate, useNotifications } from '@src/ui/hooks';
+import { isEmpty } from '@src/ui/utils';
 import classNames from 'classnames';
 import { isEqual } from 'lodash-es';
 import {
@@ -7,10 +8,11 @@ import {
   CircleQuestionMark,
   ExternalLinkIcon,
   TriangleAlertIcon,
+  Undo2Icon,
   WrenchIcon,
 } from 'lucide-react';
 import type { AnyProjectIssue } from 'plainly-types';
-import { useContext } from 'react';
+import { useContext, useState } from 'react';
 import { Tooltip } from '../common';
 import { GlobalContext } from '../context';
 import { ProjectIssueType } from '.';
@@ -27,7 +29,7 @@ export function Issue({
   warning,
 }: {
   issueType: ProjectIssueType;
-  issues: AnyProjectIssue[];
+  issues: AnyProjectIssue[] | undefined;
   label: string;
   description: string;
   externalLink: string;
@@ -38,6 +40,9 @@ export function Issue({
   const { handleLinkClick } = useNavigate();
   const { notifyError, notifyInfo } = useNotifications();
   const { projectIssues, setGlobalData } = useContext(GlobalContext);
+  const [lastUndoName, setLastUndoName] = useState<string | undefined>(
+    undefined,
+  );
 
   const onIssueClick = async (id: string, type: 'comp' | 'layer') => {
     if (type === 'comp') {
@@ -51,11 +56,17 @@ export function Issue({
   };
 
   const onFixClick = async () => {
+    if (isEmpty(issues)) return;
+
     try {
+      let undoName: string | undefined;
+
+      // Collect all AllCaps layer IDs
+      const allCapsLayerIds: string[] = [];
       for (const issue of issues) {
         if (isTextLayerIssue(issue)) {
           if (issue.type === ProjectIssueType.AllCaps) {
-            await AeScriptsApi.fixAllCapsIssue(issue.layerId);
+            allCapsLayerIds.push(issue.layerId);
           }
         }
 
@@ -64,6 +75,16 @@ export function Issue({
           }
           // Add comp issue fixes here in the future
         }
+      }
+
+      // Fix all AllCaps issues in one undo group
+      if (allCapsLayerIds.length > 0) {
+        undoName = await AeScriptsApi.fixAllCapsIssues(allCapsLayerIds);
+      }
+
+      // Store the undo name if we got one
+      if (undoName) {
+        setLastUndoName(undoName);
       }
 
       const vIssues = await AeScriptsApi.validateProject();
@@ -84,6 +105,30 @@ export function Issue({
       notifyError(
         'Error fixing issue.',
         'An unexpected error occurred while attempting to fix the issues, please try again.',
+      );
+    }
+  };
+
+  const onUndoClick = async () => {
+    try {
+      await AeScriptsApi.undo();
+      setLastUndoName(undefined);
+
+      const vIssues = await AeScriptsApi.validateProject();
+      if (!vIssues) {
+        setGlobalData((prev) => ({ ...prev, projectIssues: [] }));
+      } else {
+        const parsedIssues: AnyProjectIssue[] = JSON.parse(vIssues);
+        if (!isEqual(parsedIssues, projectIssues)) {
+          setGlobalData((prev) => ({ ...prev, projectIssues: parsedIssues }));
+        }
+      }
+      notifyInfo('Undo successful.', 'The last fix has been reverted.');
+    } catch (error) {
+      console.error('Error undoing fix:', error);
+      notifyError(
+        'Error undoing fix.',
+        'An unexpected error occurred while attempting to undo the fix, please try again.',
       );
     }
   };
@@ -128,16 +173,37 @@ export function Issue({
               <button
                 type="button"
                 onClick={onFixClick.bind(null)}
-                className="flex items-center justify-center"
+                className="flex items-center justify-center disabled:cursor-not-allowed disabled:opacity-50"
+                disabled={Boolean(warning) || isEmpty(issues)}
               >
                 <WrenchIcon className="size-4 text-gray-400 group-hover:text-white duration-200" />
               </button>
             </div>
           </Tooltip>
+          {lastUndoName && (
+            <Tooltip text={`Undo: ${lastUndoName}`}>
+              <div className="flex items-center justify-center cursor-pointer size-4 group">
+                <button
+                  type="button"
+                  onClick={onUndoClick.bind(null)}
+                  className="flex items-center justify-center"
+                >
+                  <Undo2Icon className="size-4 text-blue-400 group-hover:text-blue-300 duration-200" />
+                </button>
+              </div>
+            </Tooltip>
+          )}
         </div>
         <div className="flex items-center gap-2">
           <div className="bg-white/10 flex items-center justify-center rounded-full size-4">
-            <p className="leading-tight text-red-400">{issues.length}</p>
+            <p
+              className={classNames(
+                'leading-tight',
+                (issues ?? []).length > 0 ? 'text-red-400' : 'text-green-400',
+              )}
+            >
+              {(issues ?? []).length}
+            </p>
           </div>
           <div className="size-4 text-gray-400 hover:text-white hover:bg-[rgb(29,29,30)] rounded-full cursor-pointer flex items-center justify-center">
             <ChevronDownIcon
@@ -148,7 +214,7 @@ export function Issue({
           </div>
         </div>
       </button>
-      {isOpen && (
+      {isOpen && !isEmpty(issues) && (
         <div className="divide-y divide-white/10 col-span-3">
           {issues.map((details) => (
             <>
