@@ -1,5 +1,5 @@
+import { ProjectIssueType, type TextLayerIssues } from 'plainly-types';
 import { getTextLayersByComp } from '../utils';
-import { ProjectIssueType, type TextLayerIssues } from './types';
 
 function checkTextLayers(comps: CompItem[]): TextLayerIssues[] {
   const textLayers: TextLayerIssues[] = [];

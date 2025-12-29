@@ -1,11 +1,8 @@
 import { AeScriptsApi } from '@src/node/bridge';
 import { useNotifications } from '@src/ui/hooks';
-import type {
-  AnyProjectIssue,
-  ProjectIssueType,
-} from '@src/ui/types/validation';
 import { isEqual } from 'lodash-es';
 import { ShieldCheckIcon, WrenchIcon } from 'lucide-react';
+import type { AnyProjectIssue, ProjectIssueType } from 'plainly-types';
 import { useCallback, useContext, useRef, useState } from 'react';
 import { flushSync } from 'react-dom';
 import { Alert, Button } from '../common';

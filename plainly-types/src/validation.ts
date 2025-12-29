@@ -1,7 +1,10 @@
-enum ProjectIssueType {
-  AllCaps = 'AllCaps',
-  Unsupported3DRenderer = 'Unsupported3DRenderer',
-}
+const ProjectIssueType = {
+  AllCaps: 'AllCaps',
+  Unsupported3DRenderer: 'Unsupported3DRenderer',
+} as const;
+
+type ProjectIssueType =
+  (typeof ProjectIssueType)[keyof typeof ProjectIssueType];
 
 interface ProjectIssue<T extends ProjectIssueType> {
   type: T;
@@ -20,7 +23,7 @@ interface ProjectCompIssue<T extends ProjectIssueType> extends ProjectIssue<T> {
 
 // Text layer related issues
 interface TextAllCapsEnabledIssue
-  extends ProjectLayerIssue<ProjectIssueType.AllCaps> {}
+  extends ProjectLayerIssue<typeof ProjectIssueType.AllCaps> {}
 
 // Comp related issues
 const rendererTypes = [
@@ -32,7 +35,7 @@ const rendererTypes = [
 type RendererTypeName = (typeof rendererTypes)[number];
 
 interface CompUnsupported3DRendererIssue
-  extends ProjectCompIssue<ProjectIssueType.Unsupported3DRenderer> {
+  extends ProjectCompIssue<typeof ProjectIssueType.Unsupported3DRenderer> {
   renderer: RendererTypeName;
 }
 

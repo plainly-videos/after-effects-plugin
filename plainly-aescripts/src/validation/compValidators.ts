@@ -2,7 +2,7 @@ import {
   type CompIssues,
   ProjectIssueType,
   type RendererTypeName,
-} from './types';
+} from 'plainly-types';
 
 enum RendererType {
   CLASSIC_3D = 'ADBE Advanced 3d',

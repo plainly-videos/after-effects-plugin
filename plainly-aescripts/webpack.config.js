@@ -16,6 +16,11 @@ module.exports = (_, options) => {
         module: false,
       },
     },
+    resolve: {
+      alias: {
+        'plainly-types': path.resolve(__dirname, '../plainly-types/dist'),
+      },
+    },
     optimization: { minimize: false },
     mode: options.mode,
   };

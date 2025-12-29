@@ -1,5 +1,9 @@
-import type { AnyProjectIssue } from '@src/ui/types/validation';
-import type { ProjectData, ProjectInfo, RelinkData } from 'plainly-types';
+import type {
+  AnyProjectIssue,
+  ProjectData,
+  ProjectInfo,
+  RelinkData,
+} from 'plainly-types';
 import { csInterface } from '../constants';
 
 async function evalScriptAsync(func: string): Promise<string | undefined> {

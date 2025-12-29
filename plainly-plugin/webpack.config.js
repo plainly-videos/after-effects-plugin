@@ -35,6 +35,7 @@ module.exports = (_, options) => ({
     extensions: ['.wasm', '.mjs', '.json', '.jsx', '.js', '.ts', '.tsx'], // resolve file extensions
     alias: {
       '@src': path.resolve(__dirname, 'src'),
+      'plainly-types': path.resolve(__dirname, '../plainly-types/dist'),
     },
   },
   plugins: [

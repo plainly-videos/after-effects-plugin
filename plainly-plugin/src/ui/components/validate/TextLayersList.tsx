@@ -1,9 +1,9 @@
+import { isEmpty } from '@src/ui/utils';
 import {
   ProjectIssueType,
   type TextAllCapsEnabledIssue,
   type TextLayerIssues,
-} from '@src/ui/types/validation';
-import { isEmpty } from '@src/ui/utils';
+} from 'plainly-types';
 import { AllCaps } from './text/AllCaps';
 
 export function TextLayersList({

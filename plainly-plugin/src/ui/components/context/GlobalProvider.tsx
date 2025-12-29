@@ -1,5 +1,5 @@
 import { AeScriptsApi } from '@src/node/bridge/AeScriptsApi';
-import type { AnyProjectIssue } from '@src/ui/types/validation';
+import type { AnyProjectIssue } from 'plainly-types';
 import { createContext, useEffect, useState } from 'react';
 import { useNotifications } from '../../hooks';
 
