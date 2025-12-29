@@ -40,9 +40,8 @@ export function Issue({
   const { handleLinkClick } = useNavigate();
   const { notifyError, notifyInfo } = useNotifications();
   const { projectIssues, setGlobalData } = useContext(GlobalContext);
-  const [lastUndoName, setLastUndoName] = useState<string | undefined>(
-    undefined,
-  );
+
+  const [lastUndoName, setLastUndoName] = useState<string>();
 
   const onIssueClick = async (id: string, type: 'comp' | 'layer') => {
     if (type === 'comp') {
@@ -63,23 +62,33 @@ export function Issue({
 
       // Collect all AllCaps layer IDs
       const allCapsLayerIds: string[] = [];
+      const unsupported3DRendererCompIds: string[] = [];
       for (const issue of issues) {
         if (isTextLayerIssue(issue)) {
           if (issue.type === ProjectIssueType.AllCaps) {
             allCapsLayerIds.push(issue.layerId);
           }
+          // Future text layer issues can be handled here
         }
 
         if (isCompIssue(issue)) {
           if (issue.type === ProjectIssueType.Unsupported3DRenderer) {
+            unsupported3DRendererCompIds.push(issue.compId);
           }
-          // Add comp issue fixes here in the future
+          // Future comp issues can be handled here
         }
       }
 
       // Fix all AllCaps issues in one undo group
       if (allCapsLayerIds.length > 0) {
         undoName = await AeScriptsApi.fixAllCapsIssues(allCapsLayerIds);
+      }
+
+      // Fix all Unsupported3DRenderer issues in one undo group
+      if (unsupported3DRendererCompIds.length > 0) {
+        undoName = await AeScriptsApi.fixUnsupported3DRendererIssues(
+          unsupported3DRendererCompIds,
+        );
       }
 
       // Store the undo name if we got one
@@ -132,6 +141,11 @@ export function Issue({
       );
     }
   };
+
+  // Don't render if there are no issues and no undo available
+  if (isEmpty(issues) && !lastUndoName) {
+    return null;
+  }
 
   return (
     <div className="col-span-3 grid grid-cols-3 border border-white/10 text-xs divide-y divide-white/10 rounded-md">
@@ -226,6 +240,8 @@ export function Issue({
                     onClick={onIssueClick.bind(null, details.compId, 'comp')}
                   >
                     {details.compName}
+                    {details.type === ProjectIssueType.Unsupported3DRenderer &&
+                      ` (${details.renderer})`}
                   </button>
                 </div>
               ) : (

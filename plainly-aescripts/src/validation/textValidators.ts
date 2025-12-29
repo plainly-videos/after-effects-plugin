@@ -147,10 +147,6 @@ function fixAllCapsIssue(layerId: string) {
  * @returns The name of the undo group created, or undefined if no fixes were applied
  */
 function fixAllCapsIssues(layerIds: string[]): string | undefined {
-  if (layerIds.length === 0) {
-    return undefined;
-  }
-
   const undoName = `Fix All Caps (${layerIds.length} layer${layerIds.length > 1 ? 's' : ''})`;
   app.beginUndoGroup(undoName);
 
