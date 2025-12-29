@@ -1,5 +1,4 @@
 import { useProjectData } from '@src/ui/hooks';
-import { isEmpty } from '@src/ui/utils';
 import type { TextLayerIssues } from 'plainly-types';
 import { useCallback, useMemo } from 'react';
 import { Issue, ProjectIssueType } from '..';
@@ -36,19 +35,15 @@ export function TextLayersList({
   }, [aeVersion]);
 
   return (
-    <>
-      {!isEmpty(allCaps) && (
-        <Issue
-          issueType={ProjectIssueType.AllCaps}
-          issues={allCaps}
-          label="All Caps enabled"
-          description="Using ALL CAPS text may result in poor font rendering. Auto-fixable in After Effects ≥ 24.3."
-          externalLink="https://help.plainlyvideos.com/docs/troubleshooting/rendering-issues#capital-letters-not-working"
-          onExpandClick={onExpandClick}
-          isOpen={isOpen === ProjectIssueType.AllCaps}
-          warning={warnings[ProjectIssueType.AllCaps]}
-        />
-      )}
-    </>
+    <Issue
+      issueType={ProjectIssueType.AllCaps}
+      issues={allCaps}
+      label="All Caps enabled"
+      description="Using ALL CAPS text may result in poor font rendering. Auto-fixable in After Effects ≥ 24.3."
+      externalLink="https://help.plainlyvideos.com/docs/troubleshooting/rendering-issues#capital-letters-not-working"
+      onExpandClick={onExpandClick}
+      isOpen={isOpen === ProjectIssueType.AllCaps}
+      warning={warnings[ProjectIssueType.AllCaps]}
+    />
   );
 }

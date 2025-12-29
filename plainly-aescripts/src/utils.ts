@@ -134,6 +134,19 @@ function selectComp(compId: string): void {
   }
 }
 
+/**
+ * Performs an undo operation in After Effects.
+ * Undoes the last action or undo group that was performed.
+ *
+ * @returns {void}
+ * @example
+ * // Undo the last operation
+ * undo();
+ */
+function undo(): void {
+  app.executeCommand(16); // Command ID for Undo
+}
+
 export {
   isWin,
   pathJoin,
@@ -143,4 +156,5 @@ export {
   unselectAllLayers,
   selectLayer,
   selectComp,
+  undo,
 };

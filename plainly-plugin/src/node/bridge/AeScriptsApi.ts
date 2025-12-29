@@ -155,11 +155,22 @@ class AeScriptsApiClass {
   }
 
   /**
-   * Fixes the all-caps text issue for a specific layer.
-   * @param layerId - The ID of the layer to fix
+   * Fixes all-caps text issues for multiple layers in a single undo group.
+   * @param layerIds - Array of layer IDs to fix
+   * @returns The name of the undo group created, or undefined if no fixes were applied
    */
-  async fixAllCapsIssue(layerId: string): Promise<void> {
-    await evalScriptAsync(`fixAllCapsIssue(${layerId})`);
+  async fixAllCapsIssues(layerIds: string[]): Promise<string | undefined> {
+    return await evalScriptAsync(
+      `fixAllCapsIssues(${JSON.stringify(layerIds)})`,
+    );
+  }
+
+  /**
+   * Performs an undo operation in After Effects.
+   * Undoes the last action or undo group that was performed.
+   */
+  async undo(): Promise<void> {
+    await evalScriptAsync('undo()');
   }
 }
 

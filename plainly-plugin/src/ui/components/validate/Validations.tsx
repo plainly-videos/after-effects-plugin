@@ -109,14 +109,14 @@ export function Validations() {
       ) : totalCount === undefined ? (
         <Alert title="Project validation has not been run yet." type="info" />
       ) : (
-        <>
+        <div className="space-y-2 w-full">
           <TextLayersList
             textLayers={textLayers}
             isOpen={isOpen}
             setIsOpen={setIsOpen}
           />
           <CompsList comps={comps} isOpen={isOpen} setIsOpen={setIsOpen} />
-        </>
+        </div>
       )}
       <div className="flex items-center gap-2 float-right">
         <Button

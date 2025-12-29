@@ -1,7 +1,11 @@
 import type { AnyProjectIssue } from 'plainly-types';
 import { getAllComps } from '../utils';
 import { checkComps } from './compValidators';
-import { checkTextLayers, fixAllCapsIssue } from './textValidators';
+import {
+  checkTextLayers,
+  fixAllCapsIssue,
+  fixAllCapsIssues,
+} from './textValidators';
 
 enum ProjectIssueType {
   AllCaps = 'AllCaps',
@@ -41,4 +45,4 @@ function fixAllIssues(issues: AnyProjectIssue[]) {
   validateProject();
 }
 
-export { validateProject, fixAllIssues, ProjectIssueType };
+export { validateProject, fixAllIssues, fixAllCapsIssues, ProjectIssueType };

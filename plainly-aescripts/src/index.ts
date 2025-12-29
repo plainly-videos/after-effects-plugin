@@ -9,9 +9,8 @@ import {
 } from './project';
 import { relinkFootage } from './relink';
 import './shims';
-import { selectComp, selectLayer, unselectAllLayers } from './utils';
-import { fixAllIssues, validateProject } from './validation';
-import { fixAllCapsIssue } from './validation/textValidators';
+import { selectComp, selectLayer, undo, unselectAllLayers } from './utils';
+import { fixAllCapsIssues, fixAllIssues, validateProject } from './validation';
 
 const collectFunctions = {
   collectFiles,
@@ -32,12 +31,13 @@ const utilsFunctions = {
   unselectAllLayers,
   selectLayer,
   selectComp,
+  undo,
 };
 
 const validateFunctions = {
   validateProject,
   fixAllIssues,
-  fixAllCapsIssue,
+  fixAllCapsIssues,
 };
 
 const PlainlyAE = () => ({
