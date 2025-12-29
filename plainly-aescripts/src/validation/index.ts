@@ -1,7 +1,12 @@
-import { type AnyProjectIssue, ProjectIssueType } from 'plainly-types';
+import type { AnyProjectIssue } from 'plainly-types';
 import { getAllComps } from '../utils';
 import { checkComps } from './compValidators';
 import { checkTextLayers, fixAllCapsIssue } from './textValidators';
+
+enum ProjectIssueType {
+  AllCaps = 'AllCaps',
+  Unsupported3DRenderer = 'Unsupported3DRenderer',
+}
 
 function validateProject(): string {
   const comps = getAllComps(app.project);
@@ -36,4 +41,4 @@ function fixAllIssues(issues: AnyProjectIssue[]) {
   validateProject();
 }
 
-export { validateProject, fixAllIssues };
+export { validateProject, fixAllIssues, ProjectIssueType };

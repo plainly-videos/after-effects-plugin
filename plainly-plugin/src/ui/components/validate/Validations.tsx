@@ -2,14 +2,13 @@ import { AeScriptsApi } from '@src/node/bridge';
 import { useNotifications } from '@src/ui/hooks';
 import { isEqual } from 'lodash-es';
 import { ShieldCheckIcon, WrenchIcon } from 'lucide-react';
-import type { AnyProjectIssue, ProjectIssueType } from 'plainly-types';
+import type { AnyProjectIssue } from 'plainly-types';
 import { useCallback, useContext, useRef, useState } from 'react';
 import { flushSync } from 'react-dom';
 import { Alert, Button } from '../common';
 import { GlobalContext } from '../context';
 import { Description, PageHeading } from '../typography';
-import { CompsList } from './CompsList';
-import { TextLayersList } from './TextLayersList';
+import { CompsList, type ProjectIssueType, TextLayersList } from '.';
 import { isCompIssue, isTextLayerIssue } from './utils';
 
 export function Validations() {

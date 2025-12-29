@@ -1,10 +1,7 @@
 {
   "compilerOptions": {
     "strict": true,
-    "declaration": true,
-    "target": "ES2018",
-    "module": "commonjs",
-    "moduleResolution": "node"
+    "declaration": true
   },
   "include": ["src"]
 }
