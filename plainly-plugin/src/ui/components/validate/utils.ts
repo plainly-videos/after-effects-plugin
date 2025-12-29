@@ -2,7 +2,7 @@ import type {
   AnyProjectIssue,
   CompIssues,
   TextLayerIssues,
-} from '@src/ui/types/validation';
+} from 'plainly-types';
 
 function isTextLayerIssue(issue: AnyProjectIssue): issue is TextLayerIssues {
   return 'text' in issue && issue.text === true;

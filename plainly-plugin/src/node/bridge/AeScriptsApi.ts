@@ -1,6 +1,6 @@
-import type { AnyProjectIssue } from '@src/ui/types/validation';
 import { isEmpty } from '@src/ui/utils';
 import type {
+  AnyProjectIssue,
   InstalledFontData,
   ProjectData,
   ProjectInfo,

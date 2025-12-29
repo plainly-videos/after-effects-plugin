@@ -1,10 +1,5 @@
 import { AeScriptsApi } from '@src/node/bridge';
 import { useNavigate, useNotifications, useProjectData } from '@src/ui/hooks';
-import {
-  type AnyProjectIssue,
-  ProjectIssueType,
-  type TextAllCapsEnabledIssue,
-} from '@src/ui/types/validation';
 import classNames from 'classnames';
 import { isEqual } from 'lodash-es';
 import {
@@ -14,6 +9,11 @@ import {
   TriangleAlertIcon,
   WrenchIcon,
 } from 'lucide-react';
+import {
+  type AnyProjectIssue,
+  ProjectIssueType,
+  type TextAllCapsEnabledIssue,
+} from 'plainly-types';
 import type React from 'react';
 import { useContext } from 'react';
 import { Tooltip } from '../../common';

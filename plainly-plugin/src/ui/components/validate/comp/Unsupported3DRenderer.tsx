@@ -1,15 +1,15 @@
 import { AeScriptsApi } from '@src/node/bridge';
 import { useNavigate } from '@src/ui/hooks';
-import {
-  type CompUnsupported3DRendererIssue,
-  ProjectIssueType,
-} from '@src/ui/types/validation';
 import classNames from 'classnames';
 import {
   ChevronDownIcon,
   CircleQuestionMark,
   ExternalLinkIcon,
 } from 'lucide-react';
+import {
+  type CompUnsupported3DRendererIssue,
+  ProjectIssueType,
+} from 'plainly-types';
 import type React from 'react';
 import { Tooltip } from '../../common';
 

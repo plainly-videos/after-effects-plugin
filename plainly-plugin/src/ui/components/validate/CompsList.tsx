@@ -1,9 +1,9 @@
+import { isEmpty } from '@src/ui/utils';
 import {
   type CompIssues,
   type CompUnsupported3DRendererIssue,
   ProjectIssueType,
-} from '@src/ui/types/validation';
-import { isEmpty } from '@src/ui/utils';
+} from 'plainly-types';
 import { Dimensions } from './comp/Unsupported3DRenderer';
 
 export function CompsList({

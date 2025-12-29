@@ -1,7 +1,7 @@
+import { type AnyProjectIssue, ProjectIssueType } from 'plainly-types';
 import { getAllComps } from '../utils';
 import { checkComps } from './compValidators';
 import { checkTextLayers, fixAllCapsIssue } from './textValidators';
-import { type AnyProjectIssue, ProjectIssueType } from './types';
 
 function validateProject(): string {
   const comps = getAllComps(app.project);
