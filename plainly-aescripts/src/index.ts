@@ -11,6 +11,7 @@ import { relinkFootage } from './relink';
 import './shims';
 import { selectComp, selectLayer, undo, unselectAllLayers } from './utils';
 import { fixAllCapsIssues, fixAllIssues, validateProject } from './validation';
+import { fixUnsupported3DRendererIssues } from './validation/compValidators';
 
 const collectFunctions = {
   collectFiles,
@@ -38,6 +39,7 @@ const validateFunctions = {
   validateProject,
   fixAllIssues,
   fixAllCapsIssues,
+  fixUnsupported3DRendererIssues,
 };
 
 const PlainlyAE = () => ({

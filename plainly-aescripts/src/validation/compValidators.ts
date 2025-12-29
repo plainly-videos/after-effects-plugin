@@ -34,4 +34,35 @@ function checkComps(comps: CompItem[]): CompIssues[] {
   return compIssues;
 }
 
-export { checkComps };
+function fixUnsupported3DRendererIssue(compId: string): void {
+  const comp = app.project.itemByID(parseInt(compId, 10));
+  if (!(comp && comp instanceof CompItem)) {
+    return;
+  }
+
+  comp.renderer = RendererType.CLASSIC_3D;
+}
+
+function fixUnsupported3DRendererIssues(compIds: string[]): string | undefined {
+  const undoName = `Fix Unsupported 3D Renderer (${compIds.length} composition${
+    compIds.length > 1 ? 's' : ''
+  })`;
+  app.beginUndoGroup(undoName);
+
+  try {
+    for (const compId of compIds) {
+      fixUnsupported3DRendererIssue(compId);
+    }
+    app.endUndoGroup();
+    return undoName;
+  } catch (error) {
+    app.endUndoGroup();
+    throw error;
+  }
+}
+
+export {
+  checkComps,
+  fixUnsupported3DRendererIssue,
+  fixUnsupported3DRendererIssues,
+};

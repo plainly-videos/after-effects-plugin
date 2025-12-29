@@ -150,8 +150,8 @@ class AeScriptsApiClass {
    * Fixes all provided Plainly issues in the After Effects project.
    * @param issues - Array of project issues to fix
    */
-  async fixAllIssues(issues: AnyProjectIssue[]): Promise<void> {
-    await evalScriptAsync(`fixAllIssues(${JSON.stringify(issues)})`);
+  async fixAllIssues(issues: AnyProjectIssue[]): Promise<string | undefined> {
+    return await evalScriptAsync(`fixAllIssues(${JSON.stringify(issues)})`);
   }
 
   /**
@@ -162,6 +162,19 @@ class AeScriptsApiClass {
   async fixAllCapsIssues(layerIds: string[]): Promise<string | undefined> {
     return await evalScriptAsync(
       `fixAllCapsIssues(${JSON.stringify(layerIds)})`,
+    );
+  }
+
+  /**
+   * Fixes unsupported 3D renderer issues for multiple compositions in a single undo group.
+   * @param compIds - Array of composition IDs to fix
+   * @returns The name of the undo group created, or undefined if no fixes were applied
+   */
+  async fixUnsupported3DRendererIssues(
+    compIds: string[],
+  ): Promise<string | undefined> {
+    return await evalScriptAsync(
+      `fixUnsupported3DRendererIssues(${JSON.stringify(compIds)})`,
     );
   }
 

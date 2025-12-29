@@ -1,6 +1,6 @@
 import type { AnyProjectIssue } from 'plainly-types';
 import { getAllComps } from '../utils';
-import { checkComps } from './compValidators';
+import { checkComps, fixUnsupported3DRendererIssue } from './compValidators';
 import {
   checkTextLayers,
   fixAllCapsIssue,
@@ -35,14 +35,29 @@ function validateProject(): string {
 }
 
 function fixAllIssues(issues: AnyProjectIssue[]) {
-  for (let i = 0; i < issues.length; i++) {
-    const issue = issues[i];
-    if (issue.type === ProjectIssueType.AllCaps) {
-      fixAllCapsIssue(issue.layerId);
-    }
-  }
+  const undoName = `Fix All Issues (${issues.length} issue${
+    issues.length > 1 ? 's' : ''
+  })`;
+  app.beginUndoGroup(undoName);
 
-  validateProject();
+  try {
+    for (let i = 0; i < issues.length; i++) {
+      const issue = issues[i];
+      if (issue.type === ProjectIssueType.AllCaps) {
+        fixAllCapsIssue(issue.layerId);
+      }
+      if (issue.type === ProjectIssueType.Unsupported3DRenderer) {
+        fixUnsupported3DRendererIssue(issue.compId);
+      }
+    }
+
+    app.endUndoGroup();
+    validateProject();
+    return undoName;
+  } catch (error) {
+    app.endUndoGroup();
+    throw error;
+  }
 }
 
 export { validateProject, fixAllIssues, fixAllCapsIssues, ProjectIssueType };

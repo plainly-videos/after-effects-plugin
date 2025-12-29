@@ -1,7 +1,7 @@
 import { AeScriptsApi } from '@src/node/bridge';
 import { useNotifications } from '@src/ui/hooks';
 import { isEqual } from 'lodash-es';
-import { ShieldCheckIcon, WrenchIcon } from 'lucide-react';
+import { ShieldCheckIcon, Undo2Icon, WrenchIcon } from 'lucide-react';
 import type { AnyProjectIssue } from 'plainly-types';
 import { useCallback, useContext, useRef, useState } from 'react';
 import { flushSync } from 'react-dom';
@@ -14,10 +14,11 @@ import { isCompIssue, isTextLayerIssue } from './utils';
 export function Validations() {
   const { contextReady, projectIssues, setGlobalData } =
     useContext(GlobalContext);
-  const { notifyInfo } = useNotifications();
+  const { notifyInfo, notifyError } = useNotifications();
 
   const [isOpen, setIsOpen] = useState<ProjectIssueType>();
   const [loading, setLoading] = useState(false);
+  const [lastUndoName, setLastUndoName] = useState<string>();
 
   // Prevent re-entrancy while expensive operations are running
   const testInFlightRef = useRef(false);
@@ -83,7 +84,7 @@ export function Validations() {
     await nextFrame();
 
     try {
-      await AeScriptsApi.fixAllIssues(projectIssues || []);
+      setLastUndoName(await AeScriptsApi.fixAllIssues(projectIssues || []));
       await handleTestForIssues(false);
       notifyInfo(
         'Attempted to fix all issues.',
@@ -92,6 +93,30 @@ export function Validations() {
     } finally {
       setLoading(false);
       fixInFlightRef.current = false;
+    }
+  };
+
+  const onUndoClick = async () => {
+    try {
+      await AeScriptsApi.undo();
+      setLastUndoName(undefined);
+
+      const vIssues = await AeScriptsApi.validateProject();
+      if (!vIssues) {
+        setGlobalData((prev) => ({ ...prev, projectIssues: [] }));
+      } else {
+        const parsedIssues: AnyProjectIssue[] = JSON.parse(vIssues);
+        if (!isEqual(parsedIssues, projectIssues)) {
+          setGlobalData((prev) => ({ ...prev, projectIssues: parsedIssues }));
+        }
+      }
+      notifyInfo('Undo successful.', 'The last fix has been reverted.');
+    } catch (error) {
+      console.error('Error undoing fix:', error);
+      notifyError(
+        'Error undoing fix.',
+        'An unexpected error occurred while attempting to undo the fix, please try again.',
+      );
     }
   };
 
@@ -129,12 +154,12 @@ export function Validations() {
           Test for issues
         </Button>
         <Button
-          disabled={!totalCount || loading || !contextReady}
-          onClick={handleFixAll}
+          disabled={(!totalCount && !lastUndoName) || loading || !contextReady}
+          onClick={lastUndoName ? onUndoClick : handleFixAll}
           loading={loading}
-          icon={WrenchIcon}
+          icon={lastUndoName ? Undo2Icon : WrenchIcon}
         >
-          Fix all
+          {lastUndoName ? 'Undo' : 'Fix all'}
         </Button>
       </div>
     </div>
