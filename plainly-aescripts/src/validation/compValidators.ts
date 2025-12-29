@@ -1,8 +1,5 @@
-import {
-  type CompIssues,
-  ProjectIssueType,
-  type RendererTypeName,
-} from 'plainly-types';
+import type { CompIssues, RendererTypeName } from 'plainly-types';
+import { ProjectIssueType } from '.';
 
 enum RendererType {
   CLASSIC_3D = 'ADBE Advanced 3d',
