@@ -3,6 +3,7 @@ import { useNotifications } from '@src/ui/hooks';
 import type { NotificationType } from '@src/ui/types';
 import classNames from 'classnames';
 import { CircleCheckBigIcon, InfoIcon, XIcon } from 'lucide-react';
+import { Button } from './Button';
 
 function Notification({
   title,
@@ -20,64 +21,63 @@ function Notification({
   isLast?: boolean;
 }) {
   return (
-    <>
-      {/* Global notification live region, render this permanently at the end of the document */}
-      <div className="flex w-full flex-col items-center space-y-4 sm:items-end">
-        {/* Notification panel, dynamically insert this into the live region when it needs to be displayed */}
-        <Transition show>
-          <div
-            className={classNames(
-              'pointer-events-auto w-full bg-[rgb(29,29,30)] max-w-sm overflow-hidden shadow-lg ring-1 ring-white/20 transition data-[closed]:data-[enter]:translate-y-2 data-[enter]:transform data-[closed]:opacity-0 data-[enter]:duration-300 data-[leave]:duration-100 data-[enter]:ease-out data-[leave]:ease-in data-[closed]:data-[enter]:sm:translate-x-2 data-[closed]:data-[enter]:sm:translate-y-0',
-              isFirst && 'rounded-t-lg',
-              isLast && 'rounded-b-lg',
-            )}
-          >
-            <div className="p-4">
-              <div className="flex items-start">
-                <div className="shrink-0">
-                  {type === 'success' && (
-                    <CircleCheckBigIcon
-                      aria-hidden="true"
-                      className="size-6 text-green-400"
-                    />
-                  )}
-                  {type === 'error' && (
-                    <XIcon aria-hidden="true" className="size-6 text-red-400" />
-                  )}
-                  {type === 'info' && (
-                    <InfoIcon
-                      aria-hidden="true"
-                      className="size-6 text-blue-400"
-                    />
-                  )}
-                </div>
-                <div className="ml-3 w-0 flex-1 pt-0.5">
-                  <p className="text-sm font-medium text-white">{title}</p>
-                  {description && (
-                    <p className="mt-1 text-sm text-gray-400">{description}</p>
-                  )}
-                </div>
-                <div className="ml-4 flex shrink-0">
-                  <button
-                    type="button"
-                    onClick={onClose}
-                    className="inline-flex rounded-md text-white hover:text-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                  >
-                    <span className="sr-only">Close</span>
-                    <XIcon aria-hidden="true" className="size-5" />
-                  </button>
-                </div>
+    // Global notification live region, render this permanently at the end of the document
+    <div className="flex w-full flex-col items-center space-y-4 sm:items-end">
+      {/* Notification panel, dynamically insert this into the live region when it needs to be displayed */}
+      <Transition show>
+        <div
+          className={classNames(
+            'pointer-events-auto w-full bg-[rgb(29,29,30)] max-w-sm overflow-hidden shadow-lg ring-1 ring-white/20 transition data-[closed]:data-[enter]:translate-y-2 data-[enter]:transform data-[closed]:opacity-0 data-[enter]:duration-300 data-[leave]:duration-100 data-[enter]:ease-out data-[leave]:ease-in data-[closed]:data-[enter]:sm:translate-x-2 data-[closed]:data-[enter]:sm:translate-y-0',
+            isFirst && 'rounded-t-lg',
+            isLast && 'rounded-b-lg',
+          )}
+        >
+          <div className="p-4">
+            <div className="flex items-start">
+              <div className="shrink-0">
+                {type === 'success' && (
+                  <CircleCheckBigIcon
+                    aria-hidden="true"
+                    className="size-6 text-green-400"
+                  />
+                )}
+                {type === 'error' && (
+                  <XIcon aria-hidden="true" className="size-6 text-red-400" />
+                )}
+                {type === 'info' && (
+                  <InfoIcon
+                    aria-hidden="true"
+                    className="size-6 text-blue-400"
+                  />
+                )}
+              </div>
+              <div className="ml-3 w-0 flex-1 pt-0.5">
+                <p className="text-sm font-medium text-white">{title}</p>
+                {description && (
+                  <p className="mt-1 text-sm text-gray-400">{description}</p>
+                )}
+              </div>
+              <div className="ml-4 flex shrink-0">
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="inline-flex rounded-md text-white hover:text-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                >
+                  <span className="sr-only">Close</span>
+                  <XIcon aria-hidden="true" className="size-5" />
+                </button>
               </div>
             </div>
           </div>
-        </Transition>
-      </div>
-    </>
+        </div>
+      </Transition>
+    </div>
   );
 }
 
 export function NotificationsOverlay() {
-  const { notifications, clearNotification } = useNotifications();
+  const { notifications, clearNotification, clearAllNotifications } =
+    useNotifications();
 
   return (
     <div
@@ -97,6 +97,15 @@ export function NotificationsOverlay() {
           }
         />
       ))}
+      {notifications.length > 1 && (
+        <Button
+          type="button"
+          onClick={clearAllNotifications}
+          className="pointer-events-auto max-w-sm w-full mx-auto sm:ml-auto sm:mr-0 mt-2 justify-center"
+        >
+          Clear all
+        </Button>
+      )}
     </div>
   );
 }
