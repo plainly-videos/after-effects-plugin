@@ -116,13 +116,6 @@ class AeScriptsApiClass {
   }
 
   /**
-   * Unselects all layers in the current After Effects composition.
-   */
-  async unselectAllLayers(): Promise<void> {
-    await evalScriptAsync('unselectAllLayers()');
-  }
-
-  /**
    * Selects a layer in the current After Effects composition by its ID.
    * @param layerId - The ID of the layer to select
    */

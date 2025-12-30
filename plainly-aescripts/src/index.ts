@@ -9,7 +9,7 @@ import {
 } from './project';
 import { relinkFootage } from './relink';
 import './shims';
-import { selectComp, selectLayer, undo, unselectAllLayers } from './utils';
+import { selectComp, selectLayer, undo } from './utils';
 import { fixAllCapsIssues, fixAllIssues, validateProject } from './validation';
 import { fixUnsupported3DRendererIssues } from './validation/compValidators';
 
@@ -29,7 +29,6 @@ const projectFunctions = {
 };
 
 const utilsFunctions = {
-  unselectAllLayers,
   selectLayer,
   selectComp,
   undo,

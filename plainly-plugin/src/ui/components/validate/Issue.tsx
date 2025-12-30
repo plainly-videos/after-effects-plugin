@@ -48,14 +48,8 @@ export function Issue({
     useState(false);
 
   const onIssueClick = async (id: string, type: 'comp' | 'layer') => {
-    if (type === 'comp') {
-      await AeScriptsApi.selectComp(id);
-    }
-
-    if (type === 'layer') {
-      await AeScriptsApi.unselectAllLayers();
-      await AeScriptsApi.selectLayer(id);
-    }
+    if (type === 'comp') await AeScriptsApi.selectComp(id);
+    if (type === 'layer') await AeScriptsApi.selectLayer(id);
   };
 
   const handleFix = async () => {
