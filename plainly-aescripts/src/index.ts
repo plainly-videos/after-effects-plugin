@@ -15,7 +15,6 @@ import {
   selectComp,
   selectLayer,
   undo,
-  unselectAllLayers,
 } from './utils';
 import { fixAllCapsIssues, fixAllIssues, validateProject } from './validation';
 import { fixUnsupported3DRendererIssues } from './validation/compValidators';
@@ -38,7 +37,6 @@ const projectFunctions = {
 };
 
 const utilsFunctions = {
-  unselectAllLayers,
   selectLayer,
   selectComp,
   undo,
