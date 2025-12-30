@@ -1,1 +1,1 @@
-export * from './AllCaps';
+export * from './TextLayersList';

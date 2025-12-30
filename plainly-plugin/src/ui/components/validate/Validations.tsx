@@ -1,25 +1,22 @@
 import { AeScriptsApi } from '@src/node/bridge';
 import { useNotifications } from '@src/ui/hooks';
-import type {
-  AnyProjectIssue,
-  ProjectIssueType,
-} from '@src/ui/types/validation';
-import { isEqual } from 'lodash-es';
-import { ShieldCheckIcon, WrenchIcon } from 'lucide-react';
+import { ShieldCheckIcon, Undo2Icon, WrenchIcon } from 'lucide-react';
 import { useCallback, useContext, useRef, useState } from 'react';
 import { flushSync } from 'react-dom';
 import { Alert, Button } from '../common';
 import { GlobalContext } from '../context';
 import { Description, PageHeading } from '../typography';
-import { TextLayersList } from './TextLayersList';
+import { CompsList, type ProjectIssueType, TextLayersList } from '.';
+import { isCompIssue, isTextLayerIssue } from './utils';
 
 export function Validations() {
-  const { contextReady, projectIssues, setGlobalData } =
+  const { contextReady, projectIssues, validateProject } =
     useContext(GlobalContext);
-  const { notifyInfo } = useNotifications();
+  const { notifyInfo, notifyError } = useNotifications();
 
-  const [isOpen, setIsOpen] = useState<ProjectIssueType>();
+  const [currentIssueType, setCurrentIssueType] = useState<ProjectIssueType>();
   const [loading, setLoading] = useState(false);
+  const [undoNames, setUndoNames] = useState<Record<string, string>>({});
 
   // Prevent re-entrancy while expensive operations are running
   const testInFlightRef = useRef(false);
@@ -32,7 +29,8 @@ export function Validations() {
     [],
   );
 
-  const textLayers = projectIssues?.filter((issue) => issue.text === true);
+  const textLayers = projectIssues?.filter(isTextLayerIssue);
+  const comps = projectIssues?.filter(isCompIssue);
   const totalCount = projectIssues?.length ?? undefined;
 
   const handleTestForIssues = useCallback(
@@ -46,18 +44,7 @@ export function Validations() {
       await nextFrame();
 
       try {
-        const issues = await AeScriptsApi.validateProject();
-        if (!issues) {
-          setGlobalData((prev) => ({ ...prev, projectIssues: [] }));
-        } else {
-          const parsedIssues: AnyProjectIssue[] = JSON.parse(issues);
-          if (!isEqual(parsedIssues, projectIssues)) {
-            setGlobalData((prev) => ({
-              ...prev,
-              projectIssues: parsedIssues,
-            }));
-          }
-        }
+        const issues = await validateProject();
         if (notify) {
           notifyInfo(
             'Project validation completed.',
@@ -71,7 +58,7 @@ export function Validations() {
         testInFlightRef.current = false;
       }
     },
-    [nextFrame, notifyInfo, projectIssues, setGlobalData],
+    [nextFrame, notifyInfo, validateProject],
   );
 
   const handleFixAll = async () => {
@@ -84,7 +71,16 @@ export function Validations() {
     await nextFrame();
 
     try {
-      await AeScriptsApi.fixAllIssues(projectIssues || []);
+      const undoName = await AeScriptsApi.fixAllIssues(projectIssues || []);
+      if (undoName) {
+        flushSync(() =>
+          setUndoNames((prev) => ({
+            ...prev,
+            all: undoName,
+          })),
+        );
+      }
+
       await handleTestForIssues(false);
       notifyInfo(
         'Attempted to fix all issues.',
@@ -96,6 +92,34 @@ export function Validations() {
     }
   };
 
+  const onUndoClick = async () => {
+    try {
+      await AeScriptsApi.undo();
+      flushSync(() =>
+        setUndoNames((prev) => {
+          const newUndoNames = { ...prev };
+          delete newUndoNames.all;
+          return newUndoNames;
+        }),
+      );
+
+      await validateProject();
+      notifyInfo('Undo successful.', 'The last fix has been reverted.');
+    } catch (error) {
+      console.error('Error undoing fix:', error);
+      notifyError(
+        'Error undoing fix.',
+        'An unexpected error occurred while attempting to undo the fix, please try again.',
+      );
+    }
+  };
+
+  const onExpandClick = useCallback((type: ProjectIssueType) => {
+    setCurrentIssueType((prev) => (prev === type ? undefined : type));
+  }, []);
+
+  const hasNonAllUndo = Object.keys(undoNames).some((key) => key !== 'all');
+
   return (
     <div className="space-y-4 w-full text-white">
       <div>
@@ -105,16 +129,29 @@ export function Validations() {
           problems on the Plainly platform.
         </Description>
       </div>
-      {totalCount === 0 ? (
+      {totalCount === 0 && !hasNonAllUndo ? (
         <Alert title="There are no issues with your project." type="success" />
-      ) : totalCount === undefined ? (
+      ) : totalCount === undefined && !hasNonAllUndo ? (
         <Alert title="Project validation has not been run yet." type="info" />
       ) : (
-        <TextLayersList
-          textLayers={textLayers}
-          isOpen={isOpen}
-          setIsOpen={setIsOpen}
-        />
+        <div className="space-y-2 w-full">
+          <TextLayersList
+            textLayers={textLayers}
+            currentIssueType={currentIssueType}
+            onExpandClick={onExpandClick}
+            undoNames={undoNames}
+            setUndoNames={setUndoNames}
+            validateProject={validateProject}
+          />
+          <CompsList
+            comps={comps}
+            currentIssueType={currentIssueType}
+            onExpandClick={onExpandClick}
+            undoNames={undoNames}
+            setUndoNames={setUndoNames}
+            validateProject={validateProject}
+          />
+        </div>
       )}
       <div className="flex items-center gap-2 float-right">
         <Button
@@ -127,12 +164,12 @@ export function Validations() {
           Test for issues
         </Button>
         <Button
-          disabled={!totalCount || loading || !contextReady}
-          onClick={handleFixAll}
+          disabled={(!totalCount && !undoNames.all) || loading || !contextReady}
+          onClick={undoNames.all ? onUndoClick : handleFixAll}
           loading={loading}
-          icon={WrenchIcon}
+          icon={undoNames.all ? Undo2Icon : WrenchIcon}
         >
-          Fix all
+          {undoNames.all ? 'Undo' : 'Fix all'}
         </Button>
       </div>
     </div>

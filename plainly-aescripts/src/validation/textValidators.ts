@@ -1,8 +1,8 @@
-import { getAllComps, getTextLayersByComp } from '../utils';
-import { ProjectIssueType, type TextLayerIssues } from './types';
+import type { TextLayerIssues } from 'plainly-types';
+import { getTextLayersByComp } from '../utils';
+import { ProjectIssueType } from '.';
 
-function checkTextLayers(): TextLayerIssues[] {
-  const comps = getAllComps(app.project);
+function checkTextLayers(comps: CompItem[]): TextLayerIssues[] {
   const textLayers: TextLayerIssues[] = [];
 
   for (let i = 0; i < comps.length; i++) {
@@ -138,10 +138,34 @@ function fixAllCapsIssue(layerId: string) {
   updateLayerTextDocument(layer, newValue);
 }
 
+/**
+ * Fixes all caps issues for multiple text layers in a single undo group.
+ *
+ * **NOTE**: Works only on `After Effects 24.3` and later due to the use of `characterRange` method and `fontCapsOption`.
+ *
+ * @param layerIds Array of layer IDs to fix
+ * @returns The name of the undo group created, or undefined if no fixes were applied
+ */
+function fixAllCapsIssues(layerIds: string[]): string | undefined {
+  const undoName = `Fix All Caps (${layerIds.length} layer${layerIds.length > 1 ? 's' : ''})`;
+  app.beginUndoGroup(undoName);
+
+  try {
+    for (const layerId of layerIds) {
+      fixAllCapsIssue(layerId);
+    }
+    app.endUndoGroup();
+    return undoName;
+  } catch (error) {
+    app.endUndoGroup();
+    throw error;
+  }
+}
+
 function updateLayerTextDocument(layer: TextLayer, newValue: TextDocument) {
   const originalLayerName = layer.name;
   layer.sourceText.setValue(newValue);
   layer.name = originalLayerName; // Preserve original layer name
 }
 
-export { checkTextLayers, fixAllCapsIssue };
+export { checkTextLayers, fixAllCapsIssue, fixAllCapsIssues };

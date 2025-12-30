@@ -1,12 +1,30 @@
-import { checkTextLayers, fixAllCapsIssue } from './textValidators';
-import { type AnyProjectIssue, ProjectIssueType } from './types';
+import type { AnyProjectIssue } from 'plainly-types';
+import { getAllComps } from '../utils';
+import { checkComps, fixUnsupported3DRendererIssue } from './compValidators';
+import {
+  checkTextLayers,
+  fixAllCapsIssue,
+  fixAllCapsIssues,
+} from './textValidators';
+
+enum ProjectIssueType {
+  AllCaps = 'AllCaps',
+  Unsupported3DRenderer = 'Unsupported3DRenderer',
+}
 
 function validateProject(): string {
-  const textIssues = checkTextLayers();
+  const comps = getAllComps(app.project);
+
+  const textIssues = checkTextLayers(comps);
+  const compIssues = checkComps(comps);
   let issues: AnyProjectIssue[] = [];
 
   if (textIssues.length > 0) {
     issues = issues.concat(textIssues);
+  }
+
+  if (compIssues.length > 0) {
+    issues = issues.concat(compIssues);
   }
 
   if (issues.length > 0) {
@@ -17,14 +35,28 @@ function validateProject(): string {
 }
 
 function fixAllIssues(issues: AnyProjectIssue[]) {
-  for (let i = 0; i < issues.length; i++) {
-    const issue = issues[i];
-    if (issue.type === ProjectIssueType.AllCaps) {
-      fixAllCapsIssue(issue.layerId);
-    }
-  }
+  const undoName = `Fix All Issues (${issues.length} issue${
+    issues.length > 1 ? 's' : ''
+  })`;
+  app.beginUndoGroup(undoName);
 
-  validateProject();
+  try {
+    for (let i = 0; i < issues.length; i++) {
+      const issue = issues[i];
+      if (issue.type === ProjectIssueType.AllCaps) {
+        fixAllCapsIssue(issue.layerId);
+      }
+      if (issue.type === ProjectIssueType.Unsupported3DRenderer) {
+        fixUnsupported3DRendererIssue(issue.compId);
+      }
+    }
+
+    app.endUndoGroup();
+    return undoName;
+  } catch (error) {
+    app.endUndoGroup();
+    throw error;
+  }
 }
 
-export { validateProject, fixAllIssues };
+export { validateProject, fixAllIssues, fixAllCapsIssues, ProjectIssueType };
