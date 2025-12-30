@@ -9,12 +9,14 @@ export function TextLayersList({
   onExpandClick,
   undoNames,
   setUndoNames,
+  validateProject,
 }: {
   textLayers?: TextLayerIssues[];
   currentIssueType?: ProjectIssueType;
   onExpandClick: (issueType: ProjectIssueType) => void;
   undoNames: Record<string, string>;
   setUndoNames: React.Dispatch<React.SetStateAction<Record<string, string>>>;
+  validateProject: () => Promise<string | undefined>;
 }) {
   const [, , , aeVersion] = useProjectData();
 
@@ -43,6 +45,7 @@ export function TextLayersList({
       warning={warnings[ProjectIssueType.AllCaps]}
       undo={undoNames[ProjectIssueType.AllCaps]}
       setUndoNames={setUndoNames}
+      validateProject={validateProject}
     />
   );
 }

@@ -7,12 +7,14 @@ export function CompsList({
   onExpandClick,
   undoNames,
   setUndoNames,
+  validateProject,
 }: {
   comps?: CompIssues[];
   currentIssueType?: ProjectIssueType;
   onExpandClick: (issueType: ProjectIssueType) => void;
   undoNames: Record<string, string>;
   setUndoNames: React.Dispatch<React.SetStateAction<Record<string, string>>>;
+  validateProject: () => Promise<string | undefined>;
 }) {
   const renderers = comps?.filter(
     (issue) => issue.type === ProjectIssueType.Unsupported3DRenderer,
@@ -29,6 +31,7 @@ export function CompsList({
       isOpen={currentIssueType === ProjectIssueType.Unsupported3DRenderer}
       undo={undoNames[ProjectIssueType.Unsupported3DRenderer]}
       setUndoNames={setUndoNames}
+      validateProject={validateProject}
     />
   );
 }

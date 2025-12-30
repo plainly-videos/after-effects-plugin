@@ -1,8 +1,6 @@
 import { AeScriptsApi } from '@src/node/bridge';
 import { useNotifications } from '@src/ui/hooks';
-import { isEqual } from 'lodash-es';
 import { ShieldCheckIcon, Undo2Icon, WrenchIcon } from 'lucide-react';
-import type { AnyProjectIssue } from 'plainly-types';
 import { useCallback, useContext, useRef, useState } from 'react';
 import { flushSync } from 'react-dom';
 import { Alert, Button } from '../common';
@@ -12,7 +10,7 @@ import { CompsList, type ProjectIssueType, TextLayersList } from '.';
 import { isCompIssue, isTextLayerIssue } from './utils';
 
 export function Validations() {
-  const { contextReady, projectIssues, setGlobalData } =
+  const { contextReady, projectIssues, validateProject } =
     useContext(GlobalContext);
   const { notifyInfo, notifyError } = useNotifications();
 
@@ -46,18 +44,7 @@ export function Validations() {
       await nextFrame();
 
       try {
-        const issues = await AeScriptsApi.validateProject();
-        if (!issues) {
-          setGlobalData((prev) => ({ ...prev, projectIssues: [] }));
-        } else {
-          const parsedIssues: AnyProjectIssue[] = JSON.parse(issues);
-          if (!isEqual(parsedIssues, projectIssues)) {
-            setGlobalData((prev) => ({
-              ...prev,
-              projectIssues: parsedIssues,
-            }));
-          }
-        }
+        const issues = await validateProject();
         if (notify) {
           notifyInfo(
             'Project validation completed.',
@@ -71,7 +58,7 @@ export function Validations() {
         testInFlightRef.current = false;
       }
     },
-    [nextFrame, notifyInfo, projectIssues, setGlobalData],
+    [nextFrame, notifyInfo, validateProject],
   );
 
   const handleFixAll = async () => {
@@ -116,15 +103,7 @@ export function Validations() {
         }),
       );
 
-      const vIssues = await AeScriptsApi.validateProject();
-      if (!vIssues) {
-        setGlobalData((prev) => ({ ...prev, projectIssues: [] }));
-      } else {
-        const parsedIssues: AnyProjectIssue[] = JSON.parse(vIssues);
-        if (!isEqual(parsedIssues, projectIssues)) {
-          setGlobalData((prev) => ({ ...prev, projectIssues: parsedIssues }));
-        }
-      }
+      await validateProject();
       notifyInfo('Undo successful.', 'The last fix has been reverted.');
     } catch (error) {
       console.error('Error undoing fix:', error);
@@ -162,6 +141,7 @@ export function Validations() {
             onExpandClick={onExpandClick}
             undoNames={undoNames}
             setUndoNames={setUndoNames}
+            validateProject={validateProject}
           />
           <CompsList
             comps={comps}
@@ -169,6 +149,7 @@ export function Validations() {
             onExpandClick={onExpandClick}
             undoNames={undoNames}
             setUndoNames={setUndoNames}
+            validateProject={validateProject}
           />
         </div>
       )}

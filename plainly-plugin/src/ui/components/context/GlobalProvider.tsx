@@ -1,6 +1,6 @@
 import { AeScriptsApi } from '@src/node/bridge/AeScriptsApi';
 import type { AnyProjectIssue } from 'plainly-types';
-import { createContext, useEffect, useState } from 'react';
+import { createContext, useCallback, useEffect, useState } from 'react';
 import { useNotifications } from '../../hooks';
 
 interface GlobalContextProps {
@@ -16,6 +16,7 @@ interface GlobalContextProps {
 // Extended value type to also expose the React state setter so children can update.
 interface GlobalContextValue extends GlobalContextProps {
   setGlobalData: React.Dispatch<React.SetStateAction<GlobalContextProps>>;
+  validateProject: () => Promise<string | undefined>;
 }
 
 export const GlobalContext = createContext<GlobalContextValue>(
@@ -25,6 +26,21 @@ export const GlobalContext = createContext<GlobalContextValue>(
 export const GlobalProvider = ({ children }: { children: React.ReactNode }) => {
   const { notifyInfo } = useNotifications();
   const [globalData, setGlobalData] = useState<GlobalContextProps>();
+
+  const validateProject = useCallback(async () => {
+    const issues = await AeScriptsApi.validateProject();
+    if (!issues) {
+      setGlobalData((prev) => ({ ...prev, projectIssues: [] }));
+    } else {
+      const parsedIssues: AnyProjectIssue[] = JSON.parse(issues);
+      setGlobalData((prev) => ({
+        ...prev,
+        projectIssues: parsedIssues,
+      }));
+    }
+
+    return issues;
+  }, []);
 
   useEffect(() => {
     const interval = setInterval(async () => {
@@ -66,6 +82,7 @@ export const GlobalProvider = ({ children }: { children: React.ReactNode }) => {
   const contextValue: GlobalContextValue = {
     ...globalData,
     setGlobalData,
+    validateProject,
   } as GlobalContextValue; // cast because spread of possibly undefined
 
   return (
