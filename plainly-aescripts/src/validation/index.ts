@@ -52,7 +52,6 @@ function fixAllIssues(issues: AnyProjectIssue[]) {
     }
 
     app.endUndoGroup();
-    validateProject();
     return undoName;
   } catch (error) {
     app.endUndoGroup();

@@ -50,9 +50,20 @@ function fixUnsupported3DRendererIssues(compIds: string[]): string | undefined {
   app.beginUndoGroup(undoName);
 
   try {
+    // Build comp cache first to avoid repeated lookups
+    const compsToFix: CompItem[] = [];
     for (const compId of compIds) {
-      fixUnsupported3DRendererIssue(compId);
+      const comp = app.project.itemByID(parseInt(compId, 10));
+      if (comp && comp instanceof CompItem) {
+        compsToFix.push(comp);
+      }
     }
+
+    // Now fix all at once (fewer AE API calls)
+    for (const comp of compsToFix) {
+      comp.renderer = RendererType.CLASSIC_3D;
+    }
+
     app.endUndoGroup();
     return undoName;
   } catch (error) {

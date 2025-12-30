@@ -16,9 +16,9 @@ export function Validations() {
     useContext(GlobalContext);
   const { notifyInfo, notifyError } = useNotifications();
 
-  const [isOpen, setIsOpen] = useState<ProjectIssueType>();
+  const [currentIssueType, setCurrentIssueType] = useState<ProjectIssueType>();
   const [loading, setLoading] = useState(false);
-  const [lastUndoName, setLastUndoName] = useState<string>();
+  const [undoNames, setUndoNames] = useState<Record<string, string>>({});
 
   // Prevent re-entrancy while expensive operations are running
   const testInFlightRef = useRef(false);
@@ -84,7 +84,16 @@ export function Validations() {
     await nextFrame();
 
     try {
-      setLastUndoName(await AeScriptsApi.fixAllIssues(projectIssues || []));
+      const undoName = await AeScriptsApi.fixAllIssues(projectIssues || []);
+      if (undoName) {
+        flushSync(() =>
+          setUndoNames((prev) => ({
+            ...prev,
+            all: undoName,
+          })),
+        );
+      }
+
       await handleTestForIssues(false);
       notifyInfo(
         'Attempted to fix all issues.',
@@ -99,7 +108,13 @@ export function Validations() {
   const onUndoClick = async () => {
     try {
       await AeScriptsApi.undo();
-      setLastUndoName(undefined);
+      flushSync(() =>
+        setUndoNames((prev) => {
+          const newUndoNames = { ...prev };
+          delete newUndoNames.all;
+          return newUndoNames;
+        }),
+      );
 
       const vIssues = await AeScriptsApi.validateProject();
       if (!vIssues) {
@@ -120,6 +135,12 @@ export function Validations() {
     }
   };
 
+  const onExpandClick = useCallback((type: ProjectIssueType) => {
+    setCurrentIssueType((prev) => (prev === type ? undefined : type));
+  }, []);
+
+  const hasNonAllUndo = Object.keys(undoNames).some((key) => key !== 'all');
+
   return (
     <div className="space-y-4 w-full text-white">
       <div>
@@ -129,18 +150,26 @@ export function Validations() {
           problems on the Plainly platform.
         </Description>
       </div>
-      {totalCount === 0 ? (
+      {totalCount === 0 && !hasNonAllUndo ? (
         <Alert title="There are no issues with your project." type="success" />
-      ) : totalCount === undefined ? (
+      ) : totalCount === undefined && !hasNonAllUndo ? (
         <Alert title="Project validation has not been run yet." type="info" />
       ) : (
         <div className="space-y-2 w-full">
           <TextLayersList
             textLayers={textLayers}
-            isOpen={isOpen}
-            setIsOpen={setIsOpen}
+            currentIssueType={currentIssueType}
+            onExpandClick={onExpandClick}
+            undoNames={undoNames}
+            setUndoNames={setUndoNames}
           />
-          <CompsList comps={comps} isOpen={isOpen} setIsOpen={setIsOpen} />
+          <CompsList
+            comps={comps}
+            currentIssueType={currentIssueType}
+            onExpandClick={onExpandClick}
+            undoNames={undoNames}
+            setUndoNames={setUndoNames}
+          />
         </div>
       )}
       <div className="flex items-center gap-2 float-right">
@@ -154,12 +183,12 @@ export function Validations() {
           Test for issues
         </Button>
         <Button
-          disabled={(!totalCount && !lastUndoName) || loading || !contextReady}
-          onClick={lastUndoName ? onUndoClick : handleFixAll}
+          disabled={(!totalCount && !undoNames.all) || loading || !contextReady}
+          onClick={undoNames.all ? onUndoClick : handleFixAll}
           loading={loading}
-          icon={lastUndoName ? Undo2Icon : WrenchIcon}
+          icon={undoNames.all ? Undo2Icon : WrenchIcon}
         >
-          {lastUndoName ? 'Undo' : 'Fix all'}
+          {undoNames.all ? 'Undo' : 'Fix all'}
         </Button>
       </div>
     </div>
