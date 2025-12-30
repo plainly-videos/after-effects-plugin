@@ -12,11 +12,11 @@ import {
   WrenchIcon,
 } from 'lucide-react';
 import type { AnyProjectIssue } from 'plainly-types';
-import { useContext } from 'react';
+import { useContext, useState } from 'react';
 import { flushSync } from 'react-dom';
 import { Tooltip } from '../common';
 import { GlobalContext } from '../context';
-import { ProjectIssueType } from '.';
+import { ConfirmationModal, ProjectIssueType } from '.';
 import { isCompIssue, isTextLayerIssue } from './utils';
 
 export function Issue({
@@ -45,6 +45,8 @@ export function Issue({
   const { handleLinkClick } = useNavigate();
   const { notifyError, notifyInfo } = useNotifications();
   const { projectIssues, setGlobalData } = useContext(GlobalContext);
+  const [showRendererConfirmation, setShowRendererConfirmation] =
+    useState(false);
 
   const onIssueClick = async (id: string, type: 'comp' | 'layer') => {
     if (type === 'comp') {
@@ -57,7 +59,7 @@ export function Issue({
     }
   };
 
-  const onFixClick = async () => {
+  const handleFix = async () => {
     if (isEmpty(issues)) return;
 
     try {
@@ -125,6 +127,15 @@ export function Issue({
         'An unexpected error occurred while attempting to fix the issues, please try again.',
       );
     }
+  };
+
+  const onFixClick = () => {
+    if (issueType === ProjectIssueType.Unsupported3DRenderer) {
+      setShowRendererConfirmation(true);
+      return;
+    }
+
+    void handleFix();
   };
 
   const onUndoClick = async () => {
@@ -201,7 +212,7 @@ export function Issue({
             <div className="flex items-center justify-center cursor-pointer size-4 group">
               <button
                 type="button"
-                onClick={onFixClick.bind(null)}
+                onClick={onFixClick}
                 className="flex items-center justify-center disabled:cursor-not-allowed disabled:opacity-50"
                 disabled={Boolean(warning) || isEmpty(issues)}
               >
@@ -276,6 +287,15 @@ export function Issue({
             </>
           ))}
         </div>
+      )}
+      {issueType === ProjectIssueType.Unsupported3DRenderer && (
+        <ConfirmationModal
+          open={showRendererConfirmation}
+          setOpen={setShowRendererConfirmation}
+          onConfirm={() => void handleFix()}
+          affectedCount={(issues ?? []).length}
+          readMoreLink="https://help.plainlyvideos.com/docs/faq/projects-faq#does-plainly-support-cinema-4d-and-advanced-3d-renderers"
+        />
       )}
     </div>
   );
