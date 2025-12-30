@@ -1,28 +1,25 @@
 import { useProjectData } from '@src/ui/hooks';
 import type { TextLayerIssues } from 'plainly-types';
-import { useCallback, useMemo } from 'react';
+import { useMemo } from 'react';
 import { Issue, ProjectIssueType } from '..';
 
 export function TextLayersList({
   textLayers,
-  isOpen,
-  setIsOpen,
+  currentIssueType,
+  onExpandClick,
+  undoNames,
+  setUndoNames,
 }: {
   textLayers?: TextLayerIssues[];
-  isOpen?: ProjectIssueType;
-  setIsOpen: React.Dispatch<React.SetStateAction<ProjectIssueType | undefined>>;
+  currentIssueType?: ProjectIssueType;
+  onExpandClick: (issueType: ProjectIssueType) => void;
+  undoNames: Record<string, string>;
+  setUndoNames: React.Dispatch<React.SetStateAction<Record<string, string>>>;
 }) {
   const [, , , aeVersion] = useProjectData();
 
   const allCaps = textLayers?.filter(
     (issue) => issue.type === ProjectIssueType.AllCaps,
-  );
-
-  const onExpandClick = useCallback(
-    (issueType: ProjectIssueType) => {
-      setIsOpen((prev) => (prev === issueType ? undefined : issueType));
-    },
-    [setIsOpen],
   );
 
   const warnings = useMemo(() => {
@@ -42,8 +39,10 @@ export function TextLayersList({
       description="Using ALL CAPS text may result in poor font rendering. Auto-fixable in After Effects ≥ 24.3."
       externalLink="https://help.plainlyvideos.com/docs/troubleshooting/rendering-issues#capital-letters-not-working"
       onExpandClick={onExpandClick}
-      isOpen={isOpen === ProjectIssueType.AllCaps}
+      isOpen={currentIssueType === ProjectIssueType.AllCaps}
       warning={warnings[ProjectIssueType.AllCaps]}
+      undo={undoNames[ProjectIssueType.AllCaps]}
+      setUndoNames={setUndoNames}
     />
   );
 }

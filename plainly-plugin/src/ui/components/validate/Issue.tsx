@@ -12,7 +12,8 @@ import {
   WrenchIcon,
 } from 'lucide-react';
 import type { AnyProjectIssue } from 'plainly-types';
-import { useContext, useState } from 'react';
+import { useContext } from 'react';
+import { flushSync } from 'react-dom';
 import { Tooltip } from '../common';
 import { GlobalContext } from '../context';
 import { ProjectIssueType } from '.';
@@ -27,6 +28,8 @@ export function Issue({
   onExpandClick,
   isOpen,
   warning,
+  undo,
+  setUndoNames,
 }: {
   issueType: ProjectIssueType;
   issues: AnyProjectIssue[] | undefined;
@@ -36,12 +39,12 @@ export function Issue({
   onExpandClick: (issueType: ProjectIssueType) => void;
   isOpen: boolean;
   warning?: string;
+  undo: string;
+  setUndoNames: React.Dispatch<React.SetStateAction<Record<string, string>>>;
 }) {
   const { handleLinkClick } = useNavigate();
   const { notifyError, notifyInfo } = useNotifications();
   const { projectIssues, setGlobalData } = useContext(GlobalContext);
-
-  const [lastUndoName, setLastUndoName] = useState<string>();
 
   const onIssueClick = async (id: string, type: 'comp' | 'layer') => {
     if (type === 'comp') {
@@ -92,8 +95,14 @@ export function Issue({
       }
 
       // Store the undo name if we got one
+      // Use flushSync to ensure this state is set before validation clears issues
       if (undoName) {
-        setLastUndoName(undoName);
+        flushSync(() =>
+          setUndoNames((prev) => ({
+            ...prev,
+            [issueType]: undoName,
+          })),
+        );
       }
 
       const vIssues = await AeScriptsApi.validateProject();
@@ -121,7 +130,13 @@ export function Issue({
   const onUndoClick = async () => {
     try {
       await AeScriptsApi.undo();
-      setLastUndoName(undefined);
+      flushSync(() =>
+        setUndoNames((prev) => {
+          const newUndoNames = { ...prev };
+          delete newUndoNames[issueType];
+          return newUndoNames;
+        }),
+      );
 
       const vIssues = await AeScriptsApi.validateProject();
       if (!vIssues) {
@@ -143,7 +158,7 @@ export function Issue({
   };
 
   // Don't render if there are no issues and no undo available
-  if (isEmpty(issues) && !lastUndoName) {
+  if (isEmpty(issues) && !undo) {
     return null;
   }
 
@@ -194,8 +209,8 @@ export function Issue({
               </button>
             </div>
           </Tooltip>
-          {lastUndoName && (
-            <Tooltip text={`Undo: ${lastUndoName}`}>
+          {undo && (
+            <Tooltip text={`Undo: ${undo}`}>
               <div className="flex items-center justify-center cursor-pointer size-4 group">
                 <button
                   type="button"
@@ -219,11 +234,14 @@ export function Issue({
               {(issues ?? []).length}
             </p>
           </div>
-          <div className="size-4 text-gray-400 hover:text-white hover:bg-[rgb(29,29,30)] rounded-full cursor-pointer flex items-center justify-center">
+          <div className="cursor-pointer flex items-center justify-center group">
             <ChevronDownIcon
-              className={classNames('size-4 duration-200', {
-                'rotate-180': isOpen,
-              })}
+              className={classNames(
+                'size-4 text-gray-400 group-hover:text-white duration-200',
+                {
+                  'rotate-180': isOpen,
+                },
+              )}
             />
           </div>
         </div>
