@@ -2,7 +2,6 @@ import { AeScriptsApi } from '@src/node/bridge';
 import { useNavigate, useNotifications } from '@src/ui/hooks';
 import { isEmpty } from '@src/ui/utils';
 import classNames from 'classnames';
-import { isEqual } from 'lodash-es';
 import {
   ChevronDownIcon,
   CircleQuestionMark,
@@ -12,10 +11,9 @@ import {
   WrenchIcon,
 } from 'lucide-react';
 import type { AnyProjectIssue } from 'plainly-types';
-import { useContext, useState } from 'react';
+import { useState } from 'react';
 import { flushSync } from 'react-dom';
 import { Tooltip } from '../common';
-import { GlobalContext } from '../context';
 import { ConfirmationModal, ProjectIssueType } from '.';
 import { isCompIssue, isTextLayerIssue } from './utils';
 
@@ -30,6 +28,7 @@ export function Issue({
   warning,
   undo,
   setUndoNames,
+  validateProject,
 }: {
   issueType: ProjectIssueType;
   issues: AnyProjectIssue[] | undefined;
@@ -41,10 +40,10 @@ export function Issue({
   warning?: string;
   undo: string;
   setUndoNames: React.Dispatch<React.SetStateAction<Record<string, string>>>;
+  validateProject: () => Promise<string | undefined>;
 }) {
   const { handleLinkClick } = useNavigate();
   const { notifyError, notifyInfo } = useNotifications();
-  const { projectIssues, setGlobalData } = useContext(GlobalContext);
   const [showRendererConfirmation, setShowRendererConfirmation] =
     useState(false);
 
@@ -107,15 +106,7 @@ export function Issue({
         );
       }
 
-      const vIssues = await AeScriptsApi.validateProject();
-      if (!vIssues) {
-        setGlobalData((prev) => ({ ...prev, projectIssues: [] }));
-      } else {
-        const parsedIssues: AnyProjectIssue[] = JSON.parse(vIssues);
-        if (!isEqual(parsedIssues, projectIssues)) {
-          setGlobalData((prev) => ({ ...prev, projectIssues: parsedIssues }));
-        }
-      }
+      await validateProject();
       notifyInfo(
         'Attempted to fix issue.',
         'Please review the project again. Some issues may require manual intervention.',
@@ -149,15 +140,7 @@ export function Issue({
         }),
       );
 
-      const vIssues = await AeScriptsApi.validateProject();
-      if (!vIssues) {
-        setGlobalData((prev) => ({ ...prev, projectIssues: [] }));
-      } else {
-        const parsedIssues: AnyProjectIssue[] = JSON.parse(vIssues);
-        if (!isEqual(parsedIssues, projectIssues)) {
-          setGlobalData((prev) => ({ ...prev, projectIssues: parsedIssues }));
-        }
-      }
+      await validateProject();
       notifyInfo('Undo successful.', 'The last fix has been reverted.');
     } catch (error) {
       console.error('Error undoing fix:', error);
