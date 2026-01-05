@@ -35,28 +35,19 @@ function validateProject(): string {
 }
 
 function fixAllIssues(issues: AnyProjectIssue[]) {
-  const undoName = `Fix All Issues (${issues.length} issue${
-    issues.length > 1 ? 's' : ''
-  })`;
-  app.beginUndoGroup(undoName);
+  app.beginUndoGroup('fix all');
 
-  try {
-    for (let i = 0; i < issues.length; i++) {
-      const issue = issues[i];
-      if (issue.type === ProjectIssueType.AllCaps) {
-        fixAllCapsIssue(issue.layerId);
-      }
-      if (issue.type === ProjectIssueType.Unsupported3DRenderer) {
-        fixUnsupported3DRendererIssue(issue.compId);
-      }
+  for (let i = 0; i < issues.length; i++) {
+    const issue = issues[i];
+    if (issue.type === ProjectIssueType.AllCaps) {
+      fixAllCapsIssue(issue.layerId);
     }
-
-    app.endUndoGroup();
-    return undoName;
-  } catch (error) {
-    app.endUndoGroup();
-    throw error;
+    if (issue.type === ProjectIssueType.Unsupported3DRenderer) {
+      fixUnsupported3DRendererIssue(issue.compId);
+    }
   }
+
+  app.endUndoGroup();
 }
 
 export { validateProject, fixAllIssues, fixAllCapsIssues, ProjectIssueType };

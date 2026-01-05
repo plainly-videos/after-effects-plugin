@@ -146,20 +146,14 @@ function fixAllCapsIssue(layerId: string) {
  * @param layerIds Array of layer IDs to fix
  * @returns The name of the undo group created, or undefined if no fixes were applied
  */
-function fixAllCapsIssues(layerIds: string[]): string | undefined {
-  const undoName = `Fix All Caps (${layerIds.length} layer${layerIds.length > 1 ? 's' : ''})`;
-  app.beginUndoGroup(undoName);
+function fixAllCapsIssues(layerIds: string[]) {
+  app.beginUndoGroup('fix all caps');
 
-  try {
-    for (const layerId of layerIds) {
-      fixAllCapsIssue(layerId);
-    }
-    app.endUndoGroup();
-    return undoName;
-  } catch (error) {
-    app.endUndoGroup();
-    throw error;
+  for (const layerId of layerIds) {
+    fixAllCapsIssue(layerId);
   }
+
+  app.endUndoGroup();
 }
 
 function updateLayerTextDocument(layer: TextLayer, newValue: TextDocument) {
