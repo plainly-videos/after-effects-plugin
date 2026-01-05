@@ -43,33 +43,24 @@ function fixUnsupported3DRendererIssue(compId: string): void {
   comp.renderer = RendererType.CLASSIC_3D;
 }
 
-function fixUnsupported3DRendererIssues(compIds: string[]): string | undefined {
-  const undoName = `Fix Unsupported 3D Renderer (${compIds.length} composition${
-    compIds.length > 1 ? 's' : ''
-  })`;
-  app.beginUndoGroup(undoName);
+function fixUnsupported3DRendererIssues(compIds: string[]) {
+  app.beginUndoGroup('fix unsupported 3d renderer');
 
-  try {
-    // Build comp cache first to avoid repeated lookups
-    const compsToFix: CompItem[] = [];
-    for (const compId of compIds) {
-      const comp = app.project.itemByID(parseInt(compId, 10));
-      if (comp && comp instanceof CompItem) {
-        compsToFix.push(comp);
-      }
+  // Build comp cache first to avoid repeated lookups
+  const compsToFix: CompItem[] = [];
+  for (const compId of compIds) {
+    const comp = app.project.itemByID(parseInt(compId, 10));
+    if (comp && comp instanceof CompItem) {
+      compsToFix.push(comp);
     }
-
-    // Now fix all at once (fewer AE API calls)
-    for (const comp of compsToFix) {
-      comp.renderer = RendererType.CLASSIC_3D;
-    }
-
-    app.endUndoGroup();
-    return undoName;
-  } catch (error) {
-    app.endUndoGroup();
-    throw error;
   }
+
+  // Now fix all at once (fewer AE API calls)
+  for (const comp of compsToFix) {
+    comp.renderer = RendererType.CLASSIC_3D;
+  }
+
+  app.endUndoGroup();
 }
 
 export {

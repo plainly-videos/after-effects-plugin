@@ -143,40 +143,26 @@ class AeScriptsApiClass {
    * Fixes all provided Plainly issues in the After Effects project.
    * @param issues - Array of project issues to fix
    */
-  async fixAllIssues(issues: AnyProjectIssue[]): Promise<string | undefined> {
-    return await evalScriptAsync(`fixAllIssues(${JSON.stringify(issues)})`);
+  async fixAllIssues(issues: AnyProjectIssue[]): Promise<void> {
+    await evalScriptAsync(`fixAllIssues(${JSON.stringify(issues)})`);
   }
 
   /**
-   * Fixes all-caps text issues for multiple layers in a single undo group.
+   * Fixes all-caps text issues for multiple layers
    * @param layerIds - Array of layer IDs to fix
-   * @returns The name of the undo group created, or undefined if no fixes were applied
    */
-  async fixAllCapsIssues(layerIds: string[]): Promise<string | undefined> {
-    return await evalScriptAsync(
-      `fixAllCapsIssues(${JSON.stringify(layerIds)})`,
-    );
+  async fixAllCapsIssues(layerIds: string[]): Promise<void> {
+    await evalScriptAsync(`fixAllCapsIssues(${JSON.stringify(layerIds)})`);
   }
 
   /**
-   * Fixes unsupported 3D renderer issues for multiple compositions in a single undo group.
+   * Fixes unsupported 3D renderer issues for multiple compositions
    * @param compIds - Array of composition IDs to fix
-   * @returns The name of the undo group created, or undefined if no fixes were applied
    */
-  async fixUnsupported3DRendererIssues(
-    compIds: string[],
-  ): Promise<string | undefined> {
-    return await evalScriptAsync(
+  async fixUnsupported3DRendererIssues(compIds: string[]): Promise<void> {
+    await evalScriptAsync(
       `fixUnsupported3DRendererIssues(${JSON.stringify(compIds)})`,
     );
-  }
-
-  /**
-   * Performs an undo operation in After Effects.
-   * Undoes the last action or undo group that was performed.
-   */
-  async undo(): Promise<void> {
-    await evalScriptAsync('undo()');
   }
 }
 

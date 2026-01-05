@@ -5,15 +5,11 @@ export function CompsList({
   comps,
   currentIssueType,
   onExpandClick,
-  undoNames,
-  setUndoNames,
   validateProject,
 }: {
   comps?: CompIssues[];
   currentIssueType?: ProjectIssueType;
   onExpandClick: (issueType: ProjectIssueType) => void;
-  undoNames: Record<string, string>;
-  setUndoNames: React.Dispatch<React.SetStateAction<Record<string, string>>>;
   validateProject: () => Promise<string | undefined>;
 }) {
   const renderers = comps?.filter(
@@ -29,8 +25,6 @@ export function CompsList({
       externalLink="https://help.plainlyvideos.com/docs/faq/projects-faq#is-it-possible-that-cinema-4d-rendered-engine-in-after-effects-doesnt-work-on-the-plainly-platform"
       onExpandClick={onExpandClick}
       isOpen={currentIssueType === ProjectIssueType.Unsupported3DRenderer}
-      undo={undoNames[ProjectIssueType.Unsupported3DRenderer]}
-      setUndoNames={setUndoNames}
       validateProject={validateProject}
     />
   );

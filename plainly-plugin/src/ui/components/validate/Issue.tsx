@@ -7,12 +7,10 @@ import {
   CircleQuestionMark,
   ExternalLinkIcon,
   TriangleAlertIcon,
-  Undo2Icon,
   WrenchIcon,
 } from 'lucide-react';
 import type { AnyProjectIssue } from 'plainly-types';
 import { useState } from 'react';
-import { flushSync } from 'react-dom';
 import { Tooltip } from '../common';
 import { ConfirmationModal, ProjectIssueType } from '.';
 import { isCompIssue, isTextLayerIssue } from './utils';
@@ -26,8 +24,6 @@ export function Issue({
   onExpandClick,
   isOpen,
   warning,
-  undo,
-  setUndoNames,
   validateProject,
 }: {
   issueType: ProjectIssueType;
@@ -38,8 +34,6 @@ export function Issue({
   onExpandClick: (issueType: ProjectIssueType) => void;
   isOpen: boolean;
   warning?: string;
-  undo: string;
-  setUndoNames: React.Dispatch<React.SetStateAction<Record<string, string>>>;
   validateProject: () => Promise<string | undefined>;
 }) {
   const { handleLinkClick } = useNavigate();
@@ -56,8 +50,6 @@ export function Issue({
     if (isEmpty(issues)) return;
 
     try {
-      let undoName: string | undefined;
-
       // Collect all AllCaps layer IDs
       const allCapsLayerIds: string[] = [];
       const unsupported3DRendererCompIds: string[] = [];
@@ -79,24 +71,13 @@ export function Issue({
 
       // Fix all AllCaps issues in one undo group
       if (allCapsLayerIds.length > 0) {
-        undoName = await AeScriptsApi.fixAllCapsIssues(allCapsLayerIds);
+        await AeScriptsApi.fixAllCapsIssues(allCapsLayerIds);
       }
 
       // Fix all Unsupported3DRenderer issues in one undo group
       if (unsupported3DRendererCompIds.length > 0) {
-        undoName = await AeScriptsApi.fixUnsupported3DRendererIssues(
+        await AeScriptsApi.fixUnsupported3DRendererIssues(
           unsupported3DRendererCompIds,
-        );
-      }
-
-      // Store the undo name if we got one
-      // Use flushSync to ensure this state is set before validation clears issues
-      if (undoName) {
-        flushSync(() =>
-          setUndoNames((prev) => ({
-            ...prev,
-            [issueType]: undoName,
-          })),
         );
       }
 
@@ -114,39 +95,18 @@ export function Issue({
     }
   };
 
-  const onFixClick = () => {
+  const onFixClick = async () => {
     if (issueType === ProjectIssueType.Unsupported3DRenderer) {
       setShowRendererConfirmation(true);
       return;
     }
 
-    void handleFix();
+    await handleFix();
+    onExpandClick(issueType);
   };
 
-  const onUndoClick = async () => {
-    try {
-      await AeScriptsApi.undo();
-      flushSync(() =>
-        setUndoNames((prev) => {
-          const newUndoNames = { ...prev };
-          delete newUndoNames[issueType];
-          return newUndoNames;
-        }),
-      );
-
-      await validateProject();
-      notifyInfo('Undo successful.', 'The last fix has been reverted.');
-    } catch (error) {
-      console.error('Error undoing fix:', error);
-      notifyError(
-        'Error undoing fix.',
-        'An unexpected error occurred while attempting to undo the fix, please try again.',
-      );
-    }
-  };
-
-  // Don't render if there are no issues and no undo available
-  if (isEmpty(issues) && !undo) {
+  // Don't render if there are no issues
+  if (isEmpty(issues)) {
     return null;
   }
 
@@ -197,19 +157,6 @@ export function Issue({
               </button>
             </div>
           </Tooltip>
-          {undo && (
-            <Tooltip text={`Undo: ${undo}`}>
-              <div className="flex items-center justify-center cursor-pointer size-4 group">
-                <button
-                  type="button"
-                  onClick={onUndoClick.bind(null)}
-                  className="flex items-center justify-center"
-                >
-                  <Undo2Icon className="size-4 text-blue-400 group-hover:text-blue-300 duration-200" />
-                </button>
-              </div>
-            </Tooltip>
-          )}
         </div>
         <div className="flex items-center gap-2">
           <div className="bg-white/10 flex items-center justify-center rounded-full size-4">
@@ -267,10 +214,12 @@ export function Issue({
       )}
       {issueType === ProjectIssueType.Unsupported3DRenderer && (
         <ConfirmationModal
+          title="Fix unsupported 3D renderer"
+          description={`This will switch ${(issues ?? []).length} ${(issues ?? []).length === 1 ? 'composition' : 'compositions'} to Classic 3D. Certain 3D effects may look different or stop working.`}
+          buttonText="Switch to Classic 3D"
           open={showRendererConfirmation}
           setOpen={setShowRendererConfirmation}
           onConfirm={() => void handleFix()}
-          affectedCount={(issues ?? []).length}
           readMoreLink="https://help.plainlyvideos.com/docs/faq/projects-faq#does-plainly-support-cinema-4d-and-advanced-3d-renderers"
         />
       )}
