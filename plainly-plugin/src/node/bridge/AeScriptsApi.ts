@@ -132,6 +132,14 @@ class AeScriptsApiClass {
   }
 
   /**
+   * Selects a file item in the After Effects project by its ID.
+   * @param fileId - The ID of the file item to select
+   */
+  async selectFile(fileId: string): Promise<void> {
+    await evalScriptAsync(`selectFile(${fileId})`);
+  }
+
+  /**
    * Validates the current After Effects project for Plainly issues.
    * @returns A JSON string of validation results, or undefined if no issues found
    */

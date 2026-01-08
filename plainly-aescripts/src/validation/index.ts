@@ -1,6 +1,7 @@
 import type { AnyProjectIssue } from 'plainly-types';
 import { getAllComps } from '../utils';
 import { checkComps, fixUnsupported3DRendererIssue } from './compValidators';
+import { checkFiles } from './fileValidators';
 import {
   checkTextLayers,
   fixAllCapsIssue,
@@ -10,6 +11,7 @@ import {
 enum ProjectIssueType {
   AllCaps = 'AllCaps',
   Unsupported3DRenderer = 'Unsupported3DRenderer',
+  FileUnsupported = 'FileUnsupported',
 }
 
 function validateProject(): string {
@@ -17,21 +19,15 @@ function validateProject(): string {
 
   const textIssues = checkTextLayers(comps);
   const compIssues = checkComps(comps);
+  const fileIssues = checkFiles();
+
   let issues: AnyProjectIssue[] = [];
 
-  if (textIssues.length > 0) {
-    issues = issues.concat(textIssues);
-  }
+  if (textIssues.length > 0) issues = issues.concat(textIssues);
+  if (compIssues.length > 0) issues = issues.concat(compIssues);
+  if (fileIssues.length > 0) issues = issues.concat(fileIssues);
 
-  if (compIssues.length > 0) {
-    issues = issues.concat(compIssues);
-  }
-
-  if (issues.length > 0) {
-    return JSON.stringify(issues);
-  }
-
-  return 'undefined';
+  return issues.length > 0 ? JSON.stringify(issues) : 'undefined';
 }
 
 function fixAllIssues(issues: AnyProjectIssue[]) {

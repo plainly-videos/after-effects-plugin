@@ -12,7 +12,13 @@ import {
 import type { AnyProjectIssue } from 'plainly-types';
 import { useCallback, useState } from 'react';
 import { Tooltip } from '../common';
-import { ConfirmationModal, ProjectIssueType } from '.';
+import {
+  ConfirmationModal,
+  itAllCaps,
+  itFileUns,
+  itUns3DRenderer,
+  type ProjectIssueType,
+} from '.';
 
 export function Issue({
   issueType,
@@ -48,11 +54,11 @@ export function Issue({
       const allCapsLayerIds: string[] = [];
       const unsupported3DRendererCompIds: string[] = [];
       for (const issue of issues) {
-        if (issue.type === ProjectIssueType.AllCaps) {
+        if (issue.type === itAllCaps) {
           allCapsLayerIds.push(issue.layerId);
         }
 
-        if (issue.type === ProjectIssueType.Unsupported3DRenderer) {
+        if (issue.type === itUns3DRenderer) {
           unsupported3DRendererCompIds.push(issue.compId);
         }
       }
@@ -84,7 +90,7 @@ export function Issue({
   };
 
   const onFixClick = async () => {
-    if (issueType === ProjectIssueType.Unsupported3DRenderer) {
+    if (issueType === itUns3DRenderer) {
       setShowRendererConfirmation(true);
       return;
     }
@@ -127,7 +133,7 @@ export function Issue({
             </div>
           </Tooltip>
           {warning && (
-            <Tooltip text="Auto-fix for this issue is available in After Effects version 24.3 and later.">
+            <Tooltip text={warning}>
               <div className="flex items-center justify-center cursor-help size-4 group">
                 <TriangleAlertIcon className="size-4 text-gray-400 group-hover:text-white duration-200" />
               </div>
@@ -176,7 +182,7 @@ export function Issue({
           ))}
         </div>
       )}
-      {issueType === ProjectIssueType.Unsupported3DRenderer && (
+      {issueType === itUns3DRenderer && (
         <ConfirmationModal
           title="Fix unsupported 3D renderer"
           description={`This will switch ${(issues ?? []).length} ${(issues ?? []).length === 1 ? 'composition' : 'compositions'} to Classic 3D. Certain 3D effects may look different or stop working.`}
@@ -193,15 +199,16 @@ export function Issue({
 
 function IssueItem({ issue }: { issue: AnyProjectIssue }) {
   const onIssueClick = useCallback(
-    async (id: string, type: 'comp' | 'layer') => {
+    async (id: string, type: 'comp' | 'layer' | 'file') => {
       if (type === 'comp') await AeScriptsApi.selectComp(id);
       if (type === 'layer') await AeScriptsApi.selectLayer(id);
+      if (type === 'file') await AeScriptsApi.selectFile(id);
     },
     [],
   );
 
   switch (issue.type) {
-    case ProjectIssueType.Unsupported3DRenderer:
+    case itUns3DRenderer:
       return (
         <IssueItemContent
           key={issue.compId}
@@ -211,12 +218,20 @@ function IssueItem({ issue }: { issue: AnyProjectIssue }) {
           {` (${issue.renderer})`}
         </IssueItemContent>
       );
-    case ProjectIssueType.AllCaps:
+    case itAllCaps:
       return (
         <IssueItemContent
           key={issue.layerId}
           name={issue.layerName}
           onClick={() => onIssueClick(issue.layerId, 'layer')}
+        />
+      );
+    case itFileUns:
+      return (
+        <IssueItemContent
+          key={issue.fileId}
+          name={issue.fileName}
+          onClick={() => onIssueClick(issue.fileId, 'file')}
         />
       );
     default:
