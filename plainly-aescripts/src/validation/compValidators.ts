@@ -26,7 +26,6 @@ function checkComps(comps: CompItem[]): CompIssues[] {
         compId: comp.id.toString(),
         compName: comp.name,
         renderer: getRendererName(renderer),
-        comp: true,
       });
     }
   }

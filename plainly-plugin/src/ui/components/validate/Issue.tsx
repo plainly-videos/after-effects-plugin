@@ -10,10 +10,9 @@ import {
   WrenchIcon,
 } from 'lucide-react';
 import type { AnyProjectIssue } from 'plainly-types';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { Tooltip } from '../common';
 import { ConfirmationModal, ProjectIssueType } from '.';
-import { isCompIssue, isTextLayerIssue } from './utils';
 
 export function Issue({
   issueType,
@@ -49,18 +48,12 @@ export function Issue({
       const allCapsLayerIds: string[] = [];
       const unsupported3DRendererCompIds: string[] = [];
       for (const issue of issues) {
-        if (isTextLayerIssue(issue)) {
-          if (issue.type === ProjectIssueType.AllCaps) {
-            allCapsLayerIds.push(issue.layerId);
-          }
-          // Future text layer issues can be handled here
+        if (issue.type === ProjectIssueType.AllCaps) {
+          allCapsLayerIds.push(issue.layerId);
         }
 
-        if (isCompIssue(issue)) {
-          if (issue.type === ProjectIssueType.Unsupported3DRenderer) {
-            unsupported3DRendererCompIds.push(issue.compId);
-          }
-          // Future comp issues can be handled here
+        if (issue.type === ProjectIssueType.Unsupported3DRenderer) {
+          unsupported3DRendererCompIds.push(issue.compId);
         }
       }
 
@@ -178,7 +171,9 @@ export function Issue({
       </button>
       {isOpen && !isEmpty(issues) && (
         <div className="divide-y divide-white/10 col-span-3">
-          {issues.map((details) => IssueItem(details))}
+          {issues.map((details) => (
+            <IssueItem key={details.type} issue={details} />
+          ))}
         </div>
       )}
       {issueType === ProjectIssueType.Unsupported3DRenderer && (
@@ -196,49 +191,58 @@ export function Issue({
   );
 }
 
-function IssueItem(issue: AnyProjectIssue) {
-  const onIssueClick = async (id: string, type: 'comp' | 'layer') => {
-    if (type === 'comp') await AeScriptsApi.selectComp(id);
-    if (type === 'layer') await AeScriptsApi.selectLayer(id);
-  };
+function IssueItem({ issue }: { issue: AnyProjectIssue }) {
+  const onIssueClick = useCallback(
+    async (id: string, type: 'comp' | 'layer') => {
+      if (type === 'comp') await AeScriptsApi.selectComp(id);
+      if (type === 'layer') await AeScriptsApi.selectLayer(id);
+    },
+    [],
+  );
 
-  const parenthesesInfo = (issueType: ProjectIssueType, info: string) => {
-    switch (issueType) {
-      case ProjectIssueType.Unsupported3DRenderer:
-        return ` (${info})`;
-      default:
-        return '';
-    }
-  };
-
-  if (isCompIssue(issue)) {
-    return (
-      <div key={issue.compId} className="px-3 py-1 w-full">
-        <button
-          type="button"
-          className="text-left underline truncate max-w-full"
+  switch (issue.type) {
+    case ProjectIssueType.Unsupported3DRenderer:
+      return (
+        <IssueItemContent
+          key={issue.compId}
+          name={issue.compName}
           onClick={() => onIssueClick(issue.compId, 'comp')}
         >
-          {issue.compName}
-          {parenthesesInfo(issue.type, issue.renderer)}
-        </button>
-      </div>
-    );
-  }
-
-  if (isTextLayerIssue(issue)) {
-    return (
-      <div key={issue.layerId} className="px-3 py-1 w-full">
-        <button
-          type="button"
-          className="text-left underline truncate max-w-full"
+          {` (${issue.renderer})`}
+        </IssueItemContent>
+      );
+    case ProjectIssueType.AllCaps:
+      return (
+        <IssueItemContent
+          key={issue.layerId}
+          name={issue.layerName}
           onClick={() => onIssueClick(issue.layerId, 'layer')}
-        >
-          {issue.layerName}
-        </button>
-      </div>
-    );
+        />
+      );
+    default:
+      return null;
   }
+}
 
-  return null;
+function IssueItemContent({
+  name,
+  onClick,
+  children,
+}: {
+  name: string;
+  onClick: () => void;
+  children?: React.ReactNode;
+}) {
+  return (
+    <div className="px-3 py-1 w-full">
+      <button
+        type="button"
+        className="text-left underline truncate max-w-full"
+        onClick={onClick}
+      >
+        {name}
+        {children}
+      </button>
+    </div>
+  );
 }

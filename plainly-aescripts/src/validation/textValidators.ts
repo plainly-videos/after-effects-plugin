@@ -28,7 +28,6 @@ function checkTextLayers(comps: CompItem[]): TextLayerIssues[] {
           type: ProjectIssueType.AllCaps,
           layerId: layer.id.toString(),
           layerName: layer.name,
-          text: true,
         });
         continue;
       }
@@ -56,7 +55,6 @@ function checkTextLayers(comps: CompItem[]): TextLayerIssues[] {
               type: ProjectIssueType.AllCaps,
               layerId: layer.id.toString(),
               layerName: layer.name,
-              text: true,
             });
             break;
           }
@@ -77,7 +75,6 @@ function checkTextLayers(comps: CompItem[]): TextLayerIssues[] {
           type: ProjectIssueType.AllCaps,
           layerId: layer.id.toString(),
           layerName: layer.name,
-          text: true,
         });
       }
     }
