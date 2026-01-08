@@ -28,7 +28,7 @@ function checkFiles(): FileIssues[] {
         type: ProjectIssueType.FileUnsupported,
         fileId: item.id.toString(),
         fileName: item.name,
-        fileType: originalFile.name.split('.').pop() || 'unknown',
+        fileType: fsName.split('.').pop() || 'unknown',
       });
     }
   }
