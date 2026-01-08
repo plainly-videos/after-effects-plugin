@@ -2,21 +2,18 @@ import {
   FolderOutput,
   FoldersIcon,
   InfoIcon,
-  type LucideProps,
+  type LucideIcon,
   SettingsIcon,
   ShieldCheckIcon,
   UploadIcon,
 } from 'lucide-react';
-import type { ForwardRefExoticComponent, RefAttributes } from 'react';
 import { Routes } from '../types';
 
 export interface Page {
   type: 'page';
   name: string;
   to: Routes;
-  icon: ForwardRefExoticComponent<
-    Omit<LucideProps, 'ref'> & RefAttributes<SVGSVGElement>
-  >;
+  icon: LucideIcon;
 }
 
 export interface Separator {

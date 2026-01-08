@@ -1,14 +1,12 @@
 import classNames from 'classnames';
-import type { LucideProps } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 
 export function ProjectAction({
   icon: Icon,
   action,
   linked,
 }: {
-  icon: React.ForwardRefExoticComponent<
-    Omit<LucideProps, 'ref'> & React.RefAttributes<SVGSVGElement>
-  >;
+  icon: LucideIcon;
   action: () => void;
   linked?: boolean;
 }) {

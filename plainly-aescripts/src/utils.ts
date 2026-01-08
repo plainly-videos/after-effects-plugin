@@ -102,6 +102,7 @@ function unselectAllLayers(): void {
  * selectLayer('1234');
  */
 function selectLayer(layerId: string): void {
+  unselectAllLayers();
   const layer = app.project.layerByID(parseInt(layerId, 10));
   if (layer) {
     // open the comp that contains the layer, so it is visible to the user in timeline
@@ -114,12 +115,52 @@ function selectLayer(layerId: string): void {
   }
 }
 
+/**
+ * Deselects all compositions in the active project.
+ *
+ * Iterates through all `CompItem` instances in `app.project` and sets their `selected` property to `false`.
+ *
+ * @returns {void}
+ */
+function unselectedAllComps(): void {
+  const comps = getAllComps(app.project);
+  for (let i = 0; i < comps.length; i++) {
+    const comp = comps[i];
+    comp.selected = false;
+  }
+}
+
+/**
+ * Selects a composition in the active project by its numeric ID.
+ *
+ * Uses `app.project.itemByID` after parsing the provided string to base-10 integer. If a composition
+ * with the given ID exists, it is opened in a viewer and its `selected` property is set to `true`;
+ * otherwise the function exits silently.
+ *
+ * @param {string} compId - The string representation of the composition's numeric ID (e.g. value from `CompItem.id`).
+ * @returns {void}
+ * @example
+ * // Select a composition whose id is 5678
+ * selectComp('5678');
+ */
+function selectComp(compId: string): void {
+  unselectedAllComps();
+  const comp = app.project.itemByID(parseInt(compId, 10));
+  if (comp instanceof CompItem) {
+    const viewer = comp.openInViewer();
+    comp.selected = true;
+    if (viewer?.active === false) {
+      viewer.setActive();
+    }
+  }
+}
+
 export {
   isWin,
   pathJoin,
   getAllComps,
   getTextLayersByComp,
   getFolderPath,
-  unselectAllLayers,
   selectLayer,
+  selectComp,
 };

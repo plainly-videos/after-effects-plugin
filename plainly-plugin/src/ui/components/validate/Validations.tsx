@@ -1,24 +1,20 @@
 import { AeScriptsApi } from '@src/node/bridge';
 import { useNotifications } from '@src/ui/hooks';
-import type {
-  AnyProjectIssue,
-  ProjectIssueType,
-} from '@src/ui/types/validation';
-import { isEqual } from 'lodash-es';
 import { ShieldCheckIcon, WrenchIcon } from 'lucide-react';
 import { useCallback, useContext, useRef, useState } from 'react';
 import { flushSync } from 'react-dom';
 import { Alert, Button } from '../common';
 import { GlobalContext } from '../context';
 import { Description, PageHeading } from '../typography';
-import { TextLayersList } from './TextLayersList';
+import { CompsList, type ProjectIssueType, TextLayersList } from '.';
+import { isCompIssue, isTextLayerIssue } from './utils';
 
 export function Validations() {
-  const { contextReady, projectIssues, setGlobalData } =
+  const { contextReady, projectIssues, validateProject } =
     useContext(GlobalContext);
   const { notifyInfo } = useNotifications();
 
-  const [isOpen, setIsOpen] = useState<ProjectIssueType>();
+  const [currentIssueType, setCurrentIssueType] = useState<ProjectIssueType>();
   const [loading, setLoading] = useState(false);
 
   // Prevent re-entrancy while expensive operations are running
@@ -32,7 +28,8 @@ export function Validations() {
     [],
   );
 
-  const textLayers = projectIssues?.filter((issue) => issue.text === true);
+  const textLayers = projectIssues?.filter(isTextLayerIssue);
+  const comps = projectIssues?.filter(isCompIssue);
   const totalCount = projectIssues?.length ?? undefined;
 
   const handleTestForIssues = useCallback(
@@ -46,18 +43,7 @@ export function Validations() {
       await nextFrame();
 
       try {
-        const issues = await AeScriptsApi.validateProject();
-        if (!issues) {
-          setGlobalData((prev) => ({ ...prev, projectIssues: [] }));
-        } else {
-          const parsedIssues: AnyProjectIssue[] = JSON.parse(issues);
-          if (!isEqual(parsedIssues, projectIssues)) {
-            setGlobalData((prev) => ({
-              ...prev,
-              projectIssues: parsedIssues,
-            }));
-          }
-        }
+        const issues = await validateProject();
         if (notify) {
           notifyInfo(
             'Project validation completed.',
@@ -71,7 +57,7 @@ export function Validations() {
         testInFlightRef.current = false;
       }
     },
-    [nextFrame, notifyInfo, projectIssues, setGlobalData],
+    [nextFrame, notifyInfo, validateProject],
   );
 
   const handleFixAll = async () => {
@@ -96,6 +82,10 @@ export function Validations() {
     }
   };
 
+  const onExpandClick = useCallback((type: ProjectIssueType) => {
+    setCurrentIssueType((prev) => (prev === type ? undefined : type));
+  }, []);
+
   return (
     <div className="space-y-4 w-full text-white">
       <div>
@@ -110,11 +100,20 @@ export function Validations() {
       ) : totalCount === undefined ? (
         <Alert title="Project validation has not been run yet." type="info" />
       ) : (
-        <TextLayersList
-          textLayers={textLayers}
-          isOpen={isOpen}
-          setIsOpen={setIsOpen}
-        />
+        <div className="space-y-2 w-full">
+          <TextLayersList
+            textLayers={textLayers}
+            currentIssueType={currentIssueType}
+            onExpandClick={onExpandClick}
+            validateProject={validateProject}
+          />
+          <CompsList
+            comps={comps}
+            currentIssueType={currentIssueType}
+            onExpandClick={onExpandClick}
+            validateProject={validateProject}
+          />
+        </div>
       )}
       <div className="flex items-center gap-2 float-right">
         <Button

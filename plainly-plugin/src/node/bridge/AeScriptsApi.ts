@@ -1,5 +1,9 @@
-import type { AnyProjectIssue } from '@src/ui/types/validation';
-import type { ProjectData, ProjectInfo, RelinkData } from 'plainly-types';
+import type {
+  AnyProjectIssue,
+  ProjectData,
+  ProjectInfo,
+  RelinkData,
+} from 'plainly-types';
 import { csInterface } from '../constants';
 
 async function evalScriptAsync(func: string): Promise<string | undefined> {
@@ -112,18 +116,19 @@ class AeScriptsApiClass {
   }
 
   /**
-   * Unselects all layers in the current After Effects composition.
-   */
-  async unselectAllLayers(): Promise<void> {
-    await evalScriptAsync('unselectAllLayers()');
-  }
-
-  /**
    * Selects a layer in the current After Effects composition by its ID.
    * @param layerId - The ID of the layer to select
    */
   async selectLayer(layerId: string): Promise<void> {
     await evalScriptAsync(`selectLayer(${layerId})`);
+  }
+
+  /**
+   *  Selects a composition in After Effects by its ID.
+   * @param compId - The ID of the composition to select
+   */
+  async selectComp(compId: string): Promise<void> {
+    await evalScriptAsync(`selectComp(${compId})`);
   }
 
   /**
@@ -140,6 +145,24 @@ class AeScriptsApiClass {
    */
   async fixAllIssues(issues: AnyProjectIssue[]): Promise<void> {
     await evalScriptAsync(`fixAllIssues(${JSON.stringify(issues)})`);
+  }
+
+  /**
+   * Fixes all-caps text issues for multiple layers
+   * @param layerIds - Array of layer IDs to fix
+   */
+  async fixAllCapsIssues(layerIds: string[]): Promise<void> {
+    await evalScriptAsync(`fixAllCapsIssues(${JSON.stringify(layerIds)})`);
+  }
+
+  /**
+   * Fixes unsupported 3D renderer issues for multiple compositions
+   * @param compIds - Array of composition IDs to fix
+   */
+  async fixUnsupported3DRendererIssues(compIds: string[]): Promise<void> {
+    await evalScriptAsync(
+      `fixUnsupported3DRendererIssues(${JSON.stringify(compIds)})`,
+    );
   }
 }
 
