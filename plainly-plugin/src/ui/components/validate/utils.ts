@@ -15,7 +15,7 @@ function isCompIssue(issue: AnyProjectIssue): issue is CompIssues {
 }
 
 function isFileIssue(issue: AnyProjectIssue): issue is FileIssues {
-  return 'file' in issue && issue.file === true;
+  return issue.type === ProjectIssueType.FileUnsupported;
 }
 
 export { isTextLayerIssue, isCompIssue, isFileIssue };
