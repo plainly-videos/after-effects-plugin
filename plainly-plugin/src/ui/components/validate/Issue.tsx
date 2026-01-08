@@ -41,11 +41,6 @@ export function Issue({
   const [showRendererConfirmation, setShowRendererConfirmation] =
     useState(false);
 
-  const onIssueClick = async (id: string, type: 'comp' | 'layer') => {
-    if (type === 'comp') await AeScriptsApi.selectComp(id);
-    if (type === 'layer') await AeScriptsApi.selectLayer(id);
-  };
-
   const handleFix = async () => {
     if (isEmpty(issues)) return;
 
@@ -131,7 +126,7 @@ export function Issue({
             <div className="flex items-center justify-center cursor-pointer size-4 group">
               <button
                 type="button"
-                onClick={handleLinkClick.bind(null, externalLink)}
+                onClick={() => handleLinkClick(externalLink)}
                 className="flex items-center justify-center"
               >
                 <ExternalLinkIcon className="size-4 text-gray-400 group-hover:text-white duration-200" />
@@ -183,33 +178,7 @@ export function Issue({
       </button>
       {isOpen && !isEmpty(issues) && (
         <div className="divide-y divide-white/10 col-span-3">
-          {issues.map((details) => (
-            <>
-              {isCompIssue(details) ? (
-                <div key={details.compId} className="px-3 py-1 w-full">
-                  <button
-                    type="button"
-                    className="text-left underline truncate max-w-full"
-                    onClick={onIssueClick.bind(null, details.compId, 'comp')}
-                  >
-                    {details.compName}
-                    {details.type === ProjectIssueType.Unsupported3DRenderer &&
-                      ` (${details.renderer})`}
-                  </button>
-                </div>
-              ) : (
-                <div key={details.layerId} className="px-3 py-1 w-full">
-                  <button
-                    type="button"
-                    className="text-left underline truncate max-w-full"
-                    onClick={onIssueClick.bind(null, details.layerId, 'layer')}
-                  >
-                    {details.layerName}
-                  </button>
-                </div>
-              )}
-            </>
-          ))}
+          {issues.map((details) => IssueItem(details))}
         </div>
       )}
       {issueType === ProjectIssueType.Unsupported3DRenderer && (
@@ -225,4 +194,51 @@ export function Issue({
       )}
     </div>
   );
+}
+
+function IssueItem(issue: AnyProjectIssue) {
+  const onIssueClick = async (id: string, type: 'comp' | 'layer') => {
+    if (type === 'comp') await AeScriptsApi.selectComp(id);
+    if (type === 'layer') await AeScriptsApi.selectLayer(id);
+  };
+
+  const parenthesesInfo = (issueType: ProjectIssueType, info: string) => {
+    switch (issueType) {
+      case ProjectIssueType.Unsupported3DRenderer:
+        return ` (${info})`;
+      default:
+        return '';
+    }
+  };
+
+  if (isCompIssue(issue)) {
+    return (
+      <div key={issue.compId} className="px-3 py-1 w-full">
+        <button
+          type="button"
+          className="text-left underline truncate max-w-full"
+          onClick={() => onIssueClick(issue.compId, 'comp')}
+        >
+          {issue.compName}
+          {parenthesesInfo(issue.type, issue.renderer)}
+        </button>
+      </div>
+    );
+  }
+
+  if (isTextLayerIssue(issue)) {
+    return (
+      <div key={issue.layerId} className="px-3 py-1 w-full">
+        <button
+          type="button"
+          className="text-left underline truncate max-w-full"
+          onClick={() => onIssueClick(issue.layerId, 'layer')}
+        >
+          {issue.layerName}
+        </button>
+      </div>
+    );
+  }
+
+  return null;
 }
