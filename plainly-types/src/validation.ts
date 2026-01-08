@@ -36,8 +36,8 @@ interface CompUnsupported3DRendererIssue
   renderer: RendererTypeName;
 }
 
-type TextLayerIssues = TextAllCapsEnabledIssue & { text: true };
-type CompIssues = CompUnsupported3DRendererIssue & { comp: true };
+type TextLayerIssues = TextAllCapsEnabledIssue;
+type CompIssues = CompUnsupported3DRendererIssue;
 
 type AnyProjectIssue = TextLayerIssues | CompIssues;
 
