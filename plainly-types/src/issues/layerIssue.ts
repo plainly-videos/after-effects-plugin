@@ -10,6 +10,6 @@ interface ProjectLayerIssue<T extends ProjectIssueType>
 interface TextAllCapsEnabledIssue
   extends ProjectLayerIssue<ProjectIssueType.AllCaps> {}
 
-type TextLayerIssues = TextAllCapsEnabledIssue & { text: true };
+type TextLayerIssues = TextAllCapsEnabledIssue;
 
 export type { TextAllCapsEnabledIssue, TextLayerIssues };
