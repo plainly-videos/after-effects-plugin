@@ -127,7 +127,7 @@ export function Issue({
             </div>
           </Tooltip>
           {warning && (
-            <Tooltip text="Auto-fix for this issue is available in After Effects version 24.3 and later.">
+            <Tooltip text={warning}>
               <div className="flex items-center justify-center cursor-help size-4 group">
                 <TriangleAlertIcon className="size-4 text-gray-400 group-hover:text-white duration-200" />
               </div>
@@ -193,9 +193,10 @@ export function Issue({
 
 function IssueItem({ issue }: { issue: AnyProjectIssue }) {
   const onIssueClick = useCallback(
-    async (id: string, type: 'comp' | 'layer') => {
+    async (id: string, type: 'comp' | 'layer' | 'file') => {
       if (type === 'comp') await AeScriptsApi.selectComp(id);
       if (type === 'layer') await AeScriptsApi.selectLayer(id);
+      if (type === 'file') await AeScriptsApi.selectFile(id);
     },
     [],
   );
@@ -217,6 +218,14 @@ function IssueItem({ issue }: { issue: AnyProjectIssue }) {
           key={issue.layerId}
           name={issue.layerName}
           onClick={() => onIssueClick(issue.layerId, 'layer')}
+        />
+      );
+    case ProjectIssueType.FileUnsupported:
+      return (
+        <IssueItemContent
+          key={issue.fileId}
+          name={issue.fileName}
+          onClick={() => onIssueClick(issue.fileId, 'file')}
         />
       );
     default:

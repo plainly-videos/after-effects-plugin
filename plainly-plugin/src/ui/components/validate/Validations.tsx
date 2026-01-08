@@ -6,8 +6,8 @@ import { flushSync } from 'react-dom';
 import { Alert, Button } from '../common';
 import { GlobalContext } from '../context';
 import { Description, PageHeading } from '../typography';
-import { CompsList, type ProjectIssueType, TextLayersList } from '.';
-import { isCompIssue, isTextLayerIssue } from './utils';
+import { CompsList, FilesList, type ProjectIssueType, TextLayersList } from '.';
+import { isCompIssue, isFileIssue, isTextLayerIssue } from './utils';
 
 export function Validations() {
   const { contextReady, projectIssues, validateProject } =
@@ -30,6 +30,7 @@ export function Validations() {
 
   const textLayers = projectIssues?.filter(isTextLayerIssue);
   const comps = projectIssues?.filter(isCompIssue);
+  const files = projectIssues?.filter(isFileIssue);
   const totalCount = projectIssues?.length ?? undefined;
 
   const handleTestForIssues = useCallback(
@@ -101,14 +102,20 @@ export function Validations() {
         <Alert title="Project validation has not been run yet." type="info" />
       ) : (
         <div className="space-y-2 w-full">
-          <TextLayersList
-            textLayers={textLayers}
+          <FilesList
+            files={files}
             currentIssueType={currentIssueType}
             onExpandClick={onExpandClick}
             validateProject={validateProject}
           />
           <CompsList
             comps={comps}
+            currentIssueType={currentIssueType}
+            onExpandClick={onExpandClick}
+            validateProject={validateProject}
+          />
+          <TextLayersList
+            textLayers={textLayers}
             currentIssueType={currentIssueType}
             onExpandClick={onExpandClick}
             validateProject={validateProject}

@@ -1,6 +1,7 @@
 import type {
   AnyProjectIssue,
   CompIssues,
+  FileIssues,
   TextLayerIssues,
 } from 'plainly-types';
 import { ProjectIssueType } from '.';
@@ -13,4 +14,8 @@ function isCompIssue(issue: AnyProjectIssue): issue is CompIssues {
   return issue.type === ProjectIssueType.Unsupported3DRenderer;
 }
 
-export { isTextLayerIssue, isCompIssue };
+function isFileIssue(issue: AnyProjectIssue): issue is FileIssues {
+  return issue.type === ProjectIssueType.FileUnsupported;
+}
+
+export { isTextLayerIssue, isCompIssue, isFileIssue };
