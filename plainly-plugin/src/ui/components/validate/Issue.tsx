@@ -12,13 +12,7 @@ import {
 import type { AnyProjectIssue } from 'plainly-types';
 import { useCallback, useState } from 'react';
 import { Tooltip } from '../common';
-import {
-  ConfirmationModal,
-  itAllCaps,
-  itFileUns,
-  itUns3DRenderer,
-  type ProjectIssueType,
-} from '.';
+import { ConfirmationModal, ProjectIssueType } from '.';
 
 export function Issue({
   issueType,
@@ -54,11 +48,11 @@ export function Issue({
       const allCapsLayerIds: string[] = [];
       const unsupported3DRendererCompIds: string[] = [];
       for (const issue of issues) {
-        if (issue.type === itAllCaps) {
+        if (issue.type === ProjectIssueType.AllCaps) {
           allCapsLayerIds.push(issue.layerId);
         }
 
-        if (issue.type === itUns3DRenderer) {
+        if (issue.type === ProjectIssueType.Unsupported3DRenderer) {
           unsupported3DRendererCompIds.push(issue.compId);
         }
       }
@@ -90,7 +84,7 @@ export function Issue({
   };
 
   const onFixClick = async () => {
-    if (issueType === itUns3DRenderer) {
+    if (issueType === ProjectIssueType.Unsupported3DRenderer) {
       setShowRendererConfirmation(true);
       return;
     }
@@ -182,7 +176,7 @@ export function Issue({
           ))}
         </div>
       )}
-      {issueType === itUns3DRenderer && (
+      {issueType === ProjectIssueType.Unsupported3DRenderer && (
         <ConfirmationModal
           title="Fix unsupported 3D renderer"
           description={`This will switch ${(issues ?? []).length} ${(issues ?? []).length === 1 ? 'composition' : 'compositions'} to Classic 3D. Certain 3D effects may look different or stop working.`}
@@ -208,7 +202,7 @@ function IssueItem({ issue }: { issue: AnyProjectIssue }) {
   );
 
   switch (issue.type) {
-    case itUns3DRenderer:
+    case ProjectIssueType.Unsupported3DRenderer:
       return (
         <IssueItemContent
           key={issue.compId}
@@ -218,7 +212,7 @@ function IssueItem({ issue }: { issue: AnyProjectIssue }) {
           {` (${issue.renderer})`}
         </IssueItemContent>
       );
-    case itAllCaps:
+    case ProjectIssueType.AllCaps:
       return (
         <IssueItemContent
           key={issue.layerId}
@@ -226,7 +220,7 @@ function IssueItem({ issue }: { issue: AnyProjectIssue }) {
           onClick={() => onIssueClick(issue.layerId, 'layer')}
         />
       );
-    case itFileUns:
+    case ProjectIssueType.FileUnsupported:
       return (
         <IssueItemContent
           key={issue.fileId}

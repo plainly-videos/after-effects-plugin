@@ -18,6 +18,6 @@ interface CompUnsupported3DRendererIssue
   renderer: RendererTypeName;
 }
 
-type CompIssues = CompUnsupported3DRendererIssue & { comp: true };
+type CompIssues = CompUnsupported3DRendererIssue;
 
 export type { CompUnsupported3DRendererIssue, RendererTypeName, CompIssues };

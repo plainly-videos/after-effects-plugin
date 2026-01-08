@@ -11,8 +11,4 @@ enum ProjectIssueType {
   FileUnsupported = 'FileUnsupported',
 }
 
-const itAllCaps = ProjectIssueType.AllCaps;
-const itUns3DRenderer = ProjectIssueType.Unsupported3DRenderer;
-const itFileUns = ProjectIssueType.FileUnsupported;
-
-export { ProjectIssueType, itAllCaps, itUns3DRenderer, itFileUns };
+export { ProjectIssueType };
