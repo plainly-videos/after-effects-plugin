@@ -122,7 +122,7 @@ function getInstalledFontsByFamilyNameAndStyleName(
  *
  * @returns {void}
  */
-function unSelectAllLayers(): void {
+function unselectAllLayers(): void {
   const comps = getAllComps(app.project);
   let selectedLayers: Layer[] = [];
   for (let i = 0; i < comps.length; i++) {
@@ -149,8 +149,8 @@ function unSelectAllLayers(): void {
  * selectLayer('1234');
  */
 function selectLayer(layerId: string): void {
-  unSelectEverythingInTree();
-  unSelectAllLayers();
+  unselectEverythingInTree();
+  unselectAllLayers();
   const layer = app.project.layerByID(parseInt(layerId, 10));
   if (layer) {
     // open the comp that contains the layer, so it is visible to the user in timeline
@@ -170,10 +170,9 @@ function selectLayer(layerId: string): void {
  *
  * @returns {void}
  */
-function unSelectEverythingInTree(): void {
-  const items = app.project.items;
-  for (let i = 1; i <= items.length; i++) {
-    const item = items[i];
+function unselectEverythingInTree(): void {
+  for (let i = 1; i <= app.project.numItems; i++) {
+    const item = app.project.item(i);
     item.selected = false;
   }
 }
@@ -192,7 +191,7 @@ function unSelectEverythingInTree(): void {
  * selectComp('5678');
  */
 function selectComp(compId: string): void {
-  unSelectEverythingInTree();
+  unselectEverythingInTree();
   const comp = app.project.itemByID(parseInt(compId, 10));
   if (comp instanceof CompItem) {
     const viewer = comp.openInViewer();
@@ -216,7 +215,7 @@ function selectComp(compId: string): void {
  * selectFile('91011');
  */
 function selectFile(fileId: string): void {
-  unSelectEverythingInTree();
+  unselectEverythingInTree();
   const file = app.project.itemByID(parseInt(fileId, 10));
   if (file) {
     file.selected = true;
