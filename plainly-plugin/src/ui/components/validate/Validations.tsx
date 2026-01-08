@@ -9,10 +9,11 @@ import { GlobalContext } from '../context';
 import { Description, PageHeading } from '../typography';
 import {
   AllCapsIssueView,
+  FilesList,
   ProjectIssueType,
   UnsupportedRendererIssueView,
 } from '.';
-import { isCompIssue, isTextLayerIssue } from './utils';
+import { isCompIssue, isFileIssue, isTextLayerIssue } from './utils';
 
 export function Validations() {
   const { contextReady, projectIssues, validateProject } =
@@ -35,6 +36,7 @@ export function Validations() {
 
   const textLayers = projectIssues?.filter(isTextLayerIssue);
   const comps = projectIssues?.filter(isCompIssue);
+  const files = projectIssues?.filter(isFileIssue);
   const totalCount = projectIssues?.length ?? undefined;
 
   const handleTestForIssues = useCallback(
@@ -133,6 +135,12 @@ export function Validations() {
               }
             />
           )}
+          <FilesList
+            files={files}
+            currentIssueType={currentIssueType}
+            onExpandClick={onExpandClick}
+            validateProject={validateProject}
+          />
         </div>
       )}
       <div className="flex items-center gap-2 float-right">

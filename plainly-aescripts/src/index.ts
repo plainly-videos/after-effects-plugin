@@ -13,6 +13,7 @@ import {
   getInstalledFontsByFamilyNameAndStyleName,
   getInstalledFontsByPostScriptName,
   selectComp,
+  selectFile,
   selectLayer,
 } from './utils';
 import { fixAllCapsIssues, fixAllIssues, validateProject } from './validation';
@@ -38,6 +39,7 @@ const projectFunctions = {
 const utilsFunctions = {
   selectLayer,
   selectComp,
+  selectFile,
 };
 
 const validateFunctions = {
