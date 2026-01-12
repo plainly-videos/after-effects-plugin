@@ -41,14 +41,9 @@ function collectFonts(): Font[] {
     const layers = getTextLayersByComp(comps[i]);
     for (let j = 0; j < layers.length; j++) {
       const fontName = layers[j].sourceText.value.font;
-      const fontExtension = new File(
-        layers[j].sourceText.value.fontLocation,
-      ).name
-        .split('.')
-        .pop()
-        ?.toLowerCase();
-
       const fontLocation = layers[j].sourceText.value.fontLocation;
+      const fontExtension = fontLocation.split('.').pop()?.toLowerCase();
+
       fonts.push({
         fontName: fontName,
         fontExtension: fontExtension,
