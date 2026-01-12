@@ -61,7 +61,7 @@ function validateFootage(footage: Footage[]) {
 function validateFonts(fonts: Font[]) {
   if (fonts.length === 0) return;
 
-  // Throw in case of fonts missing
+  // Throw in case of fonts missing extension
   const missingExtension = fonts.filter((item) => !item.fontExtension);
   if (missingExtension.length > 0) {
     const fonts = missingExtension.map((f) => f.fontName);
@@ -85,10 +85,8 @@ function validateFonts(fonts: Font[]) {
       path.basename(item.fontLocation, `.${item.fontExtension}`),
   );
   if (missingFonts.length > 0) {
-    const fontNames = missingFonts.map((f) => f.fontName);
-    throw new Error(
-      `Some fonts are missing on the system:\n${fontNames.join(', ')}`,
-    );
+    const fonts = missingFonts.map((f) => f.fontName);
+    throw new Error(`Fonts are missing on the system:\n${fonts.join(', ')}`);
   }
 }
 
