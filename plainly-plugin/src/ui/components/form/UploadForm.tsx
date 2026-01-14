@@ -76,15 +76,22 @@ export function UploadForm() {
     let zipPathValue: string | undefined;
 
     try {
+      const formData = new FormData();
+
       const zipPath = await makeProjectZipTmpDir();
       zipPathValue = zipPath;
       const file = fs.createReadStream(zipPath);
-      const tags = inputs.tags?.map((tag) => tag.trim());
-      const formData = new FormData();
       formData.append('file', file);
-      inputs.projectName && formData.append('name', inputs.projectName);
-      inputs.description && formData.append('description', inputs.description);
-      if (tags && tags.length > 0) {
+
+      const projectName = inputs.projectName?.trim();
+      projectName && formData.append('name', projectName);
+
+      const description = inputs.description?.trim();
+      description && formData.append('description', description);
+
+      const tagsSet = new Set(inputs.tags?.map((tag) => tag.trim()));
+      const tags = Array.from(tagsSet).filter((tag) => tag.length > 0);
+      if (tags.length > 0) {
         for (const tag of tags) {
           formData.append('tags', tag);
         }
