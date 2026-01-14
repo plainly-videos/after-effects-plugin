@@ -1,12 +1,13 @@
 import crypto from 'crypto';
 import fsPromises from 'fs/promises';
 import path from 'path';
-import type { Font, Footage } from 'plainly-types';
+import type { Footage } from 'plainly-types';
 import { AeScriptsApi } from '../bridge/AeScriptsApi';
-import { isWindows, TMP_DIR } from '../constants';
+import { TMP_DIR } from '../constants';
 import { exists, finalizePath, renameIfExists, zipItems } from '../utils';
 import { copyFonts } from './copyFonts';
 import { copyFootage } from './copyFootage';
+import { validateFonts, validateFootage } from './utils';
 
 /**
  * Opens a file dialog for the user to select a folder.
@@ -39,55 +40,6 @@ async function removeFolder(targetPath: string) {
 async function makeProjectZipTmpDir(): Promise<string> {
   await fsPromises.mkdir(TMP_DIR, { recursive: true });
   return makeProjectZip(TMP_DIR);
-}
-
-function validateFootage(footage: Footage[]) {
-  // Throw in case of long paths
-  const hasLongPaths = footage.some((item) => item.itemFsPath.length > 255);
-  if (isWindows && hasLongPaths) {
-    throw new Error(
-      'Some footage paths are too long. Please shorten them and try again.',
-    );
-  }
-
-  // Throw in case of missing footage
-  const missingFootage = footage.filter((item) => item.isMissing);
-  if (missingFootage.length > 0) {
-    // TODO: Show a missing files
-    throw new Error('Some footage files are missing from the project.');
-  }
-}
-
-function validateFonts(fonts: Font[]) {
-  if (fonts.length === 0) return;
-
-  // Throw in case of fonts missing extension
-  const missingExtension = fonts.filter((item) => !item.fontExtension);
-  if (missingExtension.length > 0) {
-    const fonts = missingExtension.map((f) => f.fontName);
-    throw new Error(`Fonts are missing extensions:\n${fonts.join(', ')}`);
-  }
-
-  // Throw in case of fonts missing location
-  const missingLocation = fonts.filter((item) => !item.fontLocation);
-  if (missingLocation.length > 0) {
-    const fonts = missingLocation.map((f) => f.fontName);
-    throw new Error(
-      `Missing location for fonts on system:\n${fonts.join(', ')}`,
-    );
-  }
-
-  // Throw in case of missing fonts
-  // check if fontName and fontLocation are not the same
-  const missingFonts = fonts.filter(
-    (item) =>
-      item.fontName !==
-      path.basename(item.fontLocation, `.${item.fontExtension}`),
-  );
-  if (missingFonts.length > 0) {
-    const fonts = missingFonts.map((f) => f.fontName);
-    throw new Error(`Fonts are missing on the system:\n${fonts.join(', ')}`);
-  }
 }
 
 function makeNewRelinkData(
@@ -130,10 +82,11 @@ async function makeProjectZip(targetPath: string): Promise<string> {
   // 1. Collect project data
   const projectInfo = await AeScriptsApi.collectFiles();
 
-  validateFootage(projectInfo.footage);
-  validateFonts(projectInfo.fonts);
-
   const footageDir = path.join(aepFileDir, '(Footage)');
+
+  validateFootage(projectInfo.footage);
+  await validateFonts(projectInfo.fonts);
+
   const fontsDir = path.join(aepFileDir, 'Fonts');
   const randomPrefix = crypto.randomUUID().split('-')[0];
   const footageDirRenamed = path.join(aepFileDir, `${randomPrefix}-(Footage)`);
@@ -218,4 +171,4 @@ async function makeProjectZip(targetPath: string): Promise<string> {
   }
 }
 
-export { makeProjectZipTmpDir, makeProjectZip, removeFolder, selectFolder };
+export { makeProjectZip, makeProjectZipTmpDir, removeFolder, selectFolder };
