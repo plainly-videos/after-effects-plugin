@@ -1,5 +1,6 @@
 import { collectFiles, selectFolder } from './collect';
 import {
+  getAfterEffectsVersion,
   getProjectData,
   getProjectPath,
   removeProjectData,
@@ -8,6 +9,10 @@ import {
 } from './project';
 import { relinkFootage } from './relink';
 import './shims';
+import {
+  getFontsByFamilyNameAndStyleName,
+  getFontsByPostScriptName,
+} from './utils';
 
 const PlainlyAE = () => ({
   selectFolder,
@@ -18,6 +23,9 @@ const PlainlyAE = () => ({
   getProjectPath,
   saveProject,
   relinkFootage,
+  getFontsByPostScriptName,
+  getFontsByFamilyNameAndStyleName,
+  getAfterEffectsVersion,
 });
 
 if ($['com.plainlyvideos.after-effects-plugin.Panel']) {

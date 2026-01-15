@@ -128,12 +128,7 @@ export const zipItems = async (
     const output = fs.createWriteStream(outputZipPath);
     const archive = archiver('zip', { zlib: { level: 1 } });
 
-    output.on('close', () => {
-      console.log(`Zipped ${archive.pointer()} bytes`);
-      console.log(outputZipPath);
-
-      resolve(outputZipPath);
-    });
+    output.on('close', () => resolve(outputZipPath));
 
     archive.on('error', (err) => {
       fs.unlinkSync(outputZipPath);

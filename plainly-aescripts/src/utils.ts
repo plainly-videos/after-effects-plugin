@@ -67,4 +67,32 @@ function getFolderPath(folder: FolderItem): string {
   return pathJoin(parentPath, folder.name);
 }
 
-export { isWin, pathJoin, getAllComps, getTextLayersByComp, getFolderPath };
+function getFontsByPostScriptName(postScriptName: string): string | undefined {
+  return JSON.stringify(app.fonts.getFontsByPostScriptName(postScriptName));
+}
+
+function getFontsByFamilyNameAndStyleName(
+  familyName: string,
+  styleName: string,
+) {
+  const fonts = app.fonts.getFontsByFamilyNameAndStyleName(
+    `${familyName}`,
+    `${styleName}`,
+  );
+
+  if (fonts?.length === 0) return undefined;
+  if (fonts?.length === 1) return JSON.stringify(fonts[0].postScriptName);
+
+  const postScriptNames = fonts?.map((font) => font.postScriptName);
+  return JSON.stringify(postScriptNames);
+}
+
+export {
+  isWin,
+  pathJoin,
+  getAllComps,
+  getTextLayersByComp,
+  getFolderPath,
+  getFontsByPostScriptName,
+  getFontsByFamilyNameAndStyleName,
+};

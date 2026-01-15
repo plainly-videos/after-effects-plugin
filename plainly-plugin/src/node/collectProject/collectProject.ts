@@ -1,12 +1,12 @@
-import crypto from 'crypto';
 import fsPromises from 'fs/promises';
 import path from 'path';
 import type { Footage } from 'plainly-types';
 import { AeScriptsApi } from '../bridge/AeScriptsApi';
-import { isWindows, TMP_DIR } from '../constants';
+import { TMP_DIR } from '../constants';
 import { exists, finalizePath, renameIfExists, zipItems } from '../utils';
 import { copyFonts } from './copyFonts';
 import { copyFootage } from './copyFootage';
+import { validateFonts, validateFootage } from './utils';
 
 /**
  * Opens a file dialog for the user to select a folder.
@@ -39,15 +39,6 @@ async function removeFolder(targetPath: string) {
 async function makeProjectZipTmpDir(): Promise<string> {
   await fsPromises.mkdir(TMP_DIR, { recursive: true });
   return makeProjectZip(TMP_DIR);
-}
-
-function validateFootage(footage: Footage[]) {
-  // Throw in case of missing footage
-  const missingFootage = footage.filter((item) => item.isMissing);
-  if (missingFootage.length > 0) {
-    // TODO: Show a missing files
-    throw new Error('Some footage files are missing from the project.');
-  }
 }
 
 function makeNewRelinkData(
@@ -90,14 +81,11 @@ async function makeProjectZip(targetPath: string): Promise<string> {
   // 1. Collect project data
   const projectInfo = await AeScriptsApi.collectFiles();
 
-  const hasLongFootagePaths = projectInfo.footage.some((item) => {
-    const itemPath = item.itemFsPath;
-    return itemPath.length > 255;
-  });
+  const footageDir = path.join(aepFileDir, '(Footage)');
 
   validateFootage(projectInfo.footage);
+  await validateFonts(projectInfo.fonts);
 
-  const footageDir = path.join(aepFileDir, '(Footage)');
   const fontsDir = path.join(aepFileDir, 'Fonts');
   const randomPrefix = crypto.randomUUID().split('-')[0];
   const footageDirRenamed = path.join(aepFileDir, `${randomPrefix}-(Footage)`);
@@ -109,11 +97,6 @@ async function makeProjectZip(targetPath: string): Promise<string> {
     // 2. Rename (Footage) folder to avoid conflicts
     await renameIfExists(footageDir, footageDirRenamed)
       .catch((e) => {
-        if (isWindows && hasLongFootagePaths) {
-          throw new Error(
-            'Some footage paths are too long. Please shorten them and try again.',
-          );
-        }
         throw e;
       })
       .finally(() =>
@@ -187,4 +170,4 @@ async function makeProjectZip(targetPath: string): Promise<string> {
   }
 }
 
-export { makeProjectZipTmpDir, makeProjectZip, removeFolder, selectFolder };
+export { makeProjectZip, makeProjectZipTmpDir, removeFolder, selectFolder };
