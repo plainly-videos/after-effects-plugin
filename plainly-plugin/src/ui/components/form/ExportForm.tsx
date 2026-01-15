@@ -23,10 +23,7 @@ export function ExportForm() {
         notifySuccess('Zip file created', `Zip file created at: ${zipPath}`);
         setLoading(false);
 
-        // Open the folder if no errors
-        if (openLocation) {
-          openFolder(targetPath);
-        }
+        if (openLocation) openFolder(targetPath);
       } catch (error) {
         notifyError('Failed to collect files', (error as Error).message);
         setLoading(false);
