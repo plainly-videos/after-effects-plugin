@@ -87,18 +87,12 @@ class AeScriptsApiClass {
         styleName,
       );
 
-      if (fontsByFamilyAndStyle) {
-        return true;
-      }
-
-      return false;
+      return fontsByFamilyAndStyle !== undefined;
     }
 
     for (const fontObject of fontObjects) {
       const isSubstitute = fontObject.isSubstitute;
-      if (isSubstitute) {
-        return false;
-      }
+      if (isSubstitute) return false;
     }
 
     return true;
