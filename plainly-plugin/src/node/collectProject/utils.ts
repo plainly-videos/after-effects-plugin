@@ -8,7 +8,8 @@ async function validateFonts(fonts: Font[]) {
   // Throw in case of fonts missing extension
   const missingExtensionNames = fonts
     .filter((item) => !item.fontExtension)
-    .map((font) => font.postScriptName);
+    .map((font) => font.postScriptName)
+    .filter((value, index, self) => self.indexOf(value) === index); // Unique
   if (missingExtensionNames.length > 0) {
     throw new Error(
       `Fonts are missing extensions:\n${missingExtensionNames.join(', ')}`,
@@ -18,7 +19,8 @@ async function validateFonts(fonts: Font[]) {
   // Throw in case of fonts missing location
   const missingLocationNames = fonts
     .filter((item) => !item.fontLocation)
-    .map((font) => font.postScriptName);
+    .map((font) => font.postScriptName)
+    .filter((value, index, self) => self.indexOf(value) === index); // Unique
   if (missingLocationNames.length > 0) {
     throw new Error(
       `Missing location for fonts on system:\n${missingLocationNames.join(', ')}`,
@@ -42,9 +44,13 @@ async function validateFonts(fonts: Font[]) {
       }
     }
 
-    if (missingFonts.length > 0) {
+    const uniqueMissingFonts = missingFonts.filter(
+      (value, index, self) => self.indexOf(value) === index,
+    );
+
+    if (uniqueMissingFonts.length > 0) {
       throw new Error(
-        `Fonts used in the project, are missing on the system:\n${missingFonts.join(', ')}. Please install them and try again.`,
+        `Fonts used in the project, are missing on the system:\n${uniqueMissingFonts.join(', ')}. Please install them and try again.`,
       );
     }
   }
