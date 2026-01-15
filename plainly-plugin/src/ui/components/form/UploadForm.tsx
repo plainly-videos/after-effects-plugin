@@ -76,15 +76,22 @@ export function UploadForm() {
     let zipPathValue: string | undefined;
 
     try {
+      const formData = new FormData();
+
       const zipPath = await makeProjectZipTmpDir();
       zipPathValue = zipPath;
       const file = fs.createReadStream(zipPath);
-      const tags = inputs.tags?.map((tag) => tag.trim());
-      const formData = new FormData();
       formData.append('file', file);
-      inputs.projectName && formData.append('name', inputs.projectName);
-      inputs.description && formData.append('description', inputs.description);
-      if (tags && tags.length > 0) {
+
+      const projectName = inputs.projectName?.trim();
+      projectName && formData.append('name', projectName);
+
+      const description = inputs.description?.trim();
+      description && formData.append('description', description);
+
+      const tagsSet = new Set(inputs.tags?.map((tag) => tag.trim()));
+      const tags = Array.from(tagsSet).filter((tag) => tag.length > 0);
+      if (tags.length > 0) {
         for (const tag of tags) {
           formData.append('tags', tag);
         }
@@ -133,17 +140,11 @@ export function UploadForm() {
     (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
       const { name, value } = e.target;
       if (name === 'tags') {
-        setInputs((prev) => ({
-          ...prev,
-          tags: value.split(','),
-        }));
+        setInputs((prev) => ({ ...prev, tags: value.split(',') }));
       }
 
       if (name === 'projectName' || name === 'description') {
-        setInputs((prev) => ({
-          ...prev,
-          [name]: value,
-        }));
+        setInputs((prev) => ({ ...prev, [name]: value }));
       }
     },
     [],
@@ -294,7 +295,7 @@ function Inputs({
   return (
     <>
       <div className="col-span-full">
-        <Label label="Name" htmlFor="projectName" />
+        <Label label="Name" htmlFor="projectName" required />
         <input
           id="projectName"
           name="projectName"
@@ -302,6 +303,7 @@ function Inputs({
           className="col-start-1 row-start-1 block w-full rounded-md bg-white/5 px-3 py-1 text-xs text-white outline outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500"
           value={projectName || ''}
           onChange={onChange}
+          required
         />
       </div>
 
