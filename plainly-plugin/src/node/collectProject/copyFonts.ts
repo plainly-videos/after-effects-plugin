@@ -26,7 +26,7 @@ export async function copyFonts(fonts: Font[], targetDir: string) {
     if (font.fontExtension) {
       const dest = path.join(
         newFontsDir,
-        `${font.fontName}.${font.fontExtension}`,
+        `${font.postScriptName}.${font.fontExtension}`,
       );
       // if the file doesn't end with .otf or .ttf, copy it, otherwise, throw an error
       if (['otf', 'ttf', 'ttc'].includes(font.fontExtension)) {
@@ -35,7 +35,7 @@ export async function copyFonts(fonts: Font[], targetDir: string) {
     }
 
     throw new Error(
-      `Unsupported font format: ${font.fontExtension} for font ${font.fontName} (Source Path: ${src})`,
+      `Unsupported font format: ${font.fontExtension} for font ${font.postScriptName} (Source Path: ${src})`,
     );
   });
 

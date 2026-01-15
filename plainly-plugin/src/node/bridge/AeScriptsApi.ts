@@ -32,6 +32,79 @@ class AeScriptsApiClass {
   }
 
   /**
+   * Collects font objects by PostScript name from After Effects.
+   * @param postScriptName The PostScript name of the font to look up
+   * @returns An array of font objects, or undefined if not found
+   */
+  async getFontsByPostScriptName(
+    postScriptName: string,
+  ): Promise<FontObject[] | undefined> {
+    const result = await evalScriptAsync(
+      `getFontsByPostScriptName("${postScriptName}")`,
+    );
+    if (!result) return undefined;
+
+    try {
+      return JSON.parse(result);
+    } catch {
+      throw new Error('Failed to parse fonts data.');
+    }
+  }
+
+  /**
+   * Collects font objects by family name and style name from After Effects.
+   * @param familyName The family name of the font to look up
+   * @param styleName The style name of the font to look up
+   * @returns A postScriptName string if found, otherwise undefined
+   */
+  async getFontsByFamilyNameAndStyleName(
+    familyName: string,
+    styleName: string,
+  ): Promise<string | undefined> {
+    return await evalScriptAsync(
+      `getFontsByFamilyNameAndStyleName("${familyName}", "${styleName}")`,
+    );
+  }
+
+  /**
+   * Checks if a font is installed in After Effects by PostScript name, family name, and style name.
+   * @param postScriptName The PostScript name of the font to check
+   * @param familyName The family name of the font to check
+   * @param styleName The style name of the font to check
+   * @returns True if the font is installed, false otherwise
+   */
+  async isFontInstalled(
+    postScriptName: string,
+    familyName: string,
+    styleName: string,
+  ): Promise<boolean> {
+    const fontObjects = await this.getFontsByPostScriptName(postScriptName);
+
+    if (!fontObjects || fontObjects.length === 0) {
+      // Try to get it by family and style name first
+      const fontsByFamilyAndStyle = await this.getFontsByFamilyNameAndStyleName(
+        familyName,
+        styleName,
+      );
+
+      if (fontsByFamilyAndStyle) {
+        return true;
+      }
+
+      return false;
+    }
+
+    for (const fontObject of fontObjects) {
+      const isSubstitute = fontObject.isSubstitute;
+      if (isSubstitute) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  /**
    * Collects all fonts and footage from the current After Effects project.
    * @returns Project information including fonts and footage arrays
    */
@@ -98,6 +171,18 @@ class AeScriptsApiClass {
    */
   async relinkFootage(relinkData: RelinkData): Promise<void> {
     await evalScriptAsync(`relinkFootage(${JSON.stringify(relinkData)})`);
+  }
+
+  /**
+   * Gets the After Effects application version.
+   * @returns After Effects version as a string, e.g. "25.6", or undefined if not available
+   */
+  async getAfterEffectsVersion(): Promise<string | undefined> {
+    const version = await evalScriptAsync('getAfterEffectsVersion()');
+    if (!version) return undefined;
+
+    // got the version string like "25.6x101"
+    return version.split('x')[0];
   }
 }
 

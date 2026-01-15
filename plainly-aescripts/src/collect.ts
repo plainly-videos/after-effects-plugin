@@ -40,14 +40,18 @@ function collectFonts(): Font[] {
   for (let i = 0; i < comps.length; i++) {
     const layers = getTextLayersByComp(comps[i]);
     for (let j = 0; j < layers.length; j++) {
-      const fontName = layers[j].sourceText.value.font;
+      const postScriptName = layers[j].sourceText.value.font;
       const fontLocation = layers[j].sourceText.value.fontLocation;
       const fontExtension = fontLocation.split('.').pop()?.toLowerCase();
+      const fontFamily = layers[j].sourceText.value.fontFamily;
+      const fontStyle = layers[j].sourceText.value.fontStyle;
 
       fonts.push({
-        fontName: fontName,
+        postScriptName: postScriptName,
         fontExtension: fontExtension,
         fontLocation: fontLocation,
+        fontFamily: fontFamily,
+        fontStyle: fontStyle,
       });
     }
   }
@@ -83,4 +87,4 @@ function collectFootage(): Footage[] {
   return footage;
 }
 
-export { selectFolder, collectFiles };
+export { collectFiles, selectFolder };

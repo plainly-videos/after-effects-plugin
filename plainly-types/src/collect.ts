@@ -7,9 +7,11 @@ interface Footage {
 }
 
 interface Font {
-  fontName: string;
+  postScriptName: string;
   fontExtension: string | undefined;
   fontLocation: string;
+  fontFamily: string;
+  fontStyle: string;
 }
 
 interface ProjectInfo {

@@ -8,7 +8,7 @@
     "experimentalDecorators": true,
     "allowJs": true,
     "strictNullChecks": true,
-    "types": ["types-for-adobe/AfterEffects/22.0", "@types/node"]
+    "types": ["types-for-adobe/AfterEffects/24.0", "@types/node"]
   },
   "include": ["src/**/*.ts", "index.d.ts"]
 }

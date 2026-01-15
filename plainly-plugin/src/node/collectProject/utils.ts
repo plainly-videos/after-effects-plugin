@@ -1,31 +1,6 @@
 import type { Font, Footage } from 'plainly-types';
+import { AeScriptsApi } from '../bridge';
 import { isWindows } from '../constants';
-import { exists, finalizePath } from '../utils';
-
-const fontkit = require('fontkit');
-
-type FontkitCollection = { fonts: Array<{ postscriptName?: string }> };
-
-function isFontkitCollection(font: unknown): font is FontkitCollection {
-  return (
-    typeof font === 'object' &&
-    font !== null &&
-    'fonts' in font &&
-    Array.isArray((font as FontkitCollection).fonts)
-  );
-}
-
-function getPostScriptNames(fontLocation: string): string[] {
-  const font = fontkit.openSync(fontLocation);
-  if (isFontkitCollection(font)) {
-    return font.fonts
-      .map((item) => item.postscriptName)
-      .filter((name): name is string => Boolean(name));
-  }
-
-  const singleFont = font as { postscriptName?: string };
-  return singleFont.postscriptName ? [singleFont.postscriptName] : [];
-}
 
 async function validateFonts(fonts: Font[]) {
   if (fonts.length === 0) return;
@@ -33,7 +8,7 @@ async function validateFonts(fonts: Font[]) {
   // Throw in case of fonts missing extension
   const missingExtensionNames = fonts
     .filter((item) => !item.fontExtension)
-    .map((font) => font.fontName);
+    .map((font) => font.postScriptName);
   if (missingExtensionNames.length > 0) {
     throw new Error(
       `Fonts are missing extensions:\n${missingExtensionNames.join(', ')}`,
@@ -43,7 +18,7 @@ async function validateFonts(fonts: Font[]) {
   // Throw in case of fonts missing location
   const missingLocationNames = fonts
     .filter((item) => !item.fontLocation)
-    .map((font) => font.fontName);
+    .map((font) => font.postScriptName);
   if (missingLocationNames.length > 0) {
     throw new Error(
       `Missing location for fonts on system:\n${missingLocationNames.join(', ')}`,
@@ -51,48 +26,27 @@ async function validateFonts(fonts: Font[]) {
   }
 
   // Throw in case of missing fonts
-  const uniqueFonts = new Map<string, Font>();
-  for (const font of fonts) {
-    uniqueFonts.set(`${font.fontName}::${font.fontLocation}`, font);
-  }
-  const uniqueFontEntries = Array.from(uniqueFonts.values());
-  const mismatchFonts: string[] = [];
-  const unreadableFonts: string[] = [];
+  // Feature exists in After Effects 24.0+
+  const aeVersion = await AeScriptsApi.getAfterEffectsVersion();
+  if (Number(aeVersion) >= 24.0) {
+    const missingFonts: string[] = [];
 
-  for (const font of uniqueFontEntries) {
-    const fontPath = finalizePath(font.fontLocation);
-    if (!(await exists(fontPath))) {
-      unreadableFonts.push(`${font.fontName} (file not found)`);
-      continue;
-    }
-
-    try {
-      const postScriptNames = getPostScriptNames(fontPath);
-      const matches = postScriptNames.includes(font.fontName);
-      if (!matches) {
-        const foundNames = postScriptNames.length
-          ? postScriptNames.join(', ')
-          : 'unknown';
-        mismatchFonts.push(`${font.fontName} (found: ${foundNames})`);
+    for (const font of fonts) {
+      const isFontInstalled = await AeScriptsApi.isFontInstalled(
+        font.postScriptName,
+        font.fontFamily,
+        font.fontStyle,
+      );
+      if (!isFontInstalled) {
+        missingFonts.push(font.postScriptName);
       }
-    } catch (_error) {
-      unreadableFonts.push(`${font.fontName} (failed to read font file)`);
     }
-  }
 
-  if (unreadableFonts.length > 0 || mismatchFonts.length > 0) {
-    const messages: string[] = [];
-    if (unreadableFonts.length > 0) {
-      messages.push(
-        `Fonts could not be read from disk:\n${unreadableFonts.join(', ')}`,
+    if (missingFonts.length > 0) {
+      throw new Error(
+        `Fonts used in the project, are missing on the system:\n${missingFonts.join(', ')}. Please install them and try again.`,
       );
     }
-    if (mismatchFonts.length > 0) {
-      messages.push(
-        `Fonts are missing on the system (PostScript name mismatch):\n${mismatchFonts.join(', ')}`,
-      );
-    }
-    throw new Error(messages.join('\n\n'));
   }
 }
 
