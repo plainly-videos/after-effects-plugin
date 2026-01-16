@@ -1,4 +1,4 @@
-/// <reference path="./node_modules/types-for-adobe/AfterEffects/22.0/index.d.ts" />
+/// <reference path="./node_modules/types-for-adobe/AfterEffects/24.3/index.d.ts" />
 
 // Global XMP types
 declare global {

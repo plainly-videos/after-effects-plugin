@@ -28,7 +28,7 @@ export function LinkedProject({
   openInWeb: (id: string) => void;
   openProjectRenders: (id: string) => void;
 }) {
-  const { plainlyProject } = useContext(GlobalContext) || {};
+  const { plainlyProject } = useContext(GlobalContext);
   const [showConfirmation, setShowConfirmation] = useState(false);
 
   const analysisDone = project.analysis.done;

@@ -17,7 +17,7 @@ import { GlobalContext } from '../context';
 import { Description, Label, PageHeading } from '../typography';
 
 export function UploadForm() {
-  const { plainlyProject, documentId } = useContext(GlobalContext) || {};
+  const { plainlyProject, documentId } = useContext(GlobalContext);
 
   const [setProjectData, _, getData] = useProjectData();
   const { isLoading, data } = useGetProjectDetails(plainlyProject?.id);
