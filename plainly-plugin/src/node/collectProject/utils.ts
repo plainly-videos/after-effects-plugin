@@ -1,6 +1,5 @@
 import type { Font, Footage } from 'plainly-types';
 import { AeScriptsApi } from '../bridge';
-import { isWindows } from '../constants';
 
 async function validateFonts(fonts: Font[]) {
   if (fonts.length === 0) return;
@@ -57,14 +56,6 @@ async function validateFonts(fonts: Font[]) {
 }
 
 function validateFootage(footage: Footage[]) {
-  // Throw in case of long paths
-  const hasLongPaths = footage.some((item) => item.itemFsPath.length > 255);
-  if (isWindows && hasLongPaths) {
-    throw new Error(
-      'Some footage paths are too long. Please shorten them and try again.',
-    );
-  }
-
   // Throw in case of missing footage
   const missingFootage = footage.filter((item) => item.isMissing);
   if (missingFootage.length > 0) {

@@ -68,23 +68,49 @@ function getFolderPath(folder: FolderItem): string {
 }
 
 function getFontsByPostScriptName(postScriptName: string): string | undefined {
-  return JSON.stringify(app.fonts.getFontsByPostScriptName(postScriptName));
+  const fontObjects = app.fonts.getFontsByPostScriptName(postScriptName);
+
+  if (!fontObjects || fontObjects?.length === 0) return undefined;
+  if (fontObjects.length === 1) {
+    return JSON.stringify([
+      {
+        isSubstitute: fontObjects[0].isSubstitute,
+        fontLocation: fontObjects[0].location,
+      },
+    ]);
+  }
+
+  const fontData = fontObjects.map((font) => ({
+    isSubstitute: font.isSubstitute,
+    fontLocation: font.location,
+  }));
+  return JSON.stringify(fontData);
 }
 
 function getFontsByFamilyNameAndStyleName(
   familyName: string,
   styleName: string,
 ) {
-  const fonts = app.fonts.getFontsByFamilyNameAndStyleName(
-    `${familyName}`,
-    `${styleName}`,
+  const fontObjects = app.fonts.getFontsByFamilyNameAndStyleName(
+    familyName,
+    styleName,
   );
 
-  if (fonts?.length === 0) return undefined;
-  if (fonts?.length === 1) return JSON.stringify(fonts[0].postScriptName);
+  if (!fontObjects || fontObjects.length === 0) return undefined;
+  if (fontObjects.length === 1) {
+    return JSON.stringify([
+      {
+        isSubstitute: fontObjects[0].isSubstitute,
+        fontLocation: fontObjects[0].location,
+      },
+    ]);
+  }
 
-  const postScriptNames = fonts?.map((font) => font.postScriptName);
-  return JSON.stringify(postScriptNames);
+  const fontData = fontObjects.map((font) => ({
+    isSubstitute: font.isSubstitute,
+    fontLocation: font.location,
+  }));
+  return JSON.stringify(fontData);
 }
 
 export {

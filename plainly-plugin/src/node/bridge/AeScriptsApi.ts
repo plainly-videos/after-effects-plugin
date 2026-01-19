@@ -1,6 +1,11 @@
 import type { ProjectData, ProjectInfo, RelinkData } from 'plainly-types';
 import { csInterface } from '../constants';
 
+interface GetFontsResult {
+  isSubstitute: boolean;
+  fontLocation: string;
+}
+
 async function evalScriptAsync(func: string): Promise<string | undefined> {
   return new Promise((resolve, reject) => {
     try {
@@ -38,7 +43,7 @@ class AeScriptsApiClass {
    */
   async getFontsByPostScriptName(
     postScriptName: string,
-  ): Promise<FontObject[] | undefined> {
+  ): Promise<GetFontsResult[] | undefined> {
     const result = await evalScriptAsync(
       `getFontsByPostScriptName("${postScriptName}")`,
     );
@@ -60,10 +65,18 @@ class AeScriptsApiClass {
   async getFontsByFamilyNameAndStyleName(
     familyName: string,
     styleName: string,
-  ): Promise<string | undefined> {
-    return await evalScriptAsync(
+  ): Promise<GetFontsResult[] | undefined> {
+    const result = await evalScriptAsync(
       `getFontsByFamilyNameAndStyleName("${familyName}", "${styleName}")`,
     );
+
+    if (!result) return undefined;
+
+    try {
+      return JSON.parse(result);
+    } catch {
+      throw new Error('Failed to parse fonts data.');
+    }
   }
 
   /**

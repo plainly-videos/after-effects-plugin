@@ -12,6 +12,6 @@
       "plainly-types": ["../plainly-types"]
     }
   },
-  "include": ["src", "index.d.ts", "types-for-adobe/AfterEffects/24.0"],
+  "include": ["src"],
   "exclude": ["node_modules"]
 }
