@@ -8,7 +8,7 @@ interface Footage {
 
 interface Font {
   postScriptName: string;
-  fontExtension: string | undefined;
+  fontExtension: string;
   fontLocation: string;
   fontFamily: string;
   fontStyle: string;

@@ -4,17 +4,6 @@ import { AeScriptsApi } from '../bridge';
 async function validateFonts(fonts: Font[]) {
   if (fonts.length === 0) return;
 
-  // Throw in case of fonts missing extension
-  const missingExtensionNames = fonts
-    .filter((item) => !item.fontExtension)
-    .map((font) => font.postScriptName)
-    .filter((value, index, self) => self.indexOf(value) === index); // Unique
-  if (missingExtensionNames.length > 0) {
-    throw new Error(
-      `Fonts are missing extensions:\n${missingExtensionNames.join(', ')}`,
-    );
-  }
-
   // Throw in case of fonts missing location
   const missingLocationNames = fonts
     .filter((item) => !item.fontLocation)

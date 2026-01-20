@@ -48,7 +48,7 @@ function collectFonts(): Font[] {
 
       fonts.push({
         postScriptName: postScriptName,
-        fontExtension: fontExtension,
+        fontExtension: fontExtension || 'ttf',
         fontLocation: fontLocation,
         fontFamily: fontFamily,
         fontStyle: fontStyle,

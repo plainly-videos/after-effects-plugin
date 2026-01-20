@@ -1,3 +1,5 @@
+import type { InstalledFontData } from 'plainly-types';
+
 /**
  * @function isWin
  * @description Determines if the current OS is Windows
@@ -67,27 +69,24 @@ function getFolderPath(folder: FolderItem): string {
   return pathJoin(parentPath, folder.name);
 }
 
-function getFontsByPostScriptName(postScriptName: string): string | undefined {
+function getInstalledFontsByPostScriptName(
+  postScriptName: string,
+): string | undefined {
   const fontObjects = app.fonts.getFontsByPostScriptName(postScriptName);
 
   if (!fontObjects || fontObjects?.length === 0) return undefined;
-  if (fontObjects.length === 1) {
-    return JSON.stringify([
-      {
-        isSubstitute: fontObjects[0].isSubstitute,
-        fontLocation: fontObjects[0].location,
-      },
-    ]);
+  const fontData: InstalledFontData[] = [];
+  for (let i = 0; i < fontObjects.length; i++) {
+    const font = fontObjects[i];
+    fontData.push({
+      isSubstitute: font.isSubstitute,
+      fontLocation: font.location,
+    });
   }
-
-  const fontData = fontObjects.map((font) => ({
-    isSubstitute: font.isSubstitute,
-    fontLocation: font.location,
-  }));
   return JSON.stringify(fontData);
 }
 
-function getFontsByFamilyNameAndStyleName(
+function getInstalledFontsByFamilyNameAndStyleName(
   familyName: string,
   styleName: string,
 ) {
@@ -95,21 +94,16 @@ function getFontsByFamilyNameAndStyleName(
     familyName,
     styleName,
   );
-
   if (!fontObjects || fontObjects.length === 0) return undefined;
-  if (fontObjects.length === 1) {
-    return JSON.stringify([
-      {
-        isSubstitute: fontObjects[0].isSubstitute,
-        fontLocation: fontObjects[0].location,
-      },
-    ]);
-  }
 
-  const fontData = fontObjects.map((font) => ({
-    isSubstitute: font.isSubstitute,
-    fontLocation: font.location,
-  }));
+  const fontData: InstalledFontData[] = [];
+  for (let i = 0; i < fontObjects.length; i++) {
+    const font = fontObjects[i];
+    fontData.push({
+      isSubstitute: font.isSubstitute,
+      fontLocation: font.location,
+    });
+  }
   return JSON.stringify(fontData);
 }
 
@@ -119,6 +113,6 @@ export {
   getAllComps,
   getTextLayersByComp,
   getFolderPath,
-  getFontsByPostScriptName,
-  getFontsByFamilyNameAndStyleName,
+  getInstalledFontsByPostScriptName,
+  getInstalledFontsByFamilyNameAndStyleName,
 };

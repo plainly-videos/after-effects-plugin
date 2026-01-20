@@ -10,8 +10,8 @@ import {
 import { relinkFootage } from './relink';
 import './shims';
 import {
-  getFontsByFamilyNameAndStyleName,
-  getFontsByPostScriptName,
+  getInstalledFontsByFamilyNameAndStyleName,
+  getInstalledFontsByPostScriptName,
 } from './utils';
 
 const PlainlyAE = () => ({
@@ -23,8 +23,8 @@ const PlainlyAE = () => ({
   getProjectPath,
   saveProject,
   relinkFootage,
-  getFontsByPostScriptName,
-  getFontsByFamilyNameAndStyleName,
+  getInstalledFontsByPostScriptName,
+  getInstalledFontsByFamilyNameAndStyleName,
   getAfterEffectsVersion,
 });
 

@@ -1,11 +1,11 @@
 import { isEmpty } from '@src/ui/utils';
-import type { ProjectData, ProjectInfo, RelinkData } from 'plainly-types';
+import type {
+  InstalledFontData,
+  ProjectData,
+  ProjectInfo,
+  RelinkData,
+} from 'plainly-types';
 import { csInterface } from '../constants';
-
-interface GetFontsResult {
-  isSubstitute: boolean;
-  fontLocation: string;
-}
 
 async function evalScriptAsync(func: string): Promise<string | undefined> {
   return new Promise((resolve, reject) => {
@@ -38,15 +38,15 @@ class AeScriptsApiClass {
   }
 
   /**
-   * Collects GetFontsResult by PostScript name from After Effects.
+   * Collects InstalledFontData by PostScript name from After Effects.
    * @param postScriptName The PostScript name of the font to look up
-   * @returns An array of GetFontsResult, or undefined if not found
+   * @returns An array of InstalledFontData, or undefined if not found
    */
-  async getFontsByPostScriptName(
+  async getInstalledFontsByPostScriptName(
     postScriptName: string,
-  ): Promise<GetFontsResult[] | undefined> {
+  ): Promise<InstalledFontData[] | undefined> {
     const result = await evalScriptAsync(
-      `getFontsByPostScriptName("${postScriptName}")`,
+      `getInstalledFontsByPostScriptName("${postScriptName}")`,
     );
     if (!result) return undefined;
 
@@ -58,17 +58,17 @@ class AeScriptsApiClass {
   }
 
   /**
-   * Collects GetFontsResult by Family name and Style name from After Effects.
+   * Collects InstalledFontData by Family name and Style name from After Effects.
    * @param familyName The family name of the font to look up
    * @param styleName The style name of the font to look up
-   * @returns An array of GetFontsResult, or undefined if not found
+   * @returns An array of InstalledFontData, or undefined if not found
    */
-  async getFontsByFamilyNameAndStyleName(
+  async getInstalledFontsByFamilyNameAndStyleName(
     familyName: string,
     styleName: string,
-  ): Promise<GetFontsResult[] | undefined> {
+  ): Promise<InstalledFontData[] | undefined> {
     const result = await evalScriptAsync(
-      `getFontsByFamilyNameAndStyleName("${familyName}", "${styleName}")`,
+      `getInstalledFontsByFamilyNameAndStyleName("${familyName}", "${styleName}")`,
     );
 
     if (!result) return undefined;
@@ -92,10 +92,10 @@ class AeScriptsApiClass {
     familyName: string,
     styleName: string,
   ): Promise<boolean> {
-    let fonts = await this.getFontsByPostScriptName(postScriptName);
+    let fonts = await this.getInstalledFontsByPostScriptName(postScriptName);
 
     if (isEmpty(fonts)) {
-      fonts = await this.getFontsByFamilyNameAndStyleName(
+      fonts = await this.getInstalledFontsByFamilyNameAndStyleName(
         familyName,
         styleName,
       );

@@ -22,16 +22,11 @@ export async function copyFonts(fonts: Font[], targetDir: string) {
 
   const fontPromises = uniqueFonts.map(async (font) => {
     const src = finalizePath(font.fontLocation);
-
-    if (font.fontExtension) {
-      const dest = path.join(
-        newFontsDir,
-        `${font.postScriptName}.${font.fontExtension}`,
-      );
-      // if the file doesn't end with .otf or .ttf, copy it, otherwise, throw an error
-      if (['otf', 'ttf', 'ttc'].includes(font.fontExtension)) {
-        return await fsPromises.copyFile(src, dest);
-      }
+    const fontName = `${font.postScriptName}.${font.fontExtension}`;
+    const dest = path.join(newFontsDir, fontName);
+    // if the file doesn't end with .otf or .ttf, copy it, otherwise, throw an error
+    if (['otf', 'ttf', 'ttc'].includes(font.fontExtension)) {
+      return await fsPromises.copyFile(src, dest);
     }
 
     throw new Error(
