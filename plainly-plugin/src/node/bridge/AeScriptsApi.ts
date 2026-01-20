@@ -1,3 +1,4 @@
+import { isEmpty } from '@src/ui/utils';
 import type { ProjectData, ProjectInfo, RelinkData } from 'plainly-types';
 import { csInterface } from '../constants';
 
@@ -91,21 +92,23 @@ class AeScriptsApiClass {
     familyName: string,
     styleName: string,
   ): Promise<boolean> {
-    const fontObjects = await this.getFontsByPostScriptName(postScriptName);
+    let fonts = await this.getFontsByPostScriptName(postScriptName);
 
-    if (!fontObjects || fontObjects.length === 0) {
-      // Try to get it by family and style name first
-      const fontsByFamilyAndStyle = await this.getFontsByFamilyNameAndStyleName(
+    if (isEmpty(fonts)) {
+      fonts = await this.getFontsByFamilyNameAndStyleName(
         familyName,
         styleName,
       );
 
-      return fontsByFamilyAndStyle !== undefined;
+      if (isEmpty(fonts)) {
+        return false;
+      }
     }
 
-    for (const fontObject of fontObjects) {
-      const isSubstitute = fontObject.isSubstitute;
-      if (isSubstitute) return false;
+    for (const font of fonts) {
+      if (font.isSubstitute) {
+        return false;
+      }
     }
 
     return true;
