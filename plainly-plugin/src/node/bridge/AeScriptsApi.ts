@@ -38,9 +38,9 @@ class AeScriptsApiClass {
   }
 
   /**
-   * Collects font objects by PostScript name from After Effects.
+   * Collects GetFontsResult by PostScript name from After Effects.
    * @param postScriptName The PostScript name of the font to look up
-   * @returns An array of font objects, or undefined if not found
+   * @returns An array of GetFontsResult, or undefined if not found
    */
   async getFontsByPostScriptName(
     postScriptName: string,
@@ -58,10 +58,10 @@ class AeScriptsApiClass {
   }
 
   /**
-   * Collects font objects by family name and style name from After Effects.
+   * Collects GetFontsResult by Family name and Style name from After Effects.
    * @param familyName The family name of the font to look up
    * @param styleName The style name of the font to look up
-   * @returns A postScriptName string if found, otherwise undefined
+   * @returns An array of GetFontsResult, or undefined if not found
    */
   async getFontsByFamilyNameAndStyleName(
     familyName: string,
