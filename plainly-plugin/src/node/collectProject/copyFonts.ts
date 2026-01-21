@@ -22,15 +22,16 @@ export async function copyFonts(fonts: Font[], targetDir: string) {
 
   const fontPromises = uniqueFonts.map(async (font) => {
     const src = finalizePath(font.fontLocation);
-    const fontName = `${font.postScriptName}.${font.fontExtension}`;
+    const ext = path.extname(src).toLowerCase();
+    const fontName = `${font.postScriptName}${ext}`;
     const dest = path.join(newFontsDir, fontName);
     // if the file doesn't end with .otf or .ttf, copy it, otherwise, throw an error
-    if (['otf', 'ttf', 'ttc'].includes(font.fontExtension)) {
+    if (['.otf', '.ttf', '.ttc'].includes(ext)) {
       return await fsPromises.copyFile(src, dest);
     }
 
     throw new Error(
-      `Unsupported font format: ${font.fontExtension} for font ${font.postScriptName} (Source Path: ${src})`,
+      `Unsupported font format: ${ext} for font ${font.postScriptName} (Source Path: ${src})`,
     );
   });
 
