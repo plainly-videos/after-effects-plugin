@@ -1,3 +1,5 @@
+import { AeScriptsApi } from '@src/node/bridge';
+import { validateFonts } from '@src/node/collectProject/utils';
 import { useNotifications } from '@src/ui/hooks';
 import classNames from 'classnames';
 import { FolderIcon } from 'lucide-react';
@@ -35,6 +37,16 @@ export function ExportForm() {
     const selectedPath = await selectFolder();
     setTargetPath(selectedPath);
   }, []);
+
+  const testValidateFonts = async () => {
+    try {
+      const projectInfo = await AeScriptsApi.collectFiles();
+      const fonts = projectInfo.fonts;
+      await validateFonts(fonts);
+    } catch (error) {
+      notifyError('Font validation failed', (error as Error).message);
+    }
+  };
 
   return (
     <form className="space-y-4 w-full text-white" onSubmit={handleSubmit}>
@@ -97,6 +109,10 @@ export function ExportForm() {
           </div>
         </div>
       </div>
+
+      <Button type="button" onClick={testValidateFonts}>
+        TEST FONTS VALIDATION
+      </Button>
 
       <Button
         className="float-right"

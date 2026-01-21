@@ -36,6 +36,7 @@ function collectFiles(): string | undefined {
 function collectFonts(): Font[] {
   const comps = getAllComps(app.project);
   const fonts: Font[] = [];
+  const seen = {};
 
   for (let i = 0; i < comps.length; i++) {
     const layers = getTextLayersByComp(comps[i]);
@@ -44,6 +45,12 @@ function collectFonts(): Font[] {
       const fontLocation = layers[j].sourceText.value.fontLocation;
       const fontFamily = layers[j].sourceText.value.fontFamily;
       const fontStyle = layers[j].sourceText.value.fontStyle;
+
+      if (seen[postScriptName]) {
+        continue;
+      } else {
+        seen[postScriptName] = true;
+      }
 
       fonts.push({
         postScriptName: postScriptName,
