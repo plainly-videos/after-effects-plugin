@@ -16,31 +16,26 @@ async function validateFonts(fonts: Font[]) {
   }
 
   // Throw in case of missing fonts
-  // Feature exists in After Effects 24.0+
-  const aeVersion = await AeScriptsApi.getAfterEffectsVersion();
-  if (Number(aeVersion) >= 24.0) {
-    const missingFonts: string[] = [];
-
-    for (const font of fonts) {
-      const isFontInstalled = await AeScriptsApi.isFontInstalled(
-        font.postScriptName,
-        font.fontFamily,
-        font.fontStyle,
-      );
-      if (!isFontInstalled) {
-        missingFonts.push(font.postScriptName);
-      }
-    }
-
-    const uniqueMissingFonts = missingFonts.filter(
-      (value, index, self) => self.indexOf(value) === index,
+  const missingFonts: string[] = [];
+  for (const font of fonts) {
+    const isFontInstalled = await AeScriptsApi.isFontInstalled(
+      font.postScriptName,
+      font.fontFamily,
+      font.fontStyle,
     );
-
-    if (uniqueMissingFonts.length > 0) {
-      throw new Error(
-        `Fonts used in the project, are missing on the system:\n${uniqueMissingFonts.join(', ')}. Please install them and try again.`,
-      );
+    if (!isFontInstalled) {
+      missingFonts.push(font.postScriptName);
     }
+  }
+
+  const uniqueMissingFonts = missingFonts.filter(
+    (value, index, self) => self.indexOf(value) === index,
+  );
+
+  if (uniqueMissingFonts.length > 0) {
+    throw new Error(
+      `Fonts used in the project, are missing on the system:\n${uniqueMissingFonts.join(', ')}. Please install them and try again.`,
+    );
   }
 }
 

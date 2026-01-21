@@ -89,15 +89,10 @@ function saveProject() {
   app.project.save();
 }
 
-function getAfterEffectsVersion() {
-  return app.version;
-}
-
 export {
   setProjectData,
   getProjectData,
   removeProjectData,
   getProjectPath,
   saveProject,
-  getAfterEffectsVersion,
 };

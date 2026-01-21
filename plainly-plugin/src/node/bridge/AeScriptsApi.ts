@@ -100,6 +100,11 @@ class AeScriptsApiClass {
         styleName,
       );
 
+      if (fonts === undefined) {
+        // Could not get fonts by either methods, continue
+        return true;
+      }
+
       if (isEmpty(fonts)) {
         return false;
       }
@@ -181,18 +186,6 @@ class AeScriptsApiClass {
    */
   async relinkFootage(relinkData: RelinkData): Promise<void> {
     await evalScriptAsync(`relinkFootage(${JSON.stringify(relinkData)})`);
-  }
-
-  /**
-   * Gets the After Effects application version.
-   * @returns After Effects version as a string, e.g. "25.6", or undefined if not available
-   */
-  async getAfterEffectsVersion(): Promise<string | undefined> {
-    const version = await evalScriptAsync('getAfterEffectsVersion()');
-    if (!version) return undefined;
-
-    // got the version string like "25.6x101"
-    return version.split('x')[0];
   }
 }
 

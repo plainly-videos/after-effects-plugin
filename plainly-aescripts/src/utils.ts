@@ -72,47 +72,55 @@ function getFolderPath(folder: FolderItem): string {
 function getInstalledFontsByPostScriptName(
   postScriptName: string,
 ): string | undefined {
-  const fontObjects = app.fonts.getFontsByPostScriptName(postScriptName);
+  try {
+    const fontObjects = app.fonts.getFontsByPostScriptName(postScriptName);
 
-  if (!fontObjects || fontObjects?.length === 0) return undefined;
-  const fontData: InstalledFontData[] = [];
-  for (let i = 0; i < fontObjects.length; i++) {
-    const font = fontObjects[i];
-    fontData.push({
-      isSubstitute: font.isSubstitute,
-      fontLocation: font.location,
-    });
+    if (!fontObjects || fontObjects?.length === 0) return undefined;
+    const fontData: InstalledFontData[] = [];
+    for (let i = 0; i < fontObjects.length; i++) {
+      const font = fontObjects[i];
+      fontData.push({
+        isSubstitute: font.isSubstitute,
+        fontLocation: font.location,
+      });
+    }
+    return JSON.stringify(fontData);
+  } catch {
+    return undefined;
   }
-  return JSON.stringify(fontData);
 }
 
 function getInstalledFontsByFamilyNameAndStyleName(
   familyName: string,
   styleName: string,
 ) {
-  const fontObjects = app.fonts.getFontsByFamilyNameAndStyleName(
-    familyName,
-    styleName,
-  );
-  if (!fontObjects || fontObjects.length === 0) return undefined;
+  try {
+    const fontObjects = app.fonts.getFontsByFamilyNameAndStyleName(
+      familyName,
+      styleName,
+    );
+    if (!fontObjects || fontObjects.length === 0) return undefined;
 
-  const fontData: InstalledFontData[] = [];
-  for (let i = 0; i < fontObjects.length; i++) {
-    const font = fontObjects[i];
-    fontData.push({
-      isSubstitute: font.isSubstitute,
-      fontLocation: font.location,
-    });
+    const fontData: InstalledFontData[] = [];
+    for (let i = 0; i < fontObjects.length; i++) {
+      const font = fontObjects[i];
+      fontData.push({
+        isSubstitute: font.isSubstitute,
+        fontLocation: font.location,
+      });
+    }
+    return JSON.stringify(fontData);
+  } catch (error) {
+    return undefined;
   }
-  return JSON.stringify(fontData);
 }
 
 export {
+  getAllComps,
+  getFolderPath,
+  getInstalledFontsByFamilyNameAndStyleName,
+  getInstalledFontsByPostScriptName,
+  getTextLayersByComp,
   isWin,
   pathJoin,
-  getAllComps,
-  getTextLayersByComp,
-  getFolderPath,
-  getInstalledFontsByPostScriptName,
-  getInstalledFontsByFamilyNameAndStyleName,
 };
