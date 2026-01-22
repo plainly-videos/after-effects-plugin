@@ -12,7 +12,8 @@
       "!**/plainly-plugin/src/node/lib",
       "!**/dist",
       "!**/package",
-      "!**/.turbo"
+      "!**/.turbo",
+      "!**/coverage"
     ]
   },
   "formatter": {

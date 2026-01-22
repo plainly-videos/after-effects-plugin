@@ -17,23 +17,3 @@ export class CollectFontsError extends Error {
     this.errorPaths = errorPaths;
   }
 }
-
-export class PlainlyApiError extends Error {
-  status?: number;
-  data?: unknown;
-
-  constructor({
-    message,
-    status,
-    data,
-  }: {
-    message: string;
-    status?: number;
-    data?: unknown;
-  }) {
-    super(message);
-    this.name = 'PlainlyApiError';
-    this.status = status;
-    this.data = data;
-  }
-}

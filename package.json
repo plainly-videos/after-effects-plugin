@@ -6,6 +6,8 @@
     "build": "turbo run build",
     "dev": "turbo run dev",
     "build:test": "turbo run build-test",
+    "test": "turbo run test",
+    "test:ci:coverage": "turbo run test:ci:coverage",
     "biome": "biome check .",
     "biome:fix": "biome check --write .",
     "build:clean": "yarn build:aescripts && yarn build:plugin",
