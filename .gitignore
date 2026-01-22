@@ -51,3 +51,6 @@ plainly-plugin/.yarn/*
 
 # turborepo
 .turbo
+
+# jest
+coverage

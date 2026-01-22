@@ -12,6 +12,8 @@
     },
     "//#biome": {},
     "//#biome:fix": { "cache": false },
+    "test": { "dependsOn": ["^test"] },
+    "test:ci:coverage": { "dependsOn": ["^test:ci:coverage"] },
     "dev": {
       "persistent": true,
       "cache": false

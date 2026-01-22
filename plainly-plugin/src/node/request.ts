@@ -1,13 +1,19 @@
 import axios, { type AxiosResponse } from 'axios';
 import type FormData from 'form-data';
 
-import { apiBaseURL } from '../env';
-import { PlainlyApiError } from './errors';
+import { apiBaseURL, pluginBundleVersion } from '../env';
+import {
+  PlainlyApiError,
+  type PlainlyApiErrorResponse,
+} from './plainlyApiError';
 
 const instance = axios.create({
   adapter: 'http',
   baseURL: `${apiBaseURL}/api/v2`,
-  headers: { 'Content-Type': 'application/json' },
+  headers: {
+    'Content-Type': 'application/json',
+    'User-Agent': `plainly-plugin/${pluginBundleVersion}`,
+  },
 });
 
 async function get<T>(
@@ -57,45 +63,34 @@ async function postFormData<T>(
   }
 }
 
-const formatApiMessage = (data: unknown, status?: number) => {
-  if (typeof data === 'string' && data.trim().length > 0) {
-    return data;
-  }
-
-  if (data && typeof data === 'object') {
-    const message =
-      'message' in data && typeof data.message === 'string'
-        ? data.message
-        : 'error' in data && typeof data.error === 'string'
-          ? data.error
-          : undefined;
-
-    if (message) return message;
-
-    try {
-      return JSON.stringify(data);
-    } catch {
-      // Ignore JSON serialization failures.
-    }
-  }
-
-  if (status) {
-    return `Request failed with status code ${status}`;
-  }
-
-  return 'Request failed';
-};
-
 const mapAxiosError = (error: unknown): Error => {
   if (!axios.isAxiosError(error)) {
     return error instanceof Error ? error : new Error(String(error));
   }
 
   const status = error.response?.status;
-  const data = error.response?.data;
-  const message = formatApiMessage(data, status);
+  const data = error.response?.data as
+    | PlainlyApiErrorResponse
+    | string
+    | undefined;
+  const defaultMessage = `Request failed with status code ${status ?? 'unknown'}`;
+  const message =
+    typeof data === 'string' && data.trim().length > 0
+      ? data
+      : data && typeof data === 'object'
+        ? (() => {
+            const baseMessage = data.message ?? data.error ?? defaultMessage;
+            const validationCodes = data.errors
+              ?.map((entry) => entry.codes?.[0])
+              .filter((code): code is string => Boolean(code));
+            if (validationCodes && validationCodes.length > 0) {
+              return `${baseMessage} (${validationCodes.join(', ')})`;
+            }
+            return baseMessage;
+          })()
+        : defaultMessage;
 
   return new PlainlyApiError({ message, status, data });
 };
 
-export { get, post, postFormData };
+export { get, post, postFormData, mapAxiosError };
