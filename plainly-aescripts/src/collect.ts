@@ -35,8 +35,7 @@ function collectFiles(): string | undefined {
 
 function collectFonts(): Font[] {
   const comps = getAllComps(app.project);
-  const fonts: Font[] = [];
-  const seen = {};
+  const fonts: { [psName: string]: Font } = {};
 
   for (let i = 0; i < comps.length; i++) {
     const layers = getTextLayersByComp(comps[i]);
@@ -46,22 +45,20 @@ function collectFonts(): Font[] {
       const fontFamily = layers[j].sourceText.value.fontFamily;
       const fontStyle = layers[j].sourceText.value.fontStyle;
 
-      if (seen[postScriptName]) {
-        continue;
-      } else {
-        seen[postScriptName] = true;
+      if (fonts[postScriptName]) {
+        continue; // already recorded
       }
 
-      fonts.push({
+      fonts[postScriptName] = {
         postScriptName: postScriptName,
         fontLocation: fontLocation,
         fontFamily: fontFamily,
         fontStyle: fontStyle,
-      });
+      };
     }
   }
 
-  return fonts;
+  return Object.values(fonts);
 }
 
 function collectFootage(): Footage[] {

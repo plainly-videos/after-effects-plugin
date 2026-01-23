@@ -23,10 +23,10 @@ export async function copyFonts(fonts: Font[], targetDir: string) {
   const fontPromises = uniqueFonts.map(async (font) => {
     const src = finalizePath(font.fontLocation);
     const ext = path.extname(src).toLowerCase();
-    const fontName = `${font.postScriptName}${ext}`;
-    const dest = path.join(newFontsDir, fontName);
     // if the file doesn't end with .otf or .ttf, copy it, otherwise, throw an error
     if (['.otf', '.ttf', '.ttc'].includes(ext)) {
+      const fontName = `${font.postScriptName}${ext}`;
+      const dest = path.join(newFontsDir, fontName);
       return await fsPromises.copyFile(src, dest);
     }
 

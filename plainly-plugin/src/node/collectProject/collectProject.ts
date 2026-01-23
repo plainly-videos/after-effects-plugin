@@ -1,3 +1,4 @@
+import crypto from 'crypto';
 import fsPromises from 'fs/promises';
 import path from 'path';
 import type { Footage } from 'plainly-types';
@@ -68,11 +69,6 @@ function makeOriginalRelinkData(footage: Footage[]): Record<string, string> {
 }
 
 async function makeProjectZip(targetPath: string): Promise<string> {
-  // 1. Collect project data and validate before save to save time
-  const projectInfo = await AeScriptsApi.collectFiles();
-  validateFootage(projectInfo.footage);
-  await validateFonts(projectInfo.fonts);
-
   // save project first
   await AeScriptsApi.saveProject();
 
@@ -83,10 +79,16 @@ async function makeProjectZip(targetPath: string): Promise<string> {
   const aepFileDir = path.dirname(aepFilePath);
   const aepFileName = path.basename(aepFilePath, '.aep');
 
+  // 1. Collect project data
+  const projectInfo = await AeScriptsApi.collectFiles();
+
   const hasLongFootagePaths = projectInfo.footage.some((item) => {
     const itemPath = item.itemFsPath;
     return itemPath.length > 255;
   });
+
+  validateFootage(projectInfo.footage);
+  await validateFonts(projectInfo.fonts);
 
   const footageDir = path.join(aepFileDir, '(Footage)');
   const fontsDir = path.join(aepFileDir, 'Fonts');
