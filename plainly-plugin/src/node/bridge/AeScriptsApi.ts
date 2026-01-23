@@ -110,10 +110,8 @@ class AeScriptsApiClass {
       }
     }
 
-    for (const font of fonts) {
-      if (font.isSubstitute) {
-        return false;
-      }
+    if (fonts.some((font) => !font.isSubstitute)) {
+      return true;
     }
 
     return true;
