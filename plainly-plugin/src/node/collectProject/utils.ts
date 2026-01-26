@@ -29,7 +29,7 @@ async function validateFonts(fonts: Font[]) {
 
   if (missingFonts.length > 0) {
     throw new Error(
-      `Fonts used in the project, are missing on the system:\n${missingFonts.join(', ')}. Please install them and try again. If the problem persists, try restarting After Effects.`,
+      `Fonts used in the project, are missing on the system:\n${missingFonts.join(', ')}. Please install them and try again. If the problem persists, try restarting After Effects after installation.`,
     );
   }
 }
