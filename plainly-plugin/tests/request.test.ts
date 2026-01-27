@@ -90,6 +90,18 @@ describe('mapAxiosError', () => {
       'Request failed with status code 400',
     ],
     [
+      'uses default message when errors exist but message and error are missing',
+      {
+        response: {
+          status: 400,
+          data: {
+            errors: [{ codes: ['NotNull.projectRenderDto.projectId'] }],
+          },
+        },
+      },
+      'Request failed with status code 400 (NotNull.projectRenderDto.projectId)',
+    ],
+    [
       'uses error field when message is missing',
       {
         response: {
