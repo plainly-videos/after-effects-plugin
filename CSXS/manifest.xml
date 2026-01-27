@@ -12,7 +12,7 @@
 	</ExtensionList>
 	<ExecutionEnvironment>
 		<HostList>
-			<Host Name="AEFT" Version="18.4"/>
+			<Host Name="AEFT" Version="24.0"/>
 		</HostList>
 		<LocaleList>
 			<Locale Code="All"/>

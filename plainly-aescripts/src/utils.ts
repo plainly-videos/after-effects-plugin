@@ -1,3 +1,5 @@
+import type { InstalledFontData } from 'plainly-types';
+
 /**
  * @function isWin
  * @description Determines if the current OS is Windows
@@ -67,4 +69,58 @@ function getFolderPath(folder: FolderItem): string {
   return pathJoin(parentPath, folder.name);
 }
 
-export { isWin, pathJoin, getAllComps, getTextLayersByComp, getFolderPath };
+function getInstalledFontsByPostScriptName(
+  postScriptName: string,
+): string | undefined {
+  try {
+    const fontObjects = app.fonts.getFontsByPostScriptName(postScriptName);
+
+    if (!fontObjects || fontObjects?.length === 0) return undefined;
+    const fontData: InstalledFontData[] = [];
+    for (let i = 0; i < fontObjects.length; i++) {
+      const font = fontObjects[i];
+      fontData.push({
+        isSubstitute: font.isSubstitute,
+        fontLocation: font.location,
+      });
+    }
+    return JSON.stringify(fontData);
+  } catch {
+    return undefined;
+  }
+}
+
+function getInstalledFontsByFamilyNameAndStyleName(
+  familyName: string,
+  styleName: string,
+) {
+  try {
+    const fontObjects = app.fonts.getFontsByFamilyNameAndStyleName(
+      familyName,
+      styleName,
+    );
+    if (!fontObjects || fontObjects.length === 0) return undefined;
+
+    const fontData: InstalledFontData[] = [];
+    for (let i = 0; i < fontObjects.length; i++) {
+      const font = fontObjects[i];
+      fontData.push({
+        isSubstitute: font.isSubstitute,
+        fontLocation: font.location,
+      });
+    }
+    return JSON.stringify(fontData);
+  } catch (error) {
+    return undefined;
+  }
+}
+
+export {
+  getAllComps,
+  getFolderPath,
+  getInstalledFontsByFamilyNameAndStyleName,
+  getInstalledFontsByPostScriptName,
+  getTextLayersByComp,
+  isWin,
+  pathJoin,
+};

@@ -7,6 +7,7 @@ import { isWindows, TMP_DIR } from '../constants';
 import { exists, finalizePath, renameIfExists, zipItems } from '../utils';
 import { copyFonts } from './copyFonts';
 import { copyFootage } from './copyFootage';
+import { validateFonts, validateFootage } from './utils';
 
 /**
  * Opens a file dialog for the user to select a folder.
@@ -39,15 +40,6 @@ async function removeFolder(targetPath: string) {
 async function makeProjectZipTmpDir(): Promise<string> {
   await fsPromises.mkdir(TMP_DIR, { recursive: true });
   return makeProjectZip(TMP_DIR);
-}
-
-function validateFootage(footage: Footage[]) {
-  // Throw in case of missing footage
-  const missingFootage = footage.filter((item) => item.isMissing);
-  if (missingFootage.length > 0) {
-    // TODO: Show a missing files
-    throw new Error('Some footage files are missing from the project.');
-  }
 }
 
 function makeNewRelinkData(
@@ -96,6 +88,7 @@ async function makeProjectZip(targetPath: string): Promise<string> {
   });
 
   validateFootage(projectInfo.footage);
+  await validateFonts(projectInfo.fonts);
 
   const footageDir = path.join(aepFileDir, '(Footage)');
   const fontsDir = path.join(aepFileDir, 'Fonts');
@@ -187,4 +180,4 @@ async function makeProjectZip(targetPath: string): Promise<string> {
   }
 }
 
-export { makeProjectZipTmpDir, makeProjectZip, removeFolder, selectFolder };
+export { makeProjectZip, makeProjectZipTmpDir, removeFolder, selectFolder };

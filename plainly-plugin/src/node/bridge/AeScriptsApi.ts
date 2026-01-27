@@ -1,4 +1,10 @@
-import type { ProjectData, ProjectInfo, RelinkData } from 'plainly-types';
+import { isEmpty } from '@src/ui/utils';
+import type {
+  InstalledFontData,
+  ProjectData,
+  ProjectInfo,
+  RelinkData,
+} from 'plainly-types';
 import { csInterface } from '../constants';
 
 async function evalScriptAsync(func: string): Promise<string | undefined> {
@@ -29,6 +35,86 @@ class AeScriptsApiClass {
    */
   async selectFolder(): Promise<string | undefined> {
     return await evalScriptAsync('selectFolder()');
+  }
+
+  /**
+   * Collects InstalledFontData by PostScript name from After Effects.
+   * @param postScriptName The PostScript name of the font to look up
+   * @returns An array of InstalledFontData, or undefined if not found
+   */
+  async getInstalledFontsByPostScriptName(
+    postScriptName: string,
+  ): Promise<InstalledFontData[] | undefined> {
+    const result = await evalScriptAsync(
+      `getInstalledFontsByPostScriptName("${postScriptName}")`,
+    );
+    if (!result) return undefined;
+
+    try {
+      return JSON.parse(result);
+    } catch {
+      throw new Error('Failed to parse fonts data.');
+    }
+  }
+
+  /**
+   * Collects InstalledFontData by Family name and Style name from After Effects.
+   * @param familyName The family name of the font to look up
+   * @param styleName The style name of the font to look up
+   * @returns An array of InstalledFontData, or undefined if not found
+   */
+  async getInstalledFontsByFamilyNameAndStyleName(
+    familyName: string,
+    styleName: string,
+  ): Promise<InstalledFontData[] | undefined> {
+    const result = await evalScriptAsync(
+      `getInstalledFontsByFamilyNameAndStyleName("${familyName}", "${styleName}")`,
+    );
+
+    if (!result) return undefined;
+
+    try {
+      return JSON.parse(result);
+    } catch {
+      throw new Error('Failed to parse fonts data.');
+    }
+  }
+
+  /**
+   * Checks if a font is installed in After Effects by PostScript name, family name, and style name.
+   * @param postScriptName The PostScript name of the font to check
+   * @param familyName The family name of the font to check
+   * @param styleName The style name of the font to check
+   * @returns True if the font is installed, false otherwise
+   */
+  async isFontInstalled(
+    postScriptName: string,
+    familyName: string,
+    styleName: string,
+  ): Promise<boolean> {
+    let fonts = await this.getInstalledFontsByPostScriptName(postScriptName);
+
+    if (isEmpty(fonts)) {
+      fonts = await this.getInstalledFontsByFamilyNameAndStyleName(
+        familyName,
+        styleName,
+      );
+
+      if (fonts === undefined) {
+        // Could not get fonts by either methods, continue
+        return true;
+      }
+
+      if (isEmpty(fonts)) {
+        return false;
+      }
+    }
+
+    if (fonts[0]?.isSubstitute) {
+      return false;
+    }
+
+    return true;
   }
 
   /**

@@ -4447,7 +4447,7 @@ __metadata:
     concurrently: ^9.1.2
     plainly-types: "workspace:*"
     rimraf: ^6.1.2
-    types-for-adobe: ^7.2.2
+    types-for-adobe: ^7.2.5
     typescript: ^4
     webpack: ^5.97.1
     webpack-cli: ^6.0.1
@@ -5520,7 +5520,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"types-for-adobe@npm:^7.2.2":
+"types-for-adobe@npm:^7.2.5":
   version: 7.2.5
   resolution: "types-for-adobe@npm:7.2.5"
   checksum: 166880f7c30aeb2b49f91c01af7955db74c7d092ecbd2563c7d698944af4ae7ddf78e058eaeff21987181ee3d2fdd4da7c2c35d2ccf0ecfe26fb89da51c5f1ba
