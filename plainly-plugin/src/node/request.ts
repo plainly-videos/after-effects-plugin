@@ -2,10 +2,7 @@ import axios, { type AxiosResponse } from 'axios';
 import type FormData from 'form-data';
 
 import { apiBaseURL, pluginBundleVersion } from '../env';
-import {
-  PlainlyApiError,
-  type PlainlyApiErrorResponse,
-} from './plainlyApiError';
+import { isPlainlyApiErrorResponse, PlainlyApiError } from './plainlyApiError';
 
 const instance = axios.create({
   adapter: 'http',
@@ -69,26 +66,25 @@ const mapAxiosError = (error: unknown): Error => {
   }
 
   const status = error.response?.status;
-  const data = error.response?.data as
-    | PlainlyApiErrorResponse
-    | string
-    | undefined;
+  const data = error.response?.data;
   const defaultMessage = `Request failed with status code ${status ?? 'unknown'}`;
-  const message =
-    typeof data === 'string' && data.trim().length > 0
-      ? data
-      : data && typeof data === 'object'
-        ? (() => {
-            const baseMessage = data.message ?? data.error ?? defaultMessage;
-            const validationCodes = data.errors
-              ?.map((entry) => entry.codes?.[0])
-              .filter((code): code is string => Boolean(code));
-            if (validationCodes && validationCodes.length > 0) {
-              return `${baseMessage} (${validationCodes.join(', ')})`;
-            }
-            return baseMessage;
-          })()
-        : defaultMessage;
+
+  let message: string;
+  if (typeof data === 'string' && data.trim().length > 0) {
+    message = data;
+  } else if (isPlainlyApiErrorResponse(data)) {
+    const baseMessage = data.message ?? data.error ?? defaultMessage;
+    const validationCodes = data.errors
+      ?.map((entry) => entry.codes?.[0])
+      .filter((code): code is string => Boolean(code));
+    if (validationCodes && validationCodes.length > 0) {
+      message = `${baseMessage} (${validationCodes.join(', ')})`;
+    } else {
+      message = baseMessage;
+    }
+  } else {
+    message = defaultMessage;
+  }
 
   return new PlainlyApiError({ message, status, data });
 };
