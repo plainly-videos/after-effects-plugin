@@ -2,7 +2,12 @@ import axios, { type AxiosResponse } from 'axios';
 import type FormData from 'form-data';
 
 import { apiBaseURL, pluginBundleVersion } from '../env';
-import { isPlainlyApiErrorResponse, PlainlyApiError } from './plainlyApiError';
+import {
+  PlainlyApiError,
+  type PlainlyApiErrorResponse,
+} from './plainlyApiError';
+
+const auth = (apiKey: string) => ({ auth: { username: apiKey, password: '' } });
 
 const instance = axios.create({
   adapter: 'http',
@@ -18,25 +23,19 @@ async function get<T>(
   apiKey: string,
 ): Promise<AxiosResponse<T, unknown>> {
   try {
-    return await instance.get(path, {
-      auth: {
-        username: apiKey,
-        password: '',
-      },
-    });
+    return await instance.get(path, auth(apiKey));
   } catch (error) {
     throw mapAxiosError(error);
   }
 }
 
-async function post(path: string, apiKey: string, body: string) {
+async function post<T>(
+  path: string,
+  apiKey: string,
+  body: string,
+): Promise<AxiosResponse<T, unknown>> {
   try {
-    return await instance.post(path, body, {
-      auth: {
-        username: apiKey,
-        password: '',
-      },
-    });
+    return await instance.post(path, body, auth(apiKey));
   } catch (error) {
     throw mapAxiosError(error);
   }
@@ -50,10 +49,7 @@ async function postFormData<T>(
   try {
     return await instance.post(path, body, {
       headers: { ...body.getHeaders() },
-      auth: {
-        username: apiKey,
-        password: '',
-      },
+      ...auth(apiKey),
     });
   } catch (error) {
     throw mapAxiosError(error);
@@ -69,20 +65,41 @@ const mapAxiosError = (error: unknown): Error => {
   const data = error.response?.data;
   const defaultMessage = `Request failed with status code ${status ?? 'unknown'}`;
 
-  let message: string;
-  if (typeof data === 'string' && data.trim().length > 0) {
-    message = data;
-  } else if (isPlainlyApiErrorResponse(data)) {
-    const baseMessage = data.message ?? data.error ?? defaultMessage;
-    const validationCodes = data.errors
+  // no response data, return default error
+  if (!data) {
+    return new PlainlyApiError({ message: defaultMessage, status, data });
+  }
+
+  const statusPrefix = status ? `${status}: ` : '';
+  let message = `${statusPrefix}`;
+  try {
+    // string response data, use as message
+    if (typeof data === 'string') {
+      message += data;
+      return new PlainlyApiError({ message, status, data });
+    }
+
+    // assume structure, fallback to defaultMessage on failure
+    const plainlyData = data as PlainlyApiErrorResponse;
+    const baseMessage = plainlyData.message ?? plainlyData.error;
+
+    // no message in response data, return default error
+    if (!baseMessage) {
+      return new PlainlyApiError({ message: defaultMessage, status, data });
+    }
+
+    const validationCodes = plainlyData.errors
       ?.map((entry) => entry.codes?.[0])
       .filter((code): code is string => Boolean(code));
-    if (validationCodes && validationCodes.length > 0) {
-      message = `${baseMessage} (${validationCodes.join(', ')})`;
+
+    // construct message with validation codes if present
+    if (validationCodes?.length) {
+      message += `${baseMessage} (${validationCodes.join(', ')})`;
     } else {
-      message = baseMessage;
+      message += baseMessage;
     }
-  } else {
+  } catch {
+    // in case of any error, return default message
     message = defaultMessage;
   }
 

@@ -22,9 +22,7 @@ import FormData from 'form-data';
 import { get, mapAxiosError, post, postFormData } from '../src/node/request';
 
 describe('mapAxiosError', () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-  });
+  beforeEach(() => jest.clearAllMocks());
 
   const isAxiosErrorMock = jest.mocked(axios.isAxiosError);
 
@@ -44,77 +42,88 @@ describe('mapAxiosError', () => {
           },
         },
       },
-      "Validation failed for object='projectRenderDto'. Error count: 2 (NotNull.projectRenderDto.projectId, NotBlank.projectRenderDto.projectId)",
+      "400: Validation failed for object='projectRenderDto'. Error count: 2 (NotNull.projectRenderDto.projectId, NotBlank.projectRenderDto.projectId)",
     ],
     [
-      'uses data.message without codes when validation codes are missing',
-      {
-        response: {
-          status: 422,
-          data: {
-            message: 'Validation failed.',
-            errors: [{ codes: [] }, {}],
-          },
-        },
-      },
-      'Validation failed.',
-    ],
-    [
-      'uses string response data as the message',
+      'uses default message if there is no response data',
       {
         response: {
           status: 500,
-          data: 'Internal error',
-        },
-      },
-      'Internal error',
-    ],
-    [
-      'falls back to default message when string data is empty',
-      {
-        response: {
-          status: 500,
-          data: '   ',
+          data: undefined,
         },
       },
       'Request failed with status code 500',
     ],
     [
-      'falls back to default message when object data lacks message and error',
+      'uses error field if message is missing',
       {
         response: {
-          status: 400,
-          data: {},
-        },
-      },
-      'Request failed with status code 400',
-    ],
-    [
-      'uses default message when errors exist but message and error are missing',
-      {
-        response: {
-          status: 400,
+          status: 403,
           data: {
-            errors: [{ codes: ['NotNull.projectRenderDto.projectId'] }],
+            error: 'Forbidden access',
           },
         },
       },
-      'Request failed with status code 400 (NotNull.projectRenderDto.projectId)',
+      '403: Forbidden access',
     ],
     [
-      'uses error field when message is missing',
+      'handles missing validation codes',
       {
         response: {
-          status: 404,
-          data: { error: 'Not found' },
+          status: 422,
+          data: {
+            message: 'Unprocessable entity',
+            errors: [{}, { codes: [] }],
+          },
         },
       },
-      'Not found',
+      '422: Unprocessable entity',
     ],
     [
-      'uses default message when axios error has no response',
+      'handles missing response status',
+      {
+        response: {
+          data: {
+            message: 'Unknown error occurred',
+          },
+        },
+      },
+      'Unknown error occurred',
+    ],
+    [
+      'response data is a string',
+      {
+        response: {
+          status: 502,
+          data: 'Bad Gateway',
+        },
+      },
+      '502: Bad Gateway',
+    ],
+    [
+      'response data is an unexpected structure',
+      {
+        response: {
+          status: 520,
+          data: { unexpected: 'structure' },
+        },
+      },
+      'Request failed with status code 520',
+    ],
+    [
+      'handles missing response object',
       {},
       'Request failed with status code unknown',
+    ],
+    [
+      'falls back to default message if parsing throws',
+      {
+        response: {
+          status: 500,
+          data: { message: 'Boom', errors: 'not-an-array' },
+        },
+      },
+      'Request failed with status code 500',
     ],
   ])('%s', (_label, error, expectedMessage) => {
     isAxiosErrorMock.mockReturnValue(true);
