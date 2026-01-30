@@ -33,6 +33,17 @@ describe('toPlainlyError', () => {
     expect(error).toBeInstanceOf(NoInternetConnectionApiError);
   });
 
+  it('does not throw when navigator is missing', () => {
+    Object.defineProperty(global, 'navigator', {
+      value: undefined,
+      configurable: true,
+    });
+
+    const error = toPlainlyError(new Error('Network down'));
+
+    expect(error).toBeInstanceOf(GeneralCommunicationApiError);
+  });
+
   it('returns communication error for non-axios errors when online', () => {
     const error = toPlainlyError('boom');
 

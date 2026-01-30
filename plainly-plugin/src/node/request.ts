@@ -64,8 +64,8 @@ async function postFormData<T>(
 }
 
 const fallbackErrors = (error: unknown): PlainlyApiError => {
-  // check for offline first
-  if (!navigator.onLine) {
+  // check for offline first (guarded for non-browser envs)
+  if (typeof navigator !== 'undefined' && navigator.onLine === false) {
     return new NoInternetConnectionApiError();
   }
 
