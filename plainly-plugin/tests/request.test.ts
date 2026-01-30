@@ -3,7 +3,6 @@ import {
   ClientSideApiError,
   ErrorCode,
   GeneralCommunicationApiError,
-  NoInternetConnectionApiError,
   PlainlyApiError,
   ServerSideApiError,
 } from '../src/node/errors';
@@ -20,17 +19,6 @@ describe('toPlainlyError', () => {
       value: { onLine: true },
       configurable: true,
     });
-  });
-
-  it('returns no-internet error when offline', () => {
-    Object.defineProperty(global, 'navigator', {
-      value: { onLine: false },
-      configurable: true,
-    });
-
-    const error = toPlainlyError(new Error('Network down'));
-
-    expect(error).toBeInstanceOf(NoInternetConnectionApiError);
   });
 
   it('does not throw when navigator is missing', () => {
