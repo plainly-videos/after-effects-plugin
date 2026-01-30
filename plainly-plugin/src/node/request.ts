@@ -3,9 +3,16 @@ import type FormData from 'form-data';
 
 import { apiBaseURL, pluginBundleVersion } from '../env';
 import {
+  AcceptableClientSideApiError,
+  ClientSideApiError,
+  ErrorCode,
+  GeneralCommunicationApiError,
+  NoInternetConnectionApiError,
   PlainlyApiError,
-  type PlainlyApiErrorResponse,
-} from './plainlyApiError';
+  ServerSideApiError,
+} from './errors';
+
+const PLAINLY_ERROR_CODE_HEADER = 'X-PlainlyErrorCode'.toLowerCase();
 
 const auth = (apiKey: string) => ({ auth: { username: apiKey, password: '' } });
 
@@ -25,7 +32,7 @@ async function get<T>(
   try {
     return await instance.get(path, auth(apiKey));
   } catch (error) {
-    throw mapAxiosError(error);
+    throw toPlainlyError(error);
   }
 }
 
@@ -37,7 +44,7 @@ async function post<T>(
   try {
     return await instance.post(path, body, auth(apiKey));
   } catch (error) {
-    throw mapAxiosError(error);
+    throw toPlainlyError(error);
   }
 }
 
@@ -52,58 +59,57 @@ async function postFormData<T>(
       ...auth(apiKey),
     });
   } catch (error) {
-    throw mapAxiosError(error);
+    throw toPlainlyError(error);
   }
 }
 
-const mapAxiosError = (error: unknown): Error => {
-  if (!axios.isAxiosError(error)) {
-    return error instanceof Error ? error : new Error(String(error));
+const fallbackErrors = (error: unknown): PlainlyApiError => {
+  // check for offline first
+  if (!navigator.onLine) {
+    return new NoInternetConnectionApiError();
   }
 
-  const status = error.response?.status;
-  const data = error.response?.data;
-  const defaultMessage = `Request failed with status code ${status ?? 'unknown'}`;
-
-  // no response data, return default error
-  if (!data) {
-    return new PlainlyApiError({ message: defaultMessage, status, data });
-  }
-
-  const statusPrefix = status ? `${status}: ` : '';
-  let message = `${statusPrefix}`;
-  try {
-    // string response data, use as message
-    if (typeof data === 'string') {
-      message += data;
-      return new PlainlyApiError({ message, status, data });
-    }
-
-    // assume structure, fallback to defaultMessage on failure
-    const plainlyData = data as PlainlyApiErrorResponse;
-    const baseMessage = plainlyData.message ?? plainlyData.error;
-
-    // no message in response data, return default error
-    if (!baseMessage) {
-      return new PlainlyApiError({ message: defaultMessage, status, data });
-    }
-
-    const validationCodes = plainlyData.errors
-      ?.map((entry) => entry.codes?.[0])
-      .filter((code): code is string => Boolean(code));
-
-    // construct message with validation codes if present
-    if (validationCodes?.length) {
-      message += `${baseMessage} (${validationCodes.join(', ')})`;
-    } else {
-      message += baseMessage;
-    }
-  } catch {
-    // in case of any error, return default message
-    message = defaultMessage;
-  }
-
-  return new PlainlyApiError({ message, status, data });
+  const errorMessage = error instanceof Error ? error.message : String(error);
+  return new GeneralCommunicationApiError(errorMessage);
 };
 
-export { get, post, postFormData, mapAxiosError };
+export const toPlainlyError = (error: unknown): PlainlyApiError => {
+  if (!axios.isAxiosError(error)) {
+    return fallbackErrors(error);
+  }
+
+  const response = error.response;
+  if (!response) return fallbackErrors(error);
+
+  const code = response.headers[PLAINLY_ERROR_CODE_HEADER];
+  const errorCode = Object.values(ErrorCode).find((c) => c === code);
+  const data = response.data;
+  const { message, errors } = data || {};
+
+  if (errorCode) {
+    return new PlainlyApiError(errorCode, undefined, message, errors);
+  } else {
+    const { status } = response;
+    if (status >= 500) {
+      return new ServerSideApiError(status, message, errors);
+    }
+
+    if (status >= 400) {
+      const acceptableStatusCodes: Record<number, ErrorCode> = {
+        401: ErrorCode.GENERAL_UNAUTHORIZED,
+        403: ErrorCode.GENERAL_FORBIDDEN,
+        429: ErrorCode.GENERAL_TOO_MANY_REQUESTS,
+      };
+
+      const acceptableErrorCode = acceptableStatusCodes[status];
+      if (acceptableErrorCode) {
+        return new AcceptableClientSideApiError(acceptableErrorCode, status);
+      }
+      return new ClientSideApiError(status, message, errors);
+    }
+
+    return new GeneralCommunicationApiError(message, errors);
+  }
+};
+
+export { get, post, postFormData };

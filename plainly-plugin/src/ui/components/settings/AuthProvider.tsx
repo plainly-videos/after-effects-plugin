@@ -31,7 +31,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         getSettingsApiKey(pin);
         setPinStorage(pin);
       } catch (error) {
-        notifyError((error as Error).message);
+        const eMessage = error instanceof Error ? error.message : String(error);
+        notifyError(eMessage);
         return;
       }
     },

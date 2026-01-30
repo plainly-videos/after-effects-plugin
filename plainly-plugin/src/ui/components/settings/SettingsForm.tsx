@@ -80,7 +80,7 @@ export function SettingsForm() {
         }
         setEdit(false);
       } catch (error) {
-        notifyError('Failed to save settings', (error as Error).message);
+        notifyError('Failed to save settings', error);
       } finally {
         setLoading(false);
       }
@@ -94,7 +94,7 @@ export function SettingsForm() {
       clearPinFromSessionStorage();
       notifySuccess('API key removed successfully');
     } catch (error) {
-      notifyError('Failed to remove API key', (error as Error).message);
+      notifyError('Failed to remove API key', error);
     } finally {
       setLoading(false);
     }

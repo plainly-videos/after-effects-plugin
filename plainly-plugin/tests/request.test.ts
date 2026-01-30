@@ -1,217 +1,113 @@
-const mockInstance = {
-  get: jest.fn(),
-  post: jest.fn(),
-};
+import {
+  AcceptableClientSideApiError,
+  ClientSideApiError,
+  ErrorCode,
+  GeneralCommunicationApiError,
+  NoInternetConnectionApiError,
+  PlainlyApiError,
+  ServerSideApiError,
+} from '../src/node/errors';
+import { toPlainlyError } from '../src/node/request';
 
-jest.mock('axios', () => {
-  const actual = jest.requireActual('axios');
-  return {
-    __esModule: true,
-    default: {
-      ...actual,
-      create: jest.fn(() => mockInstance),
-      isAxiosError: jest.fn(),
-    },
-    isAxiosError: jest.fn(),
-  };
+const makeAxiosError = (response?: unknown) => ({
+  isAxiosError: true,
+  response,
 });
 
-import axios from 'axios';
-import FormData from 'form-data';
-
-import { get, mapAxiosError, post, postFormData } from '../src/node/request';
-
-describe('mapAxiosError', () => {
-  beforeEach(() => jest.clearAllMocks());
-
-  const isAxiosErrorMock = jest.mocked(axios.isAxiosError);
-
-  it.each([
-    [
-      'appends validation codes from errors[].codes[0]',
-      {
-        response: {
-          status: 400,
-          data: {
-            message:
-              "Validation failed for object='projectRenderDto'. Error count: 2",
-            errors: [
-              { codes: ['NotNull.projectRenderDto.projectId'] },
-              { codes: ['NotBlank.projectRenderDto.projectId'] },
-            ],
-          },
-        },
-      },
-      "400: Validation failed for object='projectRenderDto'. Error count: 2 (NotNull.projectRenderDto.projectId, NotBlank.projectRenderDto.projectId)",
-    ],
-    [
-      'uses default message if there is no response data',
-      {
-        response: {
-          status: 500,
-          data: undefined,
-        },
-      },
-      'Request failed with status code 500',
-    ],
-    [
-      'uses error field if message is missing',
-      {
-        response: {
-          status: 403,
-          data: {
-            error: 'Forbidden access',
-          },
-        },
-      },
-      '403: Forbidden access',
-    ],
-    [
-      'handles missing validation codes',
-      {
-        response: {
-          status: 422,
-          data: {
-            message: 'Unprocessable entity',
-            errors: [{}, { codes: [] }],
-          },
-        },
-      },
-      '422: Unprocessable entity',
-    ],
-    [
-      'handles missing response status',
-      {
-        response: {
-          data: {
-            message: 'Unknown error occurred',
-          },
-        },
-      },
-      'Unknown error occurred',
-    ],
-    [
-      'response data is a string',
-      {
-        response: {
-          status: 502,
-          data: 'Bad Gateway',
-        },
-      },
-      '502: Bad Gateway',
-    ],
-    [
-      'response data is an unexpected structure',
-      {
-        response: {
-          status: 520,
-          data: { unexpected: 'structure' },
-        },
-      },
-      'Request failed with status code 520',
-    ],
-    [
-      'handles missing response object',
-      {},
-      'Request failed with status code unknown',
-    ],
-    [
-      'falls back to default message if parsing throws',
-      {
-        response: {
-          status: 500,
-          data: { message: 'Boom', errors: 'not-an-array' },
-        },
-      },
-      'Request failed with status code 500',
-    ],
-  ])('%s', (_label, error, expectedMessage) => {
-    isAxiosErrorMock.mockReturnValue(true);
-
-    const mapped = mapAxiosError(error);
-
-    expect(mapped).toBeInstanceOf(Error);
-    expect(mapped.message).toBe(expectedMessage);
-  });
-
-  it('passes through non-axios errors', () => {
-    isAxiosErrorMock.mockReturnValue(false);
-
-    const error = new Error('Boom');
-    const mapped = mapAxiosError(error);
-
-    expect(mapped).toBe(error);
-  });
-
-  it('wraps non-axios non-Error values', () => {
-    isAxiosErrorMock.mockReturnValue(false);
-
-    const mapped = mapAxiosError('boom');
-
-    expect(mapped).toBeInstanceOf(Error);
-    expect(mapped.message).toBe('boom');
-  });
-});
-
-describe('request helpers', () => {
+describe('toPlainlyError', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
-  });
-
-  it.each([
-    [
-      'get',
-      () => get('/path', 'api-key'),
-      mockInstance.get,
-      ['/path', { auth: { username: 'api-key', password: '' } }],
-    ],
-    [
-      'post',
-      () => post('/path', 'api-key', '{"a":1}'),
-      mockInstance.post,
-      ['/path', '{"a":1}', { auth: { username: 'api-key', password: '' } }],
-    ],
-  ])('%s passes auth and returns response', async (_label, call, mockFn, args) => {
-    mockFn.mockResolvedValue({ data: { ok: true } });
-
-    const response = await call();
-
-    expect(mockFn).toHaveBeenCalledWith(...args);
-    expect(response).toEqual({ data: { ok: true } });
-  });
-
-  it('postFormData passes headers and auth and returns response', async () => {
-    mockInstance.post.mockResolvedValue({ data: { ok: true } });
-
-    const body = new FormData();
-
-    const response = await postFormData('/path', 'api-key', body);
-
-    expect(mockInstance.post).toHaveBeenCalledWith('/path', body, {
-      headers: { ...body.getHeaders() },
-      auth: { username: 'api-key', password: '' },
+    Object.defineProperty(global, 'navigator', {
+      value: { onLine: true },
+      configurable: true,
     });
-    expect(response).toEqual({ data: { ok: true } });
   });
 
-  it.each([
-    ['get', () => get('/path', 'api-key'), mockInstance.get],
-    ['post', () => post('/path', 'api-key', '{}'), mockInstance.post],
-  ])('%s throws mapped errors', async (_label, call, mockFn) => {
-    jest.mocked(axios.isAxiosError).mockReturnValue(false);
-    const thrown = new Error('nope');
-    mockFn.mockRejectedValue(thrown);
+  it('returns no-internet error when offline', () => {
+    Object.defineProperty(global, 'navigator', {
+      value: { onLine: false },
+      configurable: true,
+    });
 
-    await expect(call()).rejects.toBe(thrown);
+    const error = toPlainlyError(new Error('Network down'));
+
+    expect(error).toBeInstanceOf(NoInternetConnectionApiError);
   });
 
-  it('postFormData throws mapped errors', async () => {
-    jest.mocked(axios.isAxiosError).mockReturnValue(false);
-    const thrown = new Error('nope');
-    mockInstance.post.mockRejectedValue(thrown);
+  it('returns communication error for non-axios errors when online', () => {
+    const error = toPlainlyError('boom');
 
-    const body = new FormData();
+    expect(error).toBeInstanceOf(GeneralCommunicationApiError);
+    expect(error.message).toBe('boom');
+  });
 
-    await expect(postFormData('/path', 'api-key', body)).rejects.toBe(thrown);
+  it('returns communication error for axios errors without response', () => {
+    const error = toPlainlyError(makeAxiosError());
+
+    expect(error).toBeInstanceOf(GeneralCommunicationApiError);
+  });
+
+  it('returns plainly api error when error code header is present', () => {
+    const response = {
+      status: 400,
+      headers: { 'x-plainlyerrorcode': ErrorCode.GENERAL_FORBIDDEN },
+      data: {
+        message: 'Forbidden',
+        errors: [{ codes: ['CODE_1'] }],
+      },
+    };
+
+    const error = toPlainlyError(makeAxiosError(response));
+
+    expect(error).toBeInstanceOf(PlainlyApiError);
+    expect(error.code).toBe(ErrorCode.GENERAL_FORBIDDEN);
+  });
+
+  it('returns server-side error for 5xx responses', () => {
+    const response = {
+      status: 500,
+      headers: {},
+      data: { message: 'Server error' },
+    };
+
+    const error = toPlainlyError(makeAxiosError(response));
+
+    expect(error).toBeInstanceOf(ServerSideApiError);
+  });
+
+  it('returns acceptable client error for known status codes', () => {
+    const response = {
+      status: 401,
+      headers: {},
+      data: { message: 'Unauthorized' },
+    };
+
+    const error = toPlainlyError(makeAxiosError(response));
+
+    expect(error).toBeInstanceOf(AcceptableClientSideApiError);
+    expect(error.code).toBe(ErrorCode.GENERAL_UNAUTHORIZED);
+  });
+
+  it('returns client-side error for other 4xx responses', () => {
+    const response = {
+      status: 422,
+      headers: {},
+      data: { message: 'Bad request' },
+    };
+
+    const error = toPlainlyError(makeAxiosError(response));
+
+    expect(error).toBeInstanceOf(ClientSideApiError);
+  });
+
+  it('returns communication error for non-4xx/5xx responses without header code', () => {
+    const response = {
+      status: 200,
+      headers: {},
+      data: { message: 'Unexpected error' },
+    };
+
+    const error = toPlainlyError(makeAxiosError(response));
+
+    expect(error).toBeInstanceOf(GeneralCommunicationApiError);
   });
 });
