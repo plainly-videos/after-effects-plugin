@@ -25,15 +25,22 @@ const instance = axios.create({
   },
 });
 
+instance.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    console.error(
+      `Error in response for request`,
+      JSON.stringify(error, null, 2),
+    );
+    return Promise.reject(toPlainlyError(error));
+  },
+);
+
 async function get<T>(
   path: string,
   apiKey: string,
 ): Promise<AxiosResponse<T, unknown>> {
-  try {
-    return await instance.get(path, auth(apiKey));
-  } catch (error) {
-    throw toPlainlyError(error);
-  }
+  return await instance.get(path, auth(apiKey));
 }
 
 async function post<T>(
@@ -41,11 +48,7 @@ async function post<T>(
   apiKey: string,
   body: string,
 ): Promise<AxiosResponse<T, unknown>> {
-  try {
-    return await instance.post(path, body, auth(apiKey));
-  } catch (error) {
-    throw toPlainlyError(error);
-  }
+  return await instance.post(path, body, auth(apiKey));
 }
 
 async function postFormData<T>(
@@ -53,14 +56,10 @@ async function postFormData<T>(
   apiKey: string,
   body: FormData,
 ): Promise<AxiosResponse<T, unknown>> {
-  try {
-    return await instance.post(path, body, {
-      headers: { ...body.getHeaders() },
-      ...auth(apiKey),
-    });
-  } catch (error) {
-    throw toPlainlyError(error);
-  }
+  return await instance.post(path, body, {
+    headers: { ...body.getHeaders() },
+    ...auth(apiKey),
+  });
 }
 
 const fallbackErrors = (error: unknown): PlainlyApiError => {
