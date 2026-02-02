@@ -30,13 +30,7 @@ const instance = axios.create({
 
 instance.interceptors.response.use(
   (response) => response,
-  (error) => {
-    console.error(
-      `Error in response for request`,
-      JSON.stringify(error, null, 2),
-    );
-    return Promise.reject(toPlainlyError(error));
-  },
+  (error) => Promise.reject(toPlainlyError(error)),
 );
 
 async function get<T>(

@@ -15,7 +15,7 @@ describe('getErrorDescription', () => {
     ]);
 
     expect(getErrorDescription(error)).toBe(
-      '[GENERAL_CLIENT_SIDE_ERROR]: Bad request (CODE_1, CODE_2)',
+      '[GENERAL_CLIENT_SIDE_ERROR]: An unexpected client-side Plainly error occurred. (CODE_1, CODE_2)',
     );
   });
 
@@ -28,7 +28,7 @@ describe('getErrorDescription', () => {
     );
 
     expect(getErrorDescription(error)).toBe(
-      '[GENERAL_FORBIDDEN]: Forbidden (CODE_3)',
+      '[GENERAL_FORBIDDEN]: You are not authorized to perform this action. (CODE_3)',
     );
   });
 
