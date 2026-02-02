@@ -13,6 +13,7 @@ export const useApiQuery = <TData, TError>(
     queryKey,
     queryFn: () => queryFn(apiKey),
     ...options,
+    networkMode: 'always',
   });
 };
 
@@ -25,5 +26,6 @@ export const useApiMutation = <TData, TError, TVariables>(
   return useMutation<TData, TError, TVariables>({
     mutationFn: (variables) => mutationFn(apiKey, variables),
     ...options,
+    networkMode: 'always',
   });
 };

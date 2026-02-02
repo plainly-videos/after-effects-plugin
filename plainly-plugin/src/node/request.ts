@@ -13,12 +13,15 @@ import {
 } from './errors';
 
 const PLAINLY_ERROR_CODE_HEADER = 'X-PlainlyErrorCode'.toLowerCase();
+const REQUEST_TIMEOUT_MS = 5000;
 
 const auth = (apiKey: string) => ({ auth: { username: apiKey, password: '' } });
 
 const instance = axios.create({
   adapter: 'http',
   baseURL: `${apiBaseURL}/api/v2`,
+  // Prevent indefinite hangs when network drops mid-request.
+  timeout: REQUEST_TIMEOUT_MS,
   headers: {
     'Content-Type': 'application/json',
     'User-Agent': `plainly-plugin/${pluginBundleVersion}`,

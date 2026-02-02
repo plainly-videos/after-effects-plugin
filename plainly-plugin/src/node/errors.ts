@@ -219,6 +219,24 @@ export class GeneralCommunicationApiError extends PlainlyApiError {
   }
 }
 
+const CODE_MESSAGE_MAP: Partial<Record<ErrorCode, string>> = {
+  [ErrorCode.GENERAL_NO_INTERNET_CONNECTION]:
+    'Looks like you are currently not connected to the Internet.',
+  [ErrorCode.GENERAL_NO_ACCESS_TOKEN]: 'Please re-authenticate.',
+  [ErrorCode.GENERAL_CLIENT_SIDE_ERROR]:
+    'An unexpected client-side Plainly error occurred.',
+  [ErrorCode.GENERAL_SERVER_SIDE_ERROR]:
+    'An unexpected server-side Plainly error occurred.',
+  [ErrorCode.GENERAL_COMMUNICATION_ERROR]:
+    'We are having unexpected difficulties communicating with the Plainly servers. Please try again later.',
+  [ErrorCode.GENERAL_TOO_MANY_REQUESTS]:
+    "It seems like we're receiving a lot of requests at the moment. Please take a breather and try again in a few moments. We apologize for any inconvenience!",
+  [ErrorCode.GENERAL_UNAUTHORIZED]:
+    'No valid authentication credentials to perform this action.',
+  [ErrorCode.GENERAL_FORBIDDEN]:
+    'You are not authorized to perform this action.',
+};
+
 export const getErrorDescription = (details?: unknown): string | undefined => {
   if (!details) return undefined;
 
@@ -231,7 +249,8 @@ export const getErrorDescription = (details?: unknown): string | undefined => {
       .filter((code): code is string => Boolean(code));
     const codesSuffix = codes.length > 0 ? ` (${codes.join(', ')})` : '';
 
-    return `[${code}]: ${errorMessage || message}${codesSuffix}`;
+    const resolvedMessage = CODE_MESSAGE_MAP[code] || errorMessage || message;
+    return `[${code}]: ${resolvedMessage}${codesSuffix}`;
   }
 
   if (details instanceof Error) return details.message;
