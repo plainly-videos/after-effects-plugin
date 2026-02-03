@@ -14,9 +14,12 @@ describe('getErrorDescription', () => {
       {},
     ]);
 
-    expect(getErrorDescription(error)).toBe(
-      '[GENERAL_CLIENT_SIDE_ERROR]: An unexpected client-side Plainly error occurred. (CODE_1, CODE_2)',
+    const { description, code } = getErrorDescription(error) || {};
+
+    expect(description).toBe(
+      'An unexpected client-side Plainly error occurred. (CODE_1, CODE_2)',
     );
+    expect(code).toBe(ErrorCode.GENERAL_CLIENT_SIDE_ERROR);
   });
 
   it('falls back to error code when no status code exists', () => {
@@ -27,26 +30,31 @@ describe('getErrorDescription', () => {
       [{ codes: ['CODE_3'] }],
     );
 
-    expect(getErrorDescription(error)).toBe(
-      '[GENERAL_FORBIDDEN]: You are not authorized to perform this action. (CODE_3)',
+    const { description, code } = getErrorDescription(error) || {};
+
+    expect(description).toBe(
+      'You are not authorized to perform this action. (CODE_3)',
     );
+    expect(code).toBe(ErrorCode.GENERAL_FORBIDDEN);
   });
 
   it('uses the message for non-Plainly errors', () => {
-    expect(getErrorDescription(new Error('Boom'))).toBe('Boom');
+    const { description } = getErrorDescription(new Error('Boom')) || {};
+    expect(description).toBe('Boom');
   });
 
   it('returns strings as-is', () => {
-    expect(getErrorDescription('Something went wrong')).toBe(
-      'Something went wrong',
-    );
+    const { description } = getErrorDescription('Something went wrong') || {};
+    expect(description).toBe('Something went wrong');
   });
 
   it('returns undefined for empty input', () => {
-    expect(getErrorDescription(undefined)).toBeUndefined();
+    const { description } = getErrorDescription(undefined) || {};
+    expect(description).toBeUndefined();
   });
 
   it('stringifies non-error values', () => {
-    expect(getErrorDescription(123)).toBe('123');
+    const { description } = getErrorDescription(123) || {};
+    expect(description).toBe('123');
   });
 });
