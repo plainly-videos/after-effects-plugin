@@ -19,30 +19,6 @@ export class CollectFontsError extends Error {
 }
 
 export enum ErrorCode {
-  API_MAINTENANCE = 'API_MAINTENANCE',
-
-  /**
-   * Project V2 API
-   */
-  PROJECT_DOES_NOT_EXIST = 'PROJECT_DOES_NOT_EXIST',
-  PROJECT_UPLOAD_AEP_FILE_DUPLICATE = 'PROJECT_UPLOAD_AEP_FILE_DUPLICATE',
-  PROJECT_UPLOAD_AEP_FILE_NOT_FOUND = 'PROJECT_UPLOAD_AEP_FILE_NOT_FOUND',
-  PROJECT_UPLOAD_AEP_FILE_EMPTY = 'PROJECT_UPLOAD_AEP_FILE_EMPTY',
-  PROJECT_UPLOAD_CHAR_ENCODING_WRONG = 'PROJECT_UPLOAD_CHAR_ENCODING_WRONG',
-  PROJECT_UPLOAD_ASSET_PATH_WRONG = 'PROJECT_UPLOAD_ASSET_PATH_WRONG',
-  PROJECT_UPLOAD_PROCESSING_FAILED = 'PROJECT_UPLOAD_PROCESSING_FAILED',
-  PROJECT_UPLOAD_ZIP_FILE_INVALID = 'PROJECT_UPLOAD_ZIP_FILE_INVALID',
-  PROJECT_UPLOAD_FILE_OR_URL_REQUIRED = 'PROJECT_UPLOAD_FILE_OR_URL_REQUIRED',
-  PROJECT_RE_UPLOAD_HAS_ACTIVE_RENDERS = 'PROJECT_RE_UPLOAD_HAS_ACTIVE_RENDERS',
-  PROJECT_NOT_ANALYZED = 'PROJECT_NOT_ANALYZED',
-  PROJECT_ANALYSIS_PENDING = 'PROJECT_ANALYSIS_PENDING',
-  PROJECT_HAS_ACTIVE_RENDERS = 'PROJECT_HAS_ACTIVE_RENDERS',
-
-  /**
-   * User API
-   */
-  USER_DOES_NOT_EXIST = 'USER_DOES_NOT_EXIST',
-
   /**
    * Client-side errors (not sent by the backend)
    */
@@ -237,10 +213,12 @@ const CODE_MESSAGE_MAP: Partial<Record<ErrorCode, string>> = {
     'You are not authorized to perform this action.',
 };
 
-export const getErrorDescription = (details?: unknown): string | undefined => {
+export const getErrorDescription = (
+  details?: unknown,
+): { description?: string; code?: string } | undefined => {
   if (!details) return undefined;
 
-  if (typeof details === 'string') return details;
+  if (typeof details === 'string') return { description: details };
 
   if (details instanceof PlainlyApiError) {
     const { code, errorMessage, message } = details;
@@ -250,10 +228,10 @@ export const getErrorDescription = (details?: unknown): string | undefined => {
     const codesSuffix = codes.length > 0 ? ` (${codes.join(', ')})` : '';
 
     const resolvedMessage = CODE_MESSAGE_MAP[code] || errorMessage || message;
-    return `[${code}]: ${resolvedMessage}${codesSuffix}`;
+    return { description: `${resolvedMessage}${codesSuffix}`, code: code };
   }
 
-  if (details instanceof Error) return details.message;
+  if (details instanceof Error) return { description: details.message };
 
-  return String(details);
+  return { description: String(details) };
 };

@@ -8,6 +8,7 @@ function Notification({
   title,
   type,
   description,
+  code,
   onClose,
   isFirst,
   isLast,
@@ -15,6 +16,7 @@ function Notification({
   title: string;
   type: NotificationType;
   description?: string;
+  code?: string;
   onClose: () => void;
   isFirst?: boolean;
   isLast?: boolean;
@@ -56,6 +58,7 @@ function Notification({
                   {description && (
                     <p className="mt-1 text-sm text-gray-400">{description}</p>
                   )}
+                  {code && <p className="mt-1 text-xs text-gray-500">{code}</p>}
                 </div>
                 <div className="ml-4 flex shrink-0">
                   <button
@@ -90,6 +93,7 @@ export function NotificationsOverlay() {
           title={notification.title}
           type={notification.type}
           description={notification.description}
+          code={notification.code}
           onClose={() => clearNotification(notification.id)}
           isFirst={notifications.indexOf(notification) === 0}
           isLast={

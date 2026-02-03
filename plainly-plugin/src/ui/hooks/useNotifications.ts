@@ -13,11 +13,17 @@ export const useNotifications = () => {
   );
 
   const newNotification = useCallback(
-    (title: string, type: NotificationType, description?: string) => {
+    (
+      title: string,
+      type: NotificationType,
+      description?: string,
+      code?: string,
+    ) => {
       const notification: Notification = {
         title,
         type,
         description,
+        code,
         id: crypto.randomUUID(),
       };
 
@@ -52,8 +58,8 @@ export const useNotifications = () => {
 
   const notifyError = useCallback(
     (title: string, details?: unknown) => {
-      const description = getErrorDescription(details);
-      newNotification(title, NotificationType.ERROR, description);
+      const { description, code } = getErrorDescription(details) || {};
+      newNotification(title, NotificationType.ERROR, description, code);
     },
     [newNotification],
   );
