@@ -52,7 +52,7 @@ export function Tooltip({
       {visible &&
         createPortal(
           <div
-            className="fixed z-50 bg-[rgb(43,43,43)] text-white text-xs px-2 py-1 rounded shadow-lg whitespace-nowrap border border-white/10"
+            className="fixed z-50 bg-[rgb(43,43,43)] text-white text-xs px-2 py-1 rounded shadow-lg border border-white/10 max-w-48"
             style={{
               top: `${coords.top}px`,
               left: `${coords.left}px`,

@@ -1,20 +1,29 @@
+import classNames from 'classnames';
+
 export function Checkbox({
   label,
   description,
   onChange,
+  defaultChecked,
+  labelClassName,
 }: {
   label: string;
   description?: string;
   onChange: React.Dispatch<React.SetStateAction<boolean>>;
+  defaultChecked?: boolean;
+  labelClassName?: string;
 }) {
   return (
-    <div className="flex gap-3">
+    <div
+      className={classNames(
+        'flex gap-2',
+        description ? 'items-start' : 'items-center',
+      )}
+    >
       <div className="flex h-6 shrink-0 items-center">
         <div className="group grid size-4 grid-cols-1">
           <input
-            defaultChecked
-            id="comments"
-            name="comments"
+            defaultChecked={defaultChecked}
             type="checkbox"
             aria-describedby="comments-description"
             className="col-start-1 row-start-1 appearance-none rounded border border-white/10 bg-white/5 checked:border-indigo-600 checked:bg-indigo-600 indeterminate:border-indigo-600 indeterminate:bg-indigo-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:border-white/10 disabled:bg-transparent forced-colors:appearance-auto"
@@ -44,12 +53,17 @@ export function Checkbox({
         </div>
       </div>
       <div className="text-xs">
-        <label htmlFor="comments" className="font-medium text-white">
+        <label
+          htmlFor="comments"
+          className={classNames('font-medium text-white', labelClassName)}
+        >
           {label}
         </label>
-        <p id="comments-description" className="text-gray-400">
-          {description}
-        </p>
+        {description && (
+          <p id="comments-description" className="text-gray-400">
+            {description}
+          </p>
+        )}
       </div>
     </div>
   );
