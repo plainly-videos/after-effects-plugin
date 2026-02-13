@@ -38,6 +38,13 @@ export function About() {
     },
   ];
 
+  const deprecations = [
+    {
+      label: 'Dropped support for After Effects versions earlier than 24.0.0',
+      version: '1.3.0',
+    },
+  ];
+
   return (
     <div className="space-y-4 w-full text-white">
       <div>
@@ -101,7 +108,7 @@ export function About() {
         <Label label="Plugin features" />
         <div className="grid grid-cols-3 border-t border-l border-r border-white/10 text-xs mt-2">
           <div className="col-span-3 grid grid-cols-3 bg-[rgb(43,43,43)] divide-x divide-white/10">
-            <p className="px-1 py-1">Name</p>
+            <p className="px-1 py-1 col-span-2">Name</p>
             <p className="px-1 py-1">Since version</p>
           </div>
           <div className="col-span-3 grid grid-cols-3">
@@ -110,7 +117,27 @@ export function About() {
                 className="col-span-3 grid grid-cols-3 divide-x divide-white/10 border-b border-white/10"
                 key={label}
               >
-                <p className="px-1 py-1">{label}</p>
+                <p className="px-1 py-1 col-span-2">{label}</p>
+                <p className="px-1 py-1">{version}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+      <div>
+        <Label label="Deprecations" />
+        <div className="grid grid-cols-3 border-t border-l border-r border-white/10 text-xs mt-2">
+          <div className="col-span-3 grid grid-cols-3 bg-[rgb(43,43,43)] divide-x divide-white/10">
+            <p className="px-1 py-1 col-span-2">Description</p>
+            <p className="px-1 py-1">Since version</p>
+          </div>
+          <div className="col-span-3 grid grid-cols-3">
+            {deprecations.map(({ label, version }) => (
+              <div
+                className="col-span-3 grid grid-cols-3 divide-x divide-white/10 border-b border-white/10"
+                key={label}
+              >
+                <p className="px-1 py-1 col-span-2">{label}</p>
                 <p className="px-1 py-1">{version}</p>
               </div>
             ))}
