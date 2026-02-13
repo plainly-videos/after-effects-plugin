@@ -59,7 +59,7 @@ export class PlainlyApiError extends Error {
     errors?: ApiErrorResponseData['errors'],
     name = 'PlainlyApiError',
   ) {
-    super(errorMessage || code.toString());
+    super(errorMessage || CODE_MESSAGE_MAP[code] || code.toString());
     this.code = code;
     this.generalError = generalError;
     this.errorMessage = errorMessage;
@@ -77,11 +77,7 @@ export class PlainlyApiError extends Error {
  */
 export class NoInternetConnectionApiError extends PlainlyApiError {
   constructor() {
-    super(
-      ErrorCode.GENERAL_NO_INTERNET_CONNECTION,
-      true,
-      'NoInternetConnectionApiError',
-    );
+    super(ErrorCode.GENERAL_NO_INTERNET_CONNECTION, true);
 
     // Set the prototype explicitly.
     // see https://github.com/Microsoft/TypeScript/wiki/FAQ#why-doesnt-extending-built-ins-like-error-array-and-map-work
@@ -94,7 +90,7 @@ export class NoInternetConnectionApiError extends PlainlyApiError {
  */
 export class NoAccessTokenApiError extends PlainlyApiError {
   constructor() {
-    super(ErrorCode.GENERAL_NO_ACCESS_TOKEN, true, 'NoAccessTokenApiError');
+    super(ErrorCode.GENERAL_NO_ACCESS_TOKEN, true);
 
     // Set the prototype explicitly.
     // see https://github.com/Microsoft/TypeScript/wiki/FAQ#why-doesnt-extending-built-ins-like-error-array-and-map-work
@@ -108,14 +104,8 @@ export class NoAccessTokenApiError extends PlainlyApiError {
 export class AcceptableClientSideApiError extends PlainlyApiError {
   public statusCode: number;
 
-  constructor(errorCode: ErrorCode, statusCode: number) {
-    super(
-      errorCode,
-      true,
-      undefined,
-      undefined,
-      'AcceptableClientSideApiError',
-    );
+  constructor(errorCode: ErrorCode, statusCode: number, errorMessage?: string) {
+    super(errorCode, true, errorMessage);
     this.statusCode = statusCode;
 
     // Set the prototype explicitly.
@@ -135,13 +125,7 @@ export class ClientSideApiError extends PlainlyApiError {
     errorMessage?: string,
     errors?: ApiErrorResponseData['errors'],
   ) {
-    super(
-      ErrorCode.GENERAL_CLIENT_SIDE_ERROR,
-      true,
-      errorMessage,
-      errors,
-      'ClientSideApiError',
-    );
+    super(ErrorCode.GENERAL_CLIENT_SIDE_ERROR, true, errorMessage, errors);
     this.statusCode = statusCode;
 
     // Set the prototype explicitly.
@@ -161,13 +145,7 @@ export class ServerSideApiError extends PlainlyApiError {
     errorMessage?: string,
     errors?: ApiErrorResponseData['errors'],
   ) {
-    super(
-      ErrorCode.GENERAL_SERVER_SIDE_ERROR,
-      true,
-      errorMessage,
-      errors,
-      'ServerSideApiError',
-    );
+    super(ErrorCode.GENERAL_SERVER_SIDE_ERROR, true, errorMessage, errors);
     this.statusCode = statusCode;
 
     // Set the prototype explicitly.
@@ -181,13 +159,7 @@ export class ServerSideApiError extends PlainlyApiError {
  */
 export class GeneralCommunicationApiError extends PlainlyApiError {
   constructor(errorMessage?: string, errors?: ApiErrorResponseData['errors']) {
-    super(
-      ErrorCode.GENERAL_COMMUNICATION_ERROR,
-      true,
-      errorMessage,
-      errors,
-      'GeneralCommunicationApiError',
-    );
+    super(ErrorCode.GENERAL_COMMUNICATION_ERROR, true, errorMessage, errors);
 
     // Set the prototype explicitly.
     // see https://github.com/Microsoft/TypeScript/wiki/FAQ#why-doesnt-extending-built-ins-like-error-array-and-map-work
@@ -227,7 +199,7 @@ export const getErrorDescription = (
       .filter((code): code is string => Boolean(code));
     const codesSuffix = codes.length > 0 ? ` (${codes.join(', ')})` : '';
 
-    const resolvedMessage = CODE_MESSAGE_MAP[code] || errorMessage || message;
+    const resolvedMessage = errorMessage || message || CODE_MESSAGE_MAP[code];
     return { description: `${resolvedMessage}${codesSuffix}`, code: code };
   }
 

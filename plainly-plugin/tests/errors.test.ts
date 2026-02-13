@@ -16,9 +16,7 @@ describe('getErrorDescription', () => {
 
     const { description, code } = getErrorDescription(error) || {};
 
-    expect(description).toBe(
-      'An unexpected client-side Plainly error occurred. (CODE_1, CODE_2)',
-    );
+    expect(description).toBe('Bad request (CODE_1, CODE_2)');
     expect(code).toBe(ErrorCode.GENERAL_CLIENT_SIDE_ERROR);
   });
 
@@ -32,9 +30,7 @@ describe('getErrorDescription', () => {
 
     const { description, code } = getErrorDescription(error) || {};
 
-    expect(description).toBe(
-      'You are not authorized to perform this action. (CODE_3)',
-    );
+    expect(description).toBe('Forbidden (CODE_3)');
     expect(code).toBe(ErrorCode.GENERAL_FORBIDDEN);
   });
 
