@@ -130,8 +130,17 @@ export const zipItems = async (
 
     output.on('close', () => resolve(outputZipPath));
 
+    output.on('error', (err) => {
+      archive.destroy();
+      reject(err);
+    });
+
     archive.on('error', (err) => {
-      fs.unlinkSync(outputZipPath);
+      try {
+        fs.unlinkSync(outputZipPath);
+      } catch {
+        // Ignore cleanup errors
+      }
       reject(err);
     });
 
@@ -147,7 +156,9 @@ export const zipItems = async (
         }
       } catch (error) {
         if (item.isRequired) {
-          throw error;
+          archive.destroy();
+          reject(error);
+          return;
         }
       }
     }
