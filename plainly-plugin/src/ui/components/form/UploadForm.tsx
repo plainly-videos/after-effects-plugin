@@ -128,7 +128,7 @@ export function UploadForm() {
       setUploadMode('edit');
       setInputs({});
     } catch (error) {
-      notifyError('Failed to upload project', (error as Error).message);
+      notifyError('Failed to upload project', error);
     } finally {
       if (zipPathValue) {
         fs.rmSync(zipPathValue);

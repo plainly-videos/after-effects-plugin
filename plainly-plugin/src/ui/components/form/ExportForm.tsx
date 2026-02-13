@@ -25,7 +25,7 @@ export function ExportForm() {
 
         if (openLocation) openFolder(targetPath);
       } catch (error) {
-        notifyError('Failed to collect files', (error as Error).message);
+        notifyError('Failed to collect files', error);
         setLoading(false);
       }
     }

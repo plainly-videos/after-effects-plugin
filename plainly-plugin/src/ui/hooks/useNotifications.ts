@@ -1,3 +1,4 @@
+import { getErrorDescription } from '@src/node/errors';
 import crypto from 'crypto';
 import { useCallback } from 'react';
 import { getGlobalState, State, useGlobalState } from '../state/store';
@@ -12,11 +13,17 @@ export const useNotifications = () => {
   );
 
   const newNotification = useCallback(
-    (title: string, type: NotificationType, description?: string) => {
+    (
+      title: string,
+      type: NotificationType,
+      description?: string,
+      code?: string,
+    ) => {
       const notification: Notification = {
         title,
         type,
         description,
+        code,
         id: crypto.randomUUID(),
       };
 
@@ -50,8 +57,9 @@ export const useNotifications = () => {
   );
 
   const notifyError = useCallback(
-    (title: string, description?: string) => {
-      newNotification(title, NotificationType.ERROR, description);
+    (title: string, details?: unknown) => {
+      const { description, code } = getErrorDescription(details) || {};
+      newNotification(title, NotificationType.ERROR, description, code);
     },
     [newNotification],
   );

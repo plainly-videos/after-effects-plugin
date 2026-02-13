@@ -23,6 +23,7 @@ export interface Notification {
   title: string;
   type: NotificationType;
   description?: string;
+  code?: string;
 }
 
 export class Pin {
