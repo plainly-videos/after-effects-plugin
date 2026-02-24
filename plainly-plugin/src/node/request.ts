@@ -13,20 +13,46 @@ import {
 } from './errors';
 
 const PLAINLY_ERROR_CODE_HEADER = 'X-PlainlyErrorCode'.toLowerCase();
-const REQUEST_TIMEOUT_MS = 5000;
+const NO_INTERNET_ERROR_CODES = new Set([
+  'ENOTFOUND',
+  'EAI_AGAIN',
+  'ENETDOWN',
+  'ENETUNREACH',
+  'EHOSTDOWN',
+  'EHOSTUNREACH',
+  'ERR_NETWORK',
+]);
 
 const auth = (apiKey: string) => ({ auth: { username: apiKey, password: '' } });
 
 const instance = axios.create({
   adapter: 'http',
   baseURL: `${apiBaseURL}/api/v2`,
-  // Prevent indefinite hangs when network drops mid-request.
-  timeout: REQUEST_TIMEOUT_MS,
   headers: {
     'Content-Type': 'application/json',
     'User-Agent': `plainly-plugin/${pluginBundleVersion}`,
   },
 });
+
+const isLikelyOfflineError = (error: unknown): boolean => {
+  if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+    return true;
+  }
+
+  if (!axios.isAxiosError(error)) return false;
+  if (error.response) return false;
+
+  if (error.code && NO_INTERNET_ERROR_CODES.has(error.code)) {
+    return true;
+  }
+
+  const message = (error.message || '').toLowerCase();
+  return (
+    message.includes('network error') ||
+    message.includes('getaddrinfo enotfound') ||
+    message.includes('name not resolved')
+  );
+};
 
 instance.interceptors.response.use(
   (response) => response,
@@ -60,8 +86,7 @@ async function postFormData<T>(
 }
 
 const fallbackErrors = (error: unknown): PlainlyApiError => {
-  // check for offline first (guarded for non-browser envs)
-  if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+  if (isLikelyOfflineError(error)) {
     return new NoInternetConnectionApiError();
   }
 
