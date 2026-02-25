@@ -21,6 +21,9 @@ const NO_INTERNET_ERROR_CODES = new Set([
   'EHOSTDOWN',
   'EHOSTUNREACH',
   'ERR_NETWORK',
+  'ETIMEDOUT',
+  'ECONNREFUSED',
+  'ECONNRESET',
 ]);
 
 const auth = (apiKey: string) => ({ auth: { username: apiKey, password: '' } });
@@ -28,6 +31,7 @@ const auth = (apiKey: string) => ({ auth: { username: apiKey, password: '' } });
 const instance = axios.create({
   adapter: 'http',
   baseURL: `${apiBaseURL}/api/v2`,
+  timeout: 30000,
   headers: {
     'Content-Type': 'application/json',
     'User-Agent': `plainly-plugin/${pluginBundleVersion}`,
@@ -35,23 +39,11 @@ const instance = axios.create({
 });
 
 const isLikelyOfflineError = (error: unknown): boolean => {
-  if (typeof navigator !== 'undefined' && navigator.onLine === false) {
-    return true;
-  }
-
   if (!axios.isAxiosError(error)) return false;
   if (error.response) return false;
+  if (error.code && NO_INTERNET_ERROR_CODES.has(error.code)) return true;
 
-  if (error.code && NO_INTERNET_ERROR_CODES.has(error.code)) {
-    return true;
-  }
-
-  const message = (error.message || '').toLowerCase();
-  return (
-    message.includes('network error') ||
-    message.includes('getaddrinfo enotfound') ||
-    message.includes('name not resolved')
-  );
+  return false;
 };
 
 instance.interceptors.response.use(
@@ -81,6 +73,7 @@ async function postFormData<T>(
 ): Promise<AxiosResponse<T, unknown>> {
   return await instance.post(path, body, {
     headers: { ...body.getHeaders() },
+    timeout: 120000, // FormData can sometimes take a long time to upload, so we set a longer timeout for these requests - 2 minutes
     ...auth(apiKey),
   });
 }
