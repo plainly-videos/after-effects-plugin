@@ -39,11 +39,11 @@ const instance = axios.create({
 });
 
 const isLikelyOfflineError = (error: unknown): boolean => {
-  if (!axios.isAxiosError(error)) return false;
-  if (error.response) return false;
-  if (error.code && NO_INTERNET_ERROR_CODES.has(error.code)) return true;
-
-  return false;
+  return (
+    axios.isAxiosError(error) &&
+    !!error.code &&
+    NO_INTERNET_ERROR_CODES.has(error.code)
+  );
 };
 
 instance.interceptors.response.use(
