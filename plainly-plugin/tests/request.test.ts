@@ -3,14 +3,16 @@ import {
   ClientSideApiError,
   ErrorCode,
   GeneralCommunicationApiError,
+  NoInternetConnectionApiError,
   PlainlyApiError,
   ServerSideApiError,
 } from '../src/node/errors';
 import { toPlainlyError } from '../src/node/request';
 
-const makeAxiosError = (response?: unknown) => ({
+const makeAxiosError = (response?: unknown, code?: string) => ({
   isAxiosError: true,
   response,
+  code,
 });
 
 describe('toPlainlyError', () => {
@@ -43,6 +45,31 @@ describe('toPlainlyError', () => {
     const error = toPlainlyError(makeAxiosError());
 
     expect(error).toBeInstanceOf(GeneralCommunicationApiError);
+  });
+
+  it('returns no-internet error for axios network error code without response', () => {
+    const error = toPlainlyError(makeAxiosError(undefined, 'ENOTFOUND'));
+
+    expect(error).toBeInstanceOf(NoInternetConnectionApiError);
+    expect(error.code).toBe(ErrorCode.GENERAL_NO_INTERNET_CONNECTION);
+  });
+
+  it('returns communication error for unknown axios network code without response', () => {
+    const error = toPlainlyError(makeAxiosError(undefined, 'EUNKNOWN'));
+
+    expect(error).toBeInstanceOf(GeneralCommunicationApiError);
+  });
+
+  it('does not treat axios response errors as offline even with network code', () => {
+    const response = {
+      status: 503,
+      headers: {},
+      data: { message: 'Unavailable' },
+    };
+    const error = toPlainlyError(makeAxiosError(response, 'ENOTFOUND'));
+
+    expect(error).toBeInstanceOf(ServerSideApiError);
+    expect(error).not.toBeInstanceOf(NoInternetConnectionApiError);
   });
 
   it('returns plainly api error when error code header is present', () => {
