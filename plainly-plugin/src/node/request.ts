@@ -13,6 +13,8 @@ import {
 } from './errors';
 
 const PLAINLY_ERROR_CODE_HEADER = 'X-PlainlyErrorCode'.toLowerCase();
+const REQUEST_TIMEOUT_MS = 30000; // 30 seconds
+const FORM_DATA_REQUEST_TIMEOUT_MS = 120000; // 2 minutes
 const NO_INTERNET_ERROR_CODES = new Set([
   'ENOTFOUND',
   'EAI_AGAIN',
@@ -31,7 +33,7 @@ const auth = (apiKey: string) => ({ auth: { username: apiKey, password: '' } });
 const instance = axios.create({
   adapter: 'http',
   baseURL: `${apiBaseURL}/api/v2`,
-  timeout: 30000,
+  timeout: REQUEST_TIMEOUT_MS,
   headers: {
     'Content-Type': 'application/json',
     'User-Agent': `plainly-plugin/${pluginBundleVersion}`,
@@ -73,7 +75,7 @@ async function postFormData<T>(
 ): Promise<AxiosResponse<T, unknown>> {
   return await instance.post(path, body, {
     headers: { ...body.getHeaders() },
-    timeout: 120000, // FormData can sometimes take a long time to upload, so we set a longer timeout for these requests - 2 minutes
+    timeout: FORM_DATA_REQUEST_TIMEOUT_MS, // FormData can sometimes take a long time to upload, so we set a longer timeout for these requests - 2 minutes
     ...auth(apiKey),
   });
 }
