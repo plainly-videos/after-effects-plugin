@@ -1,6 +1,5 @@
 import { AeScriptsApi } from '@src/node/bridge';
-import { useNavigate, useNotifications } from '@src/ui/hooks';
-import { isEmpty } from '@src/ui/utils';
+import { useNavigate } from '@src/ui/hooks';
 import classNames from 'classnames';
 import {
   ChevronDownIcon,
@@ -10,99 +9,36 @@ import {
   WrenchIcon,
 } from 'lucide-react';
 import type { AnyProjectIssue } from 'plainly-types';
-import { useCallback, useState } from 'react';
+import { useCallback } from 'react';
 import { Tooltip } from '../common';
-import { ConfirmationModal, ProjectIssueType } from '.';
+import { ProjectIssueType } from '.';
 
 export function Issue({
-  issueType,
   issues,
   label,
   description,
   externalLink,
-  onExpandClick,
   isOpen,
   warning,
-  validateProject,
+  onExpandClick,
+  onFixClick,
 }: {
-  issueType: ProjectIssueType;
-  issues: AnyProjectIssue[] | undefined;
+  issues: AnyProjectIssue[];
   label: string;
   description: string;
   externalLink: string;
-  onExpandClick: (issueType: ProjectIssueType) => void;
   isOpen: boolean;
   warning?: string;
-  validateProject: () => Promise<string | undefined>;
+  onExpandClick: () => void;
+  onFixClick: () => void;
 }) {
   const { handleLinkClick } = useNavigate();
-  const { notifyError, notifyInfo } = useNotifications();
-  const [showRendererConfirmation, setShowRendererConfirmation] =
-    useState(false);
-
-  const handleFix = async () => {
-    if (isEmpty(issues)) return;
-
-    try {
-      // Collect all AllCaps layer IDs
-      const allCapsLayerIds: string[] = [];
-      const unsupported3DRendererCompIds: string[] = [];
-      for (const issue of issues) {
-        if (issue.type === ProjectIssueType.AllCaps) {
-          allCapsLayerIds.push(issue.layerId);
-        }
-
-        if (issue.type === ProjectIssueType.Unsupported3DRenderer) {
-          unsupported3DRendererCompIds.push(issue.compId);
-        }
-      }
-
-      // Fix all AllCaps issues in one undo group
-      if (allCapsLayerIds.length > 0) {
-        await AeScriptsApi.fixAllCapsIssues(allCapsLayerIds);
-      }
-
-      // Fix all Unsupported3DRenderer issues in one undo group
-      if (unsupported3DRendererCompIds.length > 0) {
-        await AeScriptsApi.fixUnsupported3DRendererIssues(
-          unsupported3DRendererCompIds,
-        );
-      }
-
-      await validateProject();
-      notifyInfo(
-        'Attempted to fix issue.',
-        'Please review the project again. Some issues may require manual intervention.',
-      );
-    } catch (error) {
-      console.error('Error fixing issue:', error);
-      notifyError(
-        'Error fixing issue.',
-        'An unexpected error occurred while attempting to fix the issues, please try again.',
-      );
-    }
-  };
-
-  const onFixClick = async () => {
-    if (issueType === ProjectIssueType.Unsupported3DRenderer) {
-      setShowRendererConfirmation(true);
-      return;
-    }
-
-    await handleFix();
-    onExpandClick(issueType);
-  };
-
-  // Don't render if there are no issues
-  if (isEmpty(issues)) {
-    return null;
-  }
 
   return (
     <div className="col-span-3 grid grid-cols-3 border border-white/10 text-xs divide-y divide-white/10 rounded-md">
       <button
         type="button"
-        onClick={() => onExpandClick(issueType)}
+        onClick={onExpandClick}
         className="col-span-3 font-medium flex justify-between items-center px-3 py-2 bg-[rgb(43,43,43)]"
       >
         <div className="flex items-center gap-2">
@@ -139,7 +75,7 @@ export function Issue({
                 type="button"
                 onClick={onFixClick}
                 className="flex items-center justify-center disabled:cursor-not-allowed disabled:opacity-50"
-                disabled={Boolean(warning) || isEmpty(issues)}
+                disabled={Boolean(warning)}
               >
                 <WrenchIcon className="size-4 text-gray-400 group-hover:text-white duration-200" />
               </button>
@@ -148,14 +84,7 @@ export function Issue({
         </div>
         <div className="flex items-center gap-2">
           <div className="bg-white/10 flex items-center justify-center rounded-full size-4">
-            <p
-              className={classNames(
-                'leading-tight',
-                (issues ?? []).length > 0 ? 'text-red-400' : 'text-green-400',
-              )}
-            >
-              {(issues ?? []).length}
-            </p>
+            <p className="leading-tight text-red-400">{issues.length}</p>
           </div>
           <div className="cursor-pointer flex items-center justify-center group">
             <ChevronDownIcon
@@ -169,23 +98,12 @@ export function Issue({
           </div>
         </div>
       </button>
-      {isOpen && !isEmpty(issues) && (
+      {isOpen && (
         <div className="divide-y divide-white/10 col-span-3">
           {issues.map((details) => (
             <IssueItem key={details.type} issue={details} />
           ))}
         </div>
-      )}
-      {issueType === ProjectIssueType.Unsupported3DRenderer && (
-        <ConfirmationModal
-          title="Fix unsupported 3D renderer"
-          description={`This will switch ${(issues ?? []).length} ${(issues ?? []).length === 1 ? 'composition' : 'compositions'} to Classic 3D. Certain 3D effects may look different or stop working.`}
-          buttonText="Switch to Classic 3D"
-          open={showRendererConfirmation}
-          setOpen={setShowRendererConfirmation}
-          onConfirm={() => void handleFix()}
-          readMoreLink="https://help.plainlyvideos.com/docs/faq/projects-faq#does-plainly-support-cinema-4d-and-advanced-3d-renderers"
-        />
       )}
     </div>
   );

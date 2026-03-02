@@ -1,5 +1,6 @@
+import { isEmpty } from '@src/ui/utils';
 import type { CompIssues } from 'plainly-types';
-import { Issue, ProjectIssueType } from '..';
+import { ProjectIssueType, UnsupportedRendererIssueView } from '..';
 
 export function CompsList({
   comps,
@@ -17,15 +18,17 @@ export function CompsList({
   );
 
   return (
-    <Issue
-      issueType={ProjectIssueType.Unsupported3DRenderer}
-      issues={renderers}
-      label="Unsupported 3D Renderer"
-      description="Compositions that do not use the Classic 3D renderer are not supported on the Plainly platform."
-      externalLink="https://help.plainlyvideos.com/docs/faq/projects-faq#does-plainly-support-cinema-4d-and-advanced-3d-renderers"
-      onExpandClick={onExpandClick}
-      isOpen={currentIssueType === ProjectIssueType.Unsupported3DRenderer}
-      validateProject={validateProject}
-    />
+    <>
+      {!isEmpty(renderers) && (
+        <UnsupportedRendererIssueView
+          issues={renderers}
+          isOpen={currentIssueType === ProjectIssueType.Unsupported3DRenderer}
+          validateProject={validateProject}
+          onExpandClick={() =>
+            onExpandClick(ProjectIssueType.Unsupported3DRenderer)
+          }
+        />
+      )}
+    </>
   );
 }

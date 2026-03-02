@@ -25,7 +25,8 @@
     "lucide-react": "^0.544.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "react-hooks-global-state": "^2.1.0"
+    "react-hooks-global-state": "^2.1.0",
+    "semver": "^7.7.4"
   },
   "devDependencies": {
     "@babel/core": "^7.28.6",
@@ -42,6 +43,7 @@
     "@types/node": "^20.17.6",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
+    "@types/semver": "^7.7.1",
     "autoprefixer": "^10.4.20",
     "babel-jest": "^30.2.0",
     "babel-loader": "^9.2.1",

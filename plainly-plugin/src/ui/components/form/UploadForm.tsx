@@ -19,7 +19,7 @@ import { Description, Label, PageHeading } from '../typography';
 export function UploadForm() {
   const { plainlyProject, documentId } = useContext(GlobalContext);
 
-  const [setProjectData, _, getData] = useProjectData();
+  const { setProjectData, getProjectData } = useProjectData();
   const { isLoading, data } = useGetProjectDetails(plainlyProject?.id);
   const { isPending: isUploading, mutateAsync: uploadProject } =
     useUploadProject();
@@ -99,8 +99,8 @@ export function UploadForm() {
 
       let project: Project | undefined;
 
-      // check if the `documentId` and project from `getData` have the same ID
-      const projectData = await getData();
+      // check if the `documentId` and project from `getProjectData` have the same ID
+      const projectData = await getProjectData();
       if (documentId && projectData?.documentId !== documentId) {
         notifyError(
           'Project mismatch',
