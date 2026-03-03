@@ -1,16 +1,11 @@
 import { getErrorDescription } from '@src/node/errors';
 import crypto from 'crypto';
 import { useCallback } from 'react';
-import { getGlobalState, State, useGlobalState } from '../state/store';
+import { State, useGlobalState } from '../state/store';
 import { type Notification, NotificationType } from '../types';
 
 export const useNotifications = () => {
   const [notifications, setNotifications] = useGlobalState(State.NOTIFICATIONS);
-
-  const getNotifications = useCallback(
-    () => getGlobalState(State.NOTIFICATIONS),
-    [],
-  );
 
   const newNotification = useCallback(
     (
@@ -27,18 +22,17 @@ export const useNotifications = () => {
         id: crypto.randomUUID(),
       };
 
-      setNotifications([...getNotifications(), notification]);
+      setNotifications((prev) => [...prev, notification]);
       return notification;
     },
-    [getNotifications, setNotifications],
+    [setNotifications],
   );
 
   const clearNotification = useCallback(
     (id: string) => {
-      const updatedNotifications = notifications.filter((n) => n.id !== id);
-      setNotifications(updatedNotifications);
+      setNotifications((prev) => prev.filter((n) => n.id !== id));
     },
-    [setNotifications, notifications],
+    [setNotifications],
   );
 
   const notifySuccess = useCallback(
@@ -49,9 +43,7 @@ export const useNotifications = () => {
         description,
       );
 
-      setTimeout(() => {
-        clearNotification(notification.id);
-      }, 5000);
+      setTimeout(() => clearNotification(notification.id), 5000);
     },
     [newNotification, clearNotification],
   );
@@ -72,9 +64,7 @@ export const useNotifications = () => {
         description,
       );
 
-      setTimeout(() => {
-        clearNotification(notification.id);
-      }, 5000);
+      setTimeout(() => clearNotification(notification.id), 5000);
     },
     [newNotification, clearNotification],
   );
@@ -85,5 +75,6 @@ export const useNotifications = () => {
     notifyError,
     notifyInfo,
     clearNotification,
+    clearAllNotifications: () => setNotifications([]),
   };
 };
