@@ -12,7 +12,7 @@ import { LinkedProject, ProjectsListItem } from '.';
 export function ProjectsList() {
   const { handleLinkClick } = useNavigate();
   const { plainlyProject } = useContext(GlobalContext);
-  const [setProjectData, removeProjectData] = useProjectData();
+  const { setProjectData, removeProjectData } = useProjectData();
   const { isLoading, data } = useGetProjects();
 
   const linkedProject = useMemo(

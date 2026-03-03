@@ -1,3 +1,4 @@
+import { isEmpty as lodashIsEmpty } from 'lodash-es';
 import type React from 'react';
 
 /**
@@ -51,6 +52,6 @@ export function startAsymptoticProgress(
  */
 export function isEmpty<T>(
   list: T[] | null | undefined,
-): list is undefined | null | [] {
-  return !list || (list && list.length === 0);
+): list is null | undefined | [] {
+  return lodashIsEmpty(list);
 }

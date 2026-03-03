@@ -1,9 +1,9 @@
-import { getAllComps, getTextLayersByComp } from '../utils';
-import { ProjectIssueType, type TextLayerIssues } from './types';
+import type { TextLayerIssues } from 'plainly-types';
+import { getTextLayersByComp } from '../utils';
+import { ProjectIssueType } from '.';
 
-function checkTextLayers(): TextLayerIssues[] {
-  const comps = getAllComps(app.project);
-  const textLayers: TextLayerIssues[] = [];
+function validateTextLayers(comps: CompItem[]): TextLayerIssues[] {
+  const textLayersIssues: TextLayerIssues[] = [];
 
   for (let i = 0; i < comps.length; i++) {
     const comp = comps[i];
@@ -24,11 +24,10 @@ function checkTextLayers(): TextLayerIssues[] {
       // this checks only the first character of the text layer
       // IMPORTANT: with this method, on older versions (< 24.3), we can't fix, but we can at least report it
       if (textDocument.allCaps) {
-        textLayers.push({
+        textLayersIssues.push({
           type: ProjectIssueType.AllCaps,
           layerId: layer.id.toString(),
           layerName: layer.name,
-          text: true,
         });
         continue;
       }
@@ -52,11 +51,10 @@ function checkTextLayers(): TextLayerIssues[] {
             cRange.fontCapsOption === FontCapsOption.FONT_ALL_CAPS
           ) {
             hasCharacterAllCaps = true;
-            textLayers.push({
+            textLayersIssues.push({
               type: ProjectIssueType.AllCaps,
               layerId: layer.id.toString(),
               layerName: layer.name,
-              text: true,
             });
             break;
           }
@@ -73,17 +71,16 @@ function checkTextLayers(): TextLayerIssues[] {
         range.isRangeValid &&
         range.fontCapsOption === FontCapsOption.FONT_ALL_CAPS
       ) {
-        textLayers.push({
+        textLayersIssues.push({
           type: ProjectIssueType.AllCaps,
           layerId: layer.id.toString(),
           layerName: layer.name,
-          text: true,
         });
       }
     }
   }
 
-  return textLayers;
+  return textLayersIssues;
 }
 
 /**
@@ -138,10 +135,28 @@ function fixAllCapsIssue(layerId: string) {
   updateLayerTextDocument(layer, newValue);
 }
 
+/**
+ * Fixes all caps issues for multiple text layers in a single undo group.
+ *
+ * **NOTE**: Works only on `After Effects 24.3` and later due to the use of `characterRange` method and `fontCapsOption`.
+ *
+ * @param layerIds Array of layer IDs to fix
+ * @returns The name of the undo group created, or undefined if no fixes were applied
+ */
+function fixAllCapsIssues(layerIds: string[]) {
+  app.beginUndoGroup('fix all caps');
+
+  for (const layerId of layerIds) {
+    fixAllCapsIssue(layerId);
+  }
+
+  app.endUndoGroup();
+}
+
 function updateLayerTextDocument(layer: TextLayer, newValue: TextDocument) {
   const originalLayerName = layer.name;
   layer.sourceText.setValue(newValue);
   layer.name = originalLayerName; // Preserve original layer name
 }
 
-export { checkTextLayers, fixAllCapsIssue };
+export { validateTextLayers, fixAllCapsIssue, fixAllCapsIssues };
