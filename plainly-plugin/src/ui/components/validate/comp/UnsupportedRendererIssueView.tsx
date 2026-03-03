@@ -56,7 +56,7 @@ export function UnsupportedRendererIssueView({
       {showConfirmation && (
         <ConfirmationModal
           title="Fix unsupported 3D renderer"
-          description={`This will switch ${(issues ?? []).length} ${(issues ?? []).length === 1 ? 'composition' : 'compositions'} to Classic 3D. Certain 3D effects may look different or stop working.`}
+          description={`This will change ${issues.length} composition(s) to Classic 3D. Certain 3D effects may look different or stop working.`}
           buttonText="Switch to Classic 3D"
           open={showConfirmation}
           setOpen={setShowConfirmation}

@@ -2,8 +2,8 @@ import type { TextLayerIssues } from 'plainly-types';
 import { getTextLayersByComp } from '../utils';
 import { ProjectIssueType } from '.';
 
-function checkTextLayers(comps: CompItem[]): TextLayerIssues[] {
-  const textLayers: TextLayerIssues[] = [];
+function validateTextLayers(comps: CompItem[]): TextLayerIssues[] {
+  const textLayersIssues: TextLayerIssues[] = [];
 
   for (let i = 0; i < comps.length; i++) {
     const comp = comps[i];
@@ -24,7 +24,7 @@ function checkTextLayers(comps: CompItem[]): TextLayerIssues[] {
       // this checks only the first character of the text layer
       // IMPORTANT: with this method, on older versions (< 24.3), we can't fix, but we can at least report it
       if (textDocument.allCaps) {
-        textLayers.push({
+        textLayersIssues.push({
           type: ProjectIssueType.AllCaps,
           layerId: layer.id.toString(),
           layerName: layer.name,
@@ -51,7 +51,7 @@ function checkTextLayers(comps: CompItem[]): TextLayerIssues[] {
             cRange.fontCapsOption === FontCapsOption.FONT_ALL_CAPS
           ) {
             hasCharacterAllCaps = true;
-            textLayers.push({
+            textLayersIssues.push({
               type: ProjectIssueType.AllCaps,
               layerId: layer.id.toString(),
               layerName: layer.name,
@@ -71,7 +71,7 @@ function checkTextLayers(comps: CompItem[]): TextLayerIssues[] {
         range.isRangeValid &&
         range.fontCapsOption === FontCapsOption.FONT_ALL_CAPS
       ) {
-        textLayers.push({
+        textLayersIssues.push({
           type: ProjectIssueType.AllCaps,
           layerId: layer.id.toString(),
           layerName: layer.name,
@@ -80,7 +80,7 @@ function checkTextLayers(comps: CompItem[]): TextLayerIssues[] {
     }
   }
 
-  return textLayers;
+  return textLayersIssues;
 }
 
 /**
@@ -159,4 +159,4 @@ function updateLayerTextDocument(layer: TextLayer, newValue: TextDocument) {
   layer.name = originalLayerName; // Preserve original layer name
 }
 
-export { checkTextLayers, fixAllCapsIssue, fixAllCapsIssues };
+export { validateTextLayers, fixAllCapsIssue, fixAllCapsIssues };

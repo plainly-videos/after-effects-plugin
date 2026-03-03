@@ -14,7 +14,7 @@ function getRendererName(renderer: string): RendererTypeName {
   return 'Unknown Renderer';
 }
 
-function checkComps(comps: CompItem[]): CompIssues[] {
+function validateComps(comps: CompItem[]): CompIssues[] {
   const compIssues: CompIssues[] = [];
 
   for (let i = 0; i < comps.length; i++) {
@@ -45,25 +45,18 @@ function fixUnsupported3DRendererIssue(compId: string): void {
 function fixUnsupported3DRendererIssues(compIds: string[]) {
   app.beginUndoGroup('fix unsupported 3d renderer');
 
-  // Build comp cache first to avoid repeated lookups
-  const compsToFix: CompItem[] = [];
   for (const compId of compIds) {
     const comp = app.project.itemByID(parseInt(compId, 10));
     if (comp && comp instanceof CompItem) {
-      compsToFix.push(comp);
+      comp.renderer = RendererType.CLASSIC_3D;
     }
-  }
-
-  // Now fix all at once (fewer AE API calls)
-  for (const comp of compsToFix) {
-    comp.renderer = RendererType.CLASSIC_3D;
   }
 
   app.endUndoGroup();
 }
 
 export {
-  checkComps,
+  validateComps,
   fixUnsupported3DRendererIssue,
   fixUnsupported3DRendererIssues,
 };

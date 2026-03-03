@@ -1,10 +1,10 @@
 import type { AnyProjectIssue } from 'plainly-types';
 import { getAllComps } from '../utils';
-import { checkComps, fixUnsupported3DRendererIssue } from './compValidators';
+import { fixUnsupported3DRendererIssue, validateComps } from './compValidators';
 import {
-  checkTextLayers,
   fixAllCapsIssue,
   fixAllCapsIssues,
+  validateTextLayers,
 } from './textValidators';
 
 enum ProjectIssueType {
@@ -15,17 +15,9 @@ enum ProjectIssueType {
 function validateProject(): string {
   const comps = getAllComps(app.project);
 
-  const textIssues = checkTextLayers(comps);
-  const compIssues = checkComps(comps);
-  let issues: AnyProjectIssue[] = [];
-
-  if (textIssues.length > 0) {
-    issues = issues.concat(textIssues);
-  }
-
-  if (compIssues.length > 0) {
-    issues = issues.concat(compIssues);
-  }
+  const textIssues = validateTextLayers(comps);
+  const compIssues = validateComps(comps);
+  const issues: AnyProjectIssue[] = [...textIssues, ...compIssues];
 
   if (issues.length > 0) {
     return JSON.stringify(issues);

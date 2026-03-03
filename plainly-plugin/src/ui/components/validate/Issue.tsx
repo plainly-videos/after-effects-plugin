@@ -123,17 +123,15 @@ function IssueItem({ issue }: { issue: AnyProjectIssue }) {
       return (
         <IssueItemContent
           key={issue.compId}
-          name={issue.compName}
+          label={`${issue.compName} (${issue.renderer})`}
           onClick={() => onIssueClick(issue.compId, 'comp')}
-        >
-          {` (${issue.renderer})`}
-        </IssueItemContent>
+        />
       );
     case ProjectIssueType.AllCaps:
       return (
         <IssueItemContent
           key={issue.layerId}
-          name={issue.layerName}
+          label={issue.layerName}
           onClick={() => onIssueClick(issue.layerId, 'layer')}
         />
       );
@@ -143,13 +141,11 @@ function IssueItem({ issue }: { issue: AnyProjectIssue }) {
 }
 
 function IssueItemContent({
-  name,
+  label,
   onClick,
-  children,
 }: {
-  name: string;
+  label: string;
   onClick: () => void;
-  children?: React.ReactNode;
 }) {
   return (
     <div className="px-3 py-1 w-full">
@@ -158,8 +154,7 @@ function IssueItemContent({
         className="text-left underline truncate max-w-full"
         onClick={onClick}
       >
-        {name}
-        {children}
+        {label}
       </button>
     </div>
   );
