@@ -9,7 +9,7 @@ import { State, useGlobalState } from '@src/ui/state/store';
 import classNames from 'classnames';
 import { TriangleAlertIcon } from 'lucide-react';
 import { Description } from '../typography';
-import { Button } from '.';
+import { Button, ExternalLink } from '.';
 
 export function ConfirmationDialog({
   title,
@@ -18,6 +18,7 @@ export function ConfirmationDialog({
   open,
   setOpen,
   action,
+  readMoreLink,
 }: {
   title: string;
   description?: string;
@@ -25,6 +26,7 @@ export function ConfirmationDialog({
   open: boolean;
   setOpen: (open: boolean) => void;
   action: () => void;
+  readMoreLink?: string;
 }) {
   const [settings] = useGlobalState(State.SETTINGS);
   const sidebarOpen = settings.sidebarOpen;
@@ -62,6 +64,14 @@ export function ConfirmationDialog({
                 {description && (
                   <div className="mt-1">
                     <Description>{description}</Description>
+                  </div>
+                )}
+                {readMoreLink && (
+                  <div className="mt-1 text-xs text-gray-400">
+                    <p>
+                      You can read more about this{' '}
+                      <ExternalLink to={readMoreLink} text="here" />.
+                    </p>
                   </div>
                 )}
               </div>

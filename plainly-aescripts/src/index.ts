@@ -12,27 +12,46 @@ import './shims';
 import {
   getInstalledFontsByFamilyNameAndStyleName,
   getInstalledFontsByPostScriptName,
+  selectComp,
   selectLayer,
-  unselectAllLayers,
 } from './utils';
-import { fixAllIssues, validateProject } from './validation';
+import { fixAllCapsIssues, fixAllIssues, validateProject } from './validation';
+import { fixUnsupported3DRendererIssues } from './validation/compValidators';
 
-const PlainlyAE = () => ({
-  selectFolder,
+const collectFunctions = {
   collectFiles,
+  selectFolder,
+  relinkFootage,
+};
+
+const projectFunctions = {
   setProjectData,
   getProjectData,
   removeProjectData,
   getProjectPath,
   saveProject,
   getAfterEffectsVersion,
-  relinkFootage,
   getInstalledFontsByPostScriptName,
   getInstalledFontsByFamilyNameAndStyleName,
+};
+
+const utilsFunctions = {
+  selectLayer,
+  selectComp,
+};
+
+const validateFunctions = {
   validateProject,
   fixAllIssues,
-  unselectAllLayers,
-  selectLayer,
+  fixAllCapsIssues,
+  fixUnsupported3DRendererIssues,
+};
+
+const PlainlyAE = () => ({
+  ...collectFunctions,
+  ...projectFunctions,
+  ...utilsFunctions,
+  ...validateFunctions,
 });
 
 if ($['com.plainlyvideos.after-effects-plugin.Panel']) {

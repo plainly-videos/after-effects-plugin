@@ -1,5 +1,5 @@
 import classNames from 'classnames';
-import { LoaderCircleIcon, type LucideProps } from 'lucide-react';
+import { LoaderCircleIcon, type LucideIcon } from 'lucide-react';
 import type { ComponentPropsWithRef } from 'react';
 
 export function Button({
@@ -14,9 +14,7 @@ export function Button({
 }: {
   secondary?: boolean;
   loading?: boolean;
-  icon?: React.ForwardRefExoticComponent<
-    Omit<LucideProps, 'ref'> & React.RefAttributes<SVGSVGElement>
-  >;
+  icon?: LucideIcon;
 } & ComponentPropsWithRef<'button'>) {
   const primary = !secondary;
   const classPrimary =
