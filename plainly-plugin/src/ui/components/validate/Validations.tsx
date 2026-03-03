@@ -1,12 +1,17 @@
 import { AeScriptsApi } from '@src/node/bridge';
 import { useNotifications } from '@src/ui/hooks';
+import { isEmpty } from '@src/ui/utils';
 import { ShieldCheckIcon, WrenchIcon } from 'lucide-react';
 import { useCallback, useContext, useRef, useState } from 'react';
 import { flushSync } from 'react-dom';
 import { Alert, Button } from '../common';
 import { GlobalContext } from '../context';
 import { Description, PageHeading } from '../typography';
-import { CompsList, type ProjectIssueType, TextLayersList } from '.';
+import {
+  AllCapsIssueView,
+  ProjectIssueType,
+  UnsupportedRendererIssueView,
+} from '.';
 import { isCompIssue, isTextLayerIssue } from './utils';
 
 export function Validations() {
@@ -86,6 +91,13 @@ export function Validations() {
     setCurrentIssueType((prev) => (prev === type ? undefined : type));
   }, []);
 
+  const allCaps = textLayers?.filter(
+    (issue) => issue.type === ProjectIssueType.AllCaps,
+  );
+  const renderers = comps?.filter(
+    (issue) => issue.type === ProjectIssueType.Unsupported3DRenderer,
+  );
+
   return (
     <div className="space-y-4 w-full text-white">
       <div>
@@ -101,18 +113,26 @@ export function Validations() {
         <Alert title="Project validation has not been run yet." type="info" />
       ) : (
         <div className="space-y-2 w-full">
-          <TextLayersList
-            textLayers={textLayers}
-            currentIssueType={currentIssueType}
-            onExpandClick={onExpandClick}
-            validateProject={validateProject}
-          />
-          <CompsList
-            comps={comps}
-            currentIssueType={currentIssueType}
-            onExpandClick={onExpandClick}
-            validateProject={validateProject}
-          />
+          {!isEmpty(allCaps) && (
+            <AllCapsIssueView
+              issues={allCaps}
+              isOpen={currentIssueType === ProjectIssueType.AllCaps}
+              validateProject={validateProject}
+              onExpandClick={() => onExpandClick(ProjectIssueType.AllCaps)}
+            />
+          )}
+          {!isEmpty(renderers) && (
+            <UnsupportedRendererIssueView
+              issues={renderers}
+              isOpen={
+                currentIssueType === ProjectIssueType.Unsupported3DRenderer
+              }
+              validateProject={validateProject}
+              onExpandClick={() =>
+                onExpandClick(ProjectIssueType.Unsupported3DRenderer)
+              }
+            />
+          )}
         </div>
       )}
       <div className="flex items-center gap-2 float-right">
