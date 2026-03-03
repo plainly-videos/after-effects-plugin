@@ -1,7 +1,7 @@
 import type { AnyProjectIssue } from 'plainly-types';
 import { getAllComps } from '../utils';
 import { fixUnsupported3DRendererIssue, validateComps } from './compValidators';
-import { checkFiles } from './fileValidators';
+import { validateFiles } from './fileValidators';
 import {
   fixAllCapsIssue,
   fixAllCapsIssues,
@@ -19,7 +19,7 @@ function validateProject(): string {
 
   const textIssues = validateTextLayers(comps);
   const compIssues = validateComps(comps);
-  const fileIssues = checkFiles();
+  const fileIssues = validateFiles();
 
   const issues: AnyProjectIssue[] = [
     ...textIssues,

@@ -9,7 +9,7 @@ import { GlobalContext } from '../context';
 import { Description, PageHeading } from '../typography';
 import {
   AllCapsIssueView,
-  FilesList,
+  FilesUnsupportedIssueView,
   ProjectIssueType,
   UnsupportedRendererIssueView,
 } from '.';
@@ -34,9 +34,9 @@ export function Validations() {
     [],
   );
 
-  const textLayers = projectIssues?.filter(isTextLayerIssue);
-  const comps = projectIssues?.filter(isCompIssue);
-  const files = projectIssues?.filter(isFileIssue);
+  const textLayersIssues = projectIssues?.filter(isTextLayerIssue);
+  const compsIssues = projectIssues?.filter(isCompIssue);
+  const filesIssues = projectIssues?.filter(isFileIssue);
   const totalCount = projectIssues?.length ?? undefined;
 
   const handleTestForIssues = useCallback(
@@ -93,11 +93,14 @@ export function Validations() {
     setCurrentIssueType((prev) => (prev === type ? undefined : type));
   }, []);
 
-  const allCaps = textLayers?.filter(
+  const allCaps = textLayersIssues?.filter(
     (issue) => issue.type === ProjectIssueType.AllCaps,
   );
-  const renderers = comps?.filter(
+  const renderers = compsIssues?.filter(
     (issue) => issue.type === ProjectIssueType.Unsupported3DRenderer,
+  );
+  const filesUnsupported = filesIssues?.filter(
+    (issue) => issue.type === ProjectIssueType.FileUnsupported,
   );
 
   return (
@@ -135,12 +138,15 @@ export function Validations() {
               }
             />
           )}
-          <FilesList
-            files={files}
-            currentIssueType={currentIssueType}
-            onExpandClick={onExpandClick}
-            validateProject={validateProject}
-          />
+          {!isEmpty(filesUnsupported) && (
+            <FilesUnsupportedIssueView
+              issues={filesUnsupported}
+              isOpen={currentIssueType === ProjectIssueType.FileUnsupported}
+              onExpandClick={() =>
+                onExpandClick(ProjectIssueType.FileUnsupported)
+              }
+            />
+          )}
         </div>
       )}
       <div className="flex items-center gap-2 float-right">

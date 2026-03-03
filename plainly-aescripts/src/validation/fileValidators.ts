@@ -1,7 +1,7 @@
 import type { FileIssues } from 'plainly-types';
 import { ProjectIssueType } from '.';
 
-function checkFiles(): FileIssues[] {
+function validateFiles(): FileIssues[] {
   const files: FileIssues[] = [];
 
   for (let i = 1; i <= app.project.numItems; i++) {
@@ -36,4 +36,4 @@ function checkFiles(): FileIssues[] {
   return files;
 }
 
-export { checkFiles };
+export { validateFiles };
