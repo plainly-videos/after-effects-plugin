@@ -1,6 +1,15 @@
 import type { FileIssues } from 'plainly-types';
 import { ProjectIssueType } from '.';
 
+/**
+ * Scans all project items and flags AI/PSD imports as packaging-risk issues.
+ *
+ * AI/PSD files are generally supported, but projects that rely on layered
+ * AI/PSD imports can break during plugin relinking. This validator surfaces
+ * those files so users can package such projects manually.
+ *
+ * @returns A list of file issues for `.psd` and `.ai` sources.
+ */
 function validateFiles(): FileIssues[] {
   const files: FileIssues[] = [];
 

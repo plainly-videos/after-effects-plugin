@@ -149,7 +149,7 @@ function unselectAllLayers(): void {
  * selectLayer('1234');
  */
 function selectLayer(layerId: string): void {
-  unselectEverythingInTree();
+  unselectAllProjectItems();
   unselectAllLayers();
   const layer = app.project.layerByID(parseInt(layerId, 10));
   if (layer) {
@@ -170,7 +170,7 @@ function selectLayer(layerId: string): void {
  *
  * @returns {void}
  */
-function unselectEverythingInTree(): void {
+function unselectAllProjectItems(): void {
   for (let i = 1; i <= app.project.numItems; i++) {
     const item = app.project.item(i);
     item.selected = false;
@@ -191,7 +191,8 @@ function unselectEverythingInTree(): void {
  * selectComp('5678');
  */
 function selectComp(compId: string): void {
-  unselectEverythingInTree();
+  unselectAllProjectItems();
+  unselectAllLayers();
   const comp = app.project.itemByID(parseInt(compId, 10));
   if (comp instanceof CompItem) {
     const viewer = comp.openInViewer();
@@ -215,7 +216,8 @@ function selectComp(compId: string): void {
  * selectFile('91011');
  */
 function selectFile(fileId: string): void {
-  unselectEverythingInTree();
+  unselectAllProjectItems();
+  unselectAllLayers();
   const file = app.project.itemByID(parseInt(fileId, 10));
   if (file) {
     file.selected = true;

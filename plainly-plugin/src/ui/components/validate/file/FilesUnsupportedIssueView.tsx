@@ -10,13 +10,14 @@ export const FilesUnsupportedIssueView = ({
   isOpen: boolean;
   onExpandClick: () => void;
 }) => {
-  const warning = 'No auto-fix is available for this issue.';
+  const warning =
+    'No auto-fix is available. If your project uses AI/PSD files imported as layers, package it manually.';
 
   return (
     <Issue
       issues={issues}
-      label="Unsupported file types"
-      description="Some files in the project use unsupported formats that may not render correctly on the Plainly platform."
+      label="AI/PSD layered import risk"
+      description="AI and PSD files are supported, but imports created as layered AI/PSD can break during plugin relinking. If your project uses those layered imports, package it manually."
       externalLink="https://help.plainlyvideos.com/docs/troubleshooting/analysis-issues#unsupported-files-in-a-project"
       isOpen={isOpen}
       warning={warning}
