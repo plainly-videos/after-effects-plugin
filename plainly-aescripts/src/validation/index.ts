@@ -11,7 +11,7 @@ import {
 enum ProjectIssueType {
   AllCaps = 'AllCaps',
   Unsupported3DRenderer = 'Unsupported3DRenderer',
-  FileUnsupported = 'FileUnsupported',
+  FileProblem = 'FileProblem',
 }
 
 function validateProject(): string {

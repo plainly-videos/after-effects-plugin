@@ -8,7 +8,7 @@ export * from './Validations';
 enum ProjectIssueType {
   AllCaps = 'AllCaps',
   Unsupported3DRenderer = 'Unsupported3DRenderer',
-  FileUnsupported = 'FileUnsupported',
+  FileProblem = 'FileProblem',
 }
 
 export { ProjectIssueType };

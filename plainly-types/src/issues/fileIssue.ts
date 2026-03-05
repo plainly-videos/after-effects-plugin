@@ -3,13 +3,13 @@ import type { ProjectIssue, ProjectIssueType } from '../validation';
 interface ProjectFileIssue<T extends ProjectIssueType>
   extends ProjectIssue<T> {}
 
-interface FileUnsupportedIssue
-  extends ProjectFileIssue<ProjectIssueType.FileUnsupported> {
+interface FileProblemIssue
+  extends ProjectFileIssue<ProjectIssueType.FileProblem> {
   fileId: string;
   fileName: string;
   fileType: string;
 }
 
-type FileIssues = FileUnsupportedIssue;
+type FileIssues = FileProblemIssue;
 
-export type { FileUnsupportedIssue, FileIssues };
+export type { FileProblemIssue, FileIssues };

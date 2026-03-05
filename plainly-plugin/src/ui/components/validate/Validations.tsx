@@ -100,7 +100,7 @@ export function Validations() {
     (issue) => issue.type === ProjectIssueType.Unsupported3DRenderer,
   );
   const filesUnsupported = filesIssues?.filter(
-    (issue) => issue.type === ProjectIssueType.FileUnsupported,
+    (issue) => issue.type === ProjectIssueType.FileProblem,
   );
 
   return (
@@ -141,10 +141,8 @@ export function Validations() {
           {!isEmpty(filesUnsupported) && (
             <FilesUnsupportedIssueView
               issues={filesUnsupported}
-              isOpen={currentIssueType === ProjectIssueType.FileUnsupported}
-              onExpandClick={() =>
-                onExpandClick(ProjectIssueType.FileUnsupported)
-              }
+              isOpen={currentIssueType === ProjectIssueType.FileProblem}
+              onExpandClick={() => onExpandClick(ProjectIssueType.FileProblem)}
             />
           )}
         </div>

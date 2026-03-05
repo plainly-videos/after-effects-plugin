@@ -3,7 +3,7 @@ import type { CompIssues, FileIssues, TextLayerIssues } from './issues';
 enum ProjectIssueType {
   AllCaps = 'AllCaps',
   Unsupported3DRenderer = 'Unsupported3DRenderer',
-  FileUnsupported = 'FileUnsupported',
+  FileProblem = 'FileProblem',
 }
 
 interface ProjectIssue<T extends ProjectIssueType> {

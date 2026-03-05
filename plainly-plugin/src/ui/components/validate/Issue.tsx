@@ -136,7 +136,7 @@ function IssueItem({ issue }: { issue: AnyProjectIssue }) {
           onClick={() => onIssueClick(issue.layerId, 'layer')}
         />
       );
-    case ProjectIssueType.FileUnsupported:
+    case ProjectIssueType.FileProblem:
       return (
         <IssueItemContent
           key={issue.fileId}
