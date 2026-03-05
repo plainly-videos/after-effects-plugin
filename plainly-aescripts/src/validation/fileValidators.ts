@@ -33,10 +33,6 @@ function validateFiles(): FileIssues[] {
       fsName.substring(fsName.length - 4) === '.psd' ||
       fsName.substring(fsName.length - 3) === '.ai'
     ) {
-      if (item.footageMissing) {
-        continue; // no need to flag missing files, as they will be caught by the footage validator
-      }
-
       files.push({
         type: ProjectIssueType.FileProblem,
         fileId: item.id.toString(),
