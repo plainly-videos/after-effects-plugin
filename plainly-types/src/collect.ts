@@ -1,3 +1,9 @@
+interface MissingFootage {
+  itemId: number;
+  itemAeFolder: string;
+  isMissing: boolean;
+}
+
 interface Footage {
   itemId: number;
   itemName: string;
@@ -16,6 +22,7 @@ interface Font {
 interface ProjectInfo {
   fonts: Font[];
   footage: Footage[];
+  missingFootage: MissingFootage[];
 }
 
-export type { Footage, Font, ProjectInfo };
+export type { Footage, MissingFootage, Font, ProjectInfo };

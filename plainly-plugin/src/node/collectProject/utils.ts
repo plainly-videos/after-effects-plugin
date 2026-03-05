@@ -1,4 +1,4 @@
-import type { Font, Footage } from 'plainly-types';
+import type { Font, Footage, MissingFootage } from 'plainly-types';
 import { AeScriptsApi } from '../bridge';
 
 async function validateFonts(fonts: Font[]) {
@@ -34,9 +34,8 @@ async function validateFonts(fonts: Font[]) {
   }
 }
 
-function validateFootage(footage: Footage[]) {
+function validateFootage(_: Footage[], missingFootage: MissingFootage[]) {
   // Throw in case of missing footage
-  const missingFootage = footage.filter((item) => item.isMissing);
   if (missingFootage.length > 0) {
     // TODO: Show a missing files
     throw new Error('Some footage files are missing from the project.');

@@ -1,4 +1,4 @@
-import type { Font, Footage } from 'plainly-types';
+import type { Font, Footage, MissingFootage } from 'plainly-types';
 import { getAllComps, getFolderPath, getTextLayersByComp } from './utils';
 
 /**
@@ -20,14 +20,21 @@ function selectFolder(): Folder | string {
  * @returns {string|undefined} The name of the collected project folder, or undefined if no project is saved.
  */
 function collectFiles(): string | undefined {
-  const collectedData: { fonts: Font[]; footage: Footage[] } = {
+  const collectedData: {
+    fonts: Font[];
+    footage: Footage[];
+    missingFootage: MissingFootage[];
+  } = {
     fonts: [],
     footage: [],
+    missingFootage: [],
   };
 
   // collect paths
   collectedData.fonts = collectFonts();
-  collectedData.footage = collectFootage();
+  const { footage, missingFootage } = collectFootage();
+  collectedData.footage = footage;
+  collectedData.missingFootage = missingFootage;
 
   // return full path
   return JSON.stringify(collectedData);
@@ -61,8 +68,12 @@ function collectFonts(): Font[] {
   return Object.values(fonts);
 }
 
-function collectFootage(): Footage[] {
+function collectFootage(): {
+  footage: Footage[];
+  missingFootage: MissingFootage[];
+} {
   const footage: Footage[] = [];
+  const missingFootage: MissingFootage[] = [];
 
   // Go through all items in the project
   for (let i = 1; i <= app.project.numItems; i++) {
@@ -74,16 +85,24 @@ function collectFootage(): Footage[] {
     // Determine the nested folder structure
     const relativePath = getFolderPath(item.parentFolder);
 
-    footage.push({
-      itemId: item.id,
-      itemName: item.file?.name || '',
-      itemFsPath: item.file?.fsName || '',
-      itemAeFolder: relativePath,
-      isMissing: item.footageMissing || item.file === null,
-    });
+    if (item.footageMissing || item.file === null) {
+      missingFootage.push({
+        itemId: item.id,
+        itemAeFolder: relativePath,
+        isMissing: true,
+      });
+    } else {
+      footage.push({
+        itemId: item.id,
+        itemName: item.file.name,
+        itemFsPath: item.file.fsName,
+        itemAeFolder: relativePath,
+        isMissing: false,
+      });
+    }
   }
 
-  return footage;
+  return { footage, missingFootage };
 }
 
 export { collectFiles, selectFolder };
