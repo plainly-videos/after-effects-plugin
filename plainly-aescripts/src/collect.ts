@@ -70,19 +70,16 @@ function collectFootage(): Footage[] {
     if (!(item instanceof FootageItem)) {
       continue;
     }
-    if (item.file == null) {
-      continue;
-    }
 
     // Determine the nested folder structure
     const relativePath = getFolderPath(item.parentFolder);
 
     footage.push({
       itemId: item.id,
-      itemName: item.file.name,
-      itemFsPath: item.file.fsName,
+      itemName: item.file?.name || '',
+      itemFsPath: item.file?.fsName || '',
       itemAeFolder: relativePath,
-      isMissing: item.footageMissing,
+      isMissing: item.footageMissing || item.file === null,
     });
   }
 

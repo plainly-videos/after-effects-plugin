@@ -110,7 +110,7 @@ function getInstalledFontsByFamilyNameAndStyleName(
       });
     }
     return JSON.stringify(fontData);
-  } catch (error) {
+  } catch (_error) {
     return undefined;
   }
 }

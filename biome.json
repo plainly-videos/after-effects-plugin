@@ -1,9 +1,9 @@
 {
   "$schema": "https://biomejs.dev/schemas/2.3.8/schema.json",
   "vcs": {
-    "enabled": false,
+    "enabled": true,
     "clientKind": "git",
-    "useIgnoreFile": false
+    "useIgnoreFile": true
   },
   "files": {
     "ignoreUnknown": false,
@@ -13,7 +13,8 @@
       "!**/dist",
       "!**/package",
       "!**/.turbo",
-      "!**/coverage"
+      "!**/coverage",
+      "!plainly-aescripts/src/shims.js"
     ]
   },
   "formatter": {
@@ -31,11 +32,6 @@
       "a11y": {
         "noAutofocus": "off",
         "noStaticElementInteractions": "off"
-      },
-      "correctness": {
-        "noUnusedImports": "error",
-        "useUniqueElementIds": "off",
-        "noNestedComponentDefinitions": "off"
       },
       "suspicious": {
         "noUnknownAtRules": "off"

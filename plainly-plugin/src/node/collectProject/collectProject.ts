@@ -82,13 +82,13 @@ async function makeProjectZip(targetPath: string): Promise<string> {
   // 1. Collect project data
   const projectInfo = await AeScriptsApi.collectFiles();
 
+  validateFootage(projectInfo.footage);
+  await validateFonts(projectInfo.fonts);
+
   const hasLongFootagePaths = projectInfo.footage.some((item) => {
     const itemPath = item.itemFsPath;
     return itemPath.length > 255;
   });
-
-  validateFootage(projectInfo.footage);
-  await validateFonts(projectInfo.fonts);
 
   const footageDir = path.join(aepFileDir, '(Footage)');
   const fontsDir = path.join(aepFileDir, 'Fonts');
