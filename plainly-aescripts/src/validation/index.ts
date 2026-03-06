@@ -27,7 +27,7 @@ function validateProject(): string {
     ...fileIssues,
   ];
 
-  return issues.length > 0 ? JSON.stringify(issues) : 'undefined';
+  return JSON.stringify(issues);
 }
 
 function fixAllIssues(issues: AnyProjectIssue[]) {

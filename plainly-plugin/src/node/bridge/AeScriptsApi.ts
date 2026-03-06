@@ -223,10 +223,17 @@ class AeScriptsApiClass {
 
   /**
    * Validates the current After Effects project for Plainly issues.
-   * @returns A JSON string of validation results, or undefined if no issues found
+   * @returns An array of validation issues, or an empty array if no issues found
    */
-  async validateProject(): Promise<string | undefined> {
-    return await evalScriptAsync('validateProject()');
+  async validateProject(): Promise<AnyProjectIssue[]> {
+    const result = await evalScriptAsync('validateProject()');
+    if (!result) return [];
+
+    try {
+      return JSON.parse(result);
+    } catch {
+      throw new Error('Failed to parse validation results.');
+    }
   }
 
   /**
