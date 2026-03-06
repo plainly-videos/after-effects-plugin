@@ -9,10 +9,11 @@ import { GlobalContext } from '../context';
 import { Description, PageHeading } from '../typography';
 import {
   AllCapsIssueView,
+  FilesUnsupportedIssueView,
   ProjectIssueType,
   UnsupportedRendererIssueView,
 } from '.';
-import { isCompIssue, isTextLayerIssue } from './utils';
+import { isCompIssue, isFileIssue, isTextLayerIssue } from './utils';
 
 export function Validations() {
   const { contextReady, projectIssues, validateProject } =
@@ -33,8 +34,9 @@ export function Validations() {
     [],
   );
 
-  const textLayers = projectIssues?.filter(isTextLayerIssue);
-  const comps = projectIssues?.filter(isCompIssue);
+  const textLayersIssues = projectIssues?.filter(isTextLayerIssue);
+  const compsIssues = projectIssues?.filter(isCompIssue);
+  const filesIssues = projectIssues?.filter(isFileIssue);
   const totalCount = projectIssues?.length ?? undefined;
 
   const handleTestForIssues = useCallback(
@@ -91,11 +93,14 @@ export function Validations() {
     setCurrentIssueType((prev) => (prev === type ? undefined : type));
   }, []);
 
-  const allCaps = textLayers?.filter(
+  const allCaps = textLayersIssues?.filter(
     (issue) => issue.type === ProjectIssueType.AllCaps,
   );
-  const renderers = comps?.filter(
+  const renderers = compsIssues?.filter(
     (issue) => issue.type === ProjectIssueType.Unsupported3DRenderer,
+  );
+  const filesUnsupported = filesIssues?.filter(
+    (issue) => issue.type === ProjectIssueType.FileProblem,
   );
 
   return (
@@ -131,6 +136,13 @@ export function Validations() {
               onExpandClick={() =>
                 onExpandClick(ProjectIssueType.Unsupported3DRenderer)
               }
+            />
+          )}
+          {!isEmpty(filesUnsupported) && (
+            <FilesUnsupportedIssueView
+              issues={filesUnsupported}
+              isOpen={currentIssueType === ProjectIssueType.FileProblem}
+              onExpandClick={() => onExpandClick(ProjectIssueType.FileProblem)}
             />
           )}
         </div>

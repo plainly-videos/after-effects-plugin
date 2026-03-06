@@ -149,6 +149,7 @@ function unselectAllLayers(): void {
  * selectLayer('1234');
  */
 function selectLayer(layerId: string): void {
+  unselectAllProjectItems();
   unselectAllLayers();
   const layer = app.project.layerByID(parseInt(layerId, 10));
   if (layer) {
@@ -163,17 +164,16 @@ function selectLayer(layerId: string): void {
 }
 
 /**
- * Deselects all compositions in the active project.
+ * Deselects all items in the project panel tree.
  *
- * Iterates through all `CompItem` instances in `app.project` and sets their `selected` property to `false`.
+ * Iterates through all items in `app.project.items` and sets each item's `selected` property to `false`.
  *
  * @returns {void}
  */
-function unselectedAllComps(): void {
-  const comps = getAllComps(app.project);
-  for (let i = 0; i < comps.length; i++) {
-    const comp = comps[i];
-    comp.selected = false;
+function unselectAllProjectItems(): void {
+  for (let i = 1; i <= app.project.numItems; i++) {
+    const item = app.project.item(i);
+    item.selected = false;
   }
 }
 
@@ -191,7 +191,8 @@ function unselectedAllComps(): void {
  * selectComp('5678');
  */
 function selectComp(compId: string): void {
-  unselectedAllComps();
+  unselectAllProjectItems();
+  unselectAllLayers();
   const comp = app.project.itemByID(parseInt(compId, 10));
   if (comp instanceof CompItem) {
     const viewer = comp.openInViewer();
@@ -199,6 +200,27 @@ function selectComp(compId: string): void {
     if (viewer?.active === false) {
       viewer.setActive();
     }
+  }
+}
+
+/**
+ * Selects a file item in the active project by its numeric ID.
+ *
+ * Uses `app.project.itemByID` after parsing the provided string to base-10 integer. If a file
+ * with the given ID exists, its `selected` property is set to `true`; otherwise the function exits silently.
+ *
+ * @param {string} fileId - The string representation of the file's numeric ID (e.g. value from `FootageItem.id`).
+ * @returns {void}
+ * @example
+ * // Select a file whose id is 91011
+ * selectFile('91011');
+ */
+function selectFile(fileId: string): void {
+  unselectAllProjectItems();
+  unselectAllLayers();
+  const file = app.project.itemByID(parseInt(fileId, 10));
+  if (file) {
+    file.selected = true;
   }
 }
 
@@ -212,4 +234,5 @@ export {
   pathJoin,
   selectLayer,
   selectComp,
+  selectFile,
 };

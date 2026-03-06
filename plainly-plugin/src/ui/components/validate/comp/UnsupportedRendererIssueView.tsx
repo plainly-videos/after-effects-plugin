@@ -1,6 +1,9 @@
 import { AeScriptsApi } from '@src/node/bridge';
 import { useNotifications } from '@src/ui/hooks';
-import type { CompUnsupported3DRendererIssue } from 'plainly-types';
+import type {
+  AnyProjectIssue,
+  CompUnsupported3DRendererIssue,
+} from 'plainly-types';
 import { useState } from 'react';
 import { ConfirmationModal } from '../ConfirmationModal';
 import { Issue } from '../Issue';
@@ -14,7 +17,7 @@ export function UnsupportedRendererIssueView({
   issues: CompUnsupported3DRendererIssue[];
   isOpen: boolean;
   onExpandClick: () => void;
-  validateProject: () => Promise<string | undefined>;
+  validateProject: () => Promise<AnyProjectIssue[]>;
 }) {
   const { notifyError, notifyInfo } = useNotifications();
 

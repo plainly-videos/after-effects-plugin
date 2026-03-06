@@ -2,6 +2,16 @@ import type { TextLayerIssues } from 'plainly-types';
 import { getTextLayersByComp } from '../utils';
 import { ProjectIssueType } from '.';
 
+/**
+ * Validates text layers across the provided comps and reports all-caps styling issues.
+ *
+ * It ignores guide layers, checks legacy `allCaps` first for older After Effects
+ * versions, and on AE 24.3+ also inspects `characterRange(...).fontCapsOption`
+ * to detect mixed per-character all-caps formatting.
+ *
+ * @param comps Compositions to scan for text layers.
+ * @returns A list of text-layer issues where all-caps formatting is detected.
+ */
 function validateTextLayers(comps: CompItem[]): TextLayerIssues[] {
   const textLayersIssues: TextLayerIssues[] = [];
 

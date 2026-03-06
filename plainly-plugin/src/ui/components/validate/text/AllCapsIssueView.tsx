@@ -1,6 +1,6 @@
 import { AeScriptsApi } from '@src/node/bridge';
 import { useNotifications, useProjectData } from '@src/ui/hooks';
-import type { TextAllCapsEnabledIssue } from 'plainly-types';
+import type { AnyProjectIssue, TextAllCapsEnabledIssue } from 'plainly-types';
 import { useMemo } from 'react';
 import semver from 'semver';
 import { Issue } from '../Issue';
@@ -13,7 +13,7 @@ export function AllCapsIssueView({
 }: {
   issues: TextAllCapsEnabledIssue[];
   isOpen: boolean;
-  validateProject: () => Promise<string | undefined>;
+  validateProject: () => Promise<AnyProjectIssue[]>;
   onExpandClick: () => void;
 }) {
   const { aeVersion } = useProjectData();
