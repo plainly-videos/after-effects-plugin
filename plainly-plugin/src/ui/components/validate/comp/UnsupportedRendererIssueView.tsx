@@ -1,8 +1,11 @@
 import { AeScriptsApi } from '@src/node/bridge';
 import { useNotifications } from '@src/ui/hooks';
-import type { CompUnsupported3DRendererIssue } from 'plainly-types';
+import type {
+  AnyProjectIssue,
+  CompUnsupported3DRendererIssue,
+} from 'plainly-types';
 import { useState } from 'react';
-import { ConfirmationModal } from '../ConfirmationModal';
+import { ConfirmationDialog } from '../../common';
 import { Issue } from '../Issue';
 
 export function UnsupportedRendererIssueView({
@@ -14,7 +17,7 @@ export function UnsupportedRendererIssueView({
   issues: CompUnsupported3DRendererIssue[];
   isOpen: boolean;
   onExpandClick: () => void;
-  validateProject: () => Promise<string | undefined>;
+  validateProject: () => Promise<AnyProjectIssue[]>;
 }) {
   const { notifyError, notifyInfo } = useNotifications();
 
@@ -54,13 +57,13 @@ export function UnsupportedRendererIssueView({
         onFixClick={() => setShowConfirmation(true)}
       />
       {showConfirmation && (
-        <ConfirmationModal
+        <ConfirmationDialog
           title="Fix unsupported 3D renderer"
           description={`This will change ${issues.length} composition(s) to Classic 3D. Certain 3D effects may look different or stop working.`}
           buttonText="Switch to Classic 3D"
           open={showConfirmation}
           setOpen={setShowConfirmation}
-          onConfirm={() => void handleFix()}
+          action={handleFix}
           readMoreLink="https://help.plainlyvideos.com/docs/faq/projects-faq#does-plainly-support-cinema-4d-and-advanced-3d-renderers"
         />
       )}

@@ -1,6 +1,7 @@
 import type { AnyProjectIssue } from 'plainly-types';
 import { getAllComps } from '../utils';
 import { fixUnsupported3DRendererIssue, validateComps } from './compValidators';
+import { validateFiles } from './fileValidators';
 import {
   fixAllCapsIssue,
   fixAllCapsIssues,
@@ -10,6 +11,7 @@ import {
 enum ProjectIssueType {
   AllCaps = 'AllCaps',
   Unsupported3DRenderer = 'Unsupported3DRenderer',
+  FileProblem = 'FileProblem',
 }
 
 function validateProject(): string {
@@ -17,24 +19,37 @@ function validateProject(): string {
 
   const textIssues = validateTextLayers(comps);
   const compIssues = validateComps(comps);
-  const issues: AnyProjectIssue[] = [...textIssues, ...compIssues];
+  const fileIssues = validateFiles();
 
-  if (issues.length > 0) {
-    return JSON.stringify(issues);
-  }
+  const issues: AnyProjectIssue[] = [
+    ...textIssues,
+    ...compIssues,
+    ...fileIssues,
+  ];
 
-  return 'undefined';
+  return JSON.stringify(issues);
 }
 
-function fixAllIssues(issues: AnyProjectIssue[]) {
+function fixAllIssues(
+  issues: AnyProjectIssue[],
+  ignoreFixing: {
+    [key in ProjectIssueType]?: boolean;
+  },
+) {
   app.beginUndoGroup('fix all');
 
   for (let i = 0; i < issues.length; i++) {
     const issue = issues[i];
-    if (issue.type === ProjectIssueType.AllCaps) {
+    if (
+      issue.type === ProjectIssueType.AllCaps &&
+      !ignoreFixing[ProjectIssueType.AllCaps]
+    ) {
       fixAllCapsIssue(issue.layerId);
     }
-    if (issue.type === ProjectIssueType.Unsupported3DRenderer) {
+    if (
+      issue.type === ProjectIssueType.Unsupported3DRenderer &&
+      !ignoreFixing[ProjectIssueType.Unsupported3DRenderer]
+    ) {
       fixUnsupported3DRendererIssue(issue.compId);
     }
   }

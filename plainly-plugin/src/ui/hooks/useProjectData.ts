@@ -1,11 +1,7 @@
 import type { ProjectData } from 'plainly-types';
-import { useEffect, useState } from 'react';
-import semver from 'semver';
 import { AeScriptsApi } from '../../node/bridge/AeScriptsApi';
 
 export const useProjectData = () => {
-  const [aeVersion, setAeVersion] = useState<string>();
-
   const getProjectData = async () => {
     try {
       const projectData = await AeScriptsApi.getProjectData();
@@ -23,21 +19,5 @@ export const useProjectData = () => {
 
   const removeProjectData = async () => await AeScriptsApi.removeProjectData();
 
-  useEffect(() => {
-    (async () => {
-      try {
-        const version = await AeScriptsApi.getAfterEffectsVersion();
-        setAeVersion(semver.valid(semver.coerce(version)) || undefined);
-      } catch (error) {
-        setAeVersion(undefined);
-        console.error('Error getting After Effects version:', error);
-      }
-    })();
-
-    return () => {
-      // Cleanup if necessary
-    };
-  }, []);
-
-  return { setProjectData, removeProjectData, getProjectData, aeVersion };
+  return { setProjectData, removeProjectData, getProjectData };
 };

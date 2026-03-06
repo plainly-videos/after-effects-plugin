@@ -2,20 +2,22 @@ import { AeScriptsApi } from '@src/node/bridge';
 import { useNotifications } from '@src/ui/hooks';
 import { isEmpty } from '@src/ui/utils';
 import { ShieldCheckIcon, WrenchIcon } from 'lucide-react';
-import { useCallback, useContext, useRef, useState } from 'react';
+import { useCallback, useContext, useMemo, useRef, useState } from 'react';
 import { flushSync } from 'react-dom';
+import semver from 'semver';
 import { Alert, Button } from '../common';
 import { GlobalContext } from '../context';
 import { Description, PageHeading } from '../typography';
 import {
   AllCapsIssueView,
+  FilesUnsupportedIssueView,
   ProjectIssueType,
   UnsupportedRendererIssueView,
 } from '.';
-import { isCompIssue, isTextLayerIssue } from './utils';
+import { isCompIssue, isFileIssue, isTextLayerIssue } from './utils';
 
 export function Validations() {
-  const { contextReady, projectIssues, validateProject } =
+  const { contextReady, projectIssues, validateProject, aeVersion } =
     useContext(GlobalContext);
   const { notifyInfo } = useNotifications();
 
@@ -33,8 +35,9 @@ export function Validations() {
     [],
   );
 
-  const textLayers = projectIssues?.filter(isTextLayerIssue);
-  const comps = projectIssues?.filter(isCompIssue);
+  const textLayersIssues = projectIssues?.filter(isTextLayerIssue);
+  const compsIssues = projectIssues?.filter(isCompIssue);
+  const filesIssues = projectIssues?.filter(isFileIssue);
   const totalCount = projectIssues?.length ?? undefined;
 
   const handleTestForIssues = useCallback(
@@ -65,7 +68,18 @@ export function Validations() {
     [nextFrame, notifyInfo, validateProject],
   );
 
-  const handleFixAll = async () => {
+  // for fix all issues, reasons to ignore fixing certain issue types can be passed in here
+  const ignoreFixing: {
+    [key in ProjectIssueType]?: boolean;
+  } = useMemo(() => {
+    return {
+      [ProjectIssueType.AllCaps]: aeVersion
+        ? semver.lt(aeVersion, '24.3.0')
+        : undefined,
+    };
+  }, [aeVersion]);
+
+  const handleFixAll = useCallback(async () => {
     if (!totalCount || fixInFlightRef.current) {
       return;
     }
@@ -75,7 +89,7 @@ export function Validations() {
     await nextFrame();
 
     try {
-      await AeScriptsApi.fixAllIssues(projectIssues || []);
+      await AeScriptsApi.fixAllIssues(projectIssues || [], ignoreFixing);
       await handleTestForIssues(false);
       notifyInfo(
         'Attempted to fix all issues.',
@@ -85,17 +99,27 @@ export function Validations() {
       setLoading(false);
       fixInFlightRef.current = false;
     }
-  };
+  }, [
+    handleTestForIssues,
+    nextFrame,
+    notifyInfo,
+    projectIssues,
+    totalCount,
+    ignoreFixing,
+  ]);
 
   const onExpandClick = useCallback((type: ProjectIssueType) => {
     setCurrentIssueType((prev) => (prev === type ? undefined : type));
   }, []);
 
-  const allCaps = textLayers?.filter(
+  const allCaps = textLayersIssues?.filter(
     (issue) => issue.type === ProjectIssueType.AllCaps,
   );
-  const renderers = comps?.filter(
+  const renderers = compsIssues?.filter(
     (issue) => issue.type === ProjectIssueType.Unsupported3DRenderer,
+  );
+  const fileProblems = filesIssues?.filter(
+    (issue) => issue.type === ProjectIssueType.FileProblem,
   );
 
   return (
@@ -133,13 +157,20 @@ export function Validations() {
               }
             />
           )}
+          {!isEmpty(fileProblems) && (
+            <FilesUnsupportedIssueView
+              issues={fileProblems}
+              isOpen={currentIssueType === ProjectIssueType.FileProblem}
+              onExpandClick={() => onExpandClick(ProjectIssueType.FileProblem)}
+            />
+          )}
         </div>
       )}
       <div className="flex items-center gap-2 float-right">
         <Button
           secondary
           onClick={() => handleTestForIssues(false)}
-          loading={loading}
+          loading={loading || !contextReady}
           disabled={loading || !contextReady}
           icon={ShieldCheckIcon}
         >
@@ -148,7 +179,7 @@ export function Validations() {
         <Button
           disabled={!totalCount || loading || !contextReady}
           onClick={handleFixAll}
-          loading={loading}
+          loading={loading || !contextReady}
           icon={WrenchIcon}
         >
           Fix all
