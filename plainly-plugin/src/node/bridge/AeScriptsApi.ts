@@ -1,5 +1,6 @@
 import { isEmpty } from '@src/ui/utils';
 import type {
+  AnyProjectIssue,
   InstalledFontData,
   ProjectData,
   ProjectInfo,
@@ -179,11 +180,86 @@ class AeScriptsApiClass {
   }
 
   /**
-   * Relinks footage items in the After Effects project to new file paths.
+   * Gets the version of After Effects.
+   * @returns The version of After Effects as a string
+   */
+  async getAfterEffectsVersion(): Promise<string> {
+    const result = await evalScriptAsync('getAfterEffectsVersion()');
+    if (!result) throw new Error('Failed to get After Effects version');
+    return result;
+  }
+
+  /**
+   * Re-links footage items in the After Effects project to new file paths.
    * @param relinkData - Object mapping item IDs to new file paths
    */
   async relinkFootage(relinkData: RelinkData): Promise<void> {
     await evalScriptAsync(`relinkFootage(${JSON.stringify(relinkData)})`);
+  }
+
+  /**
+   * Selects a layer in the current After Effects composition by its ID.
+   * @param layerId - The ID of the layer to select
+   */
+  async selectLayer(layerId: string): Promise<void> {
+    await evalScriptAsync(`selectLayer(${layerId})`);
+  }
+
+  /**
+   *  Selects a composition in After Effects by its ID.
+   * @param compId - The ID of the composition to select
+   */
+  async selectComp(compId: string): Promise<void> {
+    await evalScriptAsync(`selectComp(${compId})`);
+  }
+
+  /**
+   * Selects a file item in the After Effects project by its ID.
+   * @param fileId - The ID of the file item to select
+   */
+  async selectFile(fileId: string): Promise<void> {
+    await evalScriptAsync(`selectFile(${fileId})`);
+  }
+
+  /**
+   * Validates the current After Effects project for Plainly issues.
+   * @returns An array of validation issues, or an empty array if no issues found
+   */
+  async validateProject(): Promise<AnyProjectIssue[]> {
+    const result = await evalScriptAsync('validateProject()');
+    if (!result) return [];
+
+    try {
+      return JSON.parse(result);
+    } catch {
+      throw new Error('Failed to parse validation results.');
+    }
+  }
+
+  /**
+   * Fixes all provided Plainly issues in the After Effects project.
+   * @param issues - Array of project issues to fix
+   */
+  async fixAllIssues(issues: AnyProjectIssue[]): Promise<void> {
+    await evalScriptAsync(`fixAllIssues(${JSON.stringify(issues)})`);
+  }
+
+  /**
+   * Fixes all-caps text issues for multiple layers
+   * @param layerIds - Array of layer IDs to fix
+   */
+  async fixAllCapsIssues(layerIds: string[]): Promise<void> {
+    await evalScriptAsync(`fixAllCapsIssues(${JSON.stringify(layerIds)})`);
+  }
+
+  /**
+   * Fixes unsupported 3D renderer issues for multiple compositions
+   * @param compIds - Array of composition IDs to fix
+   */
+  async fixUnsupported3DRendererIssues(compIds: string[]): Promise<void> {
+    await evalScriptAsync(
+      `fixUnsupported3DRendererIssues(${JSON.stringify(compIds)})`,
+    );
   }
 }
 
