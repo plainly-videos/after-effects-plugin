@@ -8,8 +8,8 @@ import {
   ProjectsRoute,
   SettingsRoute,
   UploadRoute,
+  ValidateRoute,
 } from './routes';
-import { ValidateRoute } from './routes/ValidateRoute';
 import { reloadExtension } from './utils';
 
 export function App() {

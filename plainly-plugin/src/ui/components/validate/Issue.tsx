@@ -36,10 +36,9 @@ export function Issue({
 
   return (
     <div className="col-span-3 grid grid-cols-3 border border-white/10 text-xs divide-y divide-white/10 rounded-md">
-      <button
-        type="button"
+      <div
         onClick={onExpandClick}
-        className="col-span-3 font-medium flex justify-between items-center px-3 py-2 bg-[rgb(43,43,43)]"
+        className="col-span-3 font-medium flex justify-between items-center px-3 py-2 bg-[rgb(43,43,43)] cursor-pointer"
       >
         <div className="flex items-center gap-2">
           <p>{label}</p>
@@ -63,7 +62,7 @@ export function Issue({
             </div>
           </Tooltip>
           {warning && (
-            <Tooltip text="Auto-fix for this issue is available in After Effects version 24.3 and later.">
+            <Tooltip text={warning}>
               <div className="flex items-center justify-center cursor-help size-4 group">
                 <TriangleAlertIcon className="size-4 text-gray-400 group-hover:text-white duration-200" />
               </div>
@@ -97,11 +96,11 @@ export function Issue({
             />
           </div>
         </div>
-      </button>
+      </div>
       {isOpen && (
         <div className="divide-y divide-white/10 col-span-3">
           {issues.map((details) => (
-            <IssueItem key={details.type} issue={details} />
+            <IssueItem key={details.id} issue={details} />
           ))}
         </div>
       )}
@@ -111,9 +110,10 @@ export function Issue({
 
 function IssueItem({ issue }: { issue: AnyProjectIssue }) {
   const onIssueClick = useCallback(
-    async (id: string, type: 'comp' | 'layer') => {
+    async (id: string, type: 'comp' | 'layer' | 'file') => {
       if (type === 'comp') await AeScriptsApi.selectComp(id);
       if (type === 'layer') await AeScriptsApi.selectLayer(id);
+      if (type === 'file') await AeScriptsApi.selectFile(id);
     },
     [],
   );
@@ -122,7 +122,6 @@ function IssueItem({ issue }: { issue: AnyProjectIssue }) {
     case ProjectIssueType.Unsupported3DRenderer:
       return (
         <IssueItemContent
-          key={issue.compId}
           label={`${issue.compName} (${issue.renderer})`}
           onClick={() => onIssueClick(issue.compId, 'comp')}
         />
@@ -130,9 +129,15 @@ function IssueItem({ issue }: { issue: AnyProjectIssue }) {
     case ProjectIssueType.AllCaps:
       return (
         <IssueItemContent
-          key={issue.layerId}
           label={issue.layerName}
           onClick={() => onIssueClick(issue.layerId, 'layer')}
+        />
+      );
+    case ProjectIssueType.FileProblem:
+      return (
+        <IssueItemContent
+          label={issue.fileName}
+          onClick={() => onIssueClick(issue.fileId, 'file')}
         />
       );
     default:

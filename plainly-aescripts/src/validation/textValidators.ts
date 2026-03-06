@@ -1,7 +1,17 @@
 import type { TextLayerIssues } from 'plainly-types';
-import { getTextLayersByComp } from '../utils';
+import { getTextLayersByComp, uuid } from '../utils';
 import { ProjectIssueType } from '.';
 
+/**
+ * Validates text layers across the provided comps and reports all-caps styling issues.
+ *
+ * It ignores guide layers, checks legacy `allCaps` first for older After Effects
+ * versions, and on AE 24.3+ also inspects `characterRange(...).fontCapsOption`
+ * to detect mixed per-character all-caps formatting.
+ *
+ * @param comps Compositions to scan for text layers.
+ * @returns A list of text-layer issues where all-caps formatting is detected.
+ */
 function validateTextLayers(comps: CompItem[]): TextLayerIssues[] {
   const textLayersIssues: TextLayerIssues[] = [];
 
@@ -25,6 +35,7 @@ function validateTextLayers(comps: CompItem[]): TextLayerIssues[] {
       // IMPORTANT: with this method, on older versions (< 24.3), we can't fix, but we can at least report it
       if (textDocument.allCaps) {
         textLayersIssues.push({
+          id: uuid(),
           type: ProjectIssueType.AllCaps,
           layerId: layer.id.toString(),
           layerName: layer.name,
@@ -52,6 +63,7 @@ function validateTextLayers(comps: CompItem[]): TextLayerIssues[] {
           ) {
             hasCharacterAllCaps = true;
             textLayersIssues.push({
+              id: uuid(),
               type: ProjectIssueType.AllCaps,
               layerId: layer.id.toString(),
               layerName: layer.name,
@@ -72,6 +84,7 @@ function validateTextLayers(comps: CompItem[]): TextLayerIssues[] {
         range.fontCapsOption === FontCapsOption.FONT_ALL_CAPS
       ) {
         textLayersIssues.push({
+          id: uuid(),
           type: ProjectIssueType.AllCaps,
           layerId: layer.id.toString(),
           layerName: layer.name,
@@ -106,33 +119,49 @@ function fixAllCapsIssue(layerId: string) {
 
   const newValue = textDocument;
 
-  // first check if the whole text has the same attribute
+  // fix if entire text has uniform all caps
   const range = newValue.characterRange(0, newValue.text.length);
   if (
     range.isRangeValid &&
     range.fontCapsOption === FontCapsOption.FONT_ALL_CAPS
   ) {
     newValue.fontCapsOption = FontCapsOption.FONT_NORMAL_CAPS;
-    newValue.text = newValue.text.toUpperCase();
     updateLayerTextDocument(layer, newValue);
+    const existingExprAll = layer.sourceText.expression;
+    const baseAll = existingExprAll ? `(${existingExprAll})` : 'value';
+    layer.sourceText.expression = `${baseAll}.toUpperCase()`;
     return;
   }
 
-  // otherwise, check per-character basis
-  for (let i = 0; i < newValue.text.length; i++) {
+  // fix if only the first character has all caps
+  if (newValue.text.length === 0) {
+    return;
+  }
+
+  const firstCharRange = newValue.characterRange(0, 1);
+  if (
+    !firstCharRange.isRangeValid ||
+    firstCharRange.fontCapsOption !== FontCapsOption.FONT_ALL_CAPS
+  ) {
+    return;
+  }
+
+  for (let i = 1; i < newValue.text.length; i++) {
     const cRange = newValue.characterRange(i, i + 1);
     if (
       cRange.isRangeValid &&
       cRange.fontCapsOption === FontCapsOption.FONT_ALL_CAPS
     ) {
-      newValue.characterRange(i, i + 1).fontCapsOption =
-        FontCapsOption.FONT_NORMAL_CAPS;
-      newValue.characterRange(i, i + 1).text = newValue
-        .characterRange(i, i + 1)
-        .text.toUpperCase();
+      return; // all caps not limited to first character, don't fix
     }
   }
+
+  newValue.characterRange(0, 1).fontCapsOption =
+    FontCapsOption.FONT_NORMAL_CAPS;
   updateLayerTextDocument(layer, newValue);
+  const existingExprFirst = layer.sourceText.expression;
+  const baseFirst = existingExprFirst ? `(${existingExprFirst})` : 'value';
+  layer.sourceText.expression = `var v = ${baseFirst}; v.charAt(0).toUpperCase() + v.slice(1)`;
 }
 
 /**

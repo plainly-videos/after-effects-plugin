@@ -1,4 +1,5 @@
 import type { CompIssues, RendererTypeName } from 'plainly-types';
+import { uuid } from '../utils';
 import { ProjectIssueType } from '.';
 
 enum RendererType {
@@ -14,6 +15,15 @@ function getRendererName(renderer: string): RendererTypeName {
   return 'Unknown Renderer';
 }
 
+/**
+ * Validates comp renderer compatibility.
+ *
+ * Any comp not using `Classic 3D` is reported as an unsupported 3D renderer
+ * issue, since only that renderer is accepted by this plugin workflow.
+ *
+ * @param comps Compositions to validate.
+ * @returns A list of comp issues for unsupported renderer usage.
+ */
 function validateComps(comps: CompItem[]): CompIssues[] {
   const compIssues: CompIssues[] = [];
 
@@ -22,6 +32,7 @@ function validateComps(comps: CompItem[]): CompIssues[] {
     const renderer = comp.renderer;
     if (renderer !== RendererType.CLASSIC_3D) {
       compIssues.push({
+        id: uuid(),
         type: ProjectIssueType.Unsupported3DRenderer,
         compId: comp.id.toString(),
         compName: comp.name,
@@ -46,10 +57,7 @@ function fixUnsupported3DRendererIssues(compIds: string[]) {
   app.beginUndoGroup('fix unsupported 3d renderer');
 
   for (const compId of compIds) {
-    const comp = app.project.itemByID(parseInt(compId, 10));
-    if (comp && comp instanceof CompItem) {
-      comp.renderer = RendererType.CLASSIC_3D;
-    }
+    fixUnsupported3DRendererIssue(compId);
   }
 
   app.endUndoGroup();

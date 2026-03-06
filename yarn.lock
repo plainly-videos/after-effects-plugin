@@ -5757,10 +5757,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lodash-es@npm:^4.17.22":
-  version: 4.17.22
-  resolution: "lodash-es@npm:4.17.22"
-  checksum: 1da119f40e54822fb5d69eeb9d2c7ec46ac541cc73e6250748838abd7dd51ecf613592e07a5476f56bcbbeb27838697a4347d68cd98f131cad8c4665f9bb2a16
+"lodash-es@npm:^4.17.23":
+  version: 4.17.23
+  resolution: "lodash-es@npm:4.17.23"
+  checksum: b1bd1d141bbde8ffc72978e34b364065675806b0ca42ab99477d247fb2ae795faeed81db9283bf18ae1f096c2b6611ec0589e0503fa9724bf82e3dce947bad69
   languageName: node
   linkType: hard
 
@@ -5870,12 +5870,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lucide-react@npm:^0.544.0":
-  version: 0.544.0
-  resolution: "lucide-react@npm:0.544.0"
+"lucide-react@npm:^0.577.0":
+  version: 0.577.0
+  resolution: "lucide-react@npm:0.577.0"
   peerDependencies:
     react: ^16.5.1 || ^17.0.0 || ^18.0.0 || ^19.0.0
-  checksum: d823339cb0d0bd4c038fef6223ffa9d81e337a86d09833e6b6ff54f936fc7a5e2e8e672e8c1fae55e6a835ddcf620f7fe4e1f564b4de31d12ae8895e3ab52ed3
+  checksum: f39db5fb91e925480c9d697f4fc2474d692abcda8e069a5be3295ce9c370dbf7fb55a6b88f94ab5d8b2f834bb76407926b312e2f88992aad62e7567efeb87dcc
   languageName: node
   linkType: hard
 
@@ -6564,8 +6564,8 @@ __metadata:
     globals: ^15.11.0
     html-webpack-plugin: ^5.6.3
     jest: ^30.2.0
-    lodash-es: ^4.17.22
-    lucide-react: ^0.544.0
+    lodash-es: ^4.17.23
+    lucide-react: ^0.577.0
     plainly-types: "workspace:*"
     postcss: ^8.4.49
     postcss-loader: ^8.1.1
