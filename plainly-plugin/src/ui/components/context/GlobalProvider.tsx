@@ -15,7 +15,9 @@ interface GlobalContextProps {
 
 // Extended value type to also expose the React state setter so children can update.
 interface GlobalContextValue extends GlobalContextProps {
-  setGlobalData: React.Dispatch<React.SetStateAction<GlobalContextProps>>;
+  setGlobalData: React.Dispatch<
+    React.SetStateAction<GlobalContextProps | undefined>
+  >;
   validateProject: () => Promise<AnyProjectIssue[]>;
 }
 
@@ -82,7 +84,7 @@ export const GlobalProvider = ({ children }: { children: React.ReactNode }) => {
     ...globalData,
     setGlobalData,
     validateProject,
-  } as GlobalContextValue; // cast because spread of possibly undefined
+  };
 
   return (
     <GlobalContext.Provider value={contextValue}>

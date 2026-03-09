@@ -55,10 +55,7 @@ function fixUnsupported3DRendererIssues(compIds: string[]) {
   app.beginUndoGroup('fix unsupported 3d renderer');
 
   for (const compId of compIds) {
-    const comp = app.project.itemByID(parseInt(compId, 10));
-    if (comp && comp instanceof CompItem) {
-      comp.renderer = RendererType.CLASSIC_3D;
-    }
+    fixUnsupported3DRendererIssue(compId);
   }
 
   app.endUndoGroup();

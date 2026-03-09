@@ -29,6 +29,6 @@ export function reloadExtension(): void {
  */
 export function isEmpty<T>(
   list: T[] | null | undefined,
-): list is null | undefined | [] {
+): list is undefined | null | [] {
   return lodashIsEmpty(list);
 }

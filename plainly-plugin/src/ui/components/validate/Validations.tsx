@@ -99,7 +99,7 @@ export function Validations() {
   const renderers = compsIssues?.filter(
     (issue) => issue.type === ProjectIssueType.Unsupported3DRenderer,
   );
-  const filesUnsupported = filesIssues?.filter(
+  const fileProblems = filesIssues?.filter(
     (issue) => issue.type === ProjectIssueType.FileProblem,
   );
 
@@ -138,9 +138,9 @@ export function Validations() {
               }
             />
           )}
-          {!isEmpty(filesUnsupported) && (
+          {!isEmpty(fileProblems) && (
             <FilesUnsupportedIssueView
-              issues={filesUnsupported}
+              issues={fileProblems}
               isOpen={currentIssueType === ProjectIssueType.FileProblem}
               onExpandClick={() => onExpandClick(ProjectIssueType.FileProblem)}
             />
@@ -151,7 +151,7 @@ export function Validations() {
         <Button
           secondary
           onClick={() => handleTestForIssues(false)}
-          loading={loading}
+          loading={loading || !contextReady}
           disabled={loading || !contextReady}
           icon={ShieldCheckIcon}
         >
@@ -160,7 +160,7 @@ export function Validations() {
         <Button
           disabled={!totalCount || loading || !contextReady}
           onClick={handleFixAll}
-          loading={loading}
+          loading={loading || !contextReady}
           icon={WrenchIcon}
         >
           Fix all
