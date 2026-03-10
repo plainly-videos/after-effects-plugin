@@ -1,4 +1,5 @@
 import type { FileIssues } from 'plainly-types';
+import { uuid } from '../utils';
 import { ProjectIssueType } from '.';
 
 /**
@@ -29,11 +30,9 @@ function validateFiles(): FileIssues[] {
     }
 
     const fsName = originalFile.fsName.toLowerCase();
-    if (
-      fsName.substring(fsName.length - 4) === '.psd' ||
-      fsName.substring(fsName.length - 3) === '.ai'
-    ) {
+    if (fsName.endsWith('psd') || fsName.endsWith('ai')) {
       files.push({
+        id: uuid(),
         type: ProjectIssueType.FileProblem,
         fileId: item.id.toString(),
         fileName: item.name,

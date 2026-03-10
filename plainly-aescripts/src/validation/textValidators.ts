@@ -1,5 +1,5 @@
 import type { TextLayerIssues } from 'plainly-types';
-import { getTextLayersByComp } from '../utils';
+import { getTextLayersByComp, uuid } from '../utils';
 import { ProjectIssueType } from '.';
 
 /**
@@ -35,6 +35,7 @@ function validateTextLayers(comps: CompItem[]): TextLayerIssues[] {
       // IMPORTANT: with this method, on older versions (< 24.3), we can't fix, but we can at least report it
       if (textDocument.allCaps) {
         textLayersIssues.push({
+          id: uuid(),
           type: ProjectIssueType.AllCaps,
           layerId: layer.id.toString(),
           layerName: layer.name,
@@ -62,6 +63,7 @@ function validateTextLayers(comps: CompItem[]): TextLayerIssues[] {
           ) {
             hasCharacterAllCaps = true;
             textLayersIssues.push({
+              id: uuid(),
               type: ProjectIssueType.AllCaps,
               layerId: layer.id.toString(),
               layerName: layer.name,
@@ -82,6 +84,7 @@ function validateTextLayers(comps: CompItem[]): TextLayerIssues[] {
         range.fontCapsOption === FontCapsOption.FONT_ALL_CAPS
       ) {
         textLayersIssues.push({
+          id: uuid(),
           type: ProjectIssueType.AllCaps,
           layerId: layer.id.toString(),
           layerName: layer.name,

@@ -30,15 +30,26 @@ function validateProject(): string {
   return JSON.stringify(issues);
 }
 
-function fixAllIssues(issues: AnyProjectIssue[]) {
+function fixAllIssues(
+  issues: AnyProjectIssue[],
+  ignoreFixing: {
+    [key in ProjectIssueType]?: boolean;
+  },
+) {
   app.beginUndoGroup('fix all');
 
   for (let i = 0; i < issues.length; i++) {
     const issue = issues[i];
-    if (issue.type === ProjectIssueType.AllCaps) {
+    if (
+      issue.type === ProjectIssueType.AllCaps &&
+      !ignoreFixing[ProjectIssueType.AllCaps]
+    ) {
       fixAllCapsIssue(issue.layerId);
     }
-    if (issue.type === ProjectIssueType.Unsupported3DRenderer) {
+    if (
+      issue.type === ProjectIssueType.Unsupported3DRenderer &&
+      !ignoreFixing[ProjectIssueType.Unsupported3DRenderer]
+    ) {
       fixUnsupported3DRendererIssue(issue.compId);
     }
   }

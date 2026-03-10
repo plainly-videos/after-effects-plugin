@@ -4,6 +4,7 @@ import type {
   InstalledFontData,
   ProjectData,
   ProjectInfo,
+  ProjectIssueType,
   RelinkData,
 } from 'plainly-types';
 import { csInterface } from '../constants';
@@ -47,7 +48,7 @@ class AeScriptsApiClass {
     postScriptName: string,
   ): Promise<InstalledFontData[] | undefined> {
     const result = await evalScriptAsync(
-      `getInstalledFontsByPostScriptName("${postScriptName}")`,
+      `getInstalledFontsByPostScriptName(${JSON.stringify(postScriptName)})`,
     );
     if (!result) return undefined;
 
@@ -69,7 +70,7 @@ class AeScriptsApiClass {
     styleName: string,
   ): Promise<InstalledFontData[] | undefined> {
     const result = await evalScriptAsync(
-      `getInstalledFontsByFamilyNameAndStyleName("${familyName}", "${styleName}")`,
+      `getInstalledFontsByFamilyNameAndStyleName(${JSON.stringify(familyName)}, ${JSON.stringify(styleName)})`,
     );
 
     if (!result) return undefined;
@@ -139,7 +140,9 @@ class AeScriptsApiClass {
    * @param revisionCount - The project revision count
    */
   async setProjectData(id: string, revisionCount: number): Promise<void> {
-    await evalScriptAsync(`setProjectData("${id}", "${revisionCount}")`);
+    await evalScriptAsync(
+      `setProjectData(${JSON.stringify(id)}, ${JSON.stringify(revisionCount)})`,
+    );
   }
 
   /**
@@ -202,7 +205,7 @@ class AeScriptsApiClass {
    * @param layerId - The ID of the layer to select
    */
   async selectLayer(layerId: string): Promise<void> {
-    await evalScriptAsync(`selectLayer(${layerId})`);
+    await evalScriptAsync(`selectLayer(${JSON.stringify(layerId)})`);
   }
 
   /**
@@ -210,7 +213,7 @@ class AeScriptsApiClass {
    * @param compId - The ID of the composition to select
    */
   async selectComp(compId: string): Promise<void> {
-    await evalScriptAsync(`selectComp(${compId})`);
+    await evalScriptAsync(`selectComp(${JSON.stringify(compId)})`);
   }
 
   /**
@@ -218,7 +221,7 @@ class AeScriptsApiClass {
    * @param fileId - The ID of the file item to select
    */
   async selectFile(fileId: string): Promise<void> {
-    await evalScriptAsync(`selectFile(${fileId})`);
+    await evalScriptAsync(`selectFile(${JSON.stringify(fileId)})`);
   }
 
   /**
@@ -240,8 +243,15 @@ class AeScriptsApiClass {
    * Fixes all provided Plainly issues in the After Effects project.
    * @param issues - Array of project issues to fix
    */
-  async fixAllIssues(issues: AnyProjectIssue[]): Promise<void> {
-    await evalScriptAsync(`fixAllIssues(${JSON.stringify(issues)})`);
+  async fixAllIssues(
+    issues: AnyProjectIssue[],
+    ignoreFixing: {
+      [key in ProjectIssueType]?: boolean;
+    },
+  ): Promise<void> {
+    await evalScriptAsync(
+      `fixAllIssues(${JSON.stringify(issues)}, ${JSON.stringify(ignoreFixing)})`,
+    );
   }
 
   /**

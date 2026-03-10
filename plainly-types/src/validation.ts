@@ -7,6 +7,7 @@ enum ProjectIssueType {
 }
 
 interface ProjectIssue<T extends ProjectIssueType> {
+  id: string;
   type: T;
 }
 

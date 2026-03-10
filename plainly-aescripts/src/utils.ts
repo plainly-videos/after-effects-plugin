@@ -224,6 +224,22 @@ function selectFile(fileId: string): void {
   }
 }
 
+/**
+ * Generates a UUID (Universally Unique Identifier) string in the format 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.
+ *
+ * @returns {string} A randomly generated UUID string.
+ * @example
+ * const newUuid = uuid();
+ * console.log(newUuid); // Outputs something like '3f2504e0-4f89-11d3-9a0c-0305e82c3301'
+ */
+function uuid(): string {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+    const r = (Math.random() * 16) | 0,
+      v = c === 'x' ? r : (r & 0x3) | 0x8;
+    return v.toString(16);
+  });
+}
+
 export {
   getAllComps,
   getFolderPath,
@@ -235,4 +251,5 @@ export {
   selectLayer,
   selectComp,
   selectFile,
+  uuid,
 };

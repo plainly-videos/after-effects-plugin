@@ -1,4 +1,3 @@
-export * from './ConfirmationModal';
 export * from './comp';
 export * from './file';
 export * from './Issue';

@@ -2,8 +2,9 @@ import { AeScriptsApi } from '@src/node/bridge';
 import { useNotifications } from '@src/ui/hooks';
 import { isEmpty } from '@src/ui/utils';
 import { ShieldCheckIcon, WrenchIcon } from 'lucide-react';
-import { useCallback, useContext, useRef, useState } from 'react';
+import { useCallback, useContext, useMemo, useRef, useState } from 'react';
 import { flushSync } from 'react-dom';
+import semver from 'semver';
 import { Alert, Button } from '../common';
 import { GlobalContext } from '../context';
 import { Description, PageHeading } from '../typography';
@@ -16,7 +17,7 @@ import {
 import { isCompIssue, isFileIssue, isTextLayerIssue } from './utils';
 
 export function Validations() {
-  const { contextReady, projectIssues, validateProject } =
+  const { contextReady, projectIssues, validateProject, aeVersion } =
     useContext(GlobalContext);
   const { notifyInfo } = useNotifications();
 
@@ -67,7 +68,18 @@ export function Validations() {
     [nextFrame, notifyInfo, validateProject],
   );
 
-  const handleFixAll = async () => {
+  // for fix all issues, reasons to ignore fixing certain issue types can be passed in here
+  const ignoreFixing: {
+    [key in ProjectIssueType]?: boolean;
+  } = useMemo(() => {
+    return {
+      [ProjectIssueType.AllCaps]: aeVersion
+        ? semver.lt(aeVersion, '24.3.0')
+        : undefined,
+    };
+  }, [aeVersion]);
+
+  const handleFixAll = useCallback(async () => {
     if (!totalCount || fixInFlightRef.current) {
       return;
     }
@@ -77,7 +89,7 @@ export function Validations() {
     await nextFrame();
 
     try {
-      await AeScriptsApi.fixAllIssues(projectIssues || []);
+      await AeScriptsApi.fixAllIssues(projectIssues || [], ignoreFixing);
       await handleTestForIssues(false);
       notifyInfo(
         'Attempted to fix all issues.',
@@ -87,7 +99,14 @@ export function Validations() {
       setLoading(false);
       fixInFlightRef.current = false;
     }
-  };
+  }, [
+    handleTestForIssues,
+    nextFrame,
+    notifyInfo,
+    projectIssues,
+    totalCount,
+    ignoreFixing,
+  ]);
 
   const onExpandClick = useCallback((type: ProjectIssueType) => {
     setCurrentIssueType((prev) => (prev === type ? undefined : type));

@@ -1,8 +1,9 @@
 import { AeScriptsApi } from '@src/node/bridge';
-import { useNotifications, useProjectData } from '@src/ui/hooks';
+import { useNotifications } from '@src/ui/hooks';
 import type { AnyProjectIssue, TextAllCapsEnabledIssue } from 'plainly-types';
-import { useMemo } from 'react';
+import { useContext, useMemo } from 'react';
 import semver from 'semver';
+import { GlobalContext } from '../../context';
 import { Issue } from '../Issue';
 
 export function AllCapsIssueView({
@@ -16,7 +17,7 @@ export function AllCapsIssueView({
   validateProject: () => Promise<AnyProjectIssue[]>;
   onExpandClick: () => void;
 }) {
-  const { aeVersion } = useProjectData();
+  const { aeVersion } = useContext(GlobalContext);
   const { notifyError, notifyInfo } = useNotifications();
 
   const handleFix = async () => {

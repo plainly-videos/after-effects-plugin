@@ -1,4 +1,5 @@
 import type { CompIssues, RendererTypeName } from 'plainly-types';
+import { uuid } from '../utils';
 import { ProjectIssueType } from '.';
 
 enum RendererType {
@@ -31,6 +32,7 @@ function validateComps(comps: CompItem[]): CompIssues[] {
     const renderer = comp.renderer;
     if (renderer !== RendererType.CLASSIC_3D) {
       compIssues.push({
+        id: uuid(),
         type: ProjectIssueType.Unsupported3DRenderer,
         compId: comp.id.toString(),
         compName: comp.name,

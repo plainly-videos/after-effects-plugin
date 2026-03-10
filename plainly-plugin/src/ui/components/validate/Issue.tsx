@@ -101,7 +101,7 @@ export function Issue({
       {isOpen && (
         <div className="divide-y divide-white/10 col-span-3">
           {issues.map((details) => (
-            <IssueItem key={details.type} issue={details} />
+            <IssueItem key={details.id} issue={details} />
           ))}
         </div>
       )}
@@ -123,7 +123,6 @@ function IssueItem({ issue }: { issue: AnyProjectIssue }) {
     case ProjectIssueType.Unsupported3DRenderer:
       return (
         <IssueItemContent
-          key={issue.compId}
           label={`${issue.compName} (${issue.renderer})`}
           onClick={() => onIssueClick(issue.compId, 'comp')}
         />
@@ -131,7 +130,6 @@ function IssueItem({ issue }: { issue: AnyProjectIssue }) {
     case ProjectIssueType.AllCaps:
       return (
         <IssueItemContent
-          key={issue.layerId}
           label={issue.layerName}
           onClick={() => onIssueClick(issue.layerId, 'layer')}
         />
@@ -139,7 +137,6 @@ function IssueItem({ issue }: { issue: AnyProjectIssue }) {
     case ProjectIssueType.FileProblem:
       return (
         <IssueItemContent
-          key={issue.fileId}
           label={issue.fileName}
           onClick={() => onIssueClick(issue.fileId, 'file')}
         />
