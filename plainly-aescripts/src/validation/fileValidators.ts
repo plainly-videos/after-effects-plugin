@@ -30,7 +30,7 @@ function validateFiles(): FileIssues[] {
     }
 
     const fsName = originalFile.fsName.toLowerCase();
-    if (fsName.endsWith('psd') || fsName.endsWith('ai')) {
+    if (fsName.endsWith('.psd') || fsName.endsWith('.ai')) {
       files.push({
         id: uuid(),
         type: ProjectIssueType.FileProblem,

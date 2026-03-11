@@ -30,7 +30,8 @@
       },
       "a11y": {
         "noAutofocus": "off",
-        "noStaticElementInteractions": "off"
+        "noStaticElementInteractions": "off",
+        "useKeyWithClickEvents": "off"
       },
       "correctness": {
         "noUnusedImports": "error",

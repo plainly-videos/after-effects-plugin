@@ -36,10 +36,9 @@ export function Issue({
 
   return (
     <div className="col-span-3 grid grid-cols-3 border border-white/10 text-xs divide-y divide-white/10 rounded-md">
-      <button
-        type="button"
+      <div
         onClick={onExpandClick}
-        className="col-span-3 font-medium flex justify-between items-center px-3 py-2 bg-[rgb(43,43,43)]"
+        className="col-span-3 font-medium flex justify-between items-center px-3 py-2 bg-[rgb(43,43,43)] cursor-pointer"
       >
         <div className="flex items-center gap-2">
           <p>{label}</p>
@@ -97,7 +96,7 @@ export function Issue({
             />
           </div>
         </div>
-      </button>
+      </div>
       {isOpen && (
         <div className="divide-y divide-white/10 col-span-3">
           {issues.map((details) => (
