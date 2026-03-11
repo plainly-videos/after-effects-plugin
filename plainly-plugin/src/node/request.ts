@@ -61,7 +61,7 @@ async function get<T>(
 async function post<T>(
   path: string,
   apiKey: string,
-  body: string,
+  body: unknown,
 ): Promise<AxiosResponse<T, unknown>> {
   return await instance.post(path, body, auth(apiKey));
 }

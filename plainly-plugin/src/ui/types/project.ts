@@ -38,8 +38,8 @@ export interface Template {
 export interface Layer {
   internalId: string;
   layerName: string;
-  parametrization: Parametrization;
-  scripting: Scripting;
+  parametrization?: Parametrization;
+  scripting?: Scripting;
 }
 
 export interface Parametrization {
@@ -57,7 +57,7 @@ export interface Script {
   scriptType: ScriptType;
 }
 
-enum ScriptType {
+export enum ScriptType {
   CROP = 'CROP',
   MEDIA_AUTO_SCALE = 'MEDIA_AUTO_SCALE',
   TEXT_AUTO_SCALE = 'TEXT_AUTO_SCALE',
