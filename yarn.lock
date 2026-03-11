@@ -5840,12 +5840,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lucide-react@npm:^0.456.0":
-  version: 0.456.0
-  resolution: "lucide-react@npm:0.456.0"
+"lucide-react@npm:^0.577.0":
+  version: 0.577.0
+  resolution: "lucide-react@npm:0.577.0"
   peerDependencies:
-    react: ^16.5.1 || ^17.0.0 || ^18.0.0 || ^19.0.0-rc
-  checksum: 12077fdb291e72906dc7950efa1672f857cde89638452d0e1bed6aea36893194f5da14b64157f6c333c2f7a0c54dbd65292ad6f945d11ba54b641eba8a98e7f8
+    react: ^16.5.1 || ^17.0.0 || ^18.0.0 || ^19.0.0
+  checksum: f39db5fb91e925480c9d697f4fc2474d692abcda8e069a5be3295ce9c370dbf7fb55a6b88f94ab5d8b2f834bb76407926b312e2f88992aad62e7567efeb87dcc
   languageName: node
   linkType: hard
 
@@ -6532,7 +6532,7 @@ __metadata:
     globals: ^15.11.0
     html-webpack-plugin: ^5.6.3
     jest: ^30.2.0
-    lucide-react: ^0.456.0
+    lucide-react: ^0.577.0
     plainly-types: "workspace:*"
     postcss: ^8.4.49
     postcss-loader: ^8.1.1
