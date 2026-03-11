@@ -1,0 +1,190 @@
+import { AeScriptsApi } from '@src/node/bridge';
+import { useNotifications } from '@src/ui/hooks';
+import { isEmpty } from '@src/ui/utils';
+import { ShieldCheckIcon, WrenchIcon } from 'lucide-react';
+import { useCallback, useContext, useMemo, useRef, useState } from 'react';
+import { flushSync } from 'react-dom';
+import semver from 'semver';
+import { Alert, Button } from '../common';
+import { GlobalContext } from '../context';
+import { Description, PageHeading } from '../typography';
+import {
+  AllCapsIssueView,
+  FilesUnsupportedIssueView,
+  ProjectIssueType,
+  UnsupportedRendererIssueView,
+} from '.';
+import { isCompIssue, isFileIssue, isTextLayerIssue } from './utils';
+
+export function Validations() {
+  const { contextReady, projectIssues, validateProject, aeVersion } =
+    useContext(GlobalContext);
+  const { notifyInfo } = useNotifications();
+
+  const [currentIssueType, setCurrentIssueType] = useState<ProjectIssueType>();
+  const [loading, setLoading] = useState(false);
+
+  // Prevent re-entrancy while expensive operations are running
+  const testInFlightRef = useRef(false);
+  const fixInFlightRef = useRef(false);
+
+  // Let the UI paint (e.g., disabled state) before starting heavy work
+  const nextFrame = useCallback(
+    () =>
+      new Promise<void>((resolve) => requestAnimationFrame(() => resolve())),
+    [],
+  );
+
+  const textLayersIssues = projectIssues?.filter(isTextLayerIssue);
+  const compsIssues = projectIssues?.filter(isCompIssue);
+  const filesIssues = projectIssues?.filter(isFileIssue);
+  const totalCount = projectIssues?.length ?? undefined;
+
+  const handleTestForIssues = useCallback(
+    async (notify = true) => {
+      if (testInFlightRef.current) {
+        return;
+      }
+
+      testInFlightRef.current = true;
+      flushSync(() => setLoading(true));
+      await nextFrame();
+
+      try {
+        const issues = await validateProject();
+        if (notify) {
+          notifyInfo(
+            'Project validation completed.',
+            !issues
+              ? 'No issues found.'
+              : 'Please review the issues and consider fixing them, some may require manual intervention.',
+          );
+        }
+      } finally {
+        setLoading(false);
+        testInFlightRef.current = false;
+      }
+    },
+    [nextFrame, notifyInfo, validateProject],
+  );
+
+  // for fix all issues, reasons to ignore fixing certain issue types can be passed in here
+  const ignoreFixing: {
+    [key in ProjectIssueType]?: boolean;
+  } = useMemo(() => {
+    return {
+      [ProjectIssueType.AllCaps]: aeVersion
+        ? semver.lt(aeVersion, '24.3.0')
+        : undefined,
+    };
+  }, [aeVersion]);
+
+  const handleFixAll = useCallback(async () => {
+    if (!totalCount || fixInFlightRef.current) {
+      return;
+    }
+
+    fixInFlightRef.current = true;
+    flushSync(() => setLoading(true));
+    await nextFrame();
+
+    try {
+      await AeScriptsApi.fixAllIssues(projectIssues || [], ignoreFixing);
+      await handleTestForIssues(false);
+      notifyInfo(
+        'Attempted to fix all issues.',
+        'Please review the project again. Some issues may require manual intervention.',
+      );
+    } finally {
+      setLoading(false);
+      fixInFlightRef.current = false;
+    }
+  }, [
+    handleTestForIssues,
+    nextFrame,
+    notifyInfo,
+    projectIssues,
+    totalCount,
+    ignoreFixing,
+  ]);
+
+  const onExpandClick = useCallback((type: ProjectIssueType) => {
+    setCurrentIssueType((prev) => (prev === type ? undefined : type));
+  }, []);
+
+  const allCaps = textLayersIssues?.filter(
+    (issue) => issue.type === ProjectIssueType.AllCaps,
+  );
+  const renderers = compsIssues?.filter(
+    (issue) => issue.type === ProjectIssueType.Unsupported3DRenderer,
+  );
+  const fileProblems = filesIssues?.filter(
+    (issue) => issue.type === ProjectIssueType.FileProblem,
+  );
+
+  return (
+    <div className="space-y-4 w-full text-white">
+      <div>
+        <PageHeading heading="Project validations" />
+        <Description className="mt-1">
+          Here you can see potential issues in your project that might cause
+          problems on the Plainly platform.
+        </Description>
+      </div>
+      {totalCount === 0 ? (
+        <Alert title="There are no issues with your project." type="success" />
+      ) : totalCount === undefined ? (
+        <Alert title="Project validation has not been run yet." type="info" />
+      ) : (
+        <div className="space-y-2 w-full">
+          {!isEmpty(allCaps) && (
+            <AllCapsIssueView
+              issues={allCaps}
+              isOpen={currentIssueType === ProjectIssueType.AllCaps}
+              validateProject={validateProject}
+              onExpandClick={() => onExpandClick(ProjectIssueType.AllCaps)}
+            />
+          )}
+          {!isEmpty(renderers) && (
+            <UnsupportedRendererIssueView
+              issues={renderers}
+              isOpen={
+                currentIssueType === ProjectIssueType.Unsupported3DRenderer
+              }
+              validateProject={validateProject}
+              onExpandClick={() =>
+                onExpandClick(ProjectIssueType.Unsupported3DRenderer)
+              }
+            />
+          )}
+          {!isEmpty(fileProblems) && (
+            <FilesUnsupportedIssueView
+              issues={fileProblems}
+              isOpen={currentIssueType === ProjectIssueType.FileProblem}
+              onExpandClick={() => onExpandClick(ProjectIssueType.FileProblem)}
+            />
+          )}
+        </div>
+      )}
+      <div className="flex items-center gap-2 float-right">
+        <Button
+          secondary
+          onClick={() => handleTestForIssues(false)}
+          loading={loading || !contextReady}
+          disabled={loading || !contextReady}
+          icon={ShieldCheckIcon}
+        >
+          Test for issues
+        </Button>
+        <Button
+          disabled={!totalCount || loading || !contextReady}
+          onClick={handleFixAll}
+          loading={loading || !contextReady}
+          icon={WrenchIcon}
+        >
+          Fix all
+        </Button>
+      </div>
+    </div>
+  );
+}
