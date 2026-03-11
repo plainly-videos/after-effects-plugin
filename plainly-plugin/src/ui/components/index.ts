@@ -5,6 +5,7 @@ export * from './form';
 export * from './layout';
 export * from './logo';
 export * from './navigation';
+export * from './parameters';
 export * from './projects';
 export * from './settings';
 export * from './typography';
