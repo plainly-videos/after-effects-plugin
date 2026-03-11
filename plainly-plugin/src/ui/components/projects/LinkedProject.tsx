@@ -1,4 +1,6 @@
 import { GlobalContext } from '@src/ui/components/context/GlobalProvider';
+import { useNavigate } from '@src/ui/hooks';
+import { Routes } from '@src/ui/types';
 import type { Project } from '@src/ui/types/project';
 import { format } from 'date-fns';
 import {
@@ -6,6 +8,7 @@ import {
   CircleCheckIcon,
   ExternalLinkIcon,
   FolderSync,
+  LayersPlusIcon,
   LayoutTemplateIcon,
   LinkIcon,
   LoaderCircleIcon,
@@ -28,6 +31,7 @@ export function LinkedProject({
   openInWeb: (id: string) => void;
   openProjectRenders: (id: string) => void;
 }) {
+  const { navigate } = useNavigate();
   const { plainlyProject } = useContext(GlobalContext);
   const [showConfirmation, setShowConfirmation] = useState(false);
 
@@ -96,6 +100,13 @@ export function LinkedProject({
               </Tooltip>
               <Tooltip text="Open in web">
                 <ProjectAction icon={ExternalLinkIcon} action={open} linked />
+              </Tooltip>
+              <Tooltip text="Parameters">
+                <ProjectAction
+                  icon={LayersPlusIcon}
+                  action={() => navigate(Routes.PARAMETERS)}
+                  linked
+                />
               </Tooltip>
             </div>
           </div>
