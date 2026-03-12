@@ -177,6 +177,23 @@ export function Layers() {
     }
   };
 
+  const handleScriptRemove = (layerInternalId: string, type: ScriptType) => {
+    setEditableLayers((prev) =>
+      prev.map((layer) => {
+        if (layer.internalId !== layerInternalId) return layer;
+        return {
+          ...layer,
+          scripting: {
+            ...layer.scripting,
+            scripts: (layer.scripting?.scripts || []).filter(
+              (s) => s.scriptType !== type,
+            ),
+          },
+        };
+      }),
+    );
+  };
+
   const handleCropScriptSave = (updatedScript: CropScript) => {
     if (!activeCropEdit) return;
     if (activeCropEdit.isBulk) {
@@ -461,6 +478,12 @@ export function Layers() {
                                       script as CropScript,
                                     )
                                 : () => {}
+                            }
+                            onRemove={() =>
+                              handleScriptRemove(
+                                layer.internalId,
+                                script.scriptType,
+                              )
                             }
                           />
                         </div>
