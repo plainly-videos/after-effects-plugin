@@ -1,3 +1,3 @@
 export * from './CropScriptDialog';
-export * from './Parameters';
+export * from './Layers';
 export * from './ScriptsDialog';
