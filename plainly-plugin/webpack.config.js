@@ -10,6 +10,9 @@ module.exports = (_, options) => ({
     filename: 'index-[contenthash].js', // output file name
     clean: options.mode === 'development' || options.watch, // keep dist tidy during watch builds
   },
+  cache: {
+    type: 'filesystem',
+  },
   optimization: {
     minimize: options.mode === 'production',
   },
@@ -17,7 +20,12 @@ module.exports = (_, options) => ({
     rules: [
       {
         test: /\.(ts|tsx)$/, // test for TypeScript files
-        use: 'ts-loader', // use TS Loader
+        use: {
+          loader: 'ts-loader',
+          options: {
+            transpileOnly: options.mode === 'development',
+          },
+        },
         include: [path.resolve(__dirname, 'src')], // include only src directory
       },
       {

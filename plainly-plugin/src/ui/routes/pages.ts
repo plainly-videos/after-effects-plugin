@@ -2,6 +2,7 @@ import {
   FolderOutput,
   FoldersIcon,
   InfoIcon,
+  LayersPlusIcon,
   SettingsIcon,
   UploadIcon,
 } from 'lucide-react';
@@ -22,6 +23,11 @@ export const pages = [
     name: 'Projects',
     to: Routes.PROJECTS,
     icon: FoldersIcon,
+  },
+  {
+    name: 'Layers',
+    to: Routes.LAYERS,
+    icon: LayersPlusIcon,
   },
   {
     name: 'Settings',
