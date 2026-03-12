@@ -105,11 +105,19 @@ export function Layers() {
     if (!plainlyProject?.id || !selected) return;
 
     try {
+      const cleanedLayers = editableLayers.map((layer) => {
+        if (!layer.scripting?.scripts?.length) {
+          const { scripting: _scripting, ...rest } = layer;
+          return rest;
+        }
+        return layer;
+      });
+
       await editTemplate({
         projectId: plainlyProject.id,
         templateId: selected.id,
         data: {
-          layers: editableLayers,
+          layers: cleanedLayers,
           name: selected.name,
           renderingComposition: selected.renderingComposition,
           renderingCompositionId: selected.renderingCompositionId,
