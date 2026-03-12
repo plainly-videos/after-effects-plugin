@@ -1,10 +1,10 @@
-import { AuthProvider, MainWrapper, Parameters } from '../components';
+import { AuthProvider, Layers, MainWrapper } from '../components';
 
 export function LayersRoute() {
   return (
     <MainWrapper>
       <AuthProvider>
-        <Parameters />
+        <Layers />
       </AuthProvider>
     </MainWrapper>
   );
