@@ -7,10 +7,12 @@ export function Badge({
   label,
   action,
   variant = 'neutral',
+  disabled,
 }: {
   label: string;
   action?: () => void;
   variant?: 'neutral' | 'indigo';
+  disabled?: boolean;
 }) {
   return (
     <span
@@ -19,6 +21,7 @@ export function Badge({
         action && 'cursor-pointer',
         variant === 'neutral' && neutralVariant,
         variant === 'indigo' && indigoVariant,
+        disabled && 'opacity-50 pointer-events-none',
       )}
       onClick={action}
     >
