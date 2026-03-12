@@ -5,8 +5,17 @@ import {
   ComboboxOption,
   ComboboxOptions,
 } from '@headlessui/react';
-import { useEditTemplate, useGetProjectDetails } from '@src/ui/hooks';
-import { ScriptType, type Template } from '@src/ui/types/project';
+import {
+  useEditTemplate,
+  useGetProjectDetails,
+  useNotifications,
+} from '@src/ui/hooks';
+import {
+  type CropScript,
+  type Layer,
+  ScriptType,
+  type Template,
+} from '@src/ui/types/template';
 import classNames from 'classnames';
 import {
   CheckIcon,
@@ -15,10 +24,12 @@ import {
   LoaderCircleIcon,
   PlusIcon,
 } from 'lucide-react';
-import { useContext, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { Badge, Button } from '../common';
 import { GlobalContext } from '../context';
 import { Description, Label, PageHeading } from '../typography';
+import { CropScriptDialog } from './CropScriptDialog';
+import { ScriptsDialog } from './ScriptsDialog';
 
 const scriptName = (type: ScriptType) => {
   if (type === ScriptType.CROP) return 'Crop';
@@ -32,12 +43,26 @@ const scriptName = (type: ScriptType) => {
 export function Parameters() {
   const { plainlyProject } = useContext(GlobalContext) || {};
   const { isLoading, data } = useGetProjectDetails(plainlyProject?.id);
+  const { notifyError, notifySuccess } = useNotifications();
 
   const [query, setQuery] = useState('');
   const [selected, setSelected] = useState<Template | null>(null);
   const [parameterQuery, setParameterQuery] = useState('');
+  const [editableLayers, setEditableLayers] = useState<Layer[]>([]);
+  const [scriptsDialogLayerId, setScriptsDialogLayerId] = useState<
+    string | null
+  >(null);
+  const [activeCropEdit, setActiveCropEdit] = useState<{
+    layerInternalId: string;
+    script: CropScript;
+    isNew: boolean;
+  } | null>(null);
 
-  const { isPending, mutateAsync: _editTemplate } = useEditTemplate();
+  useEffect(() => {
+    setEditableLayers(selected?.layers || []);
+  }, [selected]);
+
+  const { isPending, mutateAsync: editTemplate } = useEditTemplate();
 
   const templates = data?.templates || [];
   const filteredTemplates =
@@ -47,17 +72,72 @@ export function Parameters() {
           template.name.toLowerCase().includes(query.toLowerCase()),
         );
 
-  const layers = (selected?.layers || []).filter((layer) =>
+  const layers = editableLayers.filter((layer) =>
     layer.parametrization?.value
       .toLowerCase()
       .includes(parameterQuery.toLowerCase()),
   );
 
+  const handleCropBadgeClick = (
+    layerInternalId: string,
+    script: CropScript,
+  ) => {
+    setActiveCropEdit({ layerInternalId, script, isNew: false });
+  };
+
+  const handleScriptSelect = (type: ScriptType) => {
+    if (!scriptsDialogLayerId) return;
+    if (type === ScriptType.CROP) {
+      setActiveCropEdit({
+        layerInternalId: scriptsDialogLayerId,
+        script: {
+          scriptType: ScriptType.CROP,
+          compEndsAtOutPoint: false,
+          compStartsAtInPoint: false,
+        },
+        isNew: true,
+      });
+    }
+  };
+
+  const handleCropScriptSave = (updatedScript: CropScript) => {
+    if (!activeCropEdit) return;
+    setEditableLayers((prev) =>
+      prev.map((layer) => {
+        if (layer.internalId !== activeCropEdit.layerInternalId) return layer;
+        const existingScripts = layer.scripting?.scripts || [];
+        const scripts = activeCropEdit.isNew
+          ? [...existingScripts, updatedScript]
+          : existingScripts.map((s) =>
+              s.scriptType === ScriptType.CROP ? updatedScript : s,
+            );
+        return {
+          ...layer,
+          scripting: { ...layer.scripting, scripts },
+        };
+      }),
+    );
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!plainlyProject?.id || !selected) return;
 
     try {
-    } catch (_error) {}
+      await editTemplate({
+        projectId: plainlyProject.id,
+        templateId: selected.id,
+        data: {
+          layers: editableLayers,
+          name: selected.name,
+          renderingComposition: selected.renderingComposition,
+          renderingCompositionId: selected.renderingCompositionId,
+        },
+      });
+      notifySuccess('Template changes saved successfully');
+    } catch (error) {
+      notifyError('Failed to save template changes', error);
+    }
   };
 
   return (
@@ -168,7 +248,7 @@ export function Parameters() {
                   </div>
                   <div className="min-w-0 px-3 py-1 relative">
                     <button
-                      onClick={() => {}}
+                      onClick={() => setScriptsDialogLayerId(layer.internalId)}
                       className="absolute right-3 top-1 size-5 flex items-center justify-center cursor-pointer disabled:cursor-not-allowed group rounded-sm bg-primary hover:bg-secondary hover:text-gray-400"
                       type="button"
                     >
@@ -179,7 +259,15 @@ export function Parameters() {
                         <div key={script.scriptType}>
                           <Badge
                             label={scriptName(script.scriptType)}
-                            action={() => console.log('nothing')}
+                            action={
+                              script.scriptType === ScriptType.CROP
+                                ? () =>
+                                    handleCropBadgeClick(
+                                      layer.internalId,
+                                      script as CropScript,
+                                    )
+                                : () => {}
+                            }
                           />
                         </div>
                       ))}
@@ -198,6 +286,24 @@ export function Parameters() {
       >
         Save changes
       </Button>
+      <ScriptsDialog
+        open={scriptsDialogLayerId !== null}
+        setOpen={(open) => !open && setScriptsDialogLayerId(null)}
+        onSelect={handleScriptSelect}
+      />
+      <CropScriptDialog
+        key={activeCropEdit?.layerInternalId}
+        cropScript={
+          activeCropEdit?.script ?? {
+            scriptType: ScriptType.CROP,
+            compEndsAtOutPoint: false,
+            compStartsAtInPoint: false,
+          }
+        }
+        open={activeCropEdit !== null}
+        setOpen={(open) => !open && setActiveCropEdit(null)}
+        action={handleCropScriptSave}
+      />
     </form>
   );
 }
