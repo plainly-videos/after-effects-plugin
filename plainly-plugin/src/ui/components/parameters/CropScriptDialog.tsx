@@ -87,6 +87,7 @@ export function CropScriptDialog({
               <Button
                 type="button"
                 onClick={handleSave}
+                disabled={!beginning && !end}
                 className="inline-flex w-full sm:w-auto justify-center sm:ml-2"
               >
                 Save
