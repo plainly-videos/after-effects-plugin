@@ -25,8 +25,8 @@ export const pages = [
     icon: FoldersIcon,
   },
   {
-    name: 'Parameters',
-    to: Routes.PARAMETERS,
+    name: 'Layers',
+    to: Routes.LAYERS,
     icon: LayersPlusIcon,
   },
   {

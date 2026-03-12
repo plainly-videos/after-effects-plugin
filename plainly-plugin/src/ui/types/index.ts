@@ -4,7 +4,7 @@ export enum Routes {
   PROJECTS = '/projects',
   SETTINGS = '/settings',
   ABOUT = '/about',
-  PARAMETERS = '/parameters',
+  LAYERS = '/layers',
 }
 
 export interface GlobalSettings {
