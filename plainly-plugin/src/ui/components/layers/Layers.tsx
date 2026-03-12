@@ -16,6 +16,7 @@ import {
   ScriptType,
   type Template,
 } from '@src/ui/types/template';
+import { isEmpty } from '@src/ui/utils';
 import classNames from 'classnames';
 import {
   CheckIcon,
@@ -51,8 +52,7 @@ function SelectAllCheckbox({
 }) {
   const ref = useRef<HTMLInputElement>(null);
   const allSelected =
-    layers.length > 0 &&
-    layers.every((l) => selectedLayerIds.has(l.internalId));
+    !isEmpty(layers) && layers.every((l) => selectedLayerIds.has(l.internalId));
   const someSelected =
     !allSelected && layers.some((l) => selectedLayerIds.has(l.internalId));
 
@@ -77,7 +77,7 @@ function SelectAllCheckbox({
   );
 }
 
-export function Parameters() {
+export function Layers() {
   const { plainlyProject } = useContext(GlobalContext) || {};
   const { isLoading, data } = useGetProjectDetails(plainlyProject?.id);
   const { notifyError, notifySuccess } = useNotifications();

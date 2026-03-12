@@ -43,4 +43,4 @@ export type CropScript = {
   compStartsAtInPoint: boolean;
 };
 
-export type TemplateUpdate = Omit<Template, 'id'>;
+export type TemplatePut = Omit<Template, 'id'>;

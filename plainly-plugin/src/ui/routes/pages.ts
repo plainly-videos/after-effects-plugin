@@ -49,8 +49,8 @@ export const pages: (Page | Separator)[] = [
   },
   {
     type: 'page',
-    name: 'Parameters',
-    to: Routes.PARAMETERS,
+    name: 'Layers',
+    to: Routes.LAYERS,
     icon: LayersPlusIcon,
   },
   {
