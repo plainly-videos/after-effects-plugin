@@ -9,10 +9,17 @@ export interface Template {
 export interface Layer {
   internalId: string;
   layerName: string;
-  layerType: 'COMPOSITION' | 'DATA' | 'DATA_EFFECT' | 'MEDIA' | 'SOLID_COLOR';
+  layerType: LayerType;
   parametrization?: Parametrization;
   scripting?: Scripting;
 }
+
+export type LayerType =
+  | 'COMPOSITION'
+  | 'DATA'
+  | 'DATA_EFFECT'
+  | 'MEDIA'
+  | 'SOLID_COLOR';
 
 export interface Parametrization {
   defaultValue?: string;
