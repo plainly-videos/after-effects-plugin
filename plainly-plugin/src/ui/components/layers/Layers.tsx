@@ -15,6 +15,7 @@ import {
   type Layer,
   ScriptType,
   type Template,
+  type TextAutoScaleScript,
 } from '@src/ui/types/template';
 import { isEmpty } from '@src/ui/utils';
 import classNames from 'classnames';
@@ -34,8 +35,8 @@ import { ScriptsDialog } from './ScriptsDialog';
 
 const scriptName = (type: ScriptType) => {
   if (type === ScriptType.CROP) return 'Crop';
-  if (type === ScriptType.MEDIA_AUTO_SCALE) return 'Media auto scale';
-  if (type === ScriptType.TEXT_AUTO_SCALE) return 'Text auto scale';
+  if (type === ScriptType.MEDIA_AUTO_SCALE) return 'Auto scale media';
+  if (type === ScriptType.TEXT_AUTO_SCALE) return 'Auto scale text';
   if (type === ScriptType.SHIFT_IN) return 'Shift in';
   if (type === ScriptType.SHIFT_OUT) return 'Shift out';
   return type;
@@ -146,6 +147,33 @@ export function Layers() {
         isNew: true,
         isBulk: false,
       });
+    }
+    if (type === ScriptType.TEXT_AUTO_SCALE) {
+      // If the user selects auto scale text, we immediately add the script with default values, no need for a dialog
+      const layer = editableLayers.find(
+        (l) => l.internalId === scriptsDialogLayerId,
+      );
+      if (!layer) return;
+      const existingScripts = layer.scripting?.scripts || [];
+      const hasAutoScaleText = existingScripts.some(
+        (s) => s.scriptType === ScriptType.TEXT_AUTO_SCALE,
+      );
+      if (hasAutoScaleText) return;
+      const updatedScript: TextAutoScaleScript = {
+        scriptType: ScriptType.TEXT_AUTO_SCALE,
+      };
+      setEditableLayers((prev) =>
+        prev.map((l) => {
+          if (l.internalId !== scriptsDialogLayerId) return l;
+          return {
+            ...l,
+            scripting: {
+              ...l.scripting,
+              scripts: [...(l.scripting?.scripts || []), updatedScript],
+            },
+          };
+        }),
+      );
     }
   };
 
@@ -278,22 +306,50 @@ export function Layers() {
             Select multiple layers from the parametrized layers list and add
             scripts to them in bulk.
           </Description>
-          <Badge
-            label="Crop"
-            action={() =>
-              setActiveCropEdit({
-                layerInternalId: '',
-                script: {
-                  scriptType: ScriptType.CROP,
-                  compEndsAtOutPoint: false,
-                  compStartsAtInPoint: false,
-                },
-                isNew: true,
-                isBulk: true,
-              })
-            }
-            disabled={selectedLayerIds.size === 0}
-          />
+          <div className="flex flex-wrap gap-1 mt-1">
+            <Badge
+              label="Crop"
+              action={() =>
+                setActiveCropEdit({
+                  layerInternalId: '',
+                  script: {
+                    scriptType: ScriptType.CROP,
+                    compEndsAtOutPoint: false,
+                    compStartsAtInPoint: false,
+                  },
+                  isNew: true,
+                  isBulk: true,
+                })
+              }
+              disabled={selectedLayerIds.size === 0}
+            />
+            <Badge
+              label="Auto scale text"
+              action={() => {
+                setEditableLayers((prev) =>
+                  prev.map((layer) => {
+                    if (!selectedLayerIds.has(layer.internalId)) return layer;
+                    const existingScripts = layer.scripting?.scripts || [];
+                    const hasAutoScaleText = existingScripts.some(
+                      (s) => s.scriptType === ScriptType.TEXT_AUTO_SCALE,
+                    );
+                    if (hasAutoScaleText) return layer;
+                    const updatedScript: TextAutoScaleScript = {
+                      scriptType: ScriptType.TEXT_AUTO_SCALE,
+                    };
+                    return {
+                      ...layer,
+                      scripting: {
+                        ...layer.scripting,
+                        scripts: [...existingScripts, updatedScript],
+                      },
+                    };
+                  }),
+                );
+              }}
+              disabled={selectedLayerIds.size === 0}
+            />
+          </div>
         </div>
 
         <div className="col-span-full">

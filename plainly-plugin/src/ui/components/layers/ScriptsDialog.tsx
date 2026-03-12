@@ -34,29 +34,31 @@ const SCRIPT_OPTIONS: {
   },
   {
     type: ScriptType.MEDIA_AUTO_SCALE,
-    label: 'Media auto scale',
-    description: 'Automatically scales media layer to fit the composition.',
+    label: 'Auto scale media',
+    description: 'Automatically scale media layer to the composition size.',
     icon: ImageIcon,
     enabled: false,
   },
   {
     type: ScriptType.TEXT_AUTO_SCALE,
-    label: 'Text auto scale',
-    description: 'Automatically scales text layer to fit the composition.',
+    label: 'Auto scale text',
+    description: 'Automatically scale text layer to the original text size.',
     icon: TypeIcon,
-    enabled: false,
+    enabled: true,
   },
   {
     type: ScriptType.SHIFT_IN,
     label: 'Shift in',
-    description: 'Shifts the in-point of this layer.',
+    description:
+      'Shifts the start of a layer based on the duration of another layer in the same composition.',
     icon: LogInIcon,
     enabled: false,
   },
   {
     type: ScriptType.SHIFT_OUT,
     label: 'Shift out',
-    description: 'Shifts the out-point of this layer.',
+    description:
+      'Shifts the end of a layer based on the duration of another layer in the same composition.',
     icon: LogOutIcon,
     enabled: false,
   },

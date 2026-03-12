@@ -43,4 +43,8 @@ export type CropScript = {
   compStartsAtInPoint: boolean;
 };
 
+export type TextAutoScaleScript = {
+  scriptType: ScriptType.TEXT_AUTO_SCALE;
+};
+
 export type TemplatePut = Omit<Template, 'id'>;
