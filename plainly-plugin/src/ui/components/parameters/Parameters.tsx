@@ -35,6 +35,7 @@ export function Parameters() {
 
   const [query, setQuery] = useState('');
   const [selected, setSelected] = useState<Template | null>(null);
+  const [parameterQuery, setParameterQuery] = useState('');
 
   const { isPending, mutateAsync: _editTemplate } = useEditTemplate();
 
@@ -46,7 +47,11 @@ export function Parameters() {
           template.name.toLowerCase().includes(query.toLowerCase()),
         );
 
-  const layers = selected?.layers || [];
+  const layers = (selected?.layers || []).filter((layer) =>
+    layer.parametrization?.value
+      .toLowerCase()
+      .includes(parameterQuery.toLowerCase()),
+  );
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -124,6 +129,19 @@ export function Parameters() {
         </div>
 
         <div className="col-span-full">
+          <Label label="Search for parameter" />
+          <input
+            id="parameter-search"
+            name="parameter-search"
+            type="text"
+            className="col-start-1 row-start-1 block w-full rounded-md border-none bg-white/5 px-3 py-1 text-xs text-white outline outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500"
+            placeholder="Type to search..."
+            value={parameterQuery}
+            onChange={(e) => setParameterQuery(e.target.value)}
+          />
+        </div>
+
+        <div className="col-span-full">
           <Label label="Parametrized layers" />
           <ul className="divide-y divide-white/10 overflow-auto w-full rounded-md border border-white/5 bg-secondary">
             <li className="grid grid-cols-2 w-full text-xs divide-x divide-white/10 divide-dashed">
@@ -143,9 +161,9 @@ export function Parameters() {
                     </button>
                     <div className="flex flex-col text-xs pr-5">
                       <Label label={layer.layerName} className="truncate" />
-                      <span className="prose prose-xs text-gray-400 truncate">
-                        <code>{layer.parametrization?.value}</code>
-                      </span>
+                      <code className="truncate text-gray-400 text-2xs">
+                        {layer.parametrization?.value}
+                      </code>
                     </div>
                   </div>
                   <div className="min-w-0 px-3 py-1 relative">
