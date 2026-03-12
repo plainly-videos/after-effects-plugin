@@ -20,10 +20,11 @@ export default {
         secondary: 'rgba(var(--color-bg-secondary), 1)',
       },
       fontSize: {
+        '2xs': '0.65rem',
         xs: '0.7rem',
         sm: '0.8rem',
       },
     },
   },
-  plugins: [require('@tailwindcss/forms')],
+  plugins: [require('@tailwindcss/forms'), require('@tailwindcss/typography')],
 };
