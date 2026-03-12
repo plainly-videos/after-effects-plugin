@@ -9,6 +9,7 @@ export interface Template {
 export interface Layer {
   internalId: string;
   layerName: string;
+  layerType: 'COMPOSITION' | 'DATA' | 'DATA_EFFECT' | 'MEDIA' | 'SOLID_COLOR';
   parametrization?: Parametrization;
   scripting?: Scripting;
 }
