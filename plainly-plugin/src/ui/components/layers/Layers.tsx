@@ -16,7 +16,6 @@ import {
   type LayerType,
   ScriptType,
   type Template,
-  type TextAutoScaleScript,
 } from '@src/ui/types/template';
 import classNames from 'classnames';
 import { CheckIcon, ChevronDownIcon, LoaderCircleIcon } from 'lucide-react';
@@ -28,7 +27,6 @@ import { BulkScriptSelect } from './BulkScriptSelect';
 import { CropScriptDialog } from './CropScriptDialog';
 import { FilterLayers } from './FilterLayers';
 import { ParametrizedLayers } from './ParametrizedLayers';
-import { ScriptsDialog } from './ScriptsDialog';
 
 export function Layers() {
   const { plainlyProject } = useContext(GlobalContext) || {};
@@ -45,9 +43,6 @@ export function Layers() {
   const [selectedLayerIds, setSelectedLayerIds] = useState<Set<string>>(
     new Set(),
   );
-  const [scriptsDialogLayerId, setScriptsDialogLayerId] = useState<
-    string | null
-  >(null);
   const [activeCropEdit, setActiveCropEdit] = useState<{
     layerInternalId: string;
     script: CropScript;
@@ -70,73 +65,6 @@ export function Layers() {
       : templates.filter((template) =>
           template.name.toLowerCase().includes(query.toLowerCase()),
         );
-
-  const handleCropBadgeClick = (
-    layerInternalId: string,
-    script: CropScript,
-  ) => {
-    setActiveCropEdit({ layerInternalId, script, isNew: false, isBulk: false });
-  };
-
-  const handleScriptSelect = (type: ScriptType) => {
-    if (!scriptsDialogLayerId) return;
-    if (type === ScriptType.CROP) {
-      setActiveCropEdit({
-        layerInternalId: scriptsDialogLayerId,
-        script: {
-          scriptType: ScriptType.CROP,
-          compEndsAtOutPoint: false,
-          compStartsAtInPoint: false,
-        },
-        isNew: true,
-        isBulk: false,
-      });
-    }
-    if (type === ScriptType.TEXT_AUTO_SCALE) {
-      // If the user selects auto scale text, we immediately add the script with default values, no need for a dialog
-      const layer = editableLayers.find(
-        (l) => l.internalId === scriptsDialogLayerId,
-      );
-      if (!layer) return;
-      const existingScripts = layer.scripting?.scripts || [];
-      const hasAutoScaleText = existingScripts.some(
-        (s) => s.scriptType === ScriptType.TEXT_AUTO_SCALE,
-      );
-      if (hasAutoScaleText) return;
-      const updatedScript: TextAutoScaleScript = {
-        scriptType: ScriptType.TEXT_AUTO_SCALE,
-      };
-      setEditableLayers((prev) =>
-        prev.map((l) => {
-          if (l.internalId !== scriptsDialogLayerId) return l;
-          return {
-            ...l,
-            scripting: {
-              ...l.scripting,
-              scripts: [...(l.scripting?.scripts || []), updatedScript],
-            },
-          };
-        }),
-      );
-    }
-  };
-
-  const handleScriptRemove = (layerInternalId: string, type: ScriptType) => {
-    setEditableLayers((prev) =>
-      prev.map((layer) => {
-        if (layer.internalId !== layerInternalId) return layer;
-        return {
-          ...layer,
-          scripting: {
-            ...layer.scripting,
-            scripts: (layer.scripting?.scripts || []).filter(
-              (s) => s.scriptType !== type,
-            ),
-          },
-        };
-      }),
-    );
-  };
 
   const handleCropScriptSave = (updatedScript: CropScript) => {
     if (!activeCropEdit) return;
@@ -273,13 +201,12 @@ export function Layers() {
         />
         <ParametrizedLayers
           editableLayers={editableLayers}
+          setEditableLayers={setEditableLayers}
           parameterQuery={parameterQuery}
           layerType={layerType}
           selectedLayerIds={selectedLayerIds}
           setSelectedLayerIds={setSelectedLayerIds}
-          setScriptsDialogLayerId={setScriptsDialogLayerId}
-          handleCropBadgeClick={handleCropBadgeClick}
-          handleScriptRemove={handleScriptRemove}
+          setActiveCropEdit={setActiveCropEdit}
         />
       </div>
       <Button
@@ -289,11 +216,6 @@ export function Layers() {
       >
         Save changes
       </Button>
-      <ScriptsDialog
-        open={scriptsDialogLayerId !== null}
-        setOpen={(open) => !open && setScriptsDialogLayerId(null)}
-        onSelect={handleScriptSelect}
-      />
       <CropScriptDialog
         key={activeCropEdit?.layerInternalId}
         cropScript={
