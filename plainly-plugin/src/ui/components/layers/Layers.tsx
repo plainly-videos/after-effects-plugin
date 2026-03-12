@@ -13,70 +13,22 @@ import {
 import {
   type CropScript,
   type Layer,
+  type LayerType,
   ScriptType,
   type Template,
   type TextAutoScaleScript,
 } from '@src/ui/types/template';
-import { isEmpty } from '@src/ui/utils';
 import classNames from 'classnames';
-import {
-  CheckIcon,
-  ChevronDownIcon,
-  EditIcon,
-  LoaderCircleIcon,
-  PlusIcon,
-} from 'lucide-react';
-import { useContext, useEffect, useRef, useState } from 'react';
-import { Badge, Button } from '../common';
+import { CheckIcon, ChevronDownIcon, LoaderCircleIcon } from 'lucide-react';
+import { useContext, useEffect, useState } from 'react';
+import { Button } from '../common';
 import { GlobalContext } from '../context';
 import { Description, Label, PageHeading } from '../typography';
+import { BulkScriptSelect } from './BulkScriptSelect';
 import { CropScriptDialog } from './CropScriptDialog';
+import { FilterLayers } from './FilterLayers';
+import { ParametrizedLayers } from './ParametrizedLayers';
 import { ScriptsDialog } from './ScriptsDialog';
-
-const scriptName = (type: ScriptType) => {
-  if (type === ScriptType.CROP) return 'Crop';
-  if (type === ScriptType.MEDIA_AUTO_SCALE) return 'Auto scale media';
-  if (type === ScriptType.TEXT_AUTO_SCALE) return 'Auto scale text';
-  if (type === ScriptType.SHIFT_IN) return 'Shift in';
-  if (type === ScriptType.SHIFT_OUT) return 'Shift out';
-  return type;
-};
-
-function SelectAllCheckbox({
-  layers,
-  selectedLayerIds,
-  setSelectedLayerIds,
-}: {
-  layers: Layer[];
-  selectedLayerIds: Set<string>;
-  setSelectedLayerIds: React.Dispatch<React.SetStateAction<Set<string>>>;
-}) {
-  const ref = useRef<HTMLInputElement>(null);
-  const allSelected =
-    !isEmpty(layers) && layers.every((l) => selectedLayerIds.has(l.internalId));
-  const someSelected =
-    !allSelected && layers.some((l) => selectedLayerIds.has(l.internalId));
-
-  useEffect(() => {
-    if (ref.current) ref.current.indeterminate = someSelected;
-  }, [someSelected]);
-
-  return (
-    <input
-      ref={ref}
-      type="checkbox"
-      className="appearance-none rounded border border-white/10 bg-white/5 checked:border-indigo-600 checked:bg-indigo-600 indeterminate:border-indigo-600 indeterminate:bg-indigo-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:border-white/10 disabled:bg-transparent forced-colors:appearance-auto"
-      checked={allSelected}
-      onChange={(e) => {
-        setSelectedLayerIds(
-          e.target.checked
-            ? new Set(layers.map((l) => l.internalId))
-            : new Set(),
-        );
-      }}
-    />
-  );
-}
 
 export function Layers() {
   const { plainlyProject } = useContext(GlobalContext) || {};
@@ -84,11 +36,11 @@ export function Layers() {
   const { notifyError, notifySuccess } = useNotifications();
 
   const [query, setQuery] = useState('');
-  const [layerTypeFilter, setLayerTypeFilter] = useState<
-    Layer['layerType'] | ''
-  >('');
   const [selected, setSelected] = useState<Template | null>(null);
+
   const [parameterQuery, setParameterQuery] = useState('');
+  const [layerType, setLayerType] = useState<LayerType | 'All'>('All');
+
   const [editableLayers, setEditableLayers] = useState<Layer[]>([]);
   const [selectedLayerIds, setSelectedLayerIds] = useState<Set<string>>(
     new Set(),
@@ -106,7 +58,7 @@ export function Layers() {
   useEffect(() => {
     setEditableLayers(selected?.layers || []);
     setSelectedLayerIds(new Set());
-    setLayerTypeFilter('');
+    setLayerType('All');
   }, [selected]);
 
   const { isPending, mutateAsync: editTemplate } = useEditTemplate();
@@ -118,14 +70,6 @@ export function Layers() {
       : templates.filter((template) =>
           template.name.toLowerCase().includes(query.toLowerCase()),
         );
-
-  const layers = editableLayers.filter(
-    (layer) =>
-      layer.parametrization?.value
-        .toLowerCase()
-        .includes(parameterQuery.toLowerCase()) &&
-      (layerTypeFilter === '' || layer.layerType === layerTypeFilter),
-  );
 
   const handleCropBadgeClick = (
     layerInternalId: string,
@@ -316,185 +260,27 @@ export function Layers() {
             </ComboboxOptions>
           </Combobox>
         </div>
-
-        <div className="col-span-full">
-          <Label label="Bulk add new scripts" />
-          <Description className="mt-1">
-            Select multiple layers from the parametrized layers list and add
-            scripts to them in bulk.
-          </Description>
-          <div className="flex flex-wrap gap-1 mt-1">
-            <Badge
-              label="Crop"
-              action={() =>
-                setActiveCropEdit({
-                  layerInternalId: '',
-                  script: {
-                    scriptType: ScriptType.CROP,
-                    compEndsAtOutPoint: false,
-                    compStartsAtInPoint: false,
-                  },
-                  isNew: true,
-                  isBulk: true,
-                })
-              }
-              disabled={selectedLayerIds.size === 0}
-            />
-            <Badge
-              label="Auto scale text"
-              action={() => {
-                setEditableLayers((prev) =>
-                  prev.map((layer) => {
-                    if (!selectedLayerIds.has(layer.internalId)) return layer;
-                    const existingScripts = layer.scripting?.scripts || [];
-                    const hasAutoScaleText = existingScripts.some(
-                      (s) => s.scriptType === ScriptType.TEXT_AUTO_SCALE,
-                    );
-                    if (hasAutoScaleText) return layer;
-                    const updatedScript: TextAutoScaleScript = {
-                      scriptType: ScriptType.TEXT_AUTO_SCALE,
-                    };
-                    return {
-                      ...layer,
-                      scripting: {
-                        ...layer.scripting,
-                        scripts: [...existingScripts, updatedScript],
-                      },
-                    };
-                  }),
-                );
-              }}
-              disabled={selectedLayerIds.size === 0}
-            />
-          </div>
-        </div>
-
-        <div className="col-span-full">
-          <Label label="Filter layers" />
-          <input
-            id="parameter-search"
-            name="parameter-search"
-            type="text"
-            className="col-start-1 row-start-1 block w-full rounded-md border-none bg-white/5 px-3 py-1 text-xs text-white outline outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500"
-            placeholder="Type parameter name..."
-            value={parameterQuery}
-            onChange={(e) => setParameterQuery(e.target.value)}
-          />
-          <div className="flex flex-wrap gap-1 mt-1">
-            {(
-              [
-                ['', 'All'],
-                ['COMPOSITION', 'Composition'],
-                ['DATA', 'Data'],
-                ['DATA_EFFECT', 'Data effect'],
-                ['MEDIA', 'Media'],
-                ['SOLID_COLOR', 'Solid color'],
-              ] as [Layer['layerType'] | '', string][]
-            ).map(([value, label]) => (
-              <button
-                key={value}
-                type="button"
-                onClick={() => setLayerTypeFilter(value)}
-                className={classNames(
-                  'rounded px-2 py-0.5 text-xs transition-colors duration-150',
-                  layerTypeFilter === value
-                    ? 'bg-indigo-600 text-white'
-                    : 'bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white',
-                )}
-              >
-                {label}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <div className="col-span-full">
-          <Label label="Parametrized layers" />
-          <ul className="divide-y divide-white/10 overflow-auto w-full rounded-md border border-white/5 bg-secondary">
-            <li className="grid grid-cols-2 w-full text-xs divide-x divide-white/10 divide-dashed">
-              <div className="py-1 px-3 flex items-center gap-2">
-                <SelectAllCheckbox
-                  layers={layers}
-                  selectedLayerIds={selectedLayerIds}
-                  setSelectedLayerIds={setSelectedLayerIds}
-                />
-                <Label label="Parametrization" />
-              </div>
-              <Label label="Scripting" className="py-1 px-3" />
-            </li>
-            {layers.map((layer) => (
-              <div key={layer.internalId} className="min-w-fit w-full">
-                <div className="grid grid-cols-2 w-full divide-x divide-white/10 divide-dashed">
-                  <div className="min-w-0 px-3 py-1 relative flex items-start gap-2">
-                    <input
-                      type="checkbox"
-                      className="appearance-none rounded border border-white/10 bg-white/5 checked:border-indigo-600 checked:bg-indigo-600 indeterminate:border-indigo-600 indeterminate:bg-indigo-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:border-white/10 disabled:bg-transparent forced-colors:appearance-auto"
-                      checked={selectedLayerIds.has(layer.internalId)}
-                      onChange={(e) => {
-                        setSelectedLayerIds((prev) => {
-                          const next = new Set(prev);
-                          if (e.target.checked) next.add(layer.internalId);
-                          else next.delete(layer.internalId);
-                          return next;
-                        });
-                      }}
-                    />
-                    <button
-                      onClick={() => {}}
-                      className="absolute right-3 top-1 size-5 flex items-center justify-center cursor-pointer disabled:cursor-not-allowed group rounded-sm bg-primary hover:bg-secondary hover:text-gray-400 disabled:opacity-50 disabled:pointer-events-none"
-                      type="button"
-                      disabled={true}
-                    >
-                      <EditIcon className="size-3" />
-                    </button>
-                    <div className="flex flex-col text-xs pr-5 min-w-0">
-                      <Label
-                        label={layer.layerName}
-                        className="truncate text-xs leading-4"
-                      />
-                      <code className="truncate text-gray-400 text-2xs">
-                        {layer.parametrization?.value}
-                      </code>
-                    </div>
-                  </div>
-                  <div className="min-w-0 px-3 py-1 relative">
-                    <button
-                      onClick={() => setScriptsDialogLayerId(layer.internalId)}
-                      className="absolute right-3 top-1 size-5 flex items-center justify-center cursor-pointer disabled:cursor-not-allowed group rounded-sm bg-primary hover:bg-secondary hover:text-gray-400"
-                      type="button"
-                    >
-                      <PlusIcon className="size-3" />
-                    </button>
-                    <div className="flex flex-wrap text-xs gap-1 pr-5">
-                      {layer.scripting?.scripts.map((script) => (
-                        <div key={script.scriptType}>
-                          <Badge
-                            label={scriptName(script.scriptType)}
-                            action={
-                              script.scriptType === ScriptType.CROP
-                                ? () =>
-                                    handleCropBadgeClick(
-                                      layer.internalId,
-                                      script as CropScript,
-                                    )
-                                : () => {}
-                            }
-                            onRemove={() =>
-                              handleScriptRemove(
-                                layer.internalId,
-                                script.scriptType,
-                              )
-                            }
-                          />
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </ul>
-        </div>
+        <BulkScriptSelect
+          selectedLayerIds={selectedLayerIds}
+          setActiveCropEdit={setActiveCropEdit}
+          setEditableLayers={setEditableLayers}
+        />
+        <FilterLayers
+          parameterQuery={parameterQuery}
+          setParameterQuery={setParameterQuery}
+          layerType={layerType}
+          setLayerType={setLayerType}
+        />
+        <ParametrizedLayers
+          editableLayers={editableLayers}
+          parameterQuery={parameterQuery}
+          layerType={layerType}
+          selectedLayerIds={selectedLayerIds}
+          setSelectedLayerIds={setSelectedLayerIds}
+          setScriptsDialogLayerId={setScriptsDialogLayerId}
+          handleCropBadgeClick={handleCropBadgeClick}
+          handleScriptRemove={handleScriptRemove}
+        />
       </div>
       <Button
         className="float-right"
