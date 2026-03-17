@@ -31,7 +31,7 @@ export function UploadForm() {
     mutateAsync: editProject,
     cancel: cancelEdit,
   } = useEditProject();
-  const { notifySuccess, notifyError } = useNotifications();
+  const { notifySuccess, notifyError, notifyInfo } = useNotifications();
 
   const [inputs, setInputs] = useState<{
     projectName?: string;
@@ -135,6 +135,10 @@ export function UploadForm() {
       setUploadMode('edit');
       setInputs({});
     } catch (error) {
+      if (error instanceof Error && error.message === 'canceled') {
+        notifyInfo('Upload cancelled');
+        return;
+      }
       notifyError('Failed to upload project', error);
     } finally {
       if (zipPathValue) {
