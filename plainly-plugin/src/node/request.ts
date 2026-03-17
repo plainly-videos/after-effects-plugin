@@ -14,7 +14,7 @@ import {
 
 const PLAINLY_ERROR_CODE_HEADER = 'X-PlainlyErrorCode'.toLowerCase();
 const REQUEST_TIMEOUT_MS = 30000; // 30 seconds
-const FORM_DATA_REQUEST_TIMEOUT_MS = 120000; // 2 minutes
+const FORM_DATA_REQUEST_TIMEOUT_MS = 300000; // 5 minutes
 const NO_INTERNET_ERROR_CODES = new Set([
   'ENOTFOUND',
   'EAI_AGAIN',
@@ -72,10 +72,12 @@ async function postFormData<T>(
   path: string,
   apiKey: string,
   body: FormData,
+  signal?: AbortSignal,
 ): Promise<AxiosResponse<T, unknown>> {
   return await instance.post(path, body, {
     headers: { ...body.getHeaders() },
-    timeout: FORM_DATA_REQUEST_TIMEOUT_MS, // FormData can sometimes take a long time to upload, so we set a longer timeout for these requests - 2 minutes
+    timeout: FORM_DATA_REQUEST_TIMEOUT_MS, // FormData can sometimes take a long time to upload, so we set a longer timeout for these requests - 5 minutes
+    signal,
     ...auth(apiKey),
   });
 }

@@ -21,9 +21,16 @@ export function UploadForm() {
 
   const [setProjectData, _, getData] = useProjectData();
   const { isLoading, data } = useGetProjectDetails(plainlyProject?.id);
-  const { isPending: isUploading, mutateAsync: uploadProject } =
-    useUploadProject();
-  const { isPending: isEditing, mutateAsync: editProject } = useEditProject();
+  const {
+    isPending: isUploading,
+    mutateAsync: uploadProject,
+    cancel: cancelUpload,
+  } = useUploadProject();
+  const {
+    isPending: isEditing,
+    mutateAsync: editProject,
+    cancel: cancelEdit,
+  } = useEditProject();
   const { notifySuccess, notifyError } = useNotifications();
 
   const [inputs, setInputs] = useState<{
@@ -268,13 +275,20 @@ export function UploadForm() {
         )}
       </div>
 
-      <Button
-        className="float-right"
-        loading={loading}
-        disabled={disabled || isLoading}
-      >
-        Upload
-      </Button>
+      <div className="flex gap-2 float-right">
+        {loading && (
+          <Button
+            type="button"
+            secondary
+            onClick={() => (isUploading ? cancelUpload() : cancelEdit())}
+          >
+            Cancel
+          </Button>
+        )}
+        <Button loading={loading} disabled={disabled || isLoading}>
+          Upload
+        </Button>
+      </div>
     </form>
   );
 }

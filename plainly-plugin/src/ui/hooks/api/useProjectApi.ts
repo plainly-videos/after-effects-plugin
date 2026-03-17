@@ -2,6 +2,7 @@ import { get, postFormData } from '@src/node/request';
 import type { Project } from '@src/ui/types/project';
 import { type QueryClient, useQueryClient } from '@tanstack/react-query';
 import type FormData from 'form-data';
+import { useRef } from 'react';
 import { API_REFETCH_INTERVAL } from '.';
 import { useApiMutation, useApiQuery } from './useApi';
 
@@ -87,13 +88,16 @@ export const useGetProjectDetails = (projectId: string | undefined) => {
 
 export const useUploadProject = () => {
   const queryClient = useQueryClient();
+  const abortControllerRef = useRef<AbortController | null>(null);
 
   const { isPending, isError, mutateAsync } = useApiMutation(
     async (apiKey, formData: FormData) => {
+      abortControllerRef.current = new AbortController();
       const { data } = await postFormData<Project>(
         '/projects',
         apiKey,
         formData,
+        abortControllerRef.current.signal,
       );
       return data;
     },
@@ -102,21 +106,26 @@ export const useUploadProject = () => {
     },
   );
 
-  return { isPending, isError, mutateAsync };
+  const cancel = () => abortControllerRef.current?.abort();
+
+  return { isPending, isError, mutateAsync, cancel };
 };
 
 export const useEditProject = () => {
   const queryClient = useQueryClient();
+  const abortControllerRef = useRef<AbortController | null>(null);
 
   const { isPending, isError, mutateAsync } = useApiMutation(
     async (
       apiKey,
       { projectId, formData }: { projectId: string; formData: FormData },
     ) => {
+      abortControllerRef.current = new AbortController();
       const { data } = await postFormData<Project>(
         `/projects/${projectId}`,
         apiKey,
         formData,
+        abortControllerRef.current.signal,
       );
       return data;
     },
@@ -127,5 +136,7 @@ export const useEditProject = () => {
     },
   );
 
-  return { isPending, isError, mutateAsync };
+  const cancel = () => abortControllerRef.current?.abort();
+
+  return { isPending, isError, mutateAsync, cancel };
 };
