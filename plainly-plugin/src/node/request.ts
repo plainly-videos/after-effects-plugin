@@ -4,6 +4,7 @@ import type FormData from 'form-data';
 import { apiBaseURL, pluginBundleVersion } from '../env';
 import {
   AcceptableClientSideApiError,
+  CanceledApiError,
   ClientSideApiError,
   ErrorCode,
   GeneralCommunicationApiError,
@@ -92,6 +93,10 @@ const fallbackErrors = (error: unknown): PlainlyApiError => {
 };
 
 export const toPlainlyError = (error: unknown): PlainlyApiError => {
+  if (axios.isCancel(error)) {
+    return new CanceledApiError();
+  }
+
   if (!axios.isAxiosError(error)) {
     return fallbackErrors(error);
   }

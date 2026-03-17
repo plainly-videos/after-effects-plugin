@@ -12,6 +12,7 @@ import fs from 'fs';
 import { LoaderCircleIcon } from 'lucide-react';
 import { useCallback, useContext, useEffect, useState } from 'react';
 import { makeProjectZipTmpDir } from '../../../node';
+import { CanceledApiError } from '../../../node/errors';
 import { Alert, Button, InternalLink } from '../common';
 import { GlobalContext } from '../context';
 import { Description, Label, PageHeading } from '../typography';
@@ -135,10 +136,7 @@ export function UploadForm() {
       setUploadMode('edit');
       setInputs({});
     } catch (error) {
-      // Axios cancel errors are transformed by the response interceptor into
-      // GeneralCommunicationApiError, preserving the original message "canceled".
-      // Checking the message is intentional — ERR_CANCELED/CanceledError are lost after transformation.
-      if (error instanceof Error && error.message === 'canceled') {
+      if (error instanceof CanceledApiError) {
         notifyInfo('Upload cancelled');
         return;
       }
