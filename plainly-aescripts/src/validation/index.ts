@@ -2,11 +2,7 @@ import type { AnyProjectIssue } from 'plainly-types';
 import { getAllComps } from '../utils';
 import { fixUnsupported3DRendererIssue, validateComps } from './compValidators';
 import { validateFiles } from './fileValidators';
-import {
-  fixAllCapsIssue,
-  fixAllCapsIssues,
-  validateTextLayers,
-} from './textValidators';
+import { validateTextLayers } from './textValidators';
 
 enum ProjectIssueType {
   AllCaps = 'AllCaps',
@@ -41,12 +37,6 @@ function fixAllIssues(
   for (let i = 0; i < issues.length; i++) {
     const issue = issues[i];
     if (
-      issue.type === ProjectIssueType.AllCaps &&
-      !ignoreFixing[ProjectIssueType.AllCaps]
-    ) {
-      fixAllCapsIssue(issue.layerId);
-    }
-    if (
       issue.type === ProjectIssueType.Unsupported3DRenderer &&
       !ignoreFixing[ProjectIssueType.Unsupported3DRenderer]
     ) {
@@ -57,4 +47,4 @@ function fixAllIssues(
   app.endUndoGroup();
 }
 
-export { validateProject, fixAllIssues, fixAllCapsIssues, ProjectIssueType };
+export { validateProject, fixAllIssues, ProjectIssueType };

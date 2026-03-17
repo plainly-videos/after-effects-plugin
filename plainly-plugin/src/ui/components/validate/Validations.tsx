@@ -141,7 +141,6 @@ export function Validations() {
             <AllCapsIssueView
               issues={allCaps}
               isOpen={currentIssueType === ProjectIssueType.AllCaps}
-              validateProject={validateProject}
               onExpandClick={() => onExpandClick(ProjectIssueType.AllCaps)}
             />
           )}

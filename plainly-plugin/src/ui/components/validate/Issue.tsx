@@ -62,13 +62,16 @@ export function Issue({
             </div>
           </Tooltip>
           {warning && (
-            <Tooltip text={warning}>
+            <Tooltip
+              text={warning}
+              className="whitespace-break-spaces max-w-sm"
+            >
               <div className="flex items-center justify-center cursor-help size-4 group">
                 <TriangleAlertIcon className="size-4 text-gray-400 group-hover:text-white duration-200" />
               </div>
             </Tooltip>
           )}
-          <Tooltip text="Fix this issue">
+          <Tooltip text="Fix this issue" disabled={Boolean(warning)}>
             <div className="flex items-center justify-center cursor-pointer size-4 group">
               <button
                 type="button"
