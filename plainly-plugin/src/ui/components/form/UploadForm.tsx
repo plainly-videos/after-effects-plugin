@@ -135,6 +135,9 @@ export function UploadForm() {
       setUploadMode('edit');
       setInputs({});
     } catch (error) {
+      // Axios cancel errors are transformed by the response interceptor into
+      // GeneralCommunicationApiError, preserving the original message "canceled".
+      // Checking the message is intentional — ERR_CANCELED/CanceledError are lost after transformation.
       if (error instanceof Error && error.message === 'canceled') {
         notifyInfo('Upload cancelled');
         return;

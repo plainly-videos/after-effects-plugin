@@ -131,8 +131,11 @@ export const useEditProject = () => {
     },
     {
       onSuccess: (edited: Project) => projectCacheReplace(queryClient, edited),
-      onError: (_: unknown, { projectId }: { projectId: string }) =>
-        projectsCacheRemove(queryClient, projectId),
+      onError: (_: unknown, { projectId }: { projectId: string }) => {
+        if (!abortControllerRef.current?.signal.aborted) {
+          projectsCacheRemove(queryClient, projectId);
+        }
+      },
     },
   );
 
