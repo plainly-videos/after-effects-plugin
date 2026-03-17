@@ -1,5 +1,6 @@
 import { collectFiles, selectFolder } from './collect';
 import {
+  getAfterEffectsVersion,
   getProjectData,
   getProjectPath,
   removeProjectData,
@@ -11,19 +12,47 @@ import './shims';
 import {
   getInstalledFontsByFamilyNameAndStyleName,
   getInstalledFontsByPostScriptName,
+  selectComp,
+  selectFile,
+  selectLayer,
 } from './utils';
+import { fixAllIssues, validateProject } from './validation';
+import { fixUnsupported3DRendererIssues } from './validation/compValidators';
 
-const PlainlyAE = () => ({
-  selectFolder,
+const collectFunctions = {
   collectFiles,
+  selectFolder,
+  relinkFootage,
+};
+
+const projectFunctions = {
   setProjectData,
   getProjectData,
   removeProjectData,
   getProjectPath,
   saveProject,
-  relinkFootage,
+  getAfterEffectsVersion,
   getInstalledFontsByPostScriptName,
   getInstalledFontsByFamilyNameAndStyleName,
+};
+
+const utilsFunctions = {
+  selectLayer,
+  selectComp,
+  selectFile,
+};
+
+const validateFunctions = {
+  validateProject,
+  fixAllIssues,
+  fixUnsupported3DRendererIssues,
+};
+
+const PlainlyAE = () => ({
+  ...collectFunctions,
+  ...projectFunctions,
+  ...utilsFunctions,
+  ...validateFunctions,
 });
 
 if ($['com.plainlyvideos.after-effects-plugin.Panel']) {
