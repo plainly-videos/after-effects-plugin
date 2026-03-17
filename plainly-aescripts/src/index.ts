@@ -16,7 +16,7 @@ import {
   selectFile,
   selectLayer,
 } from './utils';
-import { fixAllCapsIssues, fixAllIssues, validateProject } from './validation';
+import { fixAllIssues, validateProject } from './validation';
 import { fixUnsupported3DRendererIssues } from './validation/compValidators';
 
 const collectFunctions = {
@@ -45,7 +45,6 @@ const utilsFunctions = {
 const validateFunctions = {
   validateProject,
   fixAllIssues,
-  fixAllCapsIssues,
   fixUnsupported3DRendererIssues,
 };
 

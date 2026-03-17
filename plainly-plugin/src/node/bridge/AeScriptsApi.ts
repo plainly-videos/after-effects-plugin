@@ -255,14 +255,6 @@ class AeScriptsApiClass {
   }
 
   /**
-   * Fixes all-caps text issues for multiple layers
-   * @param layerIds - Array of layer IDs to fix
-   */
-  async fixAllCapsIssues(layerIds: string[]): Promise<void> {
-    await evalScriptAsync(`fixAllCapsIssues(${JSON.stringify(layerIds)})`);
-  }
-
-  /**
    * Fixes unsupported 3D renderer issues for multiple compositions
    * @param compIds - Array of composition IDs to fix
    */
