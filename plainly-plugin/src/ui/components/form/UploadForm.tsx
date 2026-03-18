@@ -40,6 +40,8 @@ export function UploadForm() {
     tags?: string[];
   }>({});
   const [uploadMode, setUploadMode] = useState<'new' | 'edit'>();
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [isPacking, setIsPacking] = useState(false);
 
   const localProjectExists = !!plainlyProject?.id;
   const remoteProjectExists = !!(localProjectExists && data);
@@ -65,7 +67,7 @@ export function UploadForm() {
     },
   ];
 
-  const loading = isUploading || isEditing;
+  const loading = isUploading || isEditing || isPacking;
 
   const analysisPending =
     remoteProjectExists && !(data?.analysis?.done || data?.analysis?.failed);
@@ -82,6 +84,20 @@ export function UploadForm() {
     e.preventDefault();
 
     let zipPathValue: string | undefined;
+    setUploadProgress(0);
+    setIsPacking(true);
+
+    // Simulated progress: asymptotically approaches 90%, then snaps to 100% on completion.
+    // Each tick advances by (cap - current) * rate, naturally slowing as it nears the cap.
+    const CAP = 90;
+    const RATE = 0.005;
+    const TICK_MS = 200;
+    const progressInterval = setInterval(() => {
+      setUploadProgress((prev) => {
+        if (prev >= CAP) return prev;
+        return Math.min(prev + (CAP - prev) * RATE, CAP);
+      });
+    }, TICK_MS);
 
     try {
       const formData = new FormData();
@@ -117,6 +133,8 @@ export function UploadForm() {
         return;
       }
 
+      setIsPacking(false);
+
       if (remoteProjectExists && editing) {
         project = await editProject({
           projectId: plainlyProject.id,
@@ -132,19 +150,25 @@ export function UploadForm() {
         setProjectData({ id: projectId, revisionCount });
       }
 
+      clearInterval(progressInterval);
+      setUploadProgress(100);
       notifySuccess('Project uploaded');
       setUploadMode('edit');
       setInputs({});
     } catch (error) {
+      clearInterval(progressInterval);
       if (error instanceof CanceledApiError) {
+        setUploadProgress(0);
         notifyInfo('Upload cancelled');
         return;
       }
+      setUploadProgress(0);
       notifyError('Failed to upload project', error);
     } finally {
       if (zipPathValue) {
         fs.rmSync(zipPathValue);
       }
+      setIsPacking(false);
     }
   };
 
@@ -176,7 +200,13 @@ export function UploadForm() {
 
   return (
     <form className="space-y-4 w-full text-white" onSubmit={handleSubmit}>
-      <div className="space-y-4 border-b border-white/10 pb-4">
+      <div className="relative space-y-4 pb-4">
+        <div className="absolute bottom-0 left-0 right-0 h-px bg-white/10">
+          <div
+            className="h-full bg-indigo-500 transition-all duration-300"
+            style={{ width: `${uploadProgress}%` }}
+          />
+        </div>
         <div>
           <div className="flex items-center gap-2">
             <PageHeading heading="Upload" />
@@ -290,7 +320,7 @@ export function UploadForm() {
             Cancel
           </Button>
         )}
-        <Button loading={loading} disabled={disabled || isLoading}>
+        <Button loading={loading} disabled={disabled || loading}>
           Upload
         </Button>
       </div>
