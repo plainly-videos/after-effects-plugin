@@ -201,9 +201,9 @@ export function UploadForm() {
   return (
     <form className="space-y-4 w-full text-white" onSubmit={handleSubmit}>
       <div className="relative space-y-4 pb-4">
-        <div className="absolute bottom-0 left-0 right-0 h-px bg-white/10">
+        <div className="absolute bottom-0 left-0 right-0 h-1 bg-white/10 rounded-md">
           <div
-            className="h-full bg-indigo-500 transition-all duration-300"
+            className="h-1 bg-indigo-500 transition-all duration-300 rounded-md"
             style={{ width: `${uploadProgress}%` }}
           />
         </div>
