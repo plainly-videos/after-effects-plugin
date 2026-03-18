@@ -12,6 +12,7 @@ import fs from 'fs';
 import { LoaderCircleIcon } from 'lucide-react';
 import { useCallback, useContext, useEffect, useState } from 'react';
 import { makeProjectZipTmpDir } from '../../../node';
+import { CanceledApiError } from '../../../node/errors';
 import { Alert, Button, InternalLink } from '../common';
 import { GlobalContext } from '../context';
 import { Description, Label, PageHeading } from '../typography';
@@ -21,10 +22,17 @@ export function UploadForm() {
 
   const [setProjectData, _, getData] = useProjectData();
   const { isLoading, data } = useGetProjectDetails(plainlyProject?.id);
-  const { isPending: isUploading, mutateAsync: uploadProject } =
-    useUploadProject();
-  const { isPending: isEditing, mutateAsync: editProject } = useEditProject();
-  const { notifySuccess, notifyError } = useNotifications();
+  const {
+    isPending: isUploading,
+    mutateAsync: uploadProject,
+    cancel: cancelUpload,
+  } = useUploadProject();
+  const {
+    isPending: isEditing,
+    mutateAsync: editProject,
+    cancel: cancelEdit,
+  } = useEditProject();
+  const { notifySuccess, notifyError, notifyInfo } = useNotifications();
 
   const [inputs, setInputs] = useState<{
     projectName?: string;
@@ -32,6 +40,8 @@ export function UploadForm() {
     tags?: string[];
   }>({});
   const [uploadMode, setUploadMode] = useState<'new' | 'edit'>();
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [isPacking, setIsPacking] = useState(false);
 
   const localProjectExists = !!plainlyProject?.id;
   const remoteProjectExists = !!(localProjectExists && data);
@@ -57,7 +67,7 @@ export function UploadForm() {
     },
   ];
 
-  const loading = isUploading || isEditing;
+  const loading = isUploading || isEditing || isPacking;
 
   const analysisPending =
     remoteProjectExists && !(data?.analysis?.done || data?.analysis?.failed);
@@ -74,6 +84,20 @@ export function UploadForm() {
     e.preventDefault();
 
     let zipPathValue: string | undefined;
+    setUploadProgress(0);
+    setIsPacking(true);
+
+    // Simulated progress: asymptotically approaches 90%, then snaps to 100% on completion.
+    // Each tick advances by (cap - current) * rate, naturally slowing as it nears the cap.
+    const CAP = 90;
+    const RATE = 0.005;
+    const TICK_MS = 200;
+    const progressInterval = setInterval(() => {
+      setUploadProgress((prev) => {
+        if (prev >= CAP) return prev;
+        return Math.min(prev + (CAP - prev) * RATE, CAP);
+      });
+    }, TICK_MS);
 
     try {
       const formData = new FormData();
@@ -109,6 +133,8 @@ export function UploadForm() {
         return;
       }
 
+      setIsPacking(false);
+
       if (remoteProjectExists && editing) {
         project = await editProject({
           projectId: plainlyProject.id,
@@ -124,15 +150,25 @@ export function UploadForm() {
         setProjectData({ id: projectId, revisionCount });
       }
 
+      clearInterval(progressInterval);
+      setUploadProgress(100);
       notifySuccess('Project uploaded');
       setUploadMode('edit');
       setInputs({});
     } catch (error) {
+      clearInterval(progressInterval);
+      if (error instanceof CanceledApiError) {
+        setUploadProgress(0);
+        notifyInfo('Upload cancelled');
+        return;
+      }
+      setUploadProgress(0);
       notifyError('Failed to upload project', error);
     } finally {
       if (zipPathValue) {
         fs.rmSync(zipPathValue);
       }
+      setIsPacking(false);
     }
   };
 
@@ -164,7 +200,13 @@ export function UploadForm() {
 
   return (
     <form className="space-y-4 w-full text-white" onSubmit={handleSubmit}>
-      <div className="space-y-4 border-b border-white/10 pb-4">
+      <div className="relative space-y-4 pb-4">
+        <div className="absolute bottom-0 left-0 right-0 h-1 bg-white/10 rounded-md">
+          <div
+            className="h-1 bg-indigo-500 transition-all duration-300 rounded-md"
+            style={{ width: `${uploadProgress}%` }}
+          />
+        </div>
         <div>
           <div className="flex items-center gap-2">
             <PageHeading heading="Upload" />
@@ -268,13 +310,20 @@ export function UploadForm() {
         )}
       </div>
 
-      <Button
-        className="float-right"
-        loading={loading}
-        disabled={disabled || isLoading}
-      >
-        Upload
-      </Button>
+      <div className="flex gap-2 float-right">
+        {loading && (
+          <Button
+            type="button"
+            secondary
+            onClick={() => (isUploading ? cancelUpload() : cancelEdit())}
+          >
+            Cancel
+          </Button>
+        )}
+        <Button loading={loading} disabled={disabled || loading}>
+          Upload
+        </Button>
+      </div>
     </form>
   );
 }
