@@ -23,8 +23,10 @@ const scriptName = (type: ScriptType) => {
 
 const EDITABLE_SCRIPT_TYPES = new Set([
   ScriptType.CROP,
+  // ScriptType.TEXT_AUTO_SCALE, text auto scale is editable but doesn't open the dialog, so we handle it separately
   ScriptType.MEDIA_AUTO_SCALE,
   ScriptType.SHIFT_IN,
+  ScriptType.SHIFT_OUT,
 ]);
 
 export function ParametrizedLayers({
@@ -96,6 +98,32 @@ export function ParametrizedLayers({
           scriptType: ScriptType.MEDIA_AUTO_SCALE,
           fill: true,
           fixedRatio: true,
+        },
+        isNew: true,
+        isBulk: false,
+      });
+    }
+    if (type === ScriptType.SHIFT_IN) {
+      onEditScript({
+        layerInternalId: scriptsDialogLayerId,
+        script: {
+          scriptType: ScriptType.SHIFT_IN,
+          shiftTarget: '',
+          shiftsTo: 'in-point',
+          shiftOverlap: 0,
+        },
+        isNew: true,
+        isBulk: false,
+      });
+    }
+    if (type === ScriptType.SHIFT_OUT) {
+      onEditScript({
+        layerInternalId: scriptsDialogLayerId,
+        script: {
+          scriptType: ScriptType.SHIFT_OUT,
+          shiftTarget: '',
+          shiftsTo: 'out-point',
+          shiftOverlap: 0,
         },
         isNew: true,
         isBulk: false,

@@ -55,7 +55,7 @@ const SCRIPT_OPTIONS: {
     description:
       'Shifts the start of a layer based on the duration of another layer in the same composition.',
     icon: LogInIcon,
-    enabled: false,
+    enabled: true,
   },
   {
     type: ScriptType.SHIFT_OUT,
@@ -63,7 +63,7 @@ const SCRIPT_OPTIONS: {
     description:
       'Shifts the end of a layer based on the duration of another layer in the same composition.',
     icon: LogOutIcon,
-    enabled: false,
+    enabled: true,
   },
 ];
 

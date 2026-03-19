@@ -14,13 +14,14 @@ const SCRIPT_LAYER_TYPE_RESTRICTIONS: Partial<Record<ScriptType, LayerType[]>> =
 
 import { AutoScaleMediaScriptDialog } from './AutoScaleMediaScriptDialog';
 import { CropScriptDialog } from './CropScriptDialog';
-import { ShiftInScriptDialog } from './ShiftInScriptDialog';
+import { ShiftScriptDialog } from './ShiftScriptDialog';
 
 export function ScriptDialogs({
   activeScriptEdit,
   setActiveScriptEdit,
   selectedLayerIds,
   setEditableLayers,
+  editableLayers,
 }: {
   activeScriptEdit: ScriptEditState<EditableScript>;
   setActiveScriptEdit: React.Dispatch<
@@ -28,6 +29,7 @@ export function ScriptDialogs({
   >;
   selectedLayerIds: Set<string>;
   setEditableLayers: React.Dispatch<React.SetStateAction<Layer[]>>;
+  editableLayers: Layer[];
 }) {
   const handleScriptSave = (updatedScript: EditableScript) => {
     if (!activeScriptEdit) return;
@@ -69,6 +71,16 @@ export function ScriptDialogs({
 
   const close = () => setActiveScriptEdit(null);
 
+  const compId = editableLayers.find(
+    (l) =>
+      activeScriptEdit && l.internalId === activeScriptEdit.layerInternalId,
+  )?.compositions[0]?.id;
+
+  const currentLayerName = editableLayers.find(
+    (l) =>
+      activeScriptEdit && l.internalId === activeScriptEdit.layerInternalId,
+  )?.layerName;
+
   return (
     <>
       <CropScriptDialog
@@ -91,6 +103,11 @@ export function ScriptDialogs({
         action={(script) => handleScriptSave(script)}
       />
       <AutoScaleMediaScriptDialog
+        key={
+          activeScriptEdit?.script.scriptType === ScriptType.MEDIA_AUTO_SCALE
+            ? activeScriptEdit.layerInternalId
+            : undefined
+        }
         mediaAutoScaleScript={
           activeScriptEdit?.script.scriptType === ScriptType.MEDIA_AUTO_SCALE
             ? activeScriptEdit.script
@@ -106,8 +123,13 @@ export function ScriptDialogs({
         setOpen={(open) => !open && close()}
         action={(script) => handleScriptSave(script)}
       />
-      <ShiftInScriptDialog
-        shiftInScript={
+      <ShiftScriptDialog
+        key={
+          activeScriptEdit?.script.scriptType === ScriptType.SHIFT_IN
+            ? activeScriptEdit.layerInternalId
+            : undefined
+        }
+        script={
           activeScriptEdit?.script.scriptType === ScriptType.SHIFT_IN
             ? activeScriptEdit.script
             : {
@@ -117,8 +139,32 @@ export function ScriptDialogs({
                 shiftOverlap: 0,
               }
         }
+        compId={compId}
+        currentLayerName={currentLayerName}
         open={activeScriptEdit?.script.scriptType === ScriptType.SHIFT_IN}
-        setOpen={(open) => !open && close()}
+        setOpen={(open: boolean) => !open && close()}
+        action={(script) => handleScriptSave(script)}
+      />
+      <ShiftScriptDialog
+        key={
+          activeScriptEdit?.script.scriptType === ScriptType.SHIFT_OUT
+            ? activeScriptEdit.layerInternalId
+            : undefined
+        }
+        script={
+          activeScriptEdit?.script.scriptType === ScriptType.SHIFT_OUT
+            ? activeScriptEdit.script
+            : {
+                scriptType: ScriptType.SHIFT_OUT,
+                shiftTarget: '',
+                shiftsTo: 'in-point',
+                shiftOverlap: 0,
+              }
+        }
+        compId={compId}
+        currentLayerName={currentLayerName}
+        open={activeScriptEdit?.script.scriptType === ScriptType.SHIFT_OUT}
+        setOpen={(open: boolean) => !open && close()}
         action={(script) => handleScriptSave(script)}
       />
     </>

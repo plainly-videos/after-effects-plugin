@@ -191,6 +191,7 @@ export function Layers() {
         setActiveScriptEdit={setActiveScriptEdit}
         selectedLayerIds={selectedLayerIds}
         setEditableLayers={setEditableLayers}
+        editableLayers={editableLayers}
       />
     </form>
   );
