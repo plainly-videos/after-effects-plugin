@@ -1,5 +1,5 @@
 import {
-  type CropScript,
+  type EditableScript,
   type Layer,
   ScriptType,
   type TextAutoScaleScript,
@@ -9,18 +9,16 @@ import { Description, Label } from '../typography';
 
 export function BulkScriptSelect({
   selectedLayerIds,
-  setActiveCropEdit,
+  onEditScript,
   setEditableLayers,
 }: {
   selectedLayerIds: Set<string>;
-  setActiveCropEdit: React.Dispatch<
-    React.SetStateAction<{
-      layerInternalId: string;
-      script: CropScript;
-      isNew: boolean;
-      isBulk: boolean;
-    } | null>
-  >;
+  onEditScript: (params: {
+    layerInternalId: string;
+    script: EditableScript;
+    isNew: boolean;
+    isBulk: boolean;
+  }) => void;
   setEditableLayers: React.Dispatch<React.SetStateAction<Layer[]>>;
 }) {
   return (
@@ -34,7 +32,7 @@ export function BulkScriptSelect({
         <Badge
           label="Crop"
           action={() =>
-            setActiveCropEdit({
+            onEditScript({
               layerInternalId: '',
               script: {
                 scriptType: ScriptType.CROP,
