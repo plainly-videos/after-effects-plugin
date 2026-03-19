@@ -5,4 +5,4 @@ export * from './FilterLayers';
 export * from './Layers';
 export * from './ParametrizedLayers';
 export * from './ScriptsDialog';
-export * from './ShiftInScriptDialog';
+export * from './ShiftScriptDialog';
