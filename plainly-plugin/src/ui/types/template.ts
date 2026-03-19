@@ -50,8 +50,32 @@ export type CropScript = {
   compStartsAtInPoint: boolean;
 };
 
+export type MediaAutoScaleScript = {
+  scriptType: ScriptType.MEDIA_AUTO_SCALE;
+  fill: boolean;
+  fixedRatio: boolean;
+  transform?: {
+    size?: { sizeX: number; sizeY: number };
+    position?: { posX: number; posY: number };
+  };
+};
+
 export type TextAutoScaleScript = {
   scriptType: ScriptType.TEXT_AUTO_SCALE;
 };
+
+type ShiftData = {
+  shiftTarget: string;
+  shiftsTo: 'in-point' | 'out-point';
+  shiftOverlap: number;
+};
+
+export type ShiftInScript = {
+  scriptType: ScriptType.SHIFT_IN;
+} & ShiftData;
+
+export type ShiftOutScript = {
+  scriptType: ScriptType.SHIFT_OUT;
+} & ShiftData;
 
 export type TemplatePut = Omit<Template, 'id'>;

@@ -37,7 +37,7 @@ const SCRIPT_OPTIONS: {
     label: 'Auto scale media',
     description: 'Automatically scale media layer to the composition size.',
     icon: ImageIcon,
-    enabled: false,
+    enabled: true,
   },
   {
     type: ScriptType.TEXT_AUTO_SCALE,
