@@ -15,7 +15,7 @@ import {
   LogInIcon,
   LogOutIcon,
 } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Description, Label } from '../typography';
 import { ScriptDialogShell } from './ScriptDialogShell';
 
@@ -53,10 +53,15 @@ export function ShiftScriptDialog({
     });
   }, [open, compId, currentLayerName]);
 
-  const filteredNames =
-    query === ''
-      ? layerNames
-      : layerNames.filter((n) => n.toLowerCase().includes(query.toLowerCase()));
+  const filteredNames = useMemo(
+    () =>
+      query === ''
+        ? layerNames
+        : layerNames.filter((n) =>
+            n.toLowerCase().includes(query.toLowerCase()),
+          ),
+    [query, layerNames],
+  );
 
   const idPrefix = isShiftIn ? 'shift-in' : 'shift-out';
 

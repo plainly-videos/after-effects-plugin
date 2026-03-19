@@ -19,7 +19,7 @@ import type {
 } from '@src/ui/types/template';
 import classNames from 'classnames';
 import { CheckIcon, ChevronDownIcon, LoaderCircleIcon } from 'lucide-react';
-import { useContext, useEffect, useState } from 'react';
+import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { Button } from '../common';
 import { GlobalContext } from '../context';
 import { Description, Label, PageHeading } from '../typography';
@@ -55,12 +55,21 @@ export function Layers() {
   const { isPending, mutateAsync: editTemplate } = useEditTemplate();
 
   const templates = data?.templates || [];
-  const filteredTemplates =
-    query === ''
-      ? templates
-      : templates.filter((template) =>
-          template.name.toLowerCase().includes(query.toLowerCase()),
-        );
+  const filteredTemplates = useMemo(
+    () =>
+      query === ''
+        ? templates
+        : templates.filter((template) =>
+            template.name.toLowerCase().includes(query.toLowerCase()),
+          ),
+    [query, templates],
+  );
+
+  const handleEditScript = useCallback(
+    (params: Parameters<typeof setActiveScriptEdit>[0]) =>
+      setActiveScriptEdit(params),
+    [],
+  );
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -160,7 +169,7 @@ export function Layers() {
         </div>
         <BulkScriptSelect
           selectedLayerIds={selectedLayerIds}
-          onEditScript={(params) => setActiveScriptEdit(params)}
+          onEditScript={handleEditScript}
           setEditableLayers={setEditableLayers}
         />
         <FilterLayers
@@ -176,7 +185,7 @@ export function Layers() {
           layerType={layerType}
           selectedLayerIds={selectedLayerIds}
           setSelectedLayerIds={setSelectedLayerIds}
-          onEditScript={(params) => setActiveScriptEdit(params)}
+          onEditScript={handleEditScript}
         />
       </div>
       <Button

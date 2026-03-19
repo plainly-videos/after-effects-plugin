@@ -5,6 +5,7 @@ import {
   type ScriptEditState,
   ScriptType,
 } from '@src/ui/types/template';
+import { useCallback, useMemo } from 'react';
 
 const SCRIPT_LAYER_TYPE_RESTRICTIONS: Partial<Record<ScriptType, LayerType[]>> =
   {
@@ -31,55 +32,64 @@ export function ScriptDialogs({
   setEditableLayers: React.Dispatch<React.SetStateAction<Layer[]>>;
   editableLayers: Layer[];
 }) {
-  const handleScriptSave = (updatedScript: EditableScript) => {
-    if (!activeScriptEdit) return;
-    const { layerInternalId, isNew, isBulk } = activeScriptEdit;
-    const { scriptType } = updatedScript;
-    setEditableLayers((prev) =>
-      prev.map((layer) => {
-        if (
-          isBulk
-            ? !selectedLayerIds.has(layer.internalId)
-            : layer.internalId !== layerInternalId
-        )
-          return layer;
-        const allowedLayerTypes = SCRIPT_LAYER_TYPE_RESTRICTIONS[scriptType];
-        if (
-          isBulk &&
-          allowedLayerTypes &&
-          !allowedLayerTypes.includes(layer.layerType)
-        )
-          return layer;
-        const existingScripts = layer.scripting?.scripts || [];
-        const hasScript = existingScripts.some(
-          (s) => s.scriptType === scriptType,
-        );
-        const scripts =
-          isBulk && hasScript
-            ? existingScripts.map((s) =>
-                s.scriptType === scriptType ? updatedScript : s,
-              )
-            : isNew || (isBulk && !hasScript)
-              ? [...existingScripts, updatedScript]
-              : existingScripts.map((s) =>
+  const handleScriptSave = useCallback(
+    (updatedScript: EditableScript) => {
+      if (!activeScriptEdit) return;
+      const { layerInternalId, isNew, isBulk } = activeScriptEdit;
+      const { scriptType } = updatedScript;
+      setEditableLayers((prev) =>
+        prev.map((layer) => {
+          if (
+            isBulk
+              ? !selectedLayerIds.has(layer.internalId)
+              : layer.internalId !== layerInternalId
+          )
+            return layer;
+          const allowedLayerTypes = SCRIPT_LAYER_TYPE_RESTRICTIONS[scriptType];
+          if (
+            isBulk &&
+            allowedLayerTypes &&
+            !allowedLayerTypes.includes(layer.layerType)
+          )
+            return layer;
+          const existingScripts = layer.scripting?.scripts || [];
+          const hasScript = existingScripts.some(
+            (s) => s.scriptType === scriptType,
+          );
+          const scripts =
+            isBulk && hasScript
+              ? existingScripts.map((s) =>
                   s.scriptType === scriptType ? updatedScript : s,
-                );
-        return { ...layer, scripting: { ...layer.scripting, scripts } };
-      }),
-    );
-  };
+                )
+              : isNew || (isBulk && !hasScript)
+                ? [...existingScripts, updatedScript]
+                : existingScripts.map((s) =>
+                    s.scriptType === scriptType ? updatedScript : s,
+                  );
+          return { ...layer, scripting: { ...layer.scripting, scripts } };
+        }),
+      );
+    },
+    [activeScriptEdit, selectedLayerIds, setEditableLayers],
+  );
 
-  const close = () => setActiveScriptEdit(null);
+  const close = useCallback(
+    () => setActiveScriptEdit(null),
+    [setActiveScriptEdit],
+  );
 
-  const compId = editableLayers.find(
-    (l) =>
-      activeScriptEdit && l.internalId === activeScriptEdit.layerInternalId,
-  )?.compositions[0]?.id;
+  const activeLayer = useMemo(
+    () =>
+      activeScriptEdit
+        ? editableLayers.find(
+            (l) => l.internalId === activeScriptEdit.layerInternalId,
+          )
+        : undefined,
+    [activeScriptEdit, editableLayers],
+  );
 
-  const currentLayerName = editableLayers.find(
-    (l) =>
-      activeScriptEdit && l.internalId === activeScriptEdit.layerInternalId,
-  )?.layerName;
+  const compId = activeLayer?.compositions[0]?.id;
+  const currentLayerName = activeLayer?.layerName;
 
   return (
     <>
