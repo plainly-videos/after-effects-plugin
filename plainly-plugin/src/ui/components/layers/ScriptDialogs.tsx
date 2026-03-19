@@ -1,9 +1,17 @@
 import {
   type EditableScript,
   type Layer,
+  type LayerType,
   type ScriptEditState,
   ScriptType,
 } from '@src/ui/types/template';
+
+const SCRIPT_LAYER_TYPE_RESTRICTIONS: Partial<Record<ScriptType, LayerType[]>> =
+  {
+    [ScriptType.MEDIA_AUTO_SCALE]: ['MEDIA'],
+    [ScriptType.TEXT_AUTO_SCALE]: ['DATA'],
+  };
+
 import { AutoScaleMediaScriptDialog } from './AutoScaleMediaScriptDialog';
 import { CropScriptDialog } from './CropScriptDialog';
 import { ShiftInScriptDialog } from './ShiftInScriptDialog';
@@ -31,6 +39,13 @@ export function ScriptDialogs({
           isBulk
             ? !selectedLayerIds.has(layer.internalId)
             : layer.internalId !== layerInternalId
+        )
+          return layer;
+        const allowedLayerTypes = SCRIPT_LAYER_TYPE_RESTRICTIONS[scriptType];
+        if (
+          isBulk &&
+          allowedLayerTypes &&
+          !allowedLayerTypes.includes(layer.layerType)
         )
           return layer;
         const existingScripts = layer.scripting?.scripts || [];
