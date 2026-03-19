@@ -1,10 +1,8 @@
 import {
-  type CropScript,
+  type EditableScript,
   type Layer,
   type LayerType,
-  type MediaAutoScaleScript,
   ScriptType,
-  type ShiftInScript,
   type TextAutoScaleScript,
 } from '@src/ui/types/template';
 import { isEmpty } from '@src/ui/utils';
@@ -23,6 +21,12 @@ const scriptName = (type: ScriptType) => {
   return type;
 };
 
+const EDITABLE_SCRIPT_TYPES = new Set([
+  ScriptType.CROP,
+  ScriptType.MEDIA_AUTO_SCALE,
+  ScriptType.SHIFT_IN,
+]);
+
 export function ParametrizedLayers({
   editableLayers,
   setEditableLayers,
@@ -30,9 +34,7 @@ export function ParametrizedLayers({
   layerType,
   selectedLayerIds,
   setSelectedLayerIds,
-  setActiveCropEdit,
-  setActiveAutoScaleMediaEdit,
-  setActiveShiftInEdit,
+  onEditScript,
 }: {
   editableLayers: Layer[];
   setEditableLayers: React.Dispatch<React.SetStateAction<Layer[]>>;
@@ -40,64 +42,20 @@ export function ParametrizedLayers({
   layerType: LayerType | 'All';
   selectedLayerIds: Set<string>;
   setSelectedLayerIds: React.Dispatch<React.SetStateAction<Set<string>>>;
-  setActiveCropEdit: React.Dispatch<
-    React.SetStateAction<{
-      layerInternalId: string;
-      script: CropScript;
-      isNew: boolean;
-      isBulk: boolean;
-    } | null>
-  >;
-  setActiveAutoScaleMediaEdit: React.Dispatch<
-    React.SetStateAction<{
-      layerInternalId: string;
-      script: MediaAutoScaleScript;
-      isNew: boolean;
-      isBulk: boolean;
-    } | null>
-  >;
-  setActiveShiftInEdit: React.Dispatch<
-    React.SetStateAction<{
-      layerInternalId: string;
-      script: ShiftInScript;
-      isNew: boolean;
-      isBulk: boolean;
-    } | null>
-  >;
+  onEditScript: (params: {
+    layerInternalId: string;
+    script: EditableScript;
+    isNew: boolean;
+    isBulk: boolean;
+  }) => void;
 }) {
-  const [scriptsDialogLayerId, setScriptsDialogLayerId] = useState<
-    string | null
-  >(null);
+  const [scriptsDialogLayerId, setScriptsDialogLayerId] = useState<string>('');
 
-  const handleCropBadgeClick = (
+  const handleBadgeClick = (
     layerInternalId: string,
-    script: CropScript,
+    script: EditableScript,
   ) => {
-    setActiveCropEdit({ layerInternalId, script, isNew: false, isBulk: false });
-  };
-
-  const handleAutoScaleMediaBadgeClick = (
-    layerInternalId: string,
-    script: MediaAutoScaleScript,
-  ) => {
-    setActiveAutoScaleMediaEdit({
-      layerInternalId,
-      script,
-      isNew: false,
-      isBulk: false,
-    });
-  };
-
-  const handleShiftInBadgeClick = (
-    layerInternalId: string,
-    script: ShiftInScript,
-  ) => {
-    setActiveShiftInEdit({
-      layerInternalId,
-      script,
-      isNew: false,
-      isBulk: false,
-    });
+    onEditScript({ layerInternalId, script, isNew: false, isBulk: false });
   };
 
   const handleScriptRemove = (layerInternalId: string, type: ScriptType) => {
@@ -120,7 +78,7 @@ export function ParametrizedLayers({
   const handleScriptSelect = (type: ScriptType) => {
     if (!scriptsDialogLayerId) return;
     if (type === ScriptType.CROP) {
-      setActiveCropEdit({
+      onEditScript({
         layerInternalId: scriptsDialogLayerId,
         script: {
           scriptType: ScriptType.CROP,
@@ -132,7 +90,7 @@ export function ParametrizedLayers({
       });
     }
     if (type === ScriptType.MEDIA_AUTO_SCALE) {
-      setActiveAutoScaleMediaEdit({
+      onEditScript({
         layerInternalId: scriptsDialogLayerId,
         script: {
           scriptType: ScriptType.MEDIA_AUTO_SCALE,
@@ -248,26 +206,13 @@ export function ParametrizedLayers({
                         <Badge
                           label={scriptName(script.scriptType)}
                           action={
-                            script.scriptType === ScriptType.CROP
+                            EDITABLE_SCRIPT_TYPES.has(script.scriptType)
                               ? () =>
-                                  handleCropBadgeClick(
+                                  handleBadgeClick(
                                     layer.internalId,
-                                    script as CropScript,
+                                    script as EditableScript,
                                   )
-                              : script.scriptType ===
-                                  ScriptType.MEDIA_AUTO_SCALE
-                                ? () =>
-                                    handleAutoScaleMediaBadgeClick(
-                                      layer.internalId,
-                                      script as MediaAutoScaleScript,
-                                    )
-                                : script.scriptType === ScriptType.SHIFT_IN
-                                  ? () =>
-                                      handleShiftInBadgeClick(
-                                        layer.internalId,
-                                        script as ShiftInScript,
-                                      )
-                                  : undefined
+                              : undefined
                           }
                           onRemove={() =>
                             handleScriptRemove(
@@ -286,8 +231,8 @@ export function ParametrizedLayers({
         </ul>
       </div>
       <ScriptsDialog
-        open={scriptsDialogLayerId !== null}
-        setOpen={(open) => !open && setScriptsDialogLayerId(null)}
+        open={scriptsDialogLayerId !== ''}
+        setOpen={(open) => !open && setScriptsDialogLayerId('')}
         onSelect={handleScriptSelect}
       />
     </>
