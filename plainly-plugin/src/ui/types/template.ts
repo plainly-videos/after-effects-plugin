@@ -78,4 +78,13 @@ export type ShiftOutScript = {
   scriptType: ScriptType.SHIFT_OUT;
 } & ShiftData;
 
+export type EditableScript = CropScript | MediaAutoScaleScript | ShiftInScript;
+
+export type ScriptEditState<S extends Script> = {
+  layerInternalId: string;
+  script: S;
+  isNew: boolean;
+  isBulk: boolean;
+} | null;
+
 export type TemplatePut = Omit<Template, 'id'>;
