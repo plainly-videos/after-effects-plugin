@@ -14,7 +14,9 @@ import {
   type CropScript,
   type Layer,
   type LayerType,
+  type MediaAutoScaleScript,
   ScriptType,
+  type ShiftInScript,
   type Template,
 } from '@src/ui/types/template';
 import classNames from 'classnames';
@@ -23,10 +25,12 @@ import { useContext, useEffect, useState } from 'react';
 import { Button } from '../common';
 import { GlobalContext } from '../context';
 import { Description, Label, PageHeading } from '../typography';
+import { AutoScaleMediaScriptDialog } from './AutoScaleMediaScriptDialog';
 import { BulkScriptSelect } from './BulkScriptSelect';
 import { CropScriptDialog } from './CropScriptDialog';
 import { FilterLayers } from './FilterLayers';
 import { ParametrizedLayers } from './ParametrizedLayers';
+import { ShiftInScriptDialog } from './ShiftInScriptDialog';
 
 export function Layers() {
   const { plainlyProject } = useContext(GlobalContext) || {};
@@ -46,6 +50,18 @@ export function Layers() {
   const [activeCropEdit, setActiveCropEdit] = useState<{
     layerInternalId: string;
     script: CropScript;
+    isNew: boolean;
+    isBulk: boolean;
+  } | null>(null);
+  const [activeAutoScaleMediaEdit, setActiveAutoScaleMediaEdit] = useState<{
+    layerInternalId: string;
+    script: MediaAutoScaleScript;
+    isNew: boolean;
+    isBulk: boolean;
+  } | null>(null);
+  const [activeShiftInEdit, setActiveShiftInEdit] = useState<{
+    layerInternalId: string;
+    script: ShiftInScript;
     isNew: boolean;
     isBulk: boolean;
   } | null>(null);
@@ -93,6 +109,80 @@ export function Layers() {
             ? [...existingScripts, updatedScript]
             : existingScripts.map((s) =>
                 s.scriptType === ScriptType.CROP ? updatedScript : s,
+              );
+          return { ...layer, scripting: { ...layer.scripting, scripts } };
+        }),
+      );
+    }
+  };
+
+  const handleAutoScaleMediaScriptSave = () => {
+    if (!activeAutoScaleMediaEdit) return;
+    if (activeAutoScaleMediaEdit.isBulk) {
+      setEditableLayers((prev) =>
+        prev.map((layer) => {
+          if (!selectedLayerIds.has(layer.internalId)) return layer;
+          const existingScripts = layer.scripting?.scripts || [];
+          const hasAutoScaleMedia = existingScripts.some(
+            (s) => s.scriptType === ScriptType.MEDIA_AUTO_SCALE,
+          );
+          const scripts = hasAutoScaleMedia
+            ? existingScripts.map((s) =>
+                s.scriptType === ScriptType.MEDIA_AUTO_SCALE
+                  ? activeAutoScaleMediaEdit.script
+                  : s,
+              )
+            : [...existingScripts, activeAutoScaleMediaEdit.script];
+          return { ...layer, scripting: { ...layer.scripting, scripts } };
+        }),
+      );
+    } else {
+      setEditableLayers((prev) =>
+        prev.map((layer) => {
+          if (layer.internalId !== activeAutoScaleMediaEdit.layerInternalId)
+            return layer;
+          const existingScripts = layer.scripting?.scripts || [];
+          const scripts = activeAutoScaleMediaEdit.isNew
+            ? [...existingScripts, activeAutoScaleMediaEdit.script]
+            : existingScripts.map((s) =>
+                s.scriptType === ScriptType.MEDIA_AUTO_SCALE
+                  ? activeAutoScaleMediaEdit.script
+                  : s,
+              );
+          return { ...layer, scripting: { ...layer.scripting, scripts } };
+        }),
+      );
+    }
+  };
+
+  const handleShiftInScriptSave = (updatedScript: ShiftInScript) => {
+    if (!activeShiftInEdit) return;
+    if (activeShiftInEdit.isBulk) {
+      setEditableLayers((prev) =>
+        prev.map((layer) => {
+          if (!selectedLayerIds.has(layer.internalId)) return layer;
+          const existingScripts = layer.scripting?.scripts || [];
+          const hasShiftIn = existingScripts.some(
+            (s) => s.scriptType === ScriptType.SHIFT_IN,
+          );
+          const scripts = hasShiftIn
+            ? existingScripts.map((s) =>
+                s.scriptType === ScriptType.SHIFT_IN ? updatedScript : s,
+              )
+            : [...existingScripts, updatedScript];
+          return { ...layer, scripting: { ...layer.scripting, scripts } };
+        }),
+      );
+    } else {
+      setEditableLayers((prev) =>
+        prev.map((layer) => {
+          if (layer.internalId !== activeShiftInEdit.layerInternalId)
+            return layer;
+          const existingScripts = layer.scripting?.scripts || [];
+          const scripts = activeShiftInEdit.isNew
+            ? [...existingScripts, updatedScript]
+            : existingScripts.map((s) =>
+                s.scriptType === ScriptType.SHIFT_IN ? updatedScript : s,
               );
           return { ...layer, scripting: { ...layer.scripting, scripts } };
         }),
@@ -215,6 +305,8 @@ export function Layers() {
           selectedLayerIds={selectedLayerIds}
           setSelectedLayerIds={setSelectedLayerIds}
           setActiveCropEdit={setActiveCropEdit}
+          setActiveAutoScaleMediaEdit={setActiveAutoScaleMediaEdit}
+          setActiveShiftInEdit={setActiveShiftInEdit}
         />
       </div>
       <Button
@@ -236,6 +328,29 @@ export function Layers() {
         open={activeCropEdit !== null}
         setOpen={(open) => !open && setActiveCropEdit(null)}
         action={handleCropScriptSave}
+      />
+      <AutoScaleMediaScriptDialog
+        mediaAutoScaleScript={{
+          scriptType: ScriptType.MEDIA_AUTO_SCALE,
+          fill: true,
+          fixedRatio: true,
+        }}
+        open={activeAutoScaleMediaEdit !== null}
+        setOpen={(open) => !open && setActiveAutoScaleMediaEdit(null)}
+        action={handleAutoScaleMediaScriptSave}
+      />
+      <ShiftInScriptDialog
+        shiftInScript={
+          activeShiftInEdit?.script ?? {
+            scriptType: ScriptType.SHIFT_IN,
+            shiftTarget: '',
+            shiftsTo: 'in-point',
+            shiftOverlap: 0,
+          }
+        }
+        open={activeShiftInEdit !== null}
+        setOpen={(open) => !open && setActiveShiftInEdit(null)}
+        action={handleShiftInScriptSave}
       />
     </form>
   );

@@ -2,7 +2,9 @@ import {
   type CropScript,
   type Layer,
   type LayerType,
+  type MediaAutoScaleScript,
   ScriptType,
+  type ShiftInScript,
   type TextAutoScaleScript,
 } from '@src/ui/types/template';
 import { isEmpty } from '@src/ui/utils';
@@ -29,6 +31,8 @@ export function ParametrizedLayers({
   selectedLayerIds,
   setSelectedLayerIds,
   setActiveCropEdit,
+  setActiveAutoScaleMediaEdit,
+  setActiveShiftInEdit,
 }: {
   editableLayers: Layer[];
   setEditableLayers: React.Dispatch<React.SetStateAction<Layer[]>>;
@@ -44,6 +48,22 @@ export function ParametrizedLayers({
       isBulk: boolean;
     } | null>
   >;
+  setActiveAutoScaleMediaEdit: React.Dispatch<
+    React.SetStateAction<{
+      layerInternalId: string;
+      script: MediaAutoScaleScript;
+      isNew: boolean;
+      isBulk: boolean;
+    } | null>
+  >;
+  setActiveShiftInEdit: React.Dispatch<
+    React.SetStateAction<{
+      layerInternalId: string;
+      script: ShiftInScript;
+      isNew: boolean;
+      isBulk: boolean;
+    } | null>
+  >;
 }) {
   const [scriptsDialogLayerId, setScriptsDialogLayerId] = useState<
     string | null
@@ -54,6 +74,30 @@ export function ParametrizedLayers({
     script: CropScript,
   ) => {
     setActiveCropEdit({ layerInternalId, script, isNew: false, isBulk: false });
+  };
+
+  const handleAutoScaleMediaBadgeClick = (
+    layerInternalId: string,
+    script: MediaAutoScaleScript,
+  ) => {
+    setActiveAutoScaleMediaEdit({
+      layerInternalId,
+      script,
+      isNew: false,
+      isBulk: false,
+    });
+  };
+
+  const handleShiftInBadgeClick = (
+    layerInternalId: string,
+    script: ShiftInScript,
+  ) => {
+    setActiveShiftInEdit({
+      layerInternalId,
+      script,
+      isNew: false,
+      isBulk: false,
+    });
   };
 
   const handleScriptRemove = (layerInternalId: string, type: ScriptType) => {
@@ -82,6 +126,18 @@ export function ParametrizedLayers({
           scriptType: ScriptType.CROP,
           compEndsAtOutPoint: false,
           compStartsAtInPoint: false,
+        },
+        isNew: true,
+        isBulk: false,
+      });
+    }
+    if (type === ScriptType.MEDIA_AUTO_SCALE) {
+      setActiveAutoScaleMediaEdit({
+        layerInternalId: scriptsDialogLayerId,
+        script: {
+          scriptType: ScriptType.MEDIA_AUTO_SCALE,
+          fill: true,
+          fixedRatio: true,
         },
         isNew: true,
         isBulk: false,
@@ -198,7 +254,20 @@ export function ParametrizedLayers({
                                     layer.internalId,
                                     script as CropScript,
                                   )
-                              : () => {}
+                              : script.scriptType ===
+                                  ScriptType.MEDIA_AUTO_SCALE
+                                ? () =>
+                                    handleAutoScaleMediaBadgeClick(
+                                      layer.internalId,
+                                      script as MediaAutoScaleScript,
+                                    )
+                                : script.scriptType === ScriptType.SHIFT_IN
+                                  ? () =>
+                                      handleShiftInBadgeClick(
+                                        layer.internalId,
+                                        script as ShiftInScript,
+                                      )
+                                  : undefined
                           }
                           onRemove={() =>
                             handleScriptRemove(
