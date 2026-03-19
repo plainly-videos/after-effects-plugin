@@ -7,7 +7,7 @@ import {
 } from '@src/ui/types/template';
 import { isEmpty } from '@src/ui/utils';
 import { EditIcon, PlusIcon } from 'lucide-react';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Badge } from '../common/Badge';
 import { Label } from '../typography';
 import { ScriptsDialog } from './ScriptsDialog';
@@ -53,109 +53,122 @@ export function ParametrizedLayers({
 }) {
   const [scriptsDialogLayerId, setScriptsDialogLayerId] = useState<string>('');
 
-  const handleBadgeClick = (
-    layerInternalId: string,
-    script: EditableScript,
-  ) => {
-    onEditScript({ layerInternalId, script, isNew: false, isBulk: false });
-  };
+  const handleBadgeClick = useCallback(
+    (layerInternalId: string, script: EditableScript) => {
+      onEditScript({ layerInternalId, script, isNew: false, isBulk: false });
+    },
+    [onEditScript],
+  );
 
-  const handleScriptRemove = (layerInternalId: string, type: ScriptType) => {
-    setEditableLayers((prev) =>
-      prev.map((layer) => {
-        if (layer.internalId !== layerInternalId) return layer;
-        return {
-          ...layer,
-          scripting: {
-            ...layer.scripting,
-            scripts: (layer.scripting?.scripts || []).filter(
-              (s) => s.scriptType !== type,
-            ),
-          },
-        };
-      }),
-    );
-  };
-
-  const handleScriptSelect = (type: ScriptType) => {
-    if (!scriptsDialogLayerId) return;
-    if (type === ScriptType.CROP) {
-      onEditScript({
-        layerInternalId: scriptsDialogLayerId,
-        script: {
-          scriptType: ScriptType.CROP,
-          compEndsAtOutPoint: false,
-          compStartsAtInPoint: false,
-        },
-        isNew: true,
-        isBulk: false,
-      });
-    }
-    if (type === ScriptType.MEDIA_AUTO_SCALE) {
-      onEditScript({
-        layerInternalId: scriptsDialogLayerId,
-        script: {
-          scriptType: ScriptType.MEDIA_AUTO_SCALE,
-          fill: true,
-          fixedRatio: true,
-        },
-        isNew: true,
-        isBulk: false,
-      });
-    }
-    if (type === ScriptType.SHIFT_IN) {
-      onEditScript({
-        layerInternalId: scriptsDialogLayerId,
-        script: {
-          scriptType: ScriptType.SHIFT_IN,
-          shiftTarget: '',
-          shiftsTo: 'in-point',
-          shiftOverlap: 0,
-        },
-        isNew: true,
-        isBulk: false,
-      });
-    }
-    if (type === ScriptType.SHIFT_OUT) {
-      onEditScript({
-        layerInternalId: scriptsDialogLayerId,
-        script: {
-          scriptType: ScriptType.SHIFT_OUT,
-          shiftTarget: '',
-          shiftsTo: 'out-point',
-          shiftOverlap: 0,
-        },
-        isNew: true,
-        isBulk: false,
-      });
-    }
-    if (type === ScriptType.TEXT_AUTO_SCALE) {
-      const layer = editableLayers.find(
-        (l) => l.internalId === scriptsDialogLayerId,
-      );
-      if (!layer) return;
-      const existingScripts = layer.scripting?.scripts || [];
-      const hasAutoScaleText = existingScripts.some(
-        (s) => s.scriptType === ScriptType.TEXT_AUTO_SCALE,
-      );
-      if (hasAutoScaleText) return;
-      const updatedScript: TextAutoScaleScript = {
-        scriptType: ScriptType.TEXT_AUTO_SCALE,
-      };
+  const handleScriptRemove = useCallback(
+    (layerInternalId: string, type: ScriptType) => {
       setEditableLayers((prev) =>
-        prev.map((l) => {
-          if (l.internalId !== scriptsDialogLayerId) return l;
+        prev.map((layer) => {
+          if (layer.internalId !== layerInternalId) return layer;
           return {
-            ...l,
+            ...layer,
             scripting: {
-              ...l.scripting,
-              scripts: [...(l.scripting?.scripts || []), updatedScript],
+              ...layer.scripting,
+              scripts: (layer.scripting?.scripts || []).filter(
+                (s) => s.scriptType !== type,
+              ),
             },
           };
         }),
       );
-    }
-  };
+    },
+    [setEditableLayers],
+  );
+
+  const handleScriptSelect = useCallback(
+    (type: ScriptType) => {
+      if (!scriptsDialogLayerId) return;
+      if (type === ScriptType.CROP) {
+        onEditScript({
+          layerInternalId: scriptsDialogLayerId,
+          script: {
+            scriptType: ScriptType.CROP,
+            compEndsAtOutPoint: false,
+            compStartsAtInPoint: false,
+          },
+          isNew: true,
+          isBulk: false,
+        });
+      }
+      if (type === ScriptType.MEDIA_AUTO_SCALE) {
+        onEditScript({
+          layerInternalId: scriptsDialogLayerId,
+          script: {
+            scriptType: ScriptType.MEDIA_AUTO_SCALE,
+            fill: true,
+            fixedRatio: true,
+          },
+          isNew: true,
+          isBulk: false,
+        });
+      }
+      if (type === ScriptType.SHIFT_IN) {
+        onEditScript({
+          layerInternalId: scriptsDialogLayerId,
+          script: {
+            scriptType: ScriptType.SHIFT_IN,
+            shiftTarget: '',
+            shiftsTo: 'in-point',
+            shiftOverlap: 0,
+          },
+          isNew: true,
+          isBulk: false,
+        });
+      }
+      if (type === ScriptType.SHIFT_OUT) {
+        onEditScript({
+          layerInternalId: scriptsDialogLayerId,
+          script: {
+            scriptType: ScriptType.SHIFT_OUT,
+            shiftTarget: '',
+            shiftsTo: 'out-point',
+            shiftOverlap: 0,
+          },
+          isNew: true,
+          isBulk: false,
+        });
+      }
+      if (type === ScriptType.TEXT_AUTO_SCALE) {
+        const layer = editableLayers.find(
+          (l) => l.internalId === scriptsDialogLayerId,
+        );
+        if (!layer) return;
+        const existingScripts = layer.scripting?.scripts || [];
+        const hasAutoScaleText = existingScripts.some(
+          (s) => s.scriptType === ScriptType.TEXT_AUTO_SCALE,
+        );
+        if (hasAutoScaleText) return;
+        const updatedScript: TextAutoScaleScript = {
+          scriptType: ScriptType.TEXT_AUTO_SCALE,
+        };
+        setEditableLayers((prev) =>
+          prev.map((l) => {
+            if (l.internalId !== scriptsDialogLayerId) return l;
+            return {
+              ...l,
+              scripting: {
+                ...l.scripting,
+                scripts: [...(l.scripting?.scripts || []), updatedScript],
+              },
+            };
+          }),
+        );
+      }
+    },
+    [onEditScript, scriptsDialogLayerId, editableLayers, setEditableLayers],
+  );
+
+  const scriptsDialogLayerType = useMemo(
+    () =>
+      editableLayers.find((l) => l.internalId === scriptsDialogLayerId)
+        ?.layerType,
+    [editableLayers, scriptsDialogLayerId],
+  );
 
   const layers = useMemo(
     () =>
@@ -262,10 +275,7 @@ export function ParametrizedLayers({
         open={scriptsDialogLayerId !== ''}
         setOpen={(open) => !open && setScriptsDialogLayerId('')}
         onSelect={handleScriptSelect}
-        layerType={
-          editableLayers.find((l) => l.internalId === scriptsDialogLayerId)
-            ?.layerType
-        }
+        layerType={scriptsDialogLayerType}
       />
     </>
   );
