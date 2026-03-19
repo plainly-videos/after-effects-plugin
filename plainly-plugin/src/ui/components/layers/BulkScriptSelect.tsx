@@ -51,6 +51,7 @@ export function BulkScriptSelect({
             setEditableLayers((prev) =>
               prev.map((layer) => {
                 if (!selectedLayerIds.has(layer.internalId)) return layer;
+                if (layer.layerType !== 'DATA') return layer;
                 const existingScripts = layer.scripting?.scripts || [];
                 const hasAutoScaleText = existingScripts.some(
                   (s) => s.scriptType === ScriptType.TEXT_AUTO_SCALE,

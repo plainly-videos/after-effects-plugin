@@ -234,6 +234,10 @@ export function ParametrizedLayers({
         open={scriptsDialogLayerId !== ''}
         setOpen={(open) => !open && setScriptsDialogLayerId('')}
         onSelect={handleScriptSelect}
+        layerType={
+          editableLayers.find((l) => l.internalId === scriptsDialogLayerId)
+            ?.layerType
+        }
       />
     </>
   );
