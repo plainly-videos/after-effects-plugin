@@ -12,6 +12,7 @@ import './shims';
 import {
   getInstalledFontsByFamilyNameAndStyleName,
   getInstalledFontsByPostScriptName,
+  getLayerNamesByComp,
   selectComp,
   selectFile,
   selectLayer,
@@ -40,6 +41,7 @@ const utilsFunctions = {
   selectLayer,
   selectComp,
   selectFile,
+  getLayerNamesByComp,
 };
 
 const validateFunctions = {

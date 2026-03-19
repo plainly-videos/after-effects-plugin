@@ -10,6 +10,7 @@ export interface Layer {
   internalId: string;
   layerName: string;
   layerType: LayerType;
+  compositions: { id: number; name: string }[];
   parametrization?: Parametrization;
   scripting?: Scripting;
 }
@@ -78,7 +79,11 @@ export type ShiftOutScript = {
   scriptType: ScriptType.SHIFT_OUT;
 } & ShiftData;
 
-export type EditableScript = CropScript | MediaAutoScaleScript | ShiftInScript;
+export type EditableScript =
+  | CropScript
+  | MediaAutoScaleScript
+  | ShiftInScript
+  | ShiftOutScript;
 
 export type ScriptEditState<S extends Script> = {
   layerInternalId: string;
