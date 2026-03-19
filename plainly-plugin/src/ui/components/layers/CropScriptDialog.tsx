@@ -40,12 +40,16 @@ export function CropScriptDialog({
       saveDisabled={!beginning && !end}
     >
       <Checkbox
+        id="beginning"
+        name="beginning"
         label="Beginning"
         description="Crops the beginning of a parent composition to the in-point (start) of this layer."
         defaultChecked={compStartsAtInPoint}
         onChange={setBeginning}
       />
       <Checkbox
+        id="end"
+        name="end"
         label="End"
         description="Crops the end of a parent composition to the out-point (end) of this layer."
         defaultChecked={compEndsAtOutPoint}
