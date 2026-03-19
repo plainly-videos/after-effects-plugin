@@ -71,6 +71,22 @@ export function BulkScriptSelect({
           }}
           disabled={selectedLayerIds.size === 0}
         />
+        <Badge
+          label="Auto scale media"
+          action={() => {
+            onEditScript({
+              layerInternalId: '',
+              script: {
+                scriptType: ScriptType.MEDIA_AUTO_SCALE,
+                fill: true,
+                fixedRatio: true,
+              },
+              isNew: true,
+              isBulk: true,
+            });
+          }}
+          disabled={selectedLayerIds.size === 0}
+        />
       </div>
     </div>
   );
