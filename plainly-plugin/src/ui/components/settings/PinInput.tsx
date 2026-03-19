@@ -76,7 +76,7 @@ export function PinInput({
         name="pin"
         type={type}
         pattern="[0-9]{1}"
-        className="block w-8 text-center rounded-md bg-white/5 px-3 py-1 text-xs text-white outline outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500"
+        className="block w-8 text-center rounded-md border-none bg-white/5 px-3 py-1 text-xs text-white outline outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500"
         maxLength={1}
         value={pin?.first || ''}
         onInput={(e) => changeDigit('first', e.currentTarget.value)}
@@ -89,7 +89,7 @@ export function PinInput({
         type={type}
         pattern="[0-9]{1}"
         maxLength={1}
-        className="block w-8 text-center rounded-md bg-white/5 px-3 py-1 text-xs text-white outline outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500"
+        className="block w-8 text-center rounded-md border-none bg-white/5 px-3 py-1 text-xs text-white outline outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500"
         value={pin?.second || ''}
         onInput={(e) => changeDigit('second', e.currentTarget.value)}
       />
@@ -100,7 +100,7 @@ export function PinInput({
         type={type}
         pattern="[0-9]{1}"
         maxLength={1}
-        className="block w-8 text-center rounded-md bg-white/5 px-3 py-1 text-xs text-white outline outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500"
+        className="block w-8 text-center rounded-md border-none bg-white/5 px-3 py-1 text-xs text-white outline outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500"
         value={pin?.third || ''}
         onInput={(e) => changeDigit('third', e.currentTarget.value)}
       />
@@ -111,7 +111,7 @@ export function PinInput({
         type={type}
         pattern="[0-9]{1}"
         maxLength={1}
-        className="block w-8 text-center rounded-md bg-white/5 px-3 py-1 text-xs text-white outline outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500"
+        className="block w-8 text-center rounded-md border-none bg-white/5 px-3 py-1 text-xs text-white outline outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500"
         value={pin?.fourth || ''}
         onInput={(e) => changeDigit('fourth', e.currentTarget.value)}
       />

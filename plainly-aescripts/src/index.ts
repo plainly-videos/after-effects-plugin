@@ -11,6 +11,7 @@ import './shims';
 import {
   getInstalledFontsByFamilyNameAndStyleName,
   getInstalledFontsByPostScriptName,
+  getLayerNamesByComp,
 } from './utils';
 
 const PlainlyAE = () => ({
@@ -24,6 +25,7 @@ const PlainlyAE = () => ({
   relinkFootage,
   getInstalledFontsByPostScriptName,
   getInstalledFontsByFamilyNameAndStyleName,
+  getLayerNamesByComp,
 });
 
 if ($['com.plainlyvideos.after-effects-plugin.Panel']) {

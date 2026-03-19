@@ -31,7 +31,7 @@ const projectsCacheAdd = (client: QueryClient, project: Project) => {
   client.setQueryData([PROJECTS_CACHE_ROOT, project.id], project);
 };
 
-const projectCacheReplace = (client: QueryClient, project: Project) => {
+export const projectCacheReplace = (client: QueryClient, project: Project) => {
   // Update the list
   client.setQueryData<Project[]>([PROJECTS_CACHE_ROOT], (projects) =>
     projects

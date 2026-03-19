@@ -179,6 +179,23 @@ class AeScriptsApiClass {
   }
 
   /**
+   * Returns all layer names in a given After Effects composition.
+   * @param compId - The ID of the composition
+   * @returns An array of layer names
+   */
+  async getLayerNamesByComp(compId: number): Promise<string[]> {
+    const result = await evalScriptAsync(
+      `getLayerNamesByComp(${JSON.stringify(compId)})`,
+    );
+    if (!result) return [];
+    try {
+      return JSON.parse(result);
+    } catch {
+      throw new Error('Failed to parse layer names data.');
+    }
+  }
+
+  /**
    * Relinks footage items in the After Effects project to new file paths.
    * @param relinkData - Object mapping item IDs to new file paths
    */

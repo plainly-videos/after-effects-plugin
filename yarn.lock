@@ -2315,17 +2315,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tailwindcss/typography@npm:^0.5.15":
-  version: 0.5.19
-  resolution: "@tailwindcss/typography@npm:0.5.19"
-  dependencies:
-    postcss-selector-parser: 6.0.10
-  peerDependencies:
-    tailwindcss: "*"
-  checksum: 6e5b25a2a24b8f112c9628b29aee4579ed024f368111937a5f3be7a4adc2d768c1aa9d5d5bb2d04972c7b49e526bcaade9f9e785e2e7a0b6be3d392f7ba02e17
-  languageName: node
-  linkType: hard
-
 "@tanstack/query-core@npm:5.90.12":
   version: 5.90.12
   resolution: "@tanstack/query-core@npm:5.90.12"
@@ -5840,12 +5829,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lucide-react@npm:^0.456.0":
-  version: 0.456.0
-  resolution: "lucide-react@npm:0.456.0"
+"lucide-react@npm:^0.577.0":
+  version: 0.577.0
+  resolution: "lucide-react@npm:0.577.0"
   peerDependencies:
-    react: ^16.5.1 || ^17.0.0 || ^18.0.0 || ^19.0.0-rc
-  checksum: 12077fdb291e72906dc7950efa1672f857cde89638452d0e1bed6aea36893194f5da14b64157f6c333c2f7a0c54dbd65292ad6f945d11ba54b641eba8a98e7f8
+    react: ^16.5.1 || ^17.0.0 || ^18.0.0 || ^19.0.0
+  checksum: f39db5fb91e925480c9d697f4fc2474d692abcda8e069a5be3295ce9c370dbf7fb55a6b88f94ab5d8b2f834bb76407926b312e2f88992aad62e7567efeb87dcc
   languageName: node
   linkType: hard
 
@@ -6510,7 +6499,6 @@ __metadata:
     "@heroicons/react": ^2.1.5
     "@jest/globals": ^30.2.0
     "@tailwindcss/forms": ^0.5.9
-    "@tailwindcss/typography": ^0.5.15
     "@tanstack/react-query": ^5.66.0
     "@types/archiver": ^6.0.3
     "@types/dotenv-webpack": ^7.0.8
@@ -6532,7 +6520,7 @@ __metadata:
     globals: ^15.11.0
     html-webpack-plugin: ^5.6.3
     jest: ^30.2.0
-    lucide-react: ^0.456.0
+    lucide-react: ^0.577.0
     plainly-types: "workspace:*"
     postcss: ^8.4.49
     postcss-loader: ^8.1.1
@@ -6678,16 +6666,6 @@ __metadata:
   peerDependencies:
     postcss: ^8.2.14
   checksum: 2c86ecf2d0ce68f27c87c7e24ae22dc6dd5515a89fcaf372b2627906e11f5c1f36e4a09e4c15c20fd4a23d628b3d945c35839f44496fbee9a25866258006671b
-  languageName: node
-  linkType: hard
-
-"postcss-selector-parser@npm:6.0.10":
-  version: 6.0.10
-  resolution: "postcss-selector-parser@npm:6.0.10"
-  dependencies:
-    cssesc: ^3.0.0
-    util-deprecate: ^1.0.2
-  checksum: 46afaa60e3d1998bd7adf6caa374baf857cc58d3ff944e29459c9a9e4680a7fe41597bd5b755fc81d7c388357e9bf67c0251d047c640a09f148e13606b8a8608
   languageName: node
   linkType: hard
 
