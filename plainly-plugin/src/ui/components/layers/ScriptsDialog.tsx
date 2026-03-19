@@ -5,7 +5,7 @@ import {
   DialogTitle,
 } from '@headlessui/react';
 import { State, useGlobalState } from '@src/ui/state/store';
-import { ScriptType } from '@src/ui/types/template';
+import { type LayerType, ScriptType } from '@src/ui/types/template';
 import classNames from 'classnames';
 import {
   ImageIcon,
@@ -23,6 +23,7 @@ const SCRIPT_OPTIONS: {
   description: string;
   icon: React.ElementType;
   enabled: boolean;
+  layerTypes?: LayerType[];
 }[] = [
   {
     type: ScriptType.CROP,
@@ -38,6 +39,7 @@ const SCRIPT_OPTIONS: {
     description: 'Automatically scale media layer to the composition size.',
     icon: ImageIcon,
     enabled: true,
+    layerTypes: ['MEDIA'],
   },
   {
     type: ScriptType.TEXT_AUTO_SCALE,
@@ -45,6 +47,7 @@ const SCRIPT_OPTIONS: {
     description: 'Automatically scale text layer to the original text size.',
     icon: TypeIcon,
     enabled: true,
+    layerTypes: ['DATA'],
   },
   {
     type: ScriptType.SHIFT_IN,
@@ -68,13 +71,20 @@ export function ScriptsDialog({
   open,
   setOpen,
   onSelect,
+  layerType,
 }: {
   open: boolean;
   setOpen: (open: boolean) => void;
   onSelect: (type: ScriptType) => void;
+  layerType?: LayerType;
 }) {
   const [settings] = useGlobalState(State.SETTINGS);
   const sidebarOpen = settings.sidebarOpen;
+
+  const visibleOptions = SCRIPT_OPTIONS.filter(
+    ({ layerTypes }) =>
+      !layerTypes || !layerType || layerTypes.includes(layerType),
+  );
 
   return (
     <Dialog open={open} onClose={setOpen} className="relative">
@@ -96,7 +106,7 @@ export function ScriptsDialog({
             </DialogTitle>
             <Description>Select a script to add to this layer.</Description>
             <ul className="mt-4 flex flex-col gap-1">
-              {SCRIPT_OPTIONS.map(
+              {visibleOptions.map(
                 ({ type, label, description, icon: Icon, enabled }) => (
                   <li key={type}>
                     <button
