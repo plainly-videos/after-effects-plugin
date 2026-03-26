@@ -114,6 +114,131 @@ function getInstalledFontsByFamilyNameAndStyleName(
     return undefined;
   }
 }
+/**
+ * Deselects every currently selected layer across all compositions in the active project.
+ *
+ * Iterates through all `CompItem` instances in `app.project`, aggregates their `selectedLayers`,
+ * and sets each layer's `selected` property to `false`.
+ *
+ * @returns {void}
+ */
+function unselectAllLayers(): void {
+  const comps = getAllComps(app.project);
+  let selectedLayers: Layer[] = [];
+  for (let i = 0; i < comps.length; i++) {
+    const comp = comps[i];
+    selectedLayers = selectedLayers.concat(comp.selectedLayers);
+  }
+
+  for (let i = 0; i < selectedLayers.length; i++) {
+    const layer = selectedLayers[i];
+    layer.selected = false;
+  }
+}
+
+/**
+ * Selects a layer in the active project by its numeric ID.
+ *
+ * Uses `app.project.layerByID` after parsing the provided string to base-10 integer. If a layer
+ * with the given ID exists, its `selected` property is set to `true`; otherwise the function exits silently.
+ *
+ * @param {string} layerId - The string representation of the layer's numeric ID (e.g. value from `Layer.id`).
+ * @returns {void}
+ * @example
+ * // Select a layer whose id is 1234
+ * selectLayer('1234');
+ */
+function selectLayer(layerId: string): void {
+  unselectAllProjectItems();
+  unselectAllLayers();
+  const layer = app.project.layerByID(parseInt(layerId, 10));
+  if (layer) {
+    // open the comp that contains the layer, so it is visible to the user in timeline
+    const comp = layer.containingComp;
+    comp.time = layer.inPoint;
+    const viewer = comp.openInViewer();
+    if (viewer?.active === false) viewer.setActive();
+
+    layer.selected = true;
+  }
+}
+
+/**
+ * Deselects all items in the project panel tree.
+ *
+ * Iterates through all items in `app.project.items` and sets each item's `selected` property to `false`.
+ *
+ * @returns {void}
+ */
+function unselectAllProjectItems(): void {
+  for (let i = 1; i <= app.project.numItems; i++) {
+    const item = app.project.item(i);
+    item.selected = false;
+  }
+}
+
+/**
+ * Selects a composition in the active project by its numeric ID.
+ *
+ * Uses `app.project.itemByID` after parsing the provided string to base-10 integer. If a composition
+ * with the given ID exists, it is opened in a viewer and its `selected` property is set to `true`;
+ * otherwise the function exits silently.
+ *
+ * @param {string} compId - The string representation of the composition's numeric ID (e.g. value from `CompItem.id`).
+ * @returns {void}
+ * @example
+ * // Select a composition whose id is 5678
+ * selectComp('5678');
+ */
+function selectComp(compId: string): void {
+  unselectAllProjectItems();
+  unselectAllLayers();
+  const comp = app.project.itemByID(parseInt(compId, 10));
+  if (comp instanceof CompItem) {
+    const viewer = comp.openInViewer();
+    comp.selected = true;
+    if (viewer?.active === false) {
+      viewer.setActive();
+    }
+  }
+}
+
+/**
+ * Selects a file item in the active project by its numeric ID.
+ *
+ * Uses `app.project.itemByID` after parsing the provided string to base-10 integer. If a file
+ * with the given ID exists, its `selected` property is set to `true`; otherwise the function exits silently.
+ *
+ * @param {string} fileId - The string representation of the file's numeric ID (e.g. value from `FootageItem.id`).
+ * @returns {void}
+ * @example
+ * // Select a file whose id is 91011
+ * selectFile('91011');
+ */
+function selectFile(fileId: string): void {
+  unselectAllProjectItems();
+  unselectAllLayers();
+  const file = app.project.itemByID(parseInt(fileId, 10));
+  if (file) {
+    file.selected = true;
+  }
+}
+
+/**
+ * Generates a UUID (Universally Unique Identifier) string in the format 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.
+ *
+ * @returns {string} A randomly generated UUID string.
+ * @example
+ * const newUuid = uuid();
+ * console.log(newUuid); // Outputs something like '3f2504e0-4f89-11d3-9a0c-0305e82c3301'
+ */
+function uuid(): string {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+    const r = (Math.random() * 16) | 0,
+      v = c === 'x' ? r : (r & 0x3) | 0x8;
+    return v.toString(16);
+  });
+}
 
 export {
   getAllComps,
@@ -123,4 +248,8 @@ export {
   getTextLayersByComp,
   isWin,
   pathJoin,
+  selectLayer,
+  selectComp,
+  selectFile,
+  uuid,
 };
