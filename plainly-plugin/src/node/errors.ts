@@ -30,6 +30,7 @@ export enum ErrorCode {
   GENERAL_TOO_MANY_REQUESTS = 'GENERAL_TOO_MANY_REQUESTS',
   GENERAL_UNAUTHORIZED = 'GENERAL_UNAUTHORIZED',
   GENERAL_FORBIDDEN = 'GENERAL_FORBIDDEN',
+  GENERAL_CANCELED = 'GENERAL_CANCELED',
 }
 
 export class ApiErrorResponseData {
@@ -164,6 +165,16 @@ export class GeneralCommunicationApiError extends PlainlyApiError {
     // Set the prototype explicitly.
     // see https://github.com/Microsoft/TypeScript/wiki/FAQ#why-doesnt-extending-built-ins-like-error-array-and-map-work
     Object.setPrototypeOf(this, GeneralCommunicationApiError.prototype);
+  }
+}
+
+export class CanceledApiError extends PlainlyApiError {
+  constructor() {
+    super(ErrorCode.GENERAL_CANCELED, false);
+
+    // Set the prototype explicitly.
+    // see https://github.com/Microsoft/TypeScript/wiki/FAQ#why-doesnt-extending-built-ins-like-error-array-and-map-work
+    Object.setPrototypeOf(this, CanceledApiError.prototype);
   }
 }
 

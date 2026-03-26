@@ -2,6 +2,7 @@ import { get, postFormData } from '@src/node/request';
 import type { Project } from '@src/ui/types/project';
 import { type QueryClient, useQueryClient } from '@tanstack/react-query';
 import type FormData from 'form-data';
+import { useEffect, useRef } from 'react';
 import { API_REFETCH_INTERVAL } from '.';
 import { useApiMutation, useApiQuery } from './useApi';
 
@@ -87,28 +88,53 @@ export const useGetProjectDetails = (projectId: string | undefined) => {
 
 export const useUploadProject = () => {
   const queryClient = useQueryClient();
+  const abortControllerRef = useRef<AbortController | null>(null);
 
-  const { isPending, isError, mutateAsync } = useApiMutation(
+  useEffect(() => () => abortControllerRef.current?.abort(), []);
+
+  const {
+    isPending,
+    isError,
+    mutateAsync: mutateUpload,
+  } = useApiMutation(
     async (apiKey, formData: FormData) => {
       const { data } = await postFormData<Project>(
         '/projects',
         apiKey,
         formData,
+        abortControllerRef.current?.signal,
       );
       return data;
     },
     {
       onSuccess: (project: Project) => projectsCacheAdd(queryClient, project),
+      onSettled: () => {
+        abortControllerRef.current = null;
+      },
     },
   );
 
-  return { isPending, isError, mutateAsync };
+  const mutateAsync = (formData: FormData) => {
+    abortControllerRef.current = new AbortController();
+    return mutateUpload(formData);
+  };
+
+  const cancel = () => abortControllerRef.current?.abort();
+
+  return { isPending, isError, mutateAsync, cancel };
 };
 
 export const useEditProject = () => {
   const queryClient = useQueryClient();
+  const abortControllerRef = useRef<AbortController | null>(null);
 
-  const { isPending, isError, mutateAsync } = useApiMutation(
+  useEffect(() => () => abortControllerRef.current?.abort(), []);
+
+  const {
+    isPending,
+    isError,
+    mutateAsync: mutateEdit,
+  } = useApiMutation(
     async (
       apiKey,
       { projectId, formData }: { projectId: string; formData: FormData },
@@ -117,15 +143,32 @@ export const useEditProject = () => {
         `/projects/${projectId}`,
         apiKey,
         formData,
+        abortControllerRef.current?.signal,
       );
       return data;
     },
     {
       onSuccess: (edited: Project) => projectCacheReplace(queryClient, edited),
-      onError: (_: unknown, { projectId }: { projectId: string }) =>
-        projectsCacheRemove(queryClient, projectId),
+      onError: (_: unknown, { projectId }: { projectId: string }) => {
+        if (!abortControllerRef.current?.signal.aborted) {
+          projectsCacheRemove(queryClient, projectId);
+        }
+      },
+      onSettled: () => {
+        abortControllerRef.current = null;
+      },
     },
   );
 
-  return { isPending, isError, mutateAsync };
+  const mutateAsync = (variables: {
+    projectId: string;
+    formData: FormData;
+  }) => {
+    abortControllerRef.current = new AbortController();
+    return mutateEdit(variables);
+  };
+
+  const cancel = () => abortControllerRef.current?.abort();
+
+  return { isPending, isError, mutateAsync, cancel };
 };
