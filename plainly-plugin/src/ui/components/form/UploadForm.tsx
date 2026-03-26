@@ -6,6 +6,7 @@ import {
 } from '@src/ui/hooks/api';
 import { Routes } from '@src/ui/types';
 import type { Project } from '@src/ui/types/project';
+import { startAsymptoticProgress } from '@src/ui/utils';
 import classNames from 'classnames';
 import FormData from 'form-data';
 import fs from 'fs';
@@ -13,7 +14,7 @@ import { LoaderCircleIcon } from 'lucide-react';
 import { useCallback, useContext, useEffect, useState } from 'react';
 import { makeProjectZipTmpDir } from '../../../node';
 import { CanceledApiError } from '../../../node/errors';
-import { Alert, Button, InternalLink } from '../common';
+import { Alert, Button, InternalLink, Tooltip } from '../common';
 import { GlobalContext } from '../context';
 import { Description, Label, PageHeading } from '../typography';
 
@@ -87,17 +88,7 @@ export function UploadForm() {
     setUploadProgress(0);
     setIsPacking(true);
 
-    // Simulated progress: asymptotically approaches 90%, then snaps to 100% on completion.
-    // Each tick advances by (cap - current) * rate, naturally slowing as it nears the cap.
-    const CAP = 90;
-    const RATE = 0.005;
-    const TICK_MS = 200;
-    const progressInterval = setInterval(() => {
-      setUploadProgress((prev) => {
-        if (prev >= CAP) return prev;
-        return Math.min(prev + (CAP - prev) * RATE, CAP);
-      });
-    }, TICK_MS);
+    const stopProgress = startAsymptoticProgress(setUploadProgress);
 
     try {
       const formData = new FormData();
@@ -150,13 +141,13 @@ export function UploadForm() {
         setProjectData({ id: projectId, revisionCount });
       }
 
-      clearInterval(progressInterval);
+      stopProgress();
       setUploadProgress(100);
       notifySuccess('Project uploaded');
       setUploadMode('edit');
       setInputs({});
     } catch (error) {
-      clearInterval(progressInterval);
+      stopProgress();
       if (error instanceof CanceledApiError) {
         setUploadProgress(0);
         notifyInfo('Upload cancelled');
@@ -312,13 +303,19 @@ export function UploadForm() {
 
       <div className="flex gap-2 float-right">
         {loading && (
-          <Button
-            type="button"
-            secondary
-            onClick={() => (isUploading ? cancelUpload() : cancelEdit())}
+          <Tooltip
+            text={isPacking ? 'Cannot cancel during packing' : ''}
+            disabled={!isPacking}
           >
-            Cancel
-          </Button>
+            <Button
+              type="button"
+              secondary
+              onClick={() => (isUploading ? cancelUpload() : cancelEdit())}
+              disabled={isPacking}
+            >
+              Cancel
+            </Button>
+          </Tooltip>
         )}
         <Button loading={loading} disabled={disabled || loading}>
           Upload
