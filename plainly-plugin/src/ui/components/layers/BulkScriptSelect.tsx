@@ -90,6 +90,21 @@ export function BulkScriptSelect({
           }}
           disabled={selectedLayerIds.size === 0}
         />
+        <Badge
+          label="Layer management"
+          action={() => {
+            onEditScript({
+              layerInternalId: '',
+              script: {
+                scriptType: ScriptType.LAYER_MANAGEMENT,
+                parameterName: '',
+              },
+              isNew: true,
+              isBulk: true,
+            });
+          }}
+          disabled={selectedLayerIds.size === 0}
+        />
       </div>
     </div>
   );
