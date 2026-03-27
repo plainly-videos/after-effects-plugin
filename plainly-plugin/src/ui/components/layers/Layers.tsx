@@ -19,7 +19,7 @@ import type {
 } from '@src/ui/types/template';
 import classNames from 'classnames';
 import { CheckIcon, ChevronDownIcon, LoaderCircleIcon } from 'lucide-react';
-import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { useContext, useEffect, useMemo, useState } from 'react';
 import { Button } from '../common';
 import { GlobalContext } from '../context';
 import { Description, Label, PageHeading } from '../typography';
@@ -63,12 +63,6 @@ export function Layers() {
             template.name.toLowerCase().includes(query.toLowerCase()),
           ),
     [query, templates],
-  );
-
-  const handleEditScript = useCallback(
-    (params: Parameters<typeof setActiveScriptEdit>[0]) =>
-      setActiveScriptEdit(params),
-    [],
   );
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -169,7 +163,7 @@ export function Layers() {
         </div>
         <BulkScriptSelect
           selectedLayerIds={selectedLayerIds}
-          onEditScript={handleEditScript}
+          onEditScript={setActiveScriptEdit}
           setEditableLayers={setEditableLayers}
         />
         <FilterLayers
@@ -185,7 +179,7 @@ export function Layers() {
           layerType={layerType}
           selectedLayerIds={selectedLayerIds}
           setSelectedLayerIds={setSelectedLayerIds}
-          onEditScript={handleEditScript}
+          onEditScript={setActiveScriptEdit}
         />
       </div>
       <Button

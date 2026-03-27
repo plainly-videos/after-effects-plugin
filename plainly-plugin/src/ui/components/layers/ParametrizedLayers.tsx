@@ -128,7 +128,7 @@ export function ParametrizedLayers({
           script: {
             scriptType: ScriptType.SHIFT_OUT,
             shiftTarget: '',
-            shiftsTo: 'out-point',
+            shiftsTo: 'in-point',
             shiftOverlap: 0,
           },
           isNew: true,
@@ -201,7 +201,7 @@ export function ParametrizedLayers({
             <Label label="Scripting" className="py-1 px-3" />
           </li>
           {layers.map((layer) => (
-            <div key={layer.internalId} className="min-w-fit w-full">
+            <li key={layer.internalId} className="min-w-fit w-full">
               <div className="grid grid-cols-2 w-full divide-x divide-white/10 divide-dashed">
                 <div className="min-w-0 px-3 py-1 relative flex items-start gap-2">
                   <input
@@ -217,6 +217,7 @@ export function ParametrizedLayers({
                       });
                     }}
                   />
+                  {/* TODO: Implement edit functionality for the parametrization */}
                   <button
                     onClick={() => {}}
                     className="absolute right-3 top-1 size-5 flex items-center justify-center cursor-pointer disabled:cursor-not-allowed group rounded-sm bg-primary hover:bg-secondary hover:text-gray-400 disabled:opacity-50 disabled:pointer-events-none"
@@ -272,7 +273,7 @@ export function ParametrizedLayers({
                   </div>
                 </div>
               </div>
-            </div>
+            </li>
           ))}
         </ul>
       </div>
