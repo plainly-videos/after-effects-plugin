@@ -32,6 +32,7 @@ updateVersion() {
 updateVersion "s/\"version\": \".*\"/\"version\": \"$new_version\"/" "$SCRIPT_DIR/package.json"
 updateVersion "s/\"version\": \".*\"/\"version\": \"$new_version\"/" "$SCRIPT_DIR/plainly-aescripts/package.json"
 updateVersion "s/\"version\": \".*\"/\"version\": \"$new_version\"/" "$SCRIPT_DIR/plainly-plugin/package.json"
+updateVersion "s/\"version\": \".*\"/\"version\": \"$new_version\"/" "$SCRIPT_DIR/plainly-types/package.json"
 
 # Update the version in .env files
 updateVersion "s/PLUGIN_BUNDLE_VERSION=.*$/PLUGIN_BUNDLE_VERSION=$new_version/" "$SCRIPT_DIR/plainly-plugin/.env.development"

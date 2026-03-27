@@ -36,6 +36,10 @@ export function About() {
       label: 'Projects list',
       version: '1.2.0',
     },
+    {
+      label: 'Project validation',
+      version: '1.4.0',
+    },
   ];
 
   const deprecations = [
