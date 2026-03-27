@@ -1,3 +1,4 @@
+import { AeScriptsApi } from '@src/node/bridge';
 import {
   type EditableScript,
   type Layer,
@@ -7,6 +8,7 @@ import {
 } from '@src/ui/types/template';
 import { isEmpty } from '@src/ui/utils';
 import { EditIcon, PlusIcon } from 'lucide-react';
+import type React from 'react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Badge } from '../common/Badge';
 import { Label } from '../typography';
@@ -186,8 +188,8 @@ export function ParametrizedLayers({
     <>
       <div className="col-span-full">
         <Label label="Parametrized layers" />
-        <ul className="divide-y divide-white/10 overflow-auto w-full rounded-md border border-white/5 bg-secondary">
-          <li className="grid grid-cols-2 w-full text-xs divide-x divide-white/10 divide-dashed">
+        <ul className="divide-y divide-white/10 overflow-auto w-full rounded-md border border-white/5 bg-secondary max-h-64">
+          <li className="grid grid-cols-2 w-full text-xs divide-x divide-white/10 divide-dashed sticky top-0 bg-secondary z-10 border-b border-white/10 -mb-px">
             <div className="py-1 px-3 flex items-center gap-2">
               <SelectAllCheckbox
                 layers={layers}
@@ -224,10 +226,13 @@ export function ParametrizedLayers({
                     <EditIcon className="size-3" />
                   </button>
                   <div className="flex flex-col text-xs pr-5 min-w-0">
-                    <Label
-                      label={layer.layerName}
-                      className="truncate text-xs leading-4"
-                    />
+                    <button
+                      type="button"
+                      className="text-left underline truncate text-xs leading-4"
+                      onClick={() => AeScriptsApi.selectLayer(layer.internalId)}
+                    >
+                      {layer.layerName}
+                    </button>
                     <code className="truncate text-gray-400 text-2xs">
                       {layer.parametrization?.value}
                     </code>
