@@ -9,6 +9,7 @@ import { useCallback, useMemo } from 'react';
 
 import { AutoScaleMediaScriptDialog } from './AutoScaleMediaScriptDialog';
 import { CropScriptDialog } from './CropScriptDialog';
+import { LayerManagementScriptDialog } from './LayerManagementScriptDialog';
 import { ShiftScriptDialog } from './ShiftScriptDialog';
 
 const SCRIPT_LAYER_TYPE_RESTRICTIONS: Partial<Record<ScriptType, LayerType[]>> =
@@ -175,6 +176,26 @@ export function ScriptDialogs({
         currentLayerName={currentLayerName}
         open={activeScriptEdit?.script.scriptType === ScriptType.SHIFT_OUT}
         setOpen={(open: boolean) => !open && close()}
+        action={handleScriptSave}
+      />
+      <LayerManagementScriptDialog
+        key={
+          activeScriptEdit?.script.scriptType === ScriptType.LAYER_MANAGEMENT
+            ? activeScriptEdit.layerInternalId
+            : undefined
+        }
+        script={
+          activeScriptEdit?.script.scriptType === ScriptType.LAYER_MANAGEMENT
+            ? activeScriptEdit.script
+            : {
+                scriptType: ScriptType.LAYER_MANAGEMENT,
+                parameterName: '',
+              }
+        }
+        open={
+          activeScriptEdit?.script.scriptType === ScriptType.LAYER_MANAGEMENT
+        }
+        setOpen={(open) => !open && close()}
         action={handleScriptSave}
       />
     </>

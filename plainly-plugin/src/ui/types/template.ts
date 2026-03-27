@@ -43,6 +43,7 @@ export enum ScriptType {
   TEXT_AUTO_SCALE = 'TEXT_AUTO_SCALE',
   SHIFT_IN = 'SHIFT_IN',
   SHIFT_OUT = 'SHIFT_OUT',
+  LAYER_MANAGEMENT = 'LAYER_MANAGEMENT',
 }
 
 export type CropScript = {
@@ -79,11 +80,17 @@ export type ShiftOutScript = {
   scriptType: ScriptType.SHIFT_OUT;
 } & ShiftData;
 
+export type LayerManagementScript = {
+  scriptType: ScriptType.LAYER_MANAGEMENT;
+  parameterName: string;
+};
+
 export type EditableScript =
   | CropScript
   | MediaAutoScaleScript
   | ShiftInScript
-  | ShiftOutScript;
+  | ShiftOutScript
+  | LayerManagementScript;
 
 export type ScriptEditState<S extends Script> = {
   layerInternalId: string;

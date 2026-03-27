@@ -9,6 +9,7 @@ import { type LayerType, ScriptType } from '@src/ui/types/template';
 import classNames from 'classnames';
 import {
   ImageIcon,
+  LayersIcon,
   LogInIcon,
   LogOutIcon,
   ScissorsIcon,
@@ -63,6 +64,14 @@ const SCRIPT_OPTIONS: {
     description:
       'Shifts the end of a layer based on the duration of another layer in the same composition.',
     icon: LogOutIcon,
+    enabled: true,
+  },
+  {
+    type: ScriptType.LAYER_MANAGEMENT,
+    label: 'Layer management',
+    description:
+      'Manages layer visibility and order based on a parameter value.',
+    icon: LayersIcon,
     enabled: true,
   },
 ];

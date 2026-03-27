@@ -20,6 +20,7 @@ const scriptName = (type: ScriptType) => {
   if (type === ScriptType.TEXT_AUTO_SCALE) return 'Auto scale text';
   if (type === ScriptType.SHIFT_IN) return 'Shift in';
   if (type === ScriptType.SHIFT_OUT) return 'Shift out';
+  if (type === ScriptType.LAYER_MANAGEMENT) return 'Layer management';
   return type;
 };
 
@@ -29,6 +30,7 @@ const EDITABLE_SCRIPT_TYPES = new Set([
   ScriptType.MEDIA_AUTO_SCALE,
   ScriptType.SHIFT_IN,
   ScriptType.SHIFT_OUT,
+  ScriptType.LAYER_MANAGEMENT,
 ]);
 
 export function ParametrizedLayers({
@@ -130,6 +132,17 @@ export function ParametrizedLayers({
             shiftTarget: '',
             shiftsTo: 'in-point',
             shiftOverlap: 0,
+          },
+          isNew: true,
+          isBulk: false,
+        });
+      }
+      if (type === ScriptType.LAYER_MANAGEMENT) {
+        onEditScript({
+          layerInternalId: scriptsDialogLayerId,
+          script: {
+            scriptType: ScriptType.LAYER_MANAGEMENT,
+            parameterName: '',
           },
           isNew: true,
           isBulk: false,
