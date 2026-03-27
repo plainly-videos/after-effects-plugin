@@ -6,6 +6,7 @@ import {
   ComboboxOptions,
 } from '@headlessui/react';
 import { AeScriptsApi } from '@src/node/bridge/AeScriptsApi';
+import { useNotifications } from '@src/ui/hooks';
 import type { ShiftInScript, ShiftOutScript } from '@src/ui/types/template';
 import { ScriptType } from '@src/ui/types/template';
 import classNames from 'classnames';
@@ -36,6 +37,7 @@ export function ShiftScriptDialog({
   setOpen: (open: boolean) => void;
   action: (script: ShiftScript) => void;
 }) {
+  const { notifyError } = useNotifications();
   const isShiftIn = script.scriptType === ScriptType.SHIFT_IN;
 
   const { shiftTarget, shiftsTo, shiftOverlap } = script;
@@ -48,10 +50,19 @@ export function ShiftScriptDialog({
 
   useEffect(() => {
     if (!open || !compId) return;
-    AeScriptsApi.getLayerNamesByComp(compId).then((names) => {
-      setLayerNames(names.filter((n) => n !== currentLayerName));
-    });
-  }, [open, compId, currentLayerName]);
+
+    const fetchLayerNames = async () => {
+      try {
+        const names = await AeScriptsApi.getLayerNamesByComp(compId);
+        setLayerNames(names.filter((n) => n !== currentLayerName));
+      } catch (error) {
+        console.error('Failed to fetch layer names:', error);
+        notifyError('Failed to fetch layer names.');
+      }
+    };
+
+    fetchLayerNames();
+  }, [open, compId, currentLayerName, notifyError]);
 
   const filteredNames = useMemo(
     () =>

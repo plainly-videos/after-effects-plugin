@@ -7,15 +7,15 @@ import {
 } from '@src/ui/types/template';
 import { useCallback, useMemo } from 'react';
 
+import { AutoScaleMediaScriptDialog } from './AutoScaleMediaScriptDialog';
+import { CropScriptDialog } from './CropScriptDialog';
+import { ShiftScriptDialog } from './ShiftScriptDialog';
+
 const SCRIPT_LAYER_TYPE_RESTRICTIONS: Partial<Record<ScriptType, LayerType[]>> =
   {
     [ScriptType.MEDIA_AUTO_SCALE]: ['MEDIA'],
     [ScriptType.TEXT_AUTO_SCALE]: ['DATA'],
   };
-
-import { AutoScaleMediaScriptDialog } from './AutoScaleMediaScriptDialog';
-import { CropScriptDialog } from './CropScriptDialog';
-import { ShiftScriptDialog } from './ShiftScriptDialog';
 
 export function ScriptDialogs({
   activeScriptEdit,
@@ -110,7 +110,7 @@ export function ScriptDialogs({
         }
         open={activeScriptEdit?.script.scriptType === ScriptType.CROP}
         setOpen={(open) => !open && close()}
-        action={(script) => handleScriptSave(script)}
+        action={handleScriptSave}
       />
       <AutoScaleMediaScriptDialog
         key={
@@ -131,7 +131,7 @@ export function ScriptDialogs({
           activeScriptEdit?.script.scriptType === ScriptType.MEDIA_AUTO_SCALE
         }
         setOpen={(open) => !open && close()}
-        action={(script) => handleScriptSave(script)}
+        action={handleScriptSave}
       />
       <ShiftScriptDialog
         key={
@@ -153,7 +153,7 @@ export function ScriptDialogs({
         currentLayerName={currentLayerName}
         open={activeScriptEdit?.script.scriptType === ScriptType.SHIFT_IN}
         setOpen={(open: boolean) => !open && close()}
-        action={(script) => handleScriptSave(script)}
+        action={handleScriptSave}
       />
       <ShiftScriptDialog
         key={
@@ -175,7 +175,7 @@ export function ScriptDialogs({
         currentLayerName={currentLayerName}
         open={activeScriptEdit?.script.scriptType === ScriptType.SHIFT_OUT}
         setOpen={(open: boolean) => !open && close()}
-        action={(script) => handleScriptSave(script)}
+        action={handleScriptSave}
       />
     </>
   );

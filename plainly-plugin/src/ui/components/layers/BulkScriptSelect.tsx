@@ -48,6 +48,8 @@ export function BulkScriptSelect({
         <Badge
           label="Auto scale text"
           action={() => {
+            // There is no need to open the script dialog for bulk adding auto scale text scripts since there are no additional parameters to set.
+            // We can directly add the script to all selected layers that support it.
             setEditableLayers((prev) =>
               prev.map((layer) => {
                 if (!selectedLayerIds.has(layer.internalId)) return layer;
