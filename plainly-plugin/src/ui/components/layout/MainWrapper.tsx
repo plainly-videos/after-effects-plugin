@@ -14,7 +14,7 @@ export function MainWrapper({ children }: { children: React.ReactNode }) {
           : 'pl-[3.75rem]',
       )}
     >
-      <div className="p-4 sm:p-14 lg:p-20 justify-between items-center flex flex-col">
+      <div className="p-4 sm:p-8 lg:p-20 justify-between items-center flex flex-col">
         {children}
       </div>
       <NotificationsOverlay />

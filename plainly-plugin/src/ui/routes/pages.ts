@@ -2,6 +2,7 @@ import {
   FolderOutput,
   FoldersIcon,
   InfoIcon,
+  LayersPlusIcon,
   type LucideIcon,
   SettingsIcon,
   ShieldCheckIcon,
@@ -45,6 +46,12 @@ export const pages: (Page | Separator)[] = [
     name: 'Validate',
     to: Routes.VALIDATE,
     icon: ShieldCheckIcon,
+  },
+  {
+    type: 'page',
+    name: 'Layers',
+    to: Routes.LAYERS,
+    icon: LayersPlusIcon,
   },
   {
     type: 'separator',

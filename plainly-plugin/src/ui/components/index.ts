@@ -2,6 +2,7 @@ export * from './about';
 export * from './common';
 export * from './context';
 export * from './form';
+export * from './layers';
 export * from './layout';
 export * from './logo';
 export * from './navigation';
