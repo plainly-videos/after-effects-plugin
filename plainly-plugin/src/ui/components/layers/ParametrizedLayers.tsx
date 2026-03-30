@@ -11,17 +11,37 @@ import { EditIcon, PlusIcon } from 'lucide-react';
 import type React from 'react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Badge } from '../common/Badge';
+import { Tooltip } from '../common/Tooltip';
 import { Label } from '../typography';
 import { ScriptsDialog } from './ScriptsDialog';
 
+const KNOWN_SCRIPT_TYPES = new Set<string>(Object.values(ScriptType));
+
+const SCRIPT_NAMES: Record<string, string> = {
+  CROP: 'Crop',
+  EXTEND: 'Extend',
+  SET_DURATION: 'Set duration',
+  SHIFT_IN: 'Shift in',
+  SHIFT_OUT: 'Shift out',
+  SPREAD_LAYERS: 'Spread layers',
+  STRETCH: 'Stretch',
+  TRIM_IN: 'Trim in',
+  TRIM_OUT: 'Trim out',
+  MEDIA_AUTO_SCALE: 'Auto scale media',
+  TEXT_AUTO_SCALE: 'Auto scale text',
+  IMAGE_SEQUENCE_LOADER: 'Image sequence loader',
+  LAYER_MANAGEMENT: 'Layer management',
+  SCENE_MANAGEMENT: 'Scene management',
+  COMPOSITION_SET_SIZE: 'Composition set size',
+  COMPOSITION_REPLACE_SOURCE: 'Composition replace source',
+};
+
 const scriptName = (type: ScriptType) => {
-  if (type === ScriptType.CROP) return 'Crop';
-  if (type === ScriptType.MEDIA_AUTO_SCALE) return 'Auto scale media';
-  if (type === ScriptType.TEXT_AUTO_SCALE) return 'Auto scale text';
-  if (type === ScriptType.SHIFT_IN) return 'Shift in';
-  if (type === ScriptType.SHIFT_OUT) return 'Shift out';
-  if (type === ScriptType.LAYER_MANAGEMENT) return 'Layer management';
-  return type;
+  const raw = type as unknown as string;
+  return (
+    SCRIPT_NAMES[raw] ??
+    raw.charAt(0).toUpperCase() + raw.slice(1).toLowerCase().replace(/_/g, ' ')
+  );
 };
 
 const EDITABLE_SCRIPT_TYPES = new Set([
@@ -209,9 +229,9 @@ export function ParametrizedLayers({
                 selectedLayerIds={selectedLayerIds}
                 setSelectedLayerIds={setSelectedLayerIds}
               />
-              <Label label="Parametrization" />
+              <Label label="Parameter" />
             </div>
-            <Label label="Scripting" className="py-1 px-3" />
+            <Label label="Scripts" className="py-1 px-3" />
           </li>
           {layers.map((layer) => (
             <li key={layer.internalId} className="min-w-fit w-full">
@@ -261,11 +281,13 @@ export function ParametrizedLayers({
                     <PlusIcon className="size-3" />
                   </button>
                   <div className="flex flex-wrap text-xs gap-1 pr-6">
-                    {layer.scripting?.scripts.map((script) => (
-                      <div key={script.scriptType}>
+                    {layer.scripting?.scripts.map((script) => {
+                      const isKnown = KNOWN_SCRIPT_TYPES.has(script.scriptType);
+                      const badge = (
                         <Badge
                           label={scriptName(script.scriptType)}
                           action={
+                            isKnown &&
                             EDITABLE_SCRIPT_TYPES.has(script.scriptType)
                               ? () =>
                                   handleBadgeClick(
@@ -280,9 +302,19 @@ export function ParametrizedLayers({
                               script.scriptType,
                             )
                           }
+                          disabled={!isKnown}
                         />
-                      </div>
-                    ))}
+                      );
+                      return (
+                        <div key={script.scriptType}>
+                          {isKnown ? (
+                            badge
+                          ) : (
+                            <Tooltip text="Not supported yet">{badge}</Tooltip>
+                          )}
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
               </div>
