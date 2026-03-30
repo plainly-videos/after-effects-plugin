@@ -310,7 +310,9 @@ export function ParametrizedLayers({
                           {isKnown ? (
                             badge
                           ) : (
-                            <Tooltip text="Not supported yet">{badge}</Tooltip>
+                            <Tooltip text="Not supported yet, edit via web interface">
+                              {badge}
+                            </Tooltip>
                           )}
                         </div>
                       );
