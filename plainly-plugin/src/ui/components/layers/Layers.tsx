@@ -5,11 +5,13 @@ import {
   ComboboxOption,
   ComboboxOptions,
 } from '@headlessui/react';
+import { platformBaseUrl } from '@src/env';
 import {
   useEditTemplate,
   useGetProjectDetails,
   useNotifications,
 } from '@src/ui/hooks';
+import { Routes } from '@src/ui/types';
 import type {
   EditableScript,
   Layer,
@@ -17,10 +19,11 @@ import type {
   ScriptEditState,
   Template,
 } from '@src/ui/types/template';
+import { isEmpty } from '@src/ui/utils';
 import classNames from 'classnames';
 import { CheckIcon, ChevronDownIcon, LoaderCircleIcon } from 'lucide-react';
 import { useContext, useEffect, useMemo, useState } from 'react';
-import { Button } from '../common';
+import { Alert, Button, ExternalLink, InternalLink } from '../common';
 import { GlobalContext } from '../context';
 import { Description, Label, PageHeading } from '../typography';
 import { BulkScriptSelect } from './BulkScriptSelect';
@@ -29,8 +32,10 @@ import { ParametrizedLayers } from './ParametrizedLayers';
 import { ScriptDialogs } from './ScriptDialogs';
 
 export function Layers() {
-  const { plainlyProject } = useContext(GlobalContext) || {};
-  const { isLoading, data } = useGetProjectDetails(plainlyProject?.id);
+  const { plainlyProject, contextReady } = useContext(GlobalContext) || {};
+  const { isLoading, data, refetch, isRefetching } = useGetProjectDetails(
+    plainlyProject?.id,
+  );
   const { notifyError, notifySuccess } = useNotifications();
 
   const [query, setQuery] = useState('');
@@ -94,26 +99,67 @@ export function Layers() {
     }
   };
 
+  const loading = isLoading || isRefetching || !contextReady;
+  const disabledTemplates = loading || (data && isEmpty(templates));
+
   return (
     <form className="space-y-4 w-full text-white" onSubmit={handleSubmit}>
       <div>
         <div className="flex items-center gap-2">
-          <PageHeading heading="Parameters" />
-          {isLoading && (
+          <PageHeading heading="Layers" />
+          {loading && (
             <LoaderCircleIcon className="animate-spin shrink-0 size-4 text-white" />
           )}
         </div>
         <Description className="mt-1">
-          Here you can find the list of parameters used in your templates. You
-          can edit them and their values here, scripts are editable also.
+          Here you can find the list of layers used in your templates. You can
+          edit them and their values here, scripts are editable also.
         </Description>
       </div>
+
+      {!data && !loading && (
+        <Alert
+          title={
+            <p>
+              Working project is not linked to any project on the Plainly
+              platform. If a matching project exists on the platform, go to the{' '}
+              <InternalLink to={Routes.PROJECTS} text="Projects" /> tab to link
+              it.
+            </p>
+          }
+          type="info"
+          className="mb-1"
+        />
+      )}
+
+      {data && isEmpty(templates) && !loading && (
+        <Alert
+          title={
+            <p>
+              No templates found in the project. Please create a template first
+              to be able to edit layers. You can create templates in the{' '}
+              <ExternalLink
+                to={`${platformBaseUrl}/dashboard/projects/${data?.id}`}
+                text="Plainly platform"
+              />
+              .
+            </p>
+          }
+          type="info"
+          className="mb-1"
+        />
+      )}
 
       <div className="grid grid-cols-1 gap-x-4 gap-y-4 sm:grid-cols-6">
         <div className="col-span-full">
           <Label label="Template" required />
+          <Description className="mb-1">
+            Select a template to view and edit its layers. You can only edit
+            layers of one template at a time. Changes are not saved until you
+            hit the <strong>Save changes</strong> button.
+          </Description>
           <Combobox
-            disabled={isLoading || !data}
+            disabled={disabledTemplates}
             value={selected}
             onChange={(value) => setSelected(value)}
             onClose={() => setQuery('')}
@@ -125,11 +171,11 @@ export function Layers() {
                   template?.name || ''
                 }
                 onChange={(event) => setQuery(event.target.value)}
-                disabled={isLoading || !data}
+                disabled={disabledTemplates}
               />
               <ComboboxButton
                 className="group absolute inset-y-0 right-0 px-2.5 disabled:pointer-events-none"
-                disabled={isLoading || !data}
+                disabled={disabledTemplates}
               >
                 <ChevronDownIcon className="size-4 shrink-0 text-gray-400 group-hover:text-white duration-200" />
               </ComboboxButton>
@@ -182,13 +228,19 @@ export function Layers() {
           onEditScript={setActiveScriptEdit}
         />
       </div>
-      <Button
-        className="float-right"
-        loading={isPending}
-        disabled={isPending || isLoading}
-      >
-        Save changes
-      </Button>
+      <div className="float-right flex gap-2">
+        <Button
+          secondary
+          onClick={() => refetch()}
+          disabled={loading}
+          type="button"
+        >
+          Reload templates
+        </Button>
+        <Button loading={isPending} disabled={loading}>
+          Save changes
+        </Button>
+      </div>
       <ScriptDialogs
         activeScriptEdit={activeScriptEdit}
         setActiveScriptEdit={setActiveScriptEdit}
