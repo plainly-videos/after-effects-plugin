@@ -21,15 +21,15 @@ export function Badge({
     <span
       className={classNames(
         'group relative inline-flex items-center rounded-md px-1.5 py-0.5 text-2xs font-medium text-white',
-        action && 'cursor-pointer',
+        action && !disabled && 'cursor-pointer',
         variant === 'neutral' && neutralVariant,
         variant === 'indigo' && indigoVariant,
-        disabled && 'opacity-50 pointer-events-none',
+        disabled && 'opacity-50',
       )}
-      onClick={action}
+      onClick={disabled ? undefined : action}
     >
       {label}
-      {onRemove && (
+      {onRemove && !disabled && (
         <button
           type="button"
           className="absolute -top-1 -right-1 size-3.5 flex items-center justify-center rounded-full bg-gray-600 hover:bg-gray-500 cursor-pointer opacity-0 scale-50 group-hover:opacity-100 group-hover:scale-100 transition-all duration-150"
