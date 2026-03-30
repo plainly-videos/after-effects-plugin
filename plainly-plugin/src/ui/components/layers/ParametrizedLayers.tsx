@@ -239,7 +239,7 @@ export function ParametrizedLayers({
                   >
                     <EditIcon className="size-3" />
                   </button>
-                  <div className="flex flex-col text-xs pr-5 min-w-0">
+                  <div className="flex flex-col text-xs pr-6 min-w-0">
                     <button
                       type="button"
                       className="text-left underline truncate text-xs leading-4"
@@ -260,7 +260,7 @@ export function ParametrizedLayers({
                   >
                     <PlusIcon className="size-3" />
                   </button>
-                  <div className="flex flex-wrap text-xs gap-1 pr-5">
+                  <div className="flex flex-wrap text-xs gap-1 pr-6">
                     {layer.scripting?.scripts.map((script) => (
                       <div key={script.scriptType}>
                         <Badge

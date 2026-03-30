@@ -20,7 +20,7 @@ export function Badge({
   return (
     <span
       className={classNames(
-        'group relative inline-flex items-center rounded-md px-1.5 py-0.5 text-xs font-medium text-white',
+        'group relative inline-flex items-center rounded-md px-1.5 py-0.5 text-2xs font-medium text-white',
         action && 'cursor-pointer',
         variant === 'neutral' && neutralVariant,
         variant === 'indigo' && indigoVariant,

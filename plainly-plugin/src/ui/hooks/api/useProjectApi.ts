@@ -67,7 +67,7 @@ export const useGetProjects = () => {
 export const useGetProjectDetails = (projectId: string | undefined) => {
   const cacheKey = [PROJECTS_CACHE_ROOT, projectId];
 
-  const { isLoading, error, data } = useApiQuery(
+  const { isLoading, error, data, refetch, isRefetching } = useApiQuery(
     cacheKey,
     async (apiKey) => {
       const { data } = await get<Project>(`/projects/${projectId}`, apiKey);
@@ -83,7 +83,7 @@ export const useGetProjectDetails = (projectId: string | undefined) => {
     },
   );
 
-  return { isLoading, error, data };
+  return { isLoading, error, data, refetch, isRefetching };
 };
 
 export const useUploadProject = () => {
