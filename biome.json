@@ -55,5 +55,13 @@
         "organizeImports": "on"
       }
     }
-  }
+  },
+  "overrides": [
+    {
+      "includes": ["plainly-plugin/src/ui/components/parametrization/utils.ts"],
+      "formatter": {
+        "lineWidth": 120
+      }
+    }
+  ]
 }

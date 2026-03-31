@@ -3,6 +3,7 @@ import {
   type EditableScript,
   type Layer,
   type LayerType,
+  type MediaType,
   ScriptType,
   type TextAutoScaleScript,
 } from '@src/ui/types/template';
@@ -25,6 +26,7 @@ import { Badge } from '../common/Badge';
 import { Tooltip } from '../common/Tooltip';
 import { Label } from '../typography';
 import { ScriptsDialog } from './ScriptsDialog';
+import { getDefaultScript } from './utils';
 
 const KNOWN_SCRIPT_TYPES = new Set<string>(Object.values(ScriptType));
 
@@ -54,6 +56,27 @@ const scriptName = (type: ScriptType) => {
     raw.charAt(0).toUpperCase() + raw.slice(1).toLowerCase().replace(/_/g, ' ')
   );
 };
+
+function LayerTypeIcon({
+  layerType,
+  mediaType,
+}: {
+  layerType: LayerType;
+  mediaType?: MediaType;
+}) {
+  const cs = 'size-3 text-gray-400';
+
+  if (layerType === 'DATA') return <TypeIcon className={cs} />;
+  if (layerType === 'COMPOSITION') return <FolderIcon className={cs} />;
+  if (layerType === 'SOLID_COLOR') return <SwatchBookIcon className={cs} />;
+  if (layerType === 'DATA_EFFECT') return <SparklesIcon className={cs} />;
+  if (layerType === 'MEDIA') {
+    if (mediaType === 'image') return <ImageIcon className={cs} />;
+    if (mediaType === 'video') return <VideoIcon className={cs} />;
+    if (mediaType === 'audio') return <AudioLinesIcon className={cs} />;
+  }
+  return null;
+}
 
 const EDITABLE_SCRIPT_TYPES = new Set([
   ScriptType.CROP,
@@ -120,67 +143,6 @@ export function ParametrizedLayers({
   const handleScriptSelect = useCallback(
     (type: ScriptType) => {
       if (!scriptsDialogLayerId) return;
-      if (type === ScriptType.CROP) {
-        onEditScript({
-          layerInternalId: scriptsDialogLayerId,
-          script: {
-            scriptType: ScriptType.CROP,
-            compEndsAtOutPoint: false,
-            compStartsAtInPoint: false,
-          },
-          isNew: true,
-          isBulk: false,
-        });
-      }
-      if (type === ScriptType.MEDIA_AUTO_SCALE) {
-        onEditScript({
-          layerInternalId: scriptsDialogLayerId,
-          script: {
-            scriptType: ScriptType.MEDIA_AUTO_SCALE,
-            fill: true,
-            fixedRatio: true,
-          },
-          isNew: true,
-          isBulk: false,
-        });
-      }
-      if (type === ScriptType.SHIFT_IN) {
-        onEditScript({
-          layerInternalId: scriptsDialogLayerId,
-          script: {
-            scriptType: ScriptType.SHIFT_IN,
-            shiftTarget: '',
-            shiftsTo: 'in-point',
-            shiftOverlap: 0,
-          },
-          isNew: true,
-          isBulk: false,
-        });
-      }
-      if (type === ScriptType.SHIFT_OUT) {
-        onEditScript({
-          layerInternalId: scriptsDialogLayerId,
-          script: {
-            scriptType: ScriptType.SHIFT_OUT,
-            shiftTarget: '',
-            shiftsTo: 'in-point',
-            shiftOverlap: 0,
-          },
-          isNew: true,
-          isBulk: false,
-        });
-      }
-      if (type === ScriptType.LAYER_MANAGEMENT) {
-        onEditScript({
-          layerInternalId: scriptsDialogLayerId,
-          script: {
-            scriptType: ScriptType.LAYER_MANAGEMENT,
-            parameterName: '',
-          },
-          isNew: true,
-          isBulk: false,
-        });
-      }
       if (type === ScriptType.TEXT_AUTO_SCALE) {
         const layer = editableLayers.find(
           (l) => l.internalId === scriptsDialogLayerId,
@@ -206,7 +168,16 @@ export function ParametrizedLayers({
             };
           }),
         );
+        return;
       }
+      const script = getDefaultScript(type);
+      if (!script) return;
+      onEditScript({
+        layerInternalId: scriptsDialogLayerId,
+        script,
+        isNew: true,
+        isBulk: false,
+      });
     },
     [onEditScript, scriptsDialogLayerId, editableLayers, setEditableLayers],
   );
@@ -291,30 +262,14 @@ export function ParametrizedLayers({
                     {layer.layerName}
                   </button>
                   <div className="flex items-center gap-1">
-                    {layer.layerType === 'DATA' && (
-                      <TypeIcon className="size-3 text-gray-400" />
-                    )}
-                    {layer.layerType === 'COMPOSITION' && (
-                      <FolderIcon className="size-3 text-gray-400" />
-                    )}
-                    {layer.layerType === 'SOLID_COLOR' && (
-                      <SwatchBookIcon className="size-3 text-gray-400" />
-                    )}
-                    {layer.layerType === 'DATA_EFFECT' && (
-                      <SparklesIcon className="size-3 text-gray-400" />
-                    )}
-                    {layer.layerType === 'MEDIA' &&
-                      layer.mediaType === 'image' && (
-                        <ImageIcon className="size-3 text-gray-400" />
-                      )}
-                    {layer.layerType === 'MEDIA' &&
-                      layer.mediaType === 'video' && (
-                        <VideoIcon className="size-3 text-gray-400" />
-                      )}
-                    {layer.layerType === 'MEDIA' &&
-                      layer.mediaType === 'audio' && (
-                        <AudioLinesIcon className="size-3 text-gray-400" />
-                      )}
+                    <LayerTypeIcon
+                      layerType={layer.layerType}
+                      mediaType={
+                        layer.layerType === 'MEDIA'
+                          ? layer.mediaType
+                          : undefined
+                      }
+                    />
                     <code className="truncate text-gray-400 text-2xs">
                       {layer.parametrization?.value}
                     </code>

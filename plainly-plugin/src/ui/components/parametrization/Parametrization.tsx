@@ -35,6 +35,7 @@ import { Description, Label, PageHeading } from '../typography';
 import { FilterAndActions } from './FilterAndActions';
 import { ParametrizedLayers } from './ParametrizedLayers';
 import { ScriptDialogs } from './ScriptDialogs';
+import { getDefaultScript } from './utils';
 
 export function Parametrization() {
   const { plainlyProject, contextReady } = useContext(GlobalContext) || {};
@@ -43,8 +44,8 @@ export function Parametrization() {
   );
   const { notifyError, notifySuccess } = useNotifications();
 
-  const [query, setQuery] = useState('');
-  const [selected, setSelected] = useState<Template | null>(null);
+  const [templateQuery, setTemplateQuery] = useState('');
+  const [selectedTemplate, setSelectedTemplate] = useState<Template | null>();
 
   const [parameterQuery, setParameterQuery] = useState('');
   const [layerType, setLayerType] = useState<LayerType | 'All'>('All');
@@ -57,10 +58,10 @@ export function Parametrization() {
     useState<ScriptEditState<EditableScript>>(null);
 
   useEffect(() => {
-    setEditableLayers(selected?.layers || []);
+    setEditableLayers(selectedTemplate?.layers || []);
     setSelectedLayerIds(new Set());
     setLayerType('All');
-  }, [selected]);
+  }, [selectedTemplate]);
 
   const handleBulkScriptSelect = useCallback(
     (type: ScriptType) => {
@@ -91,36 +92,7 @@ export function Parametrization() {
         return;
       }
 
-      const defaultScripts: Partial<Record<ScriptType, EditableScript>> = {
-        [ScriptType.CROP]: {
-          scriptType: ScriptType.CROP,
-          compEndsAtOutPoint: false,
-          compStartsAtInPoint: false,
-        },
-        [ScriptType.MEDIA_AUTO_SCALE]: {
-          scriptType: ScriptType.MEDIA_AUTO_SCALE,
-          fill: true,
-          fixedRatio: true,
-        },
-        [ScriptType.SHIFT_IN]: {
-          scriptType: ScriptType.SHIFT_IN,
-          shiftTarget: '',
-          shiftsTo: 'in-point',
-          shiftOverlap: 0,
-        },
-        [ScriptType.SHIFT_OUT]: {
-          scriptType: ScriptType.SHIFT_OUT,
-          shiftTarget: '',
-          shiftsTo: 'in-point',
-          shiftOverlap: 0,
-        },
-        [ScriptType.LAYER_MANAGEMENT]: {
-          scriptType: ScriptType.LAYER_MANAGEMENT,
-          parameterName: '',
-        },
-      };
-
-      const script = defaultScripts[type];
+      const script = getDefaultScript(type);
       if (!script) return;
 
       setActiveScriptEdit({
@@ -138,17 +110,17 @@ export function Parametrization() {
   const templates = data?.templates || [];
   const filteredTemplates = useMemo(
     () =>
-      query === ''
+      templateQuery === ''
         ? templates
         : templates.filter((template) =>
-            template.name.toLowerCase().includes(query.toLowerCase()),
+            template.name.toLowerCase().includes(templateQuery.toLowerCase()),
           ),
-    [query, templates],
+    [templateQuery, templates],
   );
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!plainlyProject?.id || !selected) return;
+    if (!plainlyProject?.id || !selectedTemplate) return;
 
     try {
       const cleanedLayers = editableLayers.map((layer) => {
@@ -161,12 +133,12 @@ export function Parametrization() {
 
       await editTemplate({
         projectId: plainlyProject.id,
-        templateId: selected.id,
+        templateId: selectedTemplate.id,
         data: {
           layers: cleanedLayers,
-          name: selected.name,
-          renderingComposition: selected.renderingComposition,
-          renderingCompositionId: selected.renderingCompositionId,
+          name: selectedTemplate.name,
+          renderingComposition: selectedTemplate.renderingComposition,
+          renderingCompositionId: selectedTemplate.renderingCompositionId,
         },
       });
       notifySuccess('Template changes saved successfully');
@@ -249,9 +221,9 @@ export function Parametrization() {
                 >
                   <Combobox
                     disabled={disabledTemplates}
-                    value={selected}
-                    onChange={(value) => setSelected(value)}
-                    onClose={() => setQuery('')}
+                    value={selectedTemplate}
+                    onChange={(value) => setSelectedTemplate(value)}
+                    onClose={() => setTemplateQuery('')}
                   >
                     <div className="relative w-full">
                       <ComboboxInput
@@ -259,7 +231,9 @@ export function Parametrization() {
                         displayValue={(template: Template | null) =>
                           template?.name || ''
                         }
-                        onChange={(event) => setQuery(event.target.value)}
+                        onChange={(event) =>
+                          setTemplateQuery(event.target.value)
+                        }
                         disabled={disabledTemplates}
                       />
                       <ComboboxButton
@@ -287,7 +261,7 @@ export function Parametrization() {
                           <CheckIcon
                             className={classNames(
                               'size-3 shrink-0 text-white',
-                              template.id === selected?.id
+                              template.id === selectedTemplate?.id
                                 ? 'visible'
                                 : 'invisible',
                             )}
@@ -321,9 +295,9 @@ export function Parametrization() {
               setParameterQuery={setParameterQuery}
               layerType={layerType}
               setLayerType={setLayerType}
-              onBulkScriptSelect={handleBulkScriptSelect}
+              onBulkScriptSelectAction={handleBulkScriptSelect}
               bulkScriptDisabled={selectedLayerIds.size === 0}
-              disabled={disabledTemplates || !selected}
+              disabled={disabledTemplates || !selectedTemplate}
             />
             <ParametrizedLayers
               editableLayers={editableLayers}
@@ -333,13 +307,13 @@ export function Parametrization() {
               selectedLayerIds={selectedLayerIds}
               setSelectedLayerIds={setSelectedLayerIds}
               onEditScript={setActiveScriptEdit}
-              disabled={disabledTemplates || !selected}
+              disabled={disabledTemplates || !selectedTemplate}
             />
           </div>
           <div className="float-right flex gap-2">
             <Button
               loading={isPending}
-              disabled={loading || isEmpty(templates) || !selected}
+              disabled={loading || isEmpty(templates) || !selectedTemplate}
             >
               Save changes
             </Button>

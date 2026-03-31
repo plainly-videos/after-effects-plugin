@@ -11,6 +11,7 @@ import { AutoScaleMediaScriptDialog } from './AutoScaleMediaScriptDialog';
 import { CropScriptDialog } from './CropScriptDialog';
 import { LayerManagementScriptDialog } from './LayerManagementScriptDialog';
 import { ShiftScriptDialog } from './ShiftScriptDialog';
+import { getDefaultScript } from './utils';
 
 const SCRIPT_LAYER_TYPE_RESTRICTIONS: Partial<Record<ScriptType, LayerType[]>> =
   {
@@ -103,11 +104,7 @@ export function ScriptDialogs({
         cropScript={
           activeScriptEdit?.script.scriptType === ScriptType.CROP
             ? activeScriptEdit.script
-            : {
-                scriptType: ScriptType.CROP,
-                compEndsAtOutPoint: false,
-                compStartsAtInPoint: false,
-              }
+            : getDefaultScript(ScriptType.CROP)
         }
         open={activeScriptEdit?.script.scriptType === ScriptType.CROP}
         setOpen={(open) => !open && close()}
@@ -122,11 +119,7 @@ export function ScriptDialogs({
         mediaAutoScaleScript={
           activeScriptEdit?.script.scriptType === ScriptType.MEDIA_AUTO_SCALE
             ? activeScriptEdit.script
-            : {
-                scriptType: ScriptType.MEDIA_AUTO_SCALE,
-                fill: true,
-                fixedRatio: true,
-              }
+            : getDefaultScript(ScriptType.MEDIA_AUTO_SCALE)
         }
         open={
           activeScriptEdit?.script.scriptType === ScriptType.MEDIA_AUTO_SCALE
@@ -143,12 +136,7 @@ export function ScriptDialogs({
         script={
           activeScriptEdit?.script.scriptType === ScriptType.SHIFT_IN
             ? activeScriptEdit.script
-            : {
-                scriptType: ScriptType.SHIFT_IN,
-                shiftTarget: '',
-                shiftsTo: 'in-point',
-                shiftOverlap: 0,
-              }
+            : getDefaultScript(ScriptType.SHIFT_IN)
         }
         compId={compId}
         currentLayerName={currentLayerName}
@@ -165,12 +153,7 @@ export function ScriptDialogs({
         script={
           activeScriptEdit?.script.scriptType === ScriptType.SHIFT_OUT
             ? activeScriptEdit.script
-            : {
-                scriptType: ScriptType.SHIFT_OUT,
-                shiftTarget: '',
-                shiftsTo: 'in-point',
-                shiftOverlap: 0,
-              }
+            : getDefaultScript(ScriptType.SHIFT_OUT)
         }
         compId={compId}
         currentLayerName={currentLayerName}
@@ -187,10 +170,7 @@ export function ScriptDialogs({
         script={
           activeScriptEdit?.script.scriptType === ScriptType.LAYER_MANAGEMENT
             ? activeScriptEdit.script
-            : {
-                scriptType: ScriptType.LAYER_MANAGEMENT,
-                parameterName: '',
-              }
+            : getDefaultScript(ScriptType.LAYER_MANAGEMENT)
         }
         open={
           activeScriptEdit?.script.scriptType === ScriptType.LAYER_MANAGEMENT

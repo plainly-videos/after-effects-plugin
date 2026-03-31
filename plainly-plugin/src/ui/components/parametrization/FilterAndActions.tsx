@@ -21,7 +21,7 @@ export function FilterAndActions({
   setParameterQuery,
   layerType,
   setLayerType,
-  onBulkScriptSelect,
+  onBulkScriptSelectAction,
   bulkScriptDisabled,
   disabled,
 }: {
@@ -29,13 +29,13 @@ export function FilterAndActions({
   setParameterQuery: React.Dispatch<React.SetStateAction<string>>;
   layerType: LayerType | 'All';
   setLayerType: React.Dispatch<React.SetStateAction<LayerType | 'All'>>;
-  onBulkScriptSelect: (type: ScriptType) => void;
+  onBulkScriptSelectAction: (type: ScriptType) => void;
   bulkScriptDisabled?: boolean;
   disabled?: boolean;
 }) {
   const [openScriptsDialog, setOpenScriptsDialog] = useState(false);
 
-  const clearFilters = () => {
+  const clearFiltersAction = () => {
     setParameterQuery('');
     setLayerType('All');
   };
@@ -75,7 +75,7 @@ export function FilterAndActions({
                   <button
                     type="button"
                     className="group flex items-center gap-2 rounded-md px-3 py-1.5 text-xs text-gray-400 hover:bg-indigo-600 hover:text-white w-full"
-                    onClick={clearFilters}
+                    onClick={clearFiltersAction}
                   >
                     <FunnelXIcon className="size-4 shrink-0 text-gray-400" />
                     Clear filters
@@ -123,7 +123,7 @@ export function FilterAndActions({
       <ScriptsDialog
         open={openScriptsDialog}
         setOpen={setOpenScriptsDialog}
-        onSelect={onBulkScriptSelect}
+        onSelect={onBulkScriptSelectAction}
         bulk
       />
     </>
