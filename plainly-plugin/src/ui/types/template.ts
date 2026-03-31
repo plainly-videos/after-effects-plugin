@@ -6,14 +6,21 @@ export interface Template {
   layers: Layer[];
 }
 
-export interface Layer {
+type LayerBase = {
   internalId: string;
   layerName: string;
-  layerType: LayerType;
   compositions: { id: number; name: string }[];
   parametrization?: Parametrization;
   scripting?: Scripting;
-}
+};
+
+export type MediaType = 'image' | 'video' | 'audio';
+
+export type Layer =
+  | (LayerBase & { layerType: 'MEDIA'; mediaType: MediaType })
+  | (LayerBase & {
+      layerType: 'COMPOSITION' | 'DATA' | 'DATA_EFFECT' | 'SOLID_COLOR';
+    });
 
 export type LayerType =
   | 'COMPOSITION'

@@ -5,7 +5,7 @@ export enum Routes {
   VALIDATE = '/validate',
   SETTINGS = '/settings',
   ABOUT = '/about',
-  LAYERS = '/layers',
+  PARAMETRIZATION = '/parametrization',
 }
 
 export interface GlobalSettings {

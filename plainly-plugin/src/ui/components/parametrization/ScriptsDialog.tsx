@@ -81,18 +81,22 @@ export function ScriptsDialog({
   setOpen,
   onSelect,
   layerType,
+  bulk,
 }: {
   open: boolean;
   setOpen: (open: boolean) => void;
   onSelect: (type: ScriptType) => void;
   layerType?: LayerType;
+  bulk?: boolean;
 }) {
   const [settings] = useGlobalState(State.SETTINGS);
   const sidebarOpen = settings.sidebarOpen;
 
   const visibleOptions = SCRIPT_OPTIONS.filter(
-    ({ layerTypes }) =>
-      !layerTypes || !layerType || layerTypes.includes(layerType),
+    ({ type, layerTypes }) =>
+      (!layerTypes || !layerType || layerTypes.includes(layerType)) &&
+      (!bulk ||
+        (type !== ScriptType.SHIFT_IN && type !== ScriptType.SHIFT_OUT)),
   );
 
   return (

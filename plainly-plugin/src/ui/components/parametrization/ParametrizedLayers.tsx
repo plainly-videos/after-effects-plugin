@@ -7,7 +7,18 @@ import {
   type TextAutoScaleScript,
 } from '@src/ui/types/template';
 import { isEmpty } from '@src/ui/utils';
-import { EditIcon, PlusIcon } from 'lucide-react';
+import classNames from 'classnames';
+import {
+  AudioLinesIcon,
+  EditIcon,
+  FolderIcon,
+  ImageIcon,
+  PlusIcon,
+  SparklesIcon,
+  SwatchBookIcon,
+  TypeIcon,
+  VideoIcon,
+} from 'lucide-react';
 import type React from 'react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Badge } from '../common/Badge';
@@ -61,6 +72,7 @@ export function ParametrizedLayers({
   selectedLayerIds,
   setSelectedLayerIds,
   onEditScript,
+  disabled,
 }: {
   editableLayers: Layer[];
   setEditableLayers: React.Dispatch<React.SetStateAction<Layer[]>>;
@@ -74,6 +86,7 @@ export function ParametrizedLayers({
     isNew: boolean;
     isBulk: boolean;
   }) => void;
+  disabled?: boolean;
 }) {
   const [scriptsDialogLayerId, setScriptsDialogLayerId] = useState<string>('');
 
@@ -219,105 +232,140 @@ export function ParametrizedLayers({
 
   return (
     <>
-      <div className="col-span-full">
+      <div className={classNames('col-span-full', disabled && 'opacity-50')}>
         <Label label="Parametrized layers" />
         <ul className="divide-y divide-white/10 overflow-auto w-full rounded-md border border-white/5 bg-secondary max-h-64">
-          <li className="grid grid-cols-2 w-full text-xs divide-x divide-white/10 divide-dashed sticky top-0 bg-secondary z-10 border-b border-white/10 -mb-px">
-            <div className="py-1 px-3 flex items-center gap-2">
-              <SelectAllCheckbox
-                layers={layers}
-                selectedLayerIds={selectedLayerIds}
-                setSelectedLayerIds={setSelectedLayerIds}
-              />
-              <Label label="Parameter" />
-            </div>
+          <li className="grid grid-cols-[auto_1fr_1fr] w-full text-xs divide-x divide-white/10 divide-dashed sticky top-0 bg-secondary z-10 border-b border-white/10 -mb-px items-center">
+            <SelectAllCheckbox
+              layers={layers}
+              selectedLayerIds={selectedLayerIds}
+              setSelectedLayerIds={setSelectedLayerIds}
+              disabled={disabled}
+            />
+            <Label label="Parameter" className="py-1 px-3" />
             <Label label="Scripts" className="py-1 px-3" />
           </li>
+          {isEmpty(layers) && (
+            <li>
+              <div className="p-2 text-center">
+                <p className="text-xs text-gray-400">No layers found</p>
+              </div>
+            </li>
+          )}
           {layers.map((layer) => (
-            <li key={layer.internalId} className="min-w-fit w-full">
-              <div className="grid grid-cols-2 w-full divide-x divide-white/10 divide-dashed">
-                <div className="min-w-0 px-3 py-1 relative flex items-start gap-2">
-                  <input
-                    type="checkbox"
-                    className="appearance-none rounded border border-white/10 bg-white/5 checked:border-indigo-600 checked:bg-indigo-600 indeterminate:border-indigo-600 indeterminate:bg-indigo-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:border-white/10 disabled:bg-transparent forced-colors:appearance-auto"
-                    checked={selectedLayerIds.has(layer.internalId)}
-                    onChange={(e) => {
-                      setSelectedLayerIds((prev) => {
-                        const next = new Set(prev);
-                        if (e.target.checked) next.add(layer.internalId);
-                        else next.delete(layer.internalId);
-                        return next;
-                      });
-                    }}
-                  />
-                  {/* TODO: Implement edit functionality for the parametrization */}
+            <li
+              key={layer.internalId}
+              className="min-w-fit grid grid-cols-[auto_1fr_1fr] w-full divide-x divide-white/10 divide-dashed items-center"
+            >
+              <div className="flex items-center justify-center py-1 px-3">
+                <input
+                  type="checkbox"
+                  className="appearance-none rounded border border-white/10 bg-white/5 checked:border-indigo-600 checked:bg-indigo-600 indeterminate:border-indigo-600 indeterminate:bg-indigo-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:border-white/10 disabled:bg-transparent forced-colors:appearance-auto col-span-1 flex items-center justify-center"
+                  checked={selectedLayerIds.has(layer.internalId)}
+                  onChange={(e) => {
+                    setSelectedLayerIds((prev) => {
+                      const next = new Set(prev);
+                      if (e.target.checked) next.add(layer.internalId);
+                      else next.delete(layer.internalId);
+                      return next;
+                    });
+                  }}
+                />
+              </div>
+              <div className="min-w-0 px-3 py-1 relative flex items-start gap-2 h-full">
+                {/* TODO: Implement edit functionality for the parametrization */}
+                <button
+                  onClick={() => {}}
+                  className="absolute right-1 top-1 size-5 flex items-center justify-center cursor-pointer disabled:cursor-not-allowed group rounded-sm bg-primary hover:bg-secondary hover:text-gray-400 disabled:pointer-events-none disabled:opacity-50"
+                  type="button"
+                  disabled={true}
+                >
+                  <EditIcon className="size-3" />
+                </button>
+                <div className="flex flex-col text-xs pr-3 min-w-0 h-full justify-center">
                   <button
-                    onClick={() => {}}
-                    className="absolute right-3 top-1 size-5 flex items-center justify-center cursor-pointer disabled:cursor-not-allowed group rounded-sm bg-primary hover:bg-secondary hover:text-gray-400 disabled:opacity-50 disabled:pointer-events-none"
                     type="button"
-                    disabled={true}
+                    className="text-left underline truncate text-xs leading-4"
+                    onClick={() => AeScriptsApi.selectLayer(layer.internalId)}
                   >
-                    <EditIcon className="size-3" />
+                    {layer.layerName}
                   </button>
-                  <div className="flex flex-col text-xs pr-6 min-w-0">
-                    <button
-                      type="button"
-                      className="text-left underline truncate text-xs leading-4"
-                      onClick={() => AeScriptsApi.selectLayer(layer.internalId)}
-                    >
-                      {layer.layerName}
-                    </button>
+                  <div className="flex items-center gap-1">
+                    {layer.layerType === 'DATA' && (
+                      <TypeIcon className="size-3 text-gray-400" />
+                    )}
+                    {layer.layerType === 'COMPOSITION' && (
+                      <FolderIcon className="size-3 text-gray-400" />
+                    )}
+                    {layer.layerType === 'SOLID_COLOR' && (
+                      <SwatchBookIcon className="size-3 text-gray-400" />
+                    )}
+                    {layer.layerType === 'DATA_EFFECT' && (
+                      <SparklesIcon className="size-3 text-gray-400" />
+                    )}
+                    {layer.layerType === 'MEDIA' &&
+                      layer.mediaType === 'image' && (
+                        <ImageIcon className="size-3 text-gray-400" />
+                      )}
+                    {layer.layerType === 'MEDIA' &&
+                      layer.mediaType === 'video' && (
+                        <VideoIcon className="size-3 text-gray-400" />
+                      )}
+                    {layer.layerType === 'MEDIA' &&
+                      layer.mediaType === 'audio' && (
+                        <AudioLinesIcon className="size-3 text-gray-400" />
+                      )}
                     <code className="truncate text-gray-400 text-2xs">
                       {layer.parametrization?.value}
                     </code>
                   </div>
                 </div>
-                <div className="min-w-0 px-3 py-1 relative">
-                  <button
-                    onClick={() => setScriptsDialogLayerId(layer.internalId)}
-                    className="absolute right-3 top-1 size-5 flex items-center justify-center cursor-pointer disabled:cursor-not-allowed group rounded-sm bg-primary hover:bg-secondary hover:text-gray-400"
-                    type="button"
-                  >
-                    <PlusIcon className="size-3" />
-                  </button>
-                  <div className="flex flex-wrap text-xs gap-1 pr-6">
-                    {layer.scripting?.scripts.map((script) => {
-                      const isKnown = KNOWN_SCRIPT_TYPES.has(script.scriptType);
-                      const badge = (
-                        <Badge
-                          label={scriptName(script.scriptType)}
-                          action={
-                            isKnown &&
-                            EDITABLE_SCRIPT_TYPES.has(script.scriptType)
-                              ? () =>
-                                  handleBadgeClick(
-                                    layer.internalId,
-                                    script as EditableScript,
-                                  )
-                              : undefined
-                          }
-                          onRemove={() =>
-                            handleScriptRemove(
-                              layer.internalId,
-                              script.scriptType,
-                            )
-                          }
-                          disabled={!isKnown}
-                        />
-                      );
-                      return (
-                        <div key={script.scriptType}>
-                          {isKnown ? (
-                            badge
-                          ) : (
-                            <Tooltip text="Not supported yet, edit via web interface">
-                              {badge}
-                            </Tooltip>
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
+              </div>
+              <div className="min-w-0 px-3 py-1 relative min-h-full">
+                <button
+                  onClick={() => setScriptsDialogLayerId(layer.internalId)}
+                  className="absolute right-1 top-1 size-5 flex items-center justify-center cursor-pointer disabled:cursor-not-allowed group rounded-sm bg-primary hover:bg-secondary hover:text-gray-400"
+                  type="button"
+                >
+                  <PlusIcon className="size-3" />
+                </button>
+                <div className="flex flex-wrap text-xs gap-1 pr-4">
+                  {layer.scripting?.scripts.map((script) => {
+                    const isKnown = KNOWN_SCRIPT_TYPES.has(script.scriptType);
+                    const badge = (
+                      <Badge
+                        label={scriptName(script.scriptType)}
+                        action={
+                          isKnown &&
+                          EDITABLE_SCRIPT_TYPES.has(script.scriptType)
+                            ? () =>
+                                handleBadgeClick(
+                                  layer.internalId,
+                                  script as EditableScript,
+                                )
+                            : undefined
+                        }
+                        onRemove={() =>
+                          handleScriptRemove(
+                            layer.internalId,
+                            script.scriptType,
+                          )
+                        }
+                        disabled={!isKnown}
+                      />
+                    );
+                    return (
+                      <div key={script.scriptType}>
+                        {isKnown ? (
+                          badge
+                        ) : (
+                          <Tooltip text="Not supported yet, edit via web interface">
+                            {badge}
+                          </Tooltip>
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             </li>
@@ -338,10 +386,12 @@ function SelectAllCheckbox({
   layers,
   selectedLayerIds,
   setSelectedLayerIds,
+  disabled,
 }: {
   layers: Layer[];
   selectedLayerIds: Set<string>;
   setSelectedLayerIds: React.Dispatch<React.SetStateAction<Set<string>>>;
+  disabled?: boolean;
 }) {
   const ref = useRef<HTMLInputElement>(null);
   const allSelected =
@@ -354,18 +404,21 @@ function SelectAllCheckbox({
   }, [someSelected]);
 
   return (
-    <input
-      ref={ref}
-      type="checkbox"
-      className="appearance-none rounded border border-white/10 bg-white/5 checked:border-indigo-600 checked:bg-indigo-600 indeterminate:border-indigo-600 indeterminate:bg-indigo-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:border-white/10 disabled:bg-transparent forced-colors:appearance-auto"
-      checked={allSelected}
-      onChange={(e) => {
-        setSelectedLayerIds(
-          e.target.checked
-            ? new Set(layers.map((l) => l.internalId))
-            : new Set(),
-        );
-      }}
-    />
+    <div className="py-1 px-3 flex items-center justify-center">
+      <input
+        ref={ref}
+        type="checkbox"
+        className="appearance-none rounded border border-white/10 bg-white/5 checked:border-indigo-600 checked:bg-indigo-600 indeterminate:border-indigo-600 indeterminate:bg-indigo-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:border-white/10 disabled:bg-transparent forced-colors:appearance-auto"
+        checked={allSelected}
+        onChange={(e) => {
+          setSelectedLayerIds(
+            e.target.checked
+              ? new Set(layers.map((l) => l.internalId))
+              : new Set(),
+          );
+        }}
+        disabled={disabled}
+      />
+    </div>
   );
 }

@@ -5,7 +5,7 @@ import { useGetLatestGithubRelease, useNavigate } from './hooks';
 import {
   AboutRoute,
   ExportRoute,
-  LayersRoute,
+  ParametrizationRoute,
   ProjectsRoute,
   SettingsRoute,
   UploadRoute,
@@ -29,7 +29,7 @@ export function App() {
     if (currentPage === '/validate') return <ValidateRoute />;
     if (currentPage === '/settings') return <SettingsRoute />;
     if (currentPage === '/about') return <AboutRoute />;
-    if (currentPage === '/layers') return <LayersRoute />;
+    if (currentPage === '/parametrization') return <ParametrizationRoute />;
 
     return null;
   }, [currentPage]);

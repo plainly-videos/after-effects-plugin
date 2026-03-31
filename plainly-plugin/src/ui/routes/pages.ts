@@ -43,15 +43,15 @@ export const pages: (Page | Separator)[] = [
   },
   {
     type: 'page',
-    name: 'Validate',
-    to: Routes.VALIDATE,
-    icon: ShieldCheckIcon,
+    name: 'Parametrization',
+    to: Routes.PARAMETRIZATION,
+    icon: LayersPlusIcon,
   },
   {
     type: 'page',
-    name: 'Layers',
-    to: Routes.LAYERS,
-    icon: LayersPlusIcon,
+    name: 'Validate',
+    to: Routes.VALIDATE,
+    icon: ShieldCheckIcon,
   },
   {
     type: 'separator',

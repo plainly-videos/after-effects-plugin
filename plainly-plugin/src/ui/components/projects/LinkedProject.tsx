@@ -101,10 +101,10 @@ export function LinkedProject({
               <Tooltip text="Open in web">
                 <ProjectAction icon={ExternalLinkIcon} action={open} linked />
               </Tooltip>
-              <Tooltip text="Layers">
+              <Tooltip text="Parametrization">
                 <ProjectAction
                   icon={LayersPlusIcon}
-                  action={() => navigate(Routes.LAYERS)}
+                  action={() => navigate(Routes.PARAMETRIZATION)}
                   linked
                 />
               </Tooltip>
