@@ -132,7 +132,7 @@ export function ShiftScriptDialog({
             anchor="bottom"
             transition
             className={classNames(
-              'min-w-[--input-width] rounded-md border border-white/5 bg-secondary p-1 mt-1 empty:invisible z-50',
+              'min-w-[--input-width] rounded-md border border-white/5 bg-secondary p-1 mt-1 empty:invisible z-10',
               'transition duration-100 ease-in',
             )}
           >
@@ -188,7 +188,7 @@ export function ShiftScriptDialog({
             anchor="bottom"
             transition
             className={classNames(
-              'min-w-[--input-width] rounded-md border border-white/5 bg-secondary p-1 mt-1 empty:invisible z-50',
+              'min-w-[--input-width] rounded-md border border-white/5 bg-secondary p-1 mt-1 empty:invisible z-10',
               'transition duration-100 ease-in',
             )}
           >

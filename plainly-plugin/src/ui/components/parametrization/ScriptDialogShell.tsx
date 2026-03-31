@@ -34,14 +34,16 @@ export function ScriptDialogShell({
 
   return (
     <Dialog open={open} onClose={setOpen} className="relative">
-      <DialogBackdrop className="fixed inset-0 backdrop-blur-md" />
+      <DialogBackdrop className="fixed inset-0 z-20 backdrop-blur-md" />
 
-      <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
+      <div className="fixed inset-0 z-30 w-screen overflow-y-auto">
         <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
           <DialogPanel
             className={classNames(
               'overflow-hidden rounded-lg bg-[rgb(29,29,30)] px-4 pb-4 pt-5 text-left sm:my-8 sm:w-full sm:max-w-lg sm:p-6 border border-white/10',
-              sidebarOpen ? 'ml-[3.75rem] xs:ml-36' : 'ml-[3.75rem]',
+              sidebarOpen
+                ? 'ml-[3.75rem] xs:ml-[var(--sidebar-width)]'
+                : 'ml-[3.75rem]',
             )}
           >
             <div className="flex flex-col gap-4">

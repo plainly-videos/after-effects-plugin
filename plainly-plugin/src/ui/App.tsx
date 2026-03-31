@@ -40,7 +40,7 @@ export function App() {
         <Button
           secondary
           onClick={reloadExtension}
-          className="absolute top-3 right-3 cursor-pointer z-40"
+          className="absolute top-3 right-3 cursor-pointer z-50"
         >
           Reload extension
         </Button>

@@ -10,7 +10,7 @@ export function MainWrapper({ children }: { children: React.ReactNode }) {
     <main
       className={classNames(
         sidebarOpen
-          ? 'pl-[3.75rem] blur-md pointer-events-none xs:pl-36 xs:blur-none xs:pointer-events-auto'
+          ? 'pl-[3.75rem] blur-md pointer-events-none xs:pl-[var(--sidebar-width)] xs:blur-none xs:pointer-events-auto'
           : 'pl-[3.75rem]',
       )}
     >
