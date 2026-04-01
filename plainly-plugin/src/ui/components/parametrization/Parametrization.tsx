@@ -22,6 +22,7 @@ import type {
 import { ScriptType } from '@src/ui/types/template';
 import { isEmpty } from '@src/ui/utils';
 import classNames from 'classnames';
+import { isEqual } from 'lodash-es';
 import {
   CheckIcon,
   ChevronDownIcon,
@@ -104,6 +105,10 @@ export function Parametrization() {
     },
     [selectedLayerIds],
   );
+
+  const hasUnsavedChanges =
+    !!selectedTemplate &&
+    !isEqual(editableLayers, selectedTemplate.layers || []);
 
   const { isPending, mutateAsync: editTemplate } = useEditTemplate();
 
@@ -308,16 +313,16 @@ export function Parametrization() {
               setSelectedLayerIds={setSelectedLayerIds}
               onEditScript={setActiveScriptEdit}
               disabled={disabledTemplates || !selectedTemplate}
+              unsavedChanges={hasUnsavedChanges}
             />
           </div>
-          <div className="float-right flex gap-2">
-            <Button
-              loading={isPending}
-              disabled={loading || isEmpty(templates) || !selectedTemplate}
-            >
-              Save changes
-            </Button>
-          </div>
+          <Button
+            loading={isPending}
+            disabled={loading || isEmpty(templates) || !selectedTemplate}
+            className="float-right"
+          >
+            Save changes
+          </Button>
         </>
       )}
       <ScriptDialogs

@@ -22,9 +22,9 @@ import {
 } from 'lucide-react';
 import type React from 'react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Badge } from '../common/Badge';
 import { Tooltip } from '../common/Tooltip';
 import { Label } from '../typography';
+import { ScriptBadge } from './ScriptBadge';
 import { ScriptsDialog } from './ScriptsDialog';
 import { getDefaultScript } from './utils';
 
@@ -96,6 +96,7 @@ export function ParametrizedLayers({
   setSelectedLayerIds,
   onEditScript,
   disabled,
+  unsavedChanges,
 }: {
   editableLayers: Layer[];
   setEditableLayers: React.Dispatch<React.SetStateAction<Layer[]>>;
@@ -110,6 +111,7 @@ export function ParametrizedLayers({
     isBulk: boolean;
   }) => void;
   disabled?: boolean;
+  unsavedChanges?: boolean;
 }) {
   const [scriptsDialogLayerId, setScriptsDialogLayerId] = useState<string>('');
 
@@ -118,6 +120,28 @@ export function ParametrizedLayers({
       onEditScript({ layerInternalId, script, isNew: false, isBulk: false });
     },
     [onEditScript],
+  );
+
+  const handleScriptReorder = useCallback(
+    (
+      layerInternalId: string,
+      scriptType: ScriptType,
+      direction: 'left' | 'right',
+    ) => {
+      setEditableLayers((prev) =>
+        prev.map((layer) => {
+          if (layer.internalId !== layerInternalId) return layer;
+          const scripts = [...(layer.scripting?.scripts || [])];
+          const idx = scripts.findIndex((s) => s.scriptType === scriptType);
+          if (idx === -1) return layer;
+          const newIdx = direction === 'left' ? idx - 1 : idx + 1;
+          if (newIdx < 0 || newIdx >= scripts.length) return layer;
+          [scripts[idx], scripts[newIdx]] = [scripts[newIdx], scripts[idx]];
+          return { ...layer, scripting: { ...layer.scripting, scripts } };
+        }),
+      );
+    },
+    [setEditableLayers],
   );
 
   const handleScriptRemove = useCallback(
@@ -204,7 +228,17 @@ export function ParametrizedLayers({
   return (
     <>
       <div className={classNames('col-span-full', disabled && 'opacity-50')}>
-        <Label label="Parametrized layers" />
+        <div className="flex items-center gap-2">
+          <Label label="Parametrized layers" />
+          {unsavedChanges && (
+            <div className="flex items-center gap-1">
+              <div className="text-yellow-400 bg-yellow-400/10 flex-none rounded-full p-1">
+                <div className="size-1 rounded-full bg-current" />
+              </div>
+              <span className="text-xs text-yellow-400">Unsaved changes</span>
+            </div>
+          )}
+        </div>
         <ul className="divide-y divide-white/10 overflow-auto w-full rounded-md border border-white/5 bg-secondary max-h-64">
           <li className="grid grid-cols-[auto_1fr_1fr] w-full text-xs divide-x divide-white/10 divide-dashed sticky top-0 bg-secondary z-10 border-b border-white/10 -mb-px items-center">
             <SelectAllCheckbox
@@ -285,10 +319,11 @@ export function ParametrizedLayers({
                   <PlusIcon className="size-3" />
                 </button>
                 <div className="flex flex-wrap text-xs gap-1 pr-4">
-                  {layer.scripting?.scripts.map((script) => {
+                  {layer.scripting?.scripts.map((script, scriptIndex) => {
                     const isKnown = KNOWN_SCRIPT_TYPES.has(script.scriptType);
+                    const total = layer.scripting?.scripts.length ?? 1;
                     const badge = (
-                      <Badge
+                      <ScriptBadge
                         label={scriptName(script.scriptType)}
                         action={
                           isKnown &&
@@ -307,6 +342,21 @@ export function ParametrizedLayers({
                           )
                         }
                         disabled={!isKnown}
+                        position={{ index: scriptIndex, total }}
+                        onMoveLeft={() =>
+                          handleScriptReorder(
+                            layer.internalId,
+                            script.scriptType,
+                            'left',
+                          )
+                        }
+                        onMoveRight={() =>
+                          handleScriptReorder(
+                            layer.internalId,
+                            script.scriptType,
+                            'right',
+                          )
+                        }
                       />
                     );
                     return (
