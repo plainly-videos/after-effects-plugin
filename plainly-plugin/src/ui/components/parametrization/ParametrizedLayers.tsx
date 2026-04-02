@@ -1,3 +1,17 @@
+import {
+  closestCenter,
+  DndContext,
+  type DragEndEvent,
+  MouseSensor,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core';
+import {
+  SortableContext,
+  useSortable,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import { AeScriptsApi } from '@src/node/bridge';
 import {
   type EditableScript,
@@ -14,6 +28,7 @@ import {
   EditIcon,
   FolderIcon,
   ImageIcon,
+  InfoIcon,
   PlusIcon,
   SparklesIcon,
   SwatchBookIcon,
@@ -26,7 +41,7 @@ import { Tooltip } from '../common/Tooltip';
 import { Label } from '../typography';
 import { ScriptBadge } from './ScriptBadge';
 import { ScriptsDialog } from './ScriptsDialog';
-import { getDefaultScript } from './utils';
+import { getDefaultScript, reorderScripts } from './utils';
 
 const KNOWN_SCRIPT_TYPES = new Set<string>(Object.values(ScriptType));
 
@@ -87,6 +102,63 @@ const EDITABLE_SCRIPT_TYPES = new Set([
   ScriptType.LAYER_MANAGEMENT,
 ]);
 
+function SortableScriptItem({
+  script,
+  index,
+  isKnown,
+  onBadgeClick,
+  onRemove,
+}: {
+  script: { scriptType: ScriptType };
+  index: number;
+  isKnown: boolean;
+  onBadgeClick?: () => void;
+  onRemove: () => void;
+}) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: script.scriptType });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  const badge = (
+    <ScriptBadge
+      label={scriptName(script.scriptType)}
+      action={
+        isKnown && EDITABLE_SCRIPT_TYPES.has(script.scriptType)
+          ? onBadgeClick
+          : undefined
+      }
+      onRemove={onRemove}
+      disabled={!isKnown}
+      index={index}
+      dragListeners={listeners}
+      dragAttributes={attributes}
+    />
+  );
+
+  return (
+    <div ref={setNodeRef} style={style}>
+      {isKnown ? (
+        badge
+      ) : (
+        <Tooltip text="Not supported yet, edit via web interface">
+          {badge}
+        </Tooltip>
+      )}
+    </div>
+  );
+}
+
 export function ParametrizedLayers({
   editableLayers,
   setEditableLayers,
@@ -122,26 +194,24 @@ export function ParametrizedLayers({
     [onEditScript],
   );
 
-  const handleScriptReorder = useCallback(
-    (
-      layerInternalId: string,
-      scriptType: ScriptType,
-      direction: 'left' | 'right',
-    ) => {
+  const handleDragEnd = useCallback(
+    (layerInternalId: string, event: DragEndEvent) => {
+      const { active, over } = event;
+      if (!over) return;
       setEditableLayers((prev) =>
-        prev.map((layer) => {
-          if (layer.internalId !== layerInternalId) return layer;
-          const scripts = [...(layer.scripting?.scripts || [])];
-          const idx = scripts.findIndex((s) => s.scriptType === scriptType);
-          if (idx === -1) return layer;
-          const newIdx = direction === 'left' ? idx - 1 : idx + 1;
-          if (newIdx < 0 || newIdx >= scripts.length) return layer;
-          [scripts[idx], scripts[newIdx]] = [scripts[newIdx], scripts[idx]];
-          return { ...layer, scripting: { ...layer.scripting, scripts } };
-        }),
+        reorderScripts(
+          prev,
+          layerInternalId,
+          String(active.id),
+          String(over.id),
+        ),
       );
     },
     [setEditableLayers],
+  );
+
+  const sensors = useSensors(
+    useSensor(MouseSensor, { activationConstraint: { distance: 5 } }),
   );
 
   const handleScriptRemove = useCallback(
@@ -248,7 +318,12 @@ export function ParametrizedLayers({
               disabled={disabled}
             />
             <Label label="Parameter" className="py-1 px-3" />
-            <Label label="Scripts" className="py-1 px-3" />
+            <div className="py-1 px-3 flex items-center gap-1">
+              <Label label="Scripts" />
+              <Tooltip text="Script order is important">
+                <InfoIcon className="size-4 text-gray-400" />
+              </Tooltip>
+            </div>
           </li>
           {isEmpty(layers) && (
             <li>
@@ -318,60 +393,50 @@ export function ParametrizedLayers({
                 >
                   <PlusIcon className="size-3" />
                 </button>
-                <div className="flex flex-wrap text-xs gap-1 pr-4">
-                  {layer.scripting?.scripts.map((script, scriptIndex) => {
-                    const isKnown = KNOWN_SCRIPT_TYPES.has(script.scriptType);
-                    const total = layer.scripting?.scripts.length ?? 1;
-                    const badge = (
-                      <ScriptBadge
-                        label={scriptName(script.scriptType)}
-                        action={
-                          isKnown &&
-                          EDITABLE_SCRIPT_TYPES.has(script.scriptType)
-                            ? () =>
-                                handleBadgeClick(
-                                  layer.internalId,
-                                  script as EditableScript,
-                                )
-                            : undefined
-                        }
-                        onRemove={() =>
-                          handleScriptRemove(
-                            layer.internalId,
-                            script.scriptType,
-                          )
-                        }
-                        disabled={!isKnown}
-                        position={{ index: scriptIndex, total }}
-                        onMoveLeft={() =>
-                          handleScriptReorder(
-                            layer.internalId,
-                            script.scriptType,
-                            'left',
-                          )
-                        }
-                        onMoveRight={() =>
-                          handleScriptReorder(
-                            layer.internalId,
-                            script.scriptType,
-                            'right',
-                          )
-                        }
-                      />
-                    );
-                    return (
-                      <div key={script.scriptType}>
-                        {isKnown ? (
-                          badge
-                        ) : (
-                          <Tooltip text="Not supported yet, edit via web interface">
-                            {badge}
-                          </Tooltip>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
+                <DndContext
+                  sensors={sensors}
+                  collisionDetection={closestCenter}
+                  onDragEnd={(event) => handleDragEnd(layer.internalId, event)}
+                >
+                  <SortableContext
+                    items={
+                      layer.scripting?.scripts.map((s) => s.scriptType) ?? []
+                    }
+                    strategy={verticalListSortingStrategy}
+                  >
+                    <div className="flex flex-col text-xs gap-1 pr-4">
+                      {layer.scripting?.scripts.map((script, scriptIndex) => {
+                        const isKnown = KNOWN_SCRIPT_TYPES.has(
+                          script.scriptType,
+                        );
+                        return (
+                          <SortableScriptItem
+                            key={script.scriptType}
+                            script={script}
+                            index={scriptIndex}
+                            isKnown={isKnown}
+                            onBadgeClick={
+                              isKnown &&
+                              EDITABLE_SCRIPT_TYPES.has(script.scriptType)
+                                ? () =>
+                                    handleBadgeClick(
+                                      layer.internalId,
+                                      script as EditableScript,
+                                    )
+                                : undefined
+                            }
+                            onRemove={() =>
+                              handleScriptRemove(
+                                layer.internalId,
+                                script.scriptType,
+                              )
+                            }
+                          />
+                        );
+                      })}
+                    </div>
+                  </SortableContext>
+                </DndContext>
               </div>
             </li>
           ))}

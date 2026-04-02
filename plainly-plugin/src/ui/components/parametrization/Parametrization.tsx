@@ -30,7 +30,13 @@ import {
   RotateCcwIcon,
 } from 'lucide-react';
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { Alert, Button, ExternalLink, InternalLink } from '../common';
+import {
+  Alert,
+  Button,
+  ConfirmationDialog,
+  ExternalLink,
+  InternalLink,
+} from '../common';
 import { GlobalContext } from '../context';
 import { Description, Label, PageHeading } from '../typography';
 import { FilterAndActions } from './FilterAndActions';
@@ -57,6 +63,19 @@ export function Parametrization() {
   );
   const [activeScriptEdit, setActiveScriptEdit] =
     useState<ScriptEditState<EditableScript>>(null);
+  const [showReloadConfirm, setShowReloadConfirm] = useState(false);
+
+  const handleReload = useCallback(async () => {
+    const result = await refetch();
+    const freshTemplate =
+      result.data?.templates?.find((t) => t.id === selectedTemplate?.id) ??
+      null;
+    setSelectedTemplate(freshTemplate);
+    setEditableLayers(freshTemplate?.layers || []);
+    setSelectedLayerIds(new Set());
+    setLayerType('All');
+    setParameterQuery('');
+  }, [refetch, selectedTemplate?.id]);
 
   useEffect(() => {
     setEditableLayers(selectedTemplate?.layers || []);
@@ -282,7 +301,11 @@ export function Parametrization() {
                 <div className="pl-2">
                   <Button
                     secondary
-                    onClick={() => refetch()}
+                    onClick={() =>
+                      hasUnsavedChanges
+                        ? setShowReloadConfirm(true)
+                        : handleReload()
+                    }
                     loading={loading}
                     disabled={loading}
                     type="button"
@@ -325,6 +348,14 @@ export function Parametrization() {
           </Button>
         </>
       )}
+      <ConfirmationDialog
+        open={showReloadConfirm}
+        setOpen={setShowReloadConfirm}
+        title="Reload templates?"
+        description="You have unsaved changes, are you sure you want to reload? All unsaved changes will be lost."
+        buttonText="Reload"
+        action={handleReload}
+      />
       <ScriptDialogs
         activeScriptEdit={activeScriptEdit}
         setActiveScriptEdit={setActiveScriptEdit}
