@@ -14,7 +14,14 @@ import { LoaderCircleIcon } from 'lucide-react';
 import { useCallback, useContext, useEffect, useState } from 'react';
 import { makeProjectZipTmpDir } from '../../../node';
 import { CanceledApiError } from '../../../node/errors';
-import { Alert, Button, InternalLink, Tooltip } from '../common';
+import {
+  Alert,
+  Button,
+  InternalLink,
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '../common';
 import { GlobalContext } from '../context';
 import { Description, Label, PageHeading } from '../typography';
 
@@ -303,18 +310,20 @@ export function UploadForm() {
 
       <div className="flex gap-2 float-right">
         {loading && (
-          <Tooltip
-            text={isPacking ? 'Cannot cancel during packing' : ''}
-            disabled={!isPacking}
-          >
-            <Button
-              type="button"
-              secondary
-              onClick={() => (isUploading ? cancelUpload() : cancelEdit())}
-              disabled={isPacking}
-            >
-              Cancel
-            </Button>
+          <Tooltip disabled={!isPacking}>
+            <TooltipTrigger
+              render={
+                <Button
+                  type="button"
+                  secondary
+                  onClick={() => (isUploading ? cancelUpload() : cancelEdit())}
+                  disabled={isPacking}
+                >
+                  Cancel
+                </Button>
+              }
+            />
+            <TooltipContent>Cannot cancel during packing</TooltipContent>
           </Tooltip>
         )}
         <Button loading={loading} disabled={disabled || loading}>

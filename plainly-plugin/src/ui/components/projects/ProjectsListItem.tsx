@@ -4,7 +4,12 @@ import { format } from 'date-fns';
 import { ExternalLinkIcon, LinkIcon, VideoIcon } from 'lucide-react';
 import type { ProjectData } from 'plainly-types';
 import { useCallback, useState } from 'react';
-import { ConfirmationDialog, Tooltip } from '../common';
+import {
+  ConfirmationDialog,
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '../common';
 import { Label } from '../typography';
 import { ProjectAction } from '.';
 
@@ -74,15 +79,20 @@ export function ProjectsListItem({
       <li className="p-2 text-xs min-w-fit w-full">
         <div className="flex items-center justify-between w-full">
           <div className="flex items-center">
-            <Tooltip text={statusText}>
-              <div
-                className={classNames(
-                  statuses[status],
-                  'flex-none rounded-full p-1',
-                )}
-              >
-                <div className="size-1 rounded-full bg-current" />
-              </div>
+            <Tooltip>
+              <TooltipTrigger
+                render={
+                  <div
+                    className={classNames(
+                      statuses[status],
+                      'flex-none rounded-full p-1',
+                    )}
+                  >
+                    <div className="size-1 rounded-full bg-current" />
+                  </div>
+                }
+              />
+              <TooltipContent>{statusText}</TooltipContent>
             </Tooltip>
             <Label
               label={project.name}
@@ -93,14 +103,23 @@ export function ProjectsListItem({
             </p>
           </div>
           <div className="flex items-center gap-2 ml-2">
-            <Tooltip text="Link project">
-              <ProjectAction icon={LinkIcon} action={link} />
+            <Tooltip>
+              <TooltipTrigger>
+                <ProjectAction icon={LinkIcon} action={link} />
+              </TooltipTrigger>
+              <TooltipContent>Link project</TooltipContent>
             </Tooltip>
-            <Tooltip text="Renders">
-              <ProjectAction icon={VideoIcon} action={openRenders} />
+            <Tooltip>
+              <TooltipTrigger>
+                <ProjectAction icon={VideoIcon} action={openRenders} />
+              </TooltipTrigger>
+              <TooltipContent>Renders</TooltipContent>
             </Tooltip>
-            <Tooltip text="Open in web">
-              <ProjectAction icon={ExternalLinkIcon} action={open} />
+            <Tooltip>
+              <TooltipTrigger>
+                <ProjectAction icon={ExternalLinkIcon} action={open} />
+              </TooltipTrigger>
+              <TooltipContent>Open in web</TooltipContent>
             </Tooltip>
           </div>
         </div>

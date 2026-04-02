@@ -16,7 +16,12 @@ import {
   XCircleIcon,
 } from 'lucide-react';
 import { useCallback, useContext, useState } from 'react';
-import { ConfirmationDialog, Tooltip } from '../common';
+import {
+  ConfirmationDialog,
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '../common';
 import { Label } from '../typography';
 import { ProjectAction } from '.';
 
@@ -92,21 +97,33 @@ export function LinkedProject({
               className="font-semibold whitespace-nowrap truncate"
             />
             <div className="flex items-center gap-2">
-              <Tooltip text="Unlink project">
-                <ProjectAction icon={LinkIcon} action={unlink} linked />
+              <Tooltip>
+                <TooltipTrigger>
+                  <ProjectAction icon={LinkIcon} action={unlink} linked />
+                </TooltipTrigger>
+                <TooltipContent>Unlink project</TooltipContent>
               </Tooltip>
-              <Tooltip text="Renders">
-                <ProjectAction icon={VideoIcon} action={openRenders} linked />
+              <Tooltip>
+                <TooltipTrigger>
+                  <ProjectAction icon={VideoIcon} action={openRenders} linked />
+                </TooltipTrigger>
+                <TooltipContent>Renders</TooltipContent>
               </Tooltip>
-              <Tooltip text="Open in web">
-                <ProjectAction icon={ExternalLinkIcon} action={open} linked />
+              <Tooltip>
+                <TooltipTrigger>
+                  <ProjectAction icon={ExternalLinkIcon} action={open} linked />
+                </TooltipTrigger>
+                <TooltipContent>Open in web</TooltipContent>
               </Tooltip>
-              <Tooltip text="Parametrization">
-                <ProjectAction
-                  icon={LayersPlusIcon}
-                  action={() => navigate(Routes.PARAMETRIZATION)}
-                  linked
-                />
+              <Tooltip>
+                <TooltipTrigger>
+                  <ProjectAction
+                    icon={LayersPlusIcon}
+                    action={() => navigate(Routes.PARAMETRIZATION)}
+                    linked
+                  />
+                </TooltipTrigger>
+                <TooltipContent>Parametrization</TooltipContent>
               </Tooltip>
             </div>
           </div>
@@ -116,8 +133,11 @@ export function LinkedProject({
                 {getStatus(analysisDone, analysisFailed)}
               </div>
               <div className="flex items-center gap-1">
-                <Tooltip text="Sync status">
-                  <FolderSync className="size-3" />
+                <Tooltip>
+                  <TooltipTrigger>
+                    <FolderSync className="size-3" />
+                  </TooltipTrigger>
+                  <TooltipContent>Sync status</TooltipContent>
                 </Tooltip>
                 <p>Local v{plainlyProject?.revisionCount || 0}</p>
                 <svg
