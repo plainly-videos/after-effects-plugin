@@ -51,7 +51,7 @@ export function FilterAndActions({
               name="parameter-search"
               type="text"
               className="col-start-1 row-start-1 block w-full rounded-md border-none bg-white/5 px-3 py-1 text-xs text-white outline outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500 disabled:cursor-not-allowed"
-              placeholder="Type parameter name..."
+              placeholder="Type parameter or layer name..."
               value={parameterQuery}
               onChange={(e) => setParameterQuery(e.target.value)}
               disabled={disabled}

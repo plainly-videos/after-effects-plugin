@@ -287,8 +287,10 @@ export function ParametrizedLayers({
     () =>
       editableLayers.filter(
         (layer) =>
-          (!layer.parametrization ||
-            layer.parametrization.value
+          (layer.layerName
+            .toLowerCase()
+            .includes(parameterQuery.toLowerCase()) ||
+            layer.parametrization?.value
               .toLowerCase()
               .includes(parameterQuery.toLowerCase())) &&
           (layerType === 'All' || layer.layerType === layerType),
