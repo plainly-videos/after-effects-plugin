@@ -17,7 +17,7 @@ export const FilesUnsupportedIssueView = ({
     <Issue
       issues={issues}
       label="AI/PSD layered import risk"
-      description="AI and PSD files are supported, but imports created as layered AI/PSD can break during plugin relinking. If your project uses those layered imports, package it manually."
+      description="AI and PSD files are supported in Plainly, but layered AI/PSD files may break when uploading via the plugin. If needed, package the project manually using Collect Files."
       externalLink="https://help.plainlyvideos.com/docs/troubleshooting/analysis-issues#unsupported-files-in-a-project"
       isOpen={isOpen}
       warning={warning}
