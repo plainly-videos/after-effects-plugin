@@ -11,7 +11,7 @@ export function AllCapsIssueView({
   onExpandClick: () => void;
 }) {
   const warning =
-    'Turn of ALL CAPS in text layers, and use uppercase letters manually instead. Read more about this issue in our documentation.';
+    'Turn off ALL CAPS in text layers. Read more about this issue in our documentation.';
 
   return (
     <Issue
