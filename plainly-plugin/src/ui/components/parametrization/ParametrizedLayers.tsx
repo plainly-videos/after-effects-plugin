@@ -287,9 +287,10 @@ export function ParametrizedLayers({
     () =>
       editableLayers.filter(
         (layer) =>
-          layer.parametrization?.value
-            .toLowerCase()
-            .includes(parameterQuery.toLowerCase()) &&
+          (!layer.parametrization ||
+            layer.parametrization.value
+              .toLowerCase()
+              .includes(parameterQuery.toLowerCase())) &&
           (layerType === 'All' || layer.layerType === layerType),
       ),
     [editableLayers, parameterQuery, layerType],
@@ -363,13 +364,6 @@ export function ParametrizedLayers({
                   <EditIcon className="size-3" />
                 </button>
                 <div className="flex flex-col text-xs pr-3 min-w-0 h-full justify-center">
-                  <button
-                    type="button"
-                    className="text-left underline truncate text-xs leading-4"
-                    onClick={() => AeScriptsApi.selectLayer(layer.internalId)}
-                  >
-                    {layer.layerName}
-                  </button>
                   <div className="flex items-center gap-1">
                     <LayerTypeIcon
                       layerType={layer.layerType}
@@ -379,10 +373,17 @@ export function ParametrizedLayers({
                           : undefined
                       }
                     />
-                    <code className="truncate text-gray-400 text-2xs">
-                      {layer.parametrization?.value}
-                    </code>
+                    <button
+                      type="button"
+                      className="text-left underline truncate text-xs leading-4"
+                      onClick={() => AeScriptsApi.selectLayer(layer.internalId)}
+                    >
+                      {layer.layerName}
+                    </button>
                   </div>
+                  <code className="truncate text-gray-400 text-2xs">
+                    {layer.parametrization?.value}
+                  </code>
                 </div>
               </div>
               <div className="min-w-0 px-3 py-1 relative min-h-full">
