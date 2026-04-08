@@ -19,13 +19,11 @@ import {
   type LayerType,
   type MediaType,
   ScriptType,
-  type TextAutoScaleScript,
 } from '@src/ui/types/template';
 import { isEmpty } from '@src/ui/utils';
 import classNames from 'classnames';
 import {
   AudioLinesIcon,
-  EditIcon,
   FolderIcon,
   ImageIcon,
   InfoIcon,
@@ -41,7 +39,11 @@ import { Tooltip } from '../common/Tooltip';
 import { Label } from '../typography';
 import { ScriptBadge } from './ScriptBadge';
 import { ScriptsDialog } from './ScriptsDialog';
-import { getDefaultScript, reorderScripts } from './utils';
+import {
+  addTextAutoScaleScript,
+  getDefaultScript,
+  reorderScripts,
+} from './utils';
 
 const KNOWN_SCRIPT_TYPES = new Set<string>(Object.values(ScriptType));
 
@@ -238,28 +240,10 @@ export function ParametrizedLayers({
     (type: ScriptType) => {
       if (!scriptsDialogLayerId) return;
       if (type === ScriptType.TEXT_AUTO_SCALE) {
-        const layer = editableLayers.find(
-          (l) => l.internalId === scriptsDialogLayerId,
-        );
-        if (!layer) return;
-        const existingScripts = layer.scripting?.scripts || [];
-        const hasAutoScaleText = existingScripts.some(
-          (s) => s.scriptType === ScriptType.TEXT_AUTO_SCALE,
-        );
-        if (hasAutoScaleText) return;
-        const updatedScript: TextAutoScaleScript = {
-          scriptType: ScriptType.TEXT_AUTO_SCALE,
-        };
         setEditableLayers((prev) =>
           prev.map((l) => {
             if (l.internalId !== scriptsDialogLayerId) return l;
-            return {
-              ...l,
-              scripting: {
-                ...l.scripting,
-                scripts: [...(l.scripting?.scripts || []), updatedScript],
-              },
-            };
+            return addTextAutoScaleScript(l);
           }),
         );
         return;
@@ -273,7 +257,7 @@ export function ParametrizedLayers({
         isBulk: false,
       });
     },
-    [onEditScript, scriptsDialogLayerId, editableLayers, setEditableLayers],
+    [onEditScript, scriptsDialogLayerId, setEditableLayers],
   );
 
   const scriptsDialogLayerType = useMemo(
@@ -357,14 +341,14 @@ export function ParametrizedLayers({
               </div>
               <div className="min-w-0 px-3 py-1 relative flex items-start gap-2 h-full">
                 {/* TODO: Implement edit functionality for the parametrization */}
-                <button
+                {/* <button
                   onClick={() => {}}
                   className="absolute right-1 top-1 size-5 flex items-center justify-center cursor-pointer disabled:cursor-not-allowed group rounded-sm bg-primary hover:bg-secondary hover:text-gray-400 disabled:pointer-events-none disabled:opacity-50"
                   type="button"
                   disabled={true}
                 >
                   <EditIcon className="size-3" />
-                </button>
+                </button> */}
                 <div className="flex flex-col text-xs pr-3 min-w-0 h-full justify-center">
                   <div className="flex items-center gap-1">
                     <LayerTypeIcon

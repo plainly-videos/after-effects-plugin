@@ -31,7 +31,7 @@ export function AutoScaleMediaScriptDialog({
   const [posYInput, setPosYInput] = useState(position?.posY?.toString() ?? '');
 
   const sizeValid = size && size.sizeX !== 0 && size.sizeY !== 0;
-  const posNotZero = position && position.posX !== 0 && position.posY !== 0;
+  const posNotZero = position && (position.posX !== 0 || position.posY !== 0);
   const valid = fillState || fixedRatioState || sizeValid;
 
   const handleSave = () => {

@@ -10,6 +10,22 @@ import {
   type ShiftOutScript,
 } from '@src/ui/types/template';
 
+export function addTextAutoScaleScript(layer: Layer): Layer {
+  const existingScripts = layer.scripting?.scripts || [];
+  if (
+    existingScripts.some((s) => s.scriptType === ScriptType.TEXT_AUTO_SCALE)
+  ) {
+    return layer;
+  }
+  return {
+    ...layer,
+    scripting: {
+      ...layer.scripting,
+      scripts: [...existingScripts, { scriptType: ScriptType.TEXT_AUTO_SCALE }],
+    },
+  };
+}
+
 const scriptDefaults: Partial<Record<ScriptType, EditableScript>> = {
   [ScriptType.CROP]: {
     scriptType: ScriptType.CROP,
@@ -39,17 +55,32 @@ const scriptDefaults: Partial<Record<ScriptType, EditableScript>> = {
   },
 };
 
-export function getDefaultScript(scriptType: ScriptType.CROP): CropScript;
-export function getDefaultScript(scriptType: ScriptType.MEDIA_AUTO_SCALE): MediaAutoScaleScript;
-export function getDefaultScript(scriptType: ScriptType.SHIFT_IN): ShiftInScript;
-export function getDefaultScript(scriptType: ScriptType.SHIFT_OUT): ShiftOutScript;
-export function getDefaultScript(scriptType: ScriptType.LAYER_MANAGEMENT): LayerManagementScript;
-export function getDefaultScript(scriptType: ScriptType): EditableScript | undefined;
-export function getDefaultScript(scriptType: ScriptType): EditableScript | undefined {
+type DefaultScriptMap = {
+  [ScriptType.CROP]: CropScript;
+  [ScriptType.MEDIA_AUTO_SCALE]: MediaAutoScaleScript;
+  [ScriptType.SHIFT_IN]: ShiftInScript;
+  [ScriptType.SHIFT_OUT]: ShiftOutScript;
+  [ScriptType.LAYER_MANAGEMENT]: LayerManagementScript;
+};
+
+export function getDefaultScript<T extends keyof DefaultScriptMap>(
+  scriptType: T,
+): DefaultScriptMap[T];
+export function getDefaultScript(
+  scriptType: ScriptType,
+): EditableScript | undefined;
+export function getDefaultScript(
+  scriptType: ScriptType,
+): EditableScript | undefined {
   return scriptDefaults[scriptType];
 }
 
-export function reorderScripts(layers: Layer[], layerInternalId: string, activeId: string, overId: string): Layer[] {
+export function reorderScripts(
+  layers: Layer[],
+  layerInternalId: string,
+  activeId: string,
+  overId: string,
+): Layer[] {
   if (activeId === overId) return layers;
   return layers.map((layer) => {
     if (layer.internalId !== layerInternalId) return layer;

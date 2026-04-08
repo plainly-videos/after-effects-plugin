@@ -42,7 +42,7 @@ import { Description, Label, PageHeading } from '../typography';
 import { FilterAndActions } from './FilterAndActions';
 import { ParametrizedLayers } from './ParametrizedLayers';
 import { ScriptDialogs } from './ScriptDialogs';
-import { getDefaultScript } from './utils';
+import { addTextAutoScaleScript, getDefaultScript } from './utils';
 
 export function Parametrization() {
   const { plainlyProject, contextReady } = useContext(GlobalContext) || {};
@@ -90,23 +90,7 @@ export function Parametrization() {
           prev.map((layer) => {
             if (!selectedLayerIds.has(layer.internalId)) return layer;
             if (layer.layerType !== 'DATA') return layer;
-            const existingScripts = layer.scripting?.scripts || [];
-            if (
-              existingScripts.some(
-                (s) => s.scriptType === ScriptType.TEXT_AUTO_SCALE,
-              )
-            )
-              return layer;
-            return {
-              ...layer,
-              scripting: {
-                ...layer.scripting,
-                scripts: [
-                  ...existingScripts,
-                  { scriptType: ScriptType.TEXT_AUTO_SCALE },
-                ],
-              },
-            };
+            return addTextAutoScaleScript(layer);
           }),
         );
         return;

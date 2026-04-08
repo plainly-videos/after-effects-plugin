@@ -90,6 +90,7 @@ export function ScriptDialogs({
     [activeScriptEdit, editableLayers],
   );
 
+  // Assumes the first composition when a layer belongs to multiple; the type allows plural but current data treats layers as comp-specific.
   const compId = activeLayer?.compositions[0]?.id;
   const currentLayerName = activeLayer?.layerName;
 
