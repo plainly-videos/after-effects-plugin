@@ -24,6 +24,7 @@ import { isEmpty } from '@src/ui/utils';
 import classNames from 'classnames';
 import {
   AudioLinesIcon,
+  EditIcon,
   FolderIcon,
   ImageIcon,
   InfoIcon,
@@ -34,9 +35,13 @@ import {
   VideoIcon,
 } from 'lucide-react';
 import type React from 'react';
-import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Tooltip, TooltipContent, TooltipTrigger } from '../common/Tooltip';
 import { Label } from '../typography';
+import {
+  ParameterDialog,
+  type ParameterDialogSaveValue,
+} from './ParameterDialog';
 import { ScriptBadge } from './ScriptBadge';
 import { ScriptsDialog } from './ScriptsDialog';
 import { getScriptLabel, SCRIPT_REGISTRY } from './scriptRegistry';
@@ -155,6 +160,8 @@ export function ParametrizedLayers({
   unsavedChanges?: boolean;
   renderingCompositionId?: number;
 }) {
+  const [paramDialogLayerId, setParamDialogLayerId] = useState<string>('');
+
   const handleBadgeClick = useCallback(
     (layerIndex: number, script: EditableScript) => {
       onEditScript({ layerIndex, script, isNew: false, isBulk: false });
@@ -232,6 +239,24 @@ export function ParametrizedLayers({
       renderingCompositionId,
       scriptsDialogLayer?.internalId,
     ],
+  );
+
+  const handleParameterSave = useCallback(
+    (value: ParameterDialogSaveValue) => {
+      if (!paramDialogLayerId) return;
+
+      setEditableLayers((prev) =>
+        prev.map((layer) => {
+          if (layer.internalId !== paramDialogLayerId) return layer;
+          return {
+            ...layer,
+            label: value.label,
+            parametrization: value.parametrization,
+          };
+        }),
+      );
+    },
+    [paramDialogLayerId, setEditableLayers],
   );
 
   const layers = useMemo(
@@ -312,15 +337,15 @@ export function ParametrizedLayers({
                 />
               </div>
               <div className="min-w-0 px-3 py-1 relative flex items-start gap-2 h-full">
-                {/* TODO: Implement edit functionality for the parametrization */}
-                {/* <button
-                  onClick={() => {}}
-                  className="absolute right-1 top-1 size-5 flex items-center justify-center cursor-pointer disabled:cursor-not-allowed group rounded-sm bg-primary hover:bg-secondary hover:text-gray-400 disabled:pointer-events-none disabled:opacity-50"
-                  type="button"
-                  disabled={true}
-                >
-                  <EditIcon className="size-3" />
-                </button> */}
+                {layer.layerType !== 'COMPOSITION' && (
+                  <button
+                    onClick={() => setParamDialogLayerId(layer.internalId)}
+                    className="absolute right-1 top-1 size-5 flex items-center justify-center cursor-pointer disabled:cursor-not-allowed group rounded-sm bg-primary hover:bg-secondary hover:text-gray-400 disabled:pointer-events-none disabled:opacity-50"
+                    type="button"
+                  >
+                    <EditIcon className="size-3" />
+                  </button>
+                )}
                 <div className="flex flex-col text-xs pr-3 min-w-0 h-full justify-center">
                   <div className="flex items-center gap-1">
                     <LayerTypeIcon
@@ -402,6 +427,13 @@ export function ParametrizedLayers({
         onSelect={handleScriptSelect}
         layerType={scriptsDialogLayer?.layerType}
         isRenderingComp={scriptsDialogIsRenderingComp}
+      />
+      <ParameterDialog
+        key={paramDialogLayerId || 'closed'}
+        open={paramDialogLayerId !== ''}
+        setOpen={(open) => !open && setParamDialogLayerId('')}
+        layer={editableLayers.find((l) => l.internalId === paramDialogLayerId)}
+        onSave={handleParameterSave}
       />
     </>
   );
