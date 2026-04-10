@@ -4,8 +4,7 @@ import { LayersIcon } from 'lucide-react';
 import { useState } from 'react';
 import { Description, Label } from '../typography';
 import { ScriptDialogShell } from './ScriptDialogShell';
-
-const PARAMETER_NAME_REGEX = /^[^.]+$/;
+import { SCRIPT_PARAMETER_NAME_REGEX } from './utils';
 
 export function LayerManagementScriptDialog({
   script,
@@ -20,7 +19,7 @@ export function LayerManagementScriptDialog({
 }) {
   const [parameterName, setParameterName] = useState(script.parameterName);
 
-  const isValid = PARAMETER_NAME_REGEX.test(parameterName);
+  const isValid = SCRIPT_PARAMETER_NAME_REGEX.test(parameterName);
 
   const handleSave = () => {
     action({

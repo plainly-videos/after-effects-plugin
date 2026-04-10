@@ -5,76 +5,11 @@ import {
   DialogTitle,
 } from '@headlessui/react';
 import { State, useGlobalState } from '@src/ui/state/store';
-import { type LayerType, ScriptType } from '@src/ui/types/template';
+import type { LayerType, ScriptType } from '@src/ui/types/template';
 import classNames from 'classnames';
-import {
-  ImageIcon,
-  LayersIcon,
-  LogInIcon,
-  LogOutIcon,
-  ScissorsIcon,
-  TypeIcon,
-} from 'lucide-react';
 import { Button } from '../common';
 import { Description } from '../typography';
-
-const SCRIPT_OPTIONS: {
-  type: ScriptType;
-  label: string;
-  description: string;
-  icon: React.ElementType;
-  enabled: boolean;
-  layerTypes?: LayerType[];
-}[] = [
-  {
-    type: ScriptType.CROP,
-    label: 'Crop',
-    description:
-      'Crops parent composition based on this layer variable duration.',
-    icon: ScissorsIcon,
-    enabled: true,
-  },
-  {
-    type: ScriptType.MEDIA_AUTO_SCALE,
-    label: 'Auto scale media',
-    description: 'Automatically scale media layer to the composition size.',
-    icon: ImageIcon,
-    enabled: true,
-    layerTypes: ['MEDIA'],
-  },
-  {
-    type: ScriptType.TEXT_AUTO_SCALE,
-    label: 'Auto scale text',
-    description: 'Automatically scale text layer to the original text size.',
-    icon: TypeIcon,
-    enabled: true,
-    layerTypes: ['DATA'],
-  },
-  {
-    type: ScriptType.SHIFT_IN,
-    label: 'Shift in',
-    description:
-      'Shifts the start of a layer based on the duration of another layer in the same composition.',
-    icon: LogInIcon,
-    enabled: true,
-  },
-  {
-    type: ScriptType.SHIFT_OUT,
-    label: 'Shift out',
-    description:
-      'Shifts the end of a layer based on the duration of another layer in the same composition.',
-    icon: LogOutIcon,
-    enabled: true,
-  },
-  {
-    type: ScriptType.LAYER_MANAGEMENT,
-    label: 'Layer management',
-    description:
-      'Manages layer visibility and order based on a parameter value.',
-    icon: LayersIcon,
-    enabled: true,
-  },
-];
+import { SCRIPT_REGISTRY } from './scriptRegistry';
 
 export function ScriptsDialog({
   open,
@@ -92,12 +27,15 @@ export function ScriptsDialog({
   const [settings] = useGlobalState(State.SETTINGS);
   const sidebarOpen = settings.sidebarOpen;
 
-  const visibleOptions = SCRIPT_OPTIONS.filter(
-    ({ type, layerTypes }) =>
-      (!layerTypes || !layerType || layerTypes.includes(layerType)) &&
-      (!bulk ||
-        (type !== ScriptType.SHIFT_IN && type !== ScriptType.SHIFT_OUT)),
-  );
+  const visibleOptions = (Object.keys(SCRIPT_REGISTRY) as ScriptType[])
+    .map((type) => ({ type, ...SCRIPT_REGISTRY[type] }))
+    .filter(({ isAddable, isBulkable, layerTypes }) => {
+      if (!isAddable) return false;
+      if (bulk && !isBulkable) return false;
+      if (layerTypes && layerType && !layerTypes.includes(layerType))
+        return false;
+      return true;
+    });
 
   return (
     <Dialog open={open} onClose={setOpen} className="relative">
@@ -120,16 +58,15 @@ export function ScriptsDialog({
             <Description>Select a script to add to this layer.</Description>
             <ul className="mt-4 flex flex-col gap-1">
               {visibleOptions.map(
-                ({ type, label, description, icon: Icon, enabled }) => (
+                ({ type, label, description, icon: Icon }) => (
                   <li key={type}>
                     <button
                       type="button"
-                      disabled={!enabled}
                       onClick={() => {
                         onSelect(type);
                         setOpen(false);
                       }}
-                      className="w-full flex items-start gap-3 rounded-md px-3 py-2 text-left hover:bg-white/5 disabled:opacity-40 disabled:cursor-not-allowed"
+                      className="w-full flex items-start gap-3 rounded-md px-3 py-2 text-left hover:bg-white/5"
                     >
                       <div className="size-8 bg-indigo-500 rounded-md flex shrink-0 items-center justify-center">
                         <Icon className="size-4 text-white" />

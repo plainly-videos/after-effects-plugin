@@ -70,12 +70,12 @@ function getFolderPath(folder: FolderItem): string {
 }
 
 /**
- * @function getLayerNamesByComp
+ * @function getCompLayerNames
  * @description Get all layer names in a given After Effects comp by ID
  * @param {string} compId - The ID of the comp
  * @returns {string} JSON array of layer names
  */
-function getLayerNamesByComp(compId: string): string {
+function getCompLayerNames(compId: string): string {
   const comp = app.project.itemByID(Number(compId));
   if (!comp || !(comp instanceof CompItem)) return JSON.stringify([]);
 
@@ -262,7 +262,7 @@ export {
   getFolderPath,
   getInstalledFontsByFamilyNameAndStyleName,
   getInstalledFontsByPostScriptName,
-  getLayerNamesByComp,
+  getCompLayerNames,
   getTextLayersByComp,
   isWin,
   pathJoin,

@@ -1,7 +1,6 @@
 import {
   type EditableScript,
   type Layer,
-  type LayerType,
   type ScriptEditState,
   ScriptType,
 } from '@src/ui/types/template';
@@ -11,13 +10,8 @@ import { AutoScaleMediaScriptDialog } from './AutoScaleMediaScriptDialog';
 import { CropScriptDialog } from './CropScriptDialog';
 import { LayerManagementScriptDialog } from './LayerManagementScriptDialog';
 import { ShiftScriptDialog } from './ShiftScriptDialog';
+import { SCRIPT_REGISTRY } from './scriptRegistry';
 import { getDefaultScript } from './utils';
-
-const SCRIPT_LAYER_TYPE_RESTRICTIONS: Partial<Record<ScriptType, LayerType[]>> =
-  {
-    [ScriptType.MEDIA_AUTO_SCALE]: ['MEDIA'],
-    [ScriptType.TEXT_AUTO_SCALE]: ['DATA'],
-  };
 
 export function ScriptDialogs({
   activeScriptEdit,
@@ -47,7 +41,7 @@ export function ScriptDialogs({
               : layer.internalId !== layerInternalId
           )
             return layer;
-          const allowedLayerTypes = SCRIPT_LAYER_TYPE_RESTRICTIONS[scriptType];
+          const allowedLayerTypes = SCRIPT_REGISTRY[scriptType]?.layerTypes;
           if (
             isBulk &&
             allowedLayerTypes &&

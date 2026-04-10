@@ -53,7 +53,7 @@ export function ShiftScriptDialog({
 
     const fetchLayerNames = async () => {
       try {
-        const names = await AeScriptsApi.getLayerNamesByComp(compId);
+        const names = await AeScriptsApi.getCompLayerNames(compId);
         setLayerNames(names.filter((n) => n !== currentLayerName));
       } catch (error) {
         console.error('Failed to fetch layer names:', error);

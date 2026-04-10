@@ -197,9 +197,9 @@ class AeScriptsApiClass {
    * @param compId - The ID of the composition
    * @returns An array of layer names
    */
-  async getLayerNamesByComp(compId: number): Promise<string[]> {
+  async getCompLayerNames(compId: number): Promise<string[]> {
     const result = await evalScriptAsync(
-      `getLayerNamesByComp(${JSON.stringify(compId)})`,
+      `getCompLayerNames(${JSON.stringify(compId)})`,
     );
     if (!result) return [];
     try {

@@ -9,6 +9,9 @@ import {
   type ShiftInScript,
   type ShiftOutScript,
 } from '@src/ui/types/template';
+import { SCRIPT_REGISTRY } from './scriptRegistry';
+
+export const SCRIPT_PARAMETER_NAME_REGEX = /^[^.]+$/;
 
 export function addTextAutoScaleScript(layer: Layer): Layer {
   const existingScripts = layer.scripting?.scripts || [];
@@ -25,35 +28,6 @@ export function addTextAutoScaleScript(layer: Layer): Layer {
     },
   };
 }
-
-const scriptDefaults: Partial<Record<ScriptType, EditableScript>> = {
-  [ScriptType.CROP]: {
-    scriptType: ScriptType.CROP,
-    compEndsAtOutPoint: false,
-    compStartsAtInPoint: false,
-  },
-  [ScriptType.MEDIA_AUTO_SCALE]: {
-    scriptType: ScriptType.MEDIA_AUTO_SCALE,
-    fill: true,
-    fixedRatio: true,
-  },
-  [ScriptType.SHIFT_IN]: {
-    scriptType: ScriptType.SHIFT_IN,
-    shiftTarget: '',
-    shiftsTo: 'in-point',
-    shiftOverlap: 0,
-  },
-  [ScriptType.SHIFT_OUT]: {
-    scriptType: ScriptType.SHIFT_OUT,
-    shiftTarget: '',
-    shiftsTo: 'in-point',
-    shiftOverlap: 0,
-  },
-  [ScriptType.LAYER_MANAGEMENT]: {
-    scriptType: ScriptType.LAYER_MANAGEMENT,
-    parameterName: '',
-  },
-};
 
 type DefaultScriptMap = {
   [ScriptType.CROP]: CropScript;
@@ -72,7 +46,7 @@ export function getDefaultScript(
 export function getDefaultScript(
   scriptType: ScriptType,
 ): EditableScript | undefined {
-  return scriptDefaults[scriptType];
+  return SCRIPT_REGISTRY[scriptType]?.defaults;
 }
 
 export function reorderScripts(

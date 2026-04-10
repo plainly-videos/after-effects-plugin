@@ -39,40 +39,12 @@ import { Tooltip } from '../common/Tooltip';
 import { Label } from '../typography';
 import { ScriptBadge } from './ScriptBadge';
 import { ScriptsDialog } from './ScriptsDialog';
+import { getScriptLabel, SCRIPT_REGISTRY } from './scriptRegistry';
 import {
   addTextAutoScaleScript,
   getDefaultScript,
   reorderScripts,
 } from './utils';
-
-const KNOWN_SCRIPT_TYPES = new Set<string>(Object.values(ScriptType));
-
-const SCRIPT_NAMES: Record<string, string> = {
-  CROP: 'Crop',
-  EXTEND: 'Extend',
-  SET_DURATION: 'Set duration',
-  SHIFT_IN: 'Shift in',
-  SHIFT_OUT: 'Shift out',
-  SPREAD_LAYERS: 'Spread layers',
-  STRETCH: 'Stretch',
-  TRIM_IN: 'Trim in',
-  TRIM_OUT: 'Trim out',
-  MEDIA_AUTO_SCALE: 'Auto scale media',
-  TEXT_AUTO_SCALE: 'Auto scale text',
-  IMAGE_SEQUENCE_LOADER: 'Image sequence loader',
-  LAYER_MANAGEMENT: 'Layer management',
-  SCENE_MANAGEMENT: 'Scene management',
-  COMPOSITION_SET_SIZE: 'Composition set size',
-  COMPOSITION_REPLACE_SOURCE: 'Composition replace source',
-};
-
-const scriptName = (type: ScriptType) => {
-  const raw = type as unknown as string;
-  return (
-    SCRIPT_NAMES[raw] ??
-    raw.charAt(0).toUpperCase() + raw.slice(1).toLowerCase().replace(/_/g, ' ')
-  );
-};
 
 function LayerTypeIcon({
   layerType,
@@ -94,15 +66,6 @@ function LayerTypeIcon({
   }
   return null;
 }
-
-const EDITABLE_SCRIPT_TYPES = new Set([
-  ScriptType.CROP,
-  // ScriptType.TEXT_AUTO_SCALE, text auto scale is editable but doesn't open the dialog, so we handle it separately
-  ScriptType.MEDIA_AUTO_SCALE,
-  ScriptType.SHIFT_IN,
-  ScriptType.SHIFT_OUT,
-  ScriptType.LAYER_MANAGEMENT,
-]);
 
 function SortableScriptItem({
   script,
@@ -134,9 +97,9 @@ function SortableScriptItem({
 
   const badge = (
     <ScriptBadge
-      label={scriptName(script.scriptType)}
+      label={getScriptLabel(script.scriptType)}
       action={
-        isKnown && EDITABLE_SCRIPT_TYPES.has(script.scriptType)
+        isKnown && SCRIPT_REGISTRY[script.scriptType]?.isEditable
           ? onBadgeClick
           : undefined
       }
@@ -393,9 +356,7 @@ export function ParametrizedLayers({
                   >
                     <div className="flex flex-col text-xs gap-1 pr-4">
                       {layer.scripting?.scripts.map((script, scriptIndex) => {
-                        const isKnown = KNOWN_SCRIPT_TYPES.has(
-                          script.scriptType,
-                        );
+                        const isKnown = script.scriptType in SCRIPT_REGISTRY;
                         return (
                           <SortableScriptItem
                             key={script.scriptType}
@@ -404,7 +365,7 @@ export function ParametrizedLayers({
                             isKnown={isKnown}
                             onBadgeClick={
                               isKnown &&
-                              EDITABLE_SCRIPT_TYPES.has(script.scriptType)
+                              SCRIPT_REGISTRY[script.scriptType]?.isEditable
                                 ? () =>
                                     handleBadgeClick(
                                       layer.internalId,

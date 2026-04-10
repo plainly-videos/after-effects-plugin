@@ -139,7 +139,7 @@ export function Parametrization() {
         return layer;
       });
 
-      await editTemplate({
+      const savedProject = await editTemplate({
         projectId: plainlyProject.id,
         templateId: selectedTemplate.id,
         data: {
@@ -149,6 +149,10 @@ export function Parametrization() {
           renderingCompositionId: selectedTemplate.renderingCompositionId,
         },
       });
+      const savedTemplate =
+        savedProject.templates?.find((t) => t.id === selectedTemplate.id) ??
+        null;
+      setSelectedTemplate(savedTemplate);
       notifySuccess('Template changes saved successfully');
     } catch (error) {
       notifyError('Failed to save template changes', error);
