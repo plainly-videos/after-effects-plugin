@@ -52,6 +52,9 @@ export function getDefaultScript(
 export function withUiIds(layers: Layer[]): Layer[] {
   return layers.map((layer, i) => ({
     ...layer,
+    // Unconditionally overwrite any pre-existing _uiId (e.g. if the server
+    // ever echoes back unknown fields). Index-based assignment here is the
+    // single source of truth for this UI-only identifier.
     _uiId: `${layer.internalId}_${i}`,
   }));
 }

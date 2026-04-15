@@ -2,7 +2,7 @@ export interface Template {
   id: string;
   name: string;
   renderingComposition: string;
-  renderingCompositionId: string;
+  renderingCompositionId: number;
   layers: Layer[];
 }
 
@@ -100,6 +100,15 @@ export type EditableScript =
   | ShiftOutScript
   | LayerManagementScript;
 
+// Distributive omit: applies Omit to each member of a union individually,
+// preserving the discriminated union structure.
+type DistributiveOmit<T, K extends PropertyKey> = T extends unknown
+  ? Omit<T, K>
+  : never;
+
+// Layer with _uiId stripped — the shape that is safe to send to the server.
+export type ServerLayer = DistributiveOmit<Layer, '_uiId'>;
+
 export type ScriptEditState<S extends Script> = {
   layerUiId: string;
   script: S;
@@ -107,4 +116,6 @@ export type ScriptEditState<S extends Script> = {
   isBulk: boolean;
 } | null;
 
-export type TemplatePut = Omit<Template, 'id'>;
+export type TemplatePut = Omit<Template, 'id' | 'layers'> & {
+  layers: ServerLayer[];
+};

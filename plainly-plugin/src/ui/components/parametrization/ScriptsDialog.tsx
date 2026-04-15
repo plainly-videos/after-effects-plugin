@@ -17,23 +17,26 @@ export function ScriptsDialog({
   onSelect,
   layerType,
   bulk,
+  isRenderingComp,
 }: {
   open: boolean;
   setOpen: (open: boolean) => void;
   onSelect: (type: ScriptType) => void;
   layerType?: LayerType;
   bulk?: boolean;
+  isRenderingComp?: boolean;
 }) {
   const [settings] = useGlobalState(State.SETTINGS);
   const sidebarOpen = settings.sidebarOpen;
 
   const visibleOptions = (Object.keys(SCRIPT_REGISTRY) as ScriptType[])
     .map((type) => ({ type, ...SCRIPT_REGISTRY[type] }))
-    .filter(({ isAddable, isBulkable, layerTypes }) => {
+    .filter(({ isAddable, isBulkable, layerTypes, supportsRoot }) => {
       if (!isAddable) return false;
       if (bulk && !isBulkable) return false;
       if (layerTypes && layerType && !layerTypes.includes(layerType))
         return false;
+      if (supportsRoot === false && isRenderingComp) return false;
       return true;
     });
 

@@ -44,7 +44,7 @@ export function ShiftScriptDialog({
 
   const [target, setTarget] = useState(shiftTarget);
   const [to, setTo] = useState(shiftsTo);
-  const [overlap, setOverlap] = useState(shiftOverlap);
+  const [overlap, setOverlap] = useState(shiftOverlap.toString());
   const [query, setQuery] = useState('');
   const [layerNames, setLayerNames] = useState<string[]>([]);
 
@@ -81,7 +81,7 @@ export function ShiftScriptDialog({
       scriptType: script.scriptType,
       shiftTarget: target,
       shiftsTo: to,
-      shiftOverlap: overlap,
+      shiftOverlap: Number(overlap) || 0,
     } as ShiftScript);
     setOpen(false);
   };
@@ -223,7 +223,7 @@ export function ShiftScriptDialog({
           id={`${idPrefix}-overlap`}
           type="number"
           value={overlap}
-          onChange={(e) => setOverlap(Number(e.target.value))}
+          onChange={(e) => setOverlap(e.target.value)}
           className="w-full rounded-md border-none bg-white/5 py-1 px-3 text-xs text-white outline outline-1 -outline-offset-1 outline-white/10 focus:outline focus:-outline-offset-2 focus:outline-indigo-500"
         />
       </div>

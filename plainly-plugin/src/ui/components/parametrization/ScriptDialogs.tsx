@@ -19,6 +19,7 @@ export function ScriptDialogs({
   selectedLayerIds,
   setEditableLayers,
   editableLayers,
+  renderingCompositionId,
 }: {
   activeScriptEdit: ScriptEditState<EditableScript>;
   setActiveScriptEdit: React.Dispatch<
@@ -27,6 +28,7 @@ export function ScriptDialogs({
   selectedLayerIds: Set<string>;
   setEditableLayers: React.Dispatch<React.SetStateAction<Layer[]>>;
   editableLayers: Layer[];
+  renderingCompositionId?: number;
 }) {
   const handleScriptSave = useCallback(
     (updatedScript: EditableScript) => {
@@ -41,13 +43,24 @@ export function ScriptDialogs({
               : (layer._uiId ?? layer.internalId) !== layerInternalId
           )
             return layer;
-          const allowedLayerTypes = SCRIPT_REGISTRY[scriptType]?.layerTypes;
+          const registryEntry = SCRIPT_REGISTRY[scriptType];
+          const allowedLayerTypes = registryEntry?.layerTypes;
           if (
             isBulk &&
             allowedLayerTypes &&
             !allowedLayerTypes.includes(layer.layerType)
-          )
+          ) {
             return layer;
+          }
+          if (
+            isBulk &&
+            registryEntry?.supportsRoot === false &&
+            layer.layerType === 'COMPOSITION' &&
+            renderingCompositionId !== undefined &&
+            Number(layer.internalId) === renderingCompositionId
+          ) {
+            return layer;
+          }
           const existingScripts = layer.scripting?.scripts || [];
           const hasScript = existingScripts.some(
             (s) => s.scriptType === scriptType,
@@ -66,7 +79,12 @@ export function ScriptDialogs({
         }),
       );
     },
-    [activeScriptEdit, selectedLayerIds, setEditableLayers],
+    [
+      activeScriptEdit,
+      renderingCompositionId,
+      selectedLayerIds.has,
+      setEditableLayers,
+    ],
   );
 
   const close = useCallback(
@@ -76,7 +94,7 @@ export function ScriptDialogs({
 
   const activeLayer = useMemo(
     () =>
-      activeScriptEdit
+      activeScriptEdit && !activeScriptEdit.isBulk
         ? editableLayers.find(
             (l) => (l._uiId ?? l.internalId) === activeScriptEdit.layerUiId,
           )

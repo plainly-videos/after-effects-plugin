@@ -34,7 +34,7 @@ import {
   VideoIcon,
 } from 'lucide-react';
 import type React from 'react';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { Tooltip } from '../common/Tooltip';
 import { Label } from '../typography';
 import { ScriptBadge } from './ScriptBadge';
@@ -132,8 +132,11 @@ export function ParametrizedLayers({
   selectedLayerIds,
   setSelectedLayerIds,
   onEditScript,
+  scriptsDialogLayerId,
+  setScriptsDialogLayerId,
   disabled,
   unsavedChanges,
+  renderingCompositionId,
 }: {
   editableLayers: Layer[];
   setEditableLayers: React.Dispatch<React.SetStateAction<Layer[]>>;
@@ -147,11 +150,12 @@ export function ParametrizedLayers({
     isNew: boolean;
     isBulk: boolean;
   }) => void;
+  scriptsDialogLayerId: string;
+  setScriptsDialogLayerId: React.Dispatch<React.SetStateAction<string>>;
   disabled?: boolean;
   unsavedChanges?: boolean;
+  renderingCompositionId?: number;
 }) {
-  const [scriptsDialogLayerId, setScriptsDialogLayerId] = useState<string>('');
-
   const handleBadgeClick = useCallback(
     (layerUiId: string, script: EditableScript) => {
       onEditScript({ layerUiId, script, isNew: false, isBulk: false });
@@ -218,12 +222,23 @@ export function ParametrizedLayers({
     [onEditScript, scriptsDialogLayerId, setEditableLayers],
   );
 
-  const scriptsDialogLayerType = useMemo(
+  const scriptsDialogLayer = useMemo(
     () =>
       editableLayers.find(
         (l) => (l._uiId ?? l.internalId) === scriptsDialogLayerId,
-      )?.layerType,
+      ),
     [editableLayers, scriptsDialogLayerId],
+  );
+
+  const scriptsDialogIsRenderingComp = useMemo(
+    () =>
+      scriptsDialogLayer?.layerType === 'COMPOSITION' &&
+      Number(scriptsDialogLayer.internalId) === renderingCompositionId,
+    [
+      scriptsDialogLayer?.layerType,
+      renderingCompositionId,
+      scriptsDialogLayer?.internalId,
+    ],
   );
 
   const layers = useMemo(
@@ -398,7 +413,8 @@ export function ParametrizedLayers({
         open={scriptsDialogLayerId !== ''}
         setOpen={(open) => !open && setScriptsDialogLayerId('')}
         onSelect={handleScriptSelect}
-        layerType={scriptsDialogLayerType}
+        layerType={scriptsDialogLayer?.layerType}
+        isRenderingComp={scriptsDialogIsRenderingComp}
       />
     </>
   );

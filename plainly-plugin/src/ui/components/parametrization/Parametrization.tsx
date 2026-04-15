@@ -17,6 +17,7 @@ import type {
   Layer,
   LayerType,
   ScriptEditState,
+  ServerLayer,
   Template,
 } from '@src/ui/types/template';
 import { ScriptType } from '@src/ui/types/template';
@@ -29,7 +30,14 @@ import {
   LoaderCircleIcon,
   RotateCcwIcon,
 } from 'lucide-react';
-import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import {
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import {
   Alert,
   Button,
@@ -66,6 +74,10 @@ export function Parametrization() {
   const [activeScriptEdit, setActiveScriptEdit] =
     useState<ScriptEditState<EditableScript>>(null);
   const [showReloadConfirm, setShowReloadConfirm] = useState(false);
+  const [scriptsDialogLayerId, setScriptsDialogLayerId] = useState('');
+  // Prevents the selectedTemplate effect from overwriting editableLayers on
+  // the save path, where we set both states atomically in handleSubmit.
+  const skipLayerResetRef = useRef(false);
 
   const handleReload = useCallback(async () => {
     const result = await refetch();
@@ -77,13 +89,19 @@ export function Parametrization() {
     setSelectedLayerIds(new Set());
     setLayerType('All');
     setParameterQuery('');
+    setScriptsDialogLayerId('');
   }, [refetch, selectedTemplate?.id]);
 
   useEffect(() => {
+    if (skipLayerResetRef.current) {
+      skipLayerResetRef.current = false;
+      return;
+    }
     setEditableLayers(withUiIds(selectedTemplate?.layers || []));
     setSelectedLayerIds(new Set());
     setLayerType('All');
     setParameterQuery('');
+    setScriptsDialogLayerId('');
   }, [selectedTemplate]);
 
   const handleBulkScriptSelect = useCallback(
@@ -113,6 +131,8 @@ export function Parametrization() {
     [selectedLayerIds],
   );
 
+  const renderingCompositionId = selectedTemplate?.renderingCompositionId;
+
   const hasUnsavedChanges =
     !!selectedTemplate &&
     !isEqual(
@@ -138,13 +158,15 @@ export function Parametrization() {
     if (!plainlyProject?.id || !selectedTemplate) return;
 
     try {
-      const cleanedLayers = editableLayers.map((layer) => {
-        const { _uiId: _uid, scripting, ...rest } = layer;
-        if (!scripting?.scripts?.length) {
-          return rest;
-        }
-        return { ...rest, scripting };
-      });
+      const cleanedLayers: ServerLayer[] = editableLayers.map(
+        (layer): ServerLayer => {
+          const { _uiId: _uid, scripting, ...rest } = layer;
+          if (!scripting?.scripts?.length) {
+            return rest as ServerLayer;
+          }
+          return { ...rest, scripting } as ServerLayer;
+        },
+      );
 
       const savedProject = await editTemplate({
         projectId: plainlyProject.id,
@@ -159,6 +181,15 @@ export function Parametrization() {
       const savedTemplate =
         savedProject.templates?.find((t) => t.id === selectedTemplate.id) ??
         null;
+      // Set editableLayers atomically with selectedTemplate so hasUnsavedChanges
+      // is false in the same render. skipLayerResetRef prevents the
+      // selectedTemplate effect from re-running withUiIds and overwriting us.
+      // Assumption: the server returns layers in the same order they were sent;
+      // if it reorders them the _uiId assignments will shift, breaking both
+      // hasUnsavedChanges and the preserved selectedLayerIds (latent risk).
+      skipLayerResetRef.current = true;
+      setEditableLayers(withUiIds(savedTemplate?.layers || []));
+      setScriptsDialogLayerId('');
       setSelectedTemplate(savedTemplate);
       notifySuccess('Template changes saved successfully');
     } catch (error) {
@@ -324,8 +355,11 @@ export function Parametrization() {
                   selectedLayerIds={selectedLayerIds}
                   setSelectedLayerIds={setSelectedLayerIds}
                   onEditScript={setActiveScriptEdit}
+                  scriptsDialogLayerId={scriptsDialogLayerId}
+                  setScriptsDialogLayerId={setScriptsDialogLayerId}
                   disabled={disabledTemplates || !selectedTemplate}
                   unsavedChanges={hasUnsavedChanges}
+                  renderingCompositionId={renderingCompositionId}
                 />
               </div>
               <Button
@@ -351,6 +385,7 @@ export function Parametrization() {
             selectedLayerIds={selectedLayerIds}
             setEditableLayers={setEditableLayers}
             editableLayers={editableLayers}
+            renderingCompositionId={renderingCompositionId}
           />
         </>
       )}

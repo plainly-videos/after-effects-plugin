@@ -19,6 +19,8 @@ export type ScriptRegistryEntry = {
   isBulkable: boolean;
   layerTypes?: LayerType[];
   defaults?: EditableScript;
+  /** When false, this script cannot be added to a COMPOSITION layer that is the rendering composition. */
+  supportsRoot?: boolean;
 };
 
 export const SCRIPT_REGISTRY: Record<ScriptType, ScriptRegistryEntry> = {
@@ -30,6 +32,7 @@ export const SCRIPT_REGISTRY: Record<ScriptType, ScriptRegistryEntry> = {
     isEditable: true,
     isAddable: true,
     isBulkable: true,
+    supportsRoot: false,
     defaults: {
       scriptType: ScriptType.CROP,
       compEndsAtOutPoint: false,
@@ -67,6 +70,7 @@ export const SCRIPT_REGISTRY: Record<ScriptType, ScriptRegistryEntry> = {
     isEditable: true,
     isAddable: true,
     isBulkable: false,
+    supportsRoot: false,
     defaults: {
       scriptType: ScriptType.SHIFT_IN,
       shiftTarget: '',
@@ -82,6 +86,7 @@ export const SCRIPT_REGISTRY: Record<ScriptType, ScriptRegistryEntry> = {
     isEditable: true,
     isAddable: true,
     isBulkable: false,
+    supportsRoot: false,
     defaults: {
       scriptType: ScriptType.SHIFT_OUT,
       shiftTarget: '',
