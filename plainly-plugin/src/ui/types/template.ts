@@ -8,6 +8,7 @@ export interface Template {
 
 type LayerBase = {
   internalId: string;
+  _uiId?: string;
   layerName: string;
   compositions: { id: number; name: string }[];
   parametrization?: Parametrization;
@@ -100,7 +101,7 @@ export type EditableScript =
   | LayerManagementScript;
 
 export type ScriptEditState<S extends Script> = {
-  layerInternalId: string;
+  layerUiId: string;
   script: S;
   isNew: boolean;
   isBulk: boolean;

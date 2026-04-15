@@ -49,15 +49,22 @@ export function getDefaultScript(
   return SCRIPT_REGISTRY[scriptType]?.defaults;
 }
 
+export function withUiIds(layers: Layer[]): Layer[] {
+  return layers.map((layer, i) => ({
+    ...layer,
+    _uiId: `${layer.internalId}_${i}`,
+  }));
+}
+
 export function reorderScripts(
   layers: Layer[],
-  layerInternalId: string,
+  layerUiId: string,
   activeId: string,
   overId: string,
 ): Layer[] {
   if (activeId === overId) return layers;
   return layers.map((layer) => {
-    if (layer.internalId !== layerInternalId) return layer;
+    if ((layer._uiId ?? layer.internalId) !== layerUiId) return layer;
     const scripts = layer.scripting?.scripts || [];
     const oldIndex = scripts.findIndex((s) => s.scriptType === activeId);
     const newIndex = scripts.findIndex((s) => s.scriptType === overId);

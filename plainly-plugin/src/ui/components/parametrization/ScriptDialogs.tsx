@@ -31,14 +31,14 @@ export function ScriptDialogs({
   const handleScriptSave = useCallback(
     (updatedScript: EditableScript) => {
       if (!activeScriptEdit) return;
-      const { layerInternalId, isNew, isBulk } = activeScriptEdit;
+      const { layerUiId: layerInternalId, isNew, isBulk } = activeScriptEdit;
       const { scriptType } = updatedScript;
       setEditableLayers((prev) =>
         prev.map((layer) => {
           if (
             isBulk
-              ? !selectedLayerIds.has(layer.internalId)
-              : layer.internalId !== layerInternalId
+              ? !selectedLayerIds.has(layer._uiId ?? layer.internalId)
+              : (layer._uiId ?? layer.internalId) !== layerInternalId
           )
             return layer;
           const allowedLayerTypes = SCRIPT_REGISTRY[scriptType]?.layerTypes;
@@ -78,7 +78,7 @@ export function ScriptDialogs({
     () =>
       activeScriptEdit
         ? editableLayers.find(
-            (l) => l.internalId === activeScriptEdit.layerInternalId,
+            (l) => (l._uiId ?? l.internalId) === activeScriptEdit.layerUiId,
           )
         : undefined,
     [activeScriptEdit, editableLayers],
@@ -93,7 +93,7 @@ export function ScriptDialogs({
       <CropScriptDialog
         key={
           activeScriptEdit?.script.scriptType === ScriptType.CROP
-            ? activeScriptEdit.layerInternalId
+            ? activeScriptEdit.layerUiId
             : undefined
         }
         cropScript={
@@ -108,7 +108,7 @@ export function ScriptDialogs({
       <AutoScaleMediaScriptDialog
         key={
           activeScriptEdit?.script.scriptType === ScriptType.MEDIA_AUTO_SCALE
-            ? activeScriptEdit.layerInternalId
+            ? activeScriptEdit.layerUiId
             : undefined
         }
         mediaAutoScaleScript={
@@ -125,7 +125,7 @@ export function ScriptDialogs({
       <ShiftScriptDialog
         key={
           activeScriptEdit?.script.scriptType === ScriptType.SHIFT_IN
-            ? activeScriptEdit.layerInternalId
+            ? activeScriptEdit.layerUiId
             : undefined
         }
         script={
@@ -142,7 +142,7 @@ export function ScriptDialogs({
       <ShiftScriptDialog
         key={
           activeScriptEdit?.script.scriptType === ScriptType.SHIFT_OUT
-            ? activeScriptEdit.layerInternalId
+            ? activeScriptEdit.layerUiId
             : undefined
         }
         script={
@@ -159,7 +159,7 @@ export function ScriptDialogs({
       <LayerManagementScriptDialog
         key={
           activeScriptEdit?.script.scriptType === ScriptType.LAYER_MANAGEMENT
-            ? activeScriptEdit.layerInternalId
+            ? activeScriptEdit.layerUiId
             : undefined
         }
         script={
