@@ -35,7 +35,7 @@ import {
 } from 'lucide-react';
 import type React from 'react';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
-import { Tooltip } from '../common/Tooltip';
+import { Tooltip, TooltipContent, TooltipTrigger } from '../common/Tooltip';
 import { Label } from '../typography';
 import { ScriptBadge } from './ScriptBadge';
 import { ScriptsDialog } from './ScriptsDialog';
@@ -112,8 +112,11 @@ function SortableScriptItem({
       {isKnown ? (
         badge
       ) : (
-        <Tooltip text="Not supported yet, edit via web interface">
-          {badge}
+        <Tooltip>
+          <TooltipTrigger>{badge}</TooltipTrigger>
+          <TooltipContent>
+            Not supported yet, edit via web interface
+          </TooltipContent>
         </Tooltip>
       )}
     </div>
@@ -273,8 +276,11 @@ export function ParametrizedLayers({
             <Label label="Parameter" className="py-1 px-3" />
             <div className="py-1 px-3 flex items-center gap-1">
               <Label label="Scripts" />
-              <Tooltip text="Script order is important">
-                <InfoIcon className="size-4 text-gray-400" />
+              <Tooltip>
+                <TooltipTrigger>
+                  <InfoIcon className="size-4 text-gray-400" />
+                </TooltipTrigger>
+                <TooltipContent>Script order is important</TooltipContent>
               </Tooltip>
             </div>
           </li>

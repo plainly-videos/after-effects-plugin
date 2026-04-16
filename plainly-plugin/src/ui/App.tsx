@@ -1,6 +1,12 @@
 import { isDev, pluginBundleVersion } from '@src/env';
 import { useMemo } from 'react';
-import { Banner, Button, ExternalLink, Sidebar } from './components';
+import {
+  Banner,
+  Button,
+  ExternalLink,
+  Sidebar,
+  TooltipProvider,
+} from './components';
 import { useGetLatestGithubRelease, useNavigate } from './hooks';
 import {
   AboutRoute,
@@ -40,29 +46,31 @@ export function App() {
         <Button
           secondary
           onClick={reloadExtension}
-          className="absolute top-3 right-3 cursor-pointer z-40"
+          className="absolute top-3 right-3 cursor-pointer z-50"
         >
           Reload extension
         </Button>
       )}
-      <Sidebar />
-      <Banner show={showBanner}>
-        <p className="text-white text-xs font-medium">
-          A new version is available! 🚀 See{' '}
-          <ExternalLink
-            to={`https://github.com/plainly-videos/after-effects-plugin/releases/tag/${data?.tag_name}`}
-            text="what's new"
-          />{' '}
-          and{' '}
-          <ExternalLink
-            to="https://exchange.adobe.com/apps/cc/202811/plainly-videos"
-            text="upgrade"
-          />
-          .
-        </p>
-      </Banner>
+      <TooltipProvider>
+        <Sidebar />
+        <Banner show={showBanner}>
+          <p className="text-white text-xs font-medium">
+            A new version is available! 🚀 See{' '}
+            <ExternalLink
+              to={`https://github.com/plainly-videos/after-effects-plugin/releases/tag/${data?.tag_name}`}
+              text="what's new"
+            />{' '}
+            and{' '}
+            <ExternalLink
+              to="https://exchange.adobe.com/apps/cc/202811/plainly-videos"
+              text="upgrade"
+            />
+            .
+          </p>
+        </Banner>
 
-      <div className="flex-1 overflow-y-auto">{route}</div>
+        <div className="flex-1 overflow-y-auto">{route}</div>
+      </TooltipProvider>
     </div>
   );
 }

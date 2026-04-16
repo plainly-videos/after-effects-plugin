@@ -42,8 +42,7 @@ export function ScriptBadge({
       <span className="tabular-nums">{index + 1}.</span>
       <span>{label}</span>
       {onRemove && (
-        <button
-          type="button"
+        <span
           className="absolute -top-1 -right-1 size-3.5 flex items-center justify-center rounded-full bg-gray-600 hover:bg-gray-500 cursor-pointer opacity-0 scale-50 group-hover:opacity-100 group-hover:scale-100 transition-all duration-150"
           onClick={(e) => {
             e.stopPropagation();
@@ -51,7 +50,7 @@ export function ScriptBadge({
           }}
         >
           <XIcon className="size-2.5" />
-        </button>
+        </span>
       )}
     </span>
   );

@@ -3,7 +3,7 @@ import type { LayerType, ScriptType } from '@src/ui/types/template';
 import classNames from 'classnames';
 import { ChevronDownIcon, CirclePileIcon, FunnelXIcon } from 'lucide-react';
 import { useState } from 'react';
-import { Tooltip } from '../common';
+import { Tooltip, TooltipContent, TooltipTrigger } from '../common';
 import { Label } from '../typography';
 import { ScriptsDialog } from './ScriptsDialog';
 
@@ -72,31 +72,32 @@ export function FilterAndActions({
                 className="origin-top-right rounded-md border border-white/5 bg-secondary p-1 focus:outline-none mt-1 z-10"
               >
                 <MenuItem>
-                  <button
-                    type="button"
+                  <span
                     className="group flex items-center gap-2 rounded-md px-3 py-1.5 text-xs text-gray-400 hover:bg-indigo-600 hover:text-white w-full"
                     onClick={clearFiltersAction}
                   >
                     <FunnelXIcon className="size-4 shrink-0 text-gray-400" />
                     Clear filters
-                  </button>
+                  </span>
                 </MenuItem>
-                <MenuItem>
-                  <Tooltip
-                    text="Select layers first"
-                    disabled={!bulkScriptDisabled}
-                  >
-                    <button
-                      type="button"
-                      className="group flex items-center gap-2 rounded-md px-3 py-1.5 text-xs text-gray-400 hover:bg-indigo-600 hover:text-white w-full disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-gray-400"
-                      onClick={() => setOpenScriptsDialog(true)}
-                      disabled={bulkScriptDisabled}
-                    >
-                      <CirclePileIcon className="size-4 shrink-0 text-gray-400" />
-                      Bulk script add
-                    </button>
-                  </Tooltip>
-                </MenuItem>
+                <Tooltip disabled={!bulkScriptDisabled}>
+                  <TooltipTrigger>
+                    <MenuItem>
+                      <span
+                        className={classNames(
+                          'group flex items-center gap-2 rounded-md px-3 py-1.5 text-xs text-gray-400 hover:bg-indigo-600 hover:text-white w-full',
+                          bulkScriptDisabled &&
+                            'pointer-events-none opacity-50',
+                        )}
+                        onClick={() => setOpenScriptsDialog(true)}
+                      >
+                        <CirclePileIcon className="size-4 shrink-0 text-gray-400" />
+                        Bulk script add
+                      </span>
+                    </MenuItem>
+                  </TooltipTrigger>
+                  <TooltipContent>Select layers first</TooltipContent>
+                </Tooltip>
               </MenuItems>
             </Menu>
           </div>
