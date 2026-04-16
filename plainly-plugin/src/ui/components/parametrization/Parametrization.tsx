@@ -17,10 +17,9 @@ import type {
   Layer,
   LayerType,
   ScriptEditState,
-  ServerLayer,
+  ScriptType,
   Template,
 } from '@src/ui/types/template';
-import { ScriptType } from '@src/ui/types/template';
 import { isEmpty } from '@src/ui/utils';
 import classNames from 'classnames';
 import { isEqual } from 'lodash-es';
@@ -50,7 +49,8 @@ import { Description, Label, PageHeading } from '../typography';
 import { FilterAndActions } from './FilterAndActions';
 import { ParametrizedLayers } from './ParametrizedLayers';
 import { ScriptDialogs } from './ScriptDialogs';
-import { addTextAutoScaleScript, getDefaultScript, withUiIds } from './utils';
+import { SCRIPT_REGISTRY } from './scriptRegistry';
+import { addScriptDirectly, getDefaultScript } from './utils';
 
 export function Parametrization() {
   const { plainlyProject, contextReady } = useContext(GlobalContext) || {};
@@ -68,13 +68,13 @@ export function Parametrization() {
   const [layerType, setLayerType] = useState<LayerType | 'All'>('All');
 
   const [editableLayers, setEditableLayers] = useState<Layer[]>([]);
-  const [selectedLayerIds, setSelectedLayerIds] = useState<Set<string>>(
+  const [selectedLayerIds, setSelectedLayerIds] = useState<Set<number>>(
     new Set(),
   );
   const [activeScriptEdit, setActiveScriptEdit] =
     useState<ScriptEditState<EditableScript>>(null);
   const [showReloadConfirm, setShowReloadConfirm] = useState(false);
-  const [scriptsDialogLayerId, setScriptsDialogLayerId] = useState('');
+  const [scriptsDialogLayerIndex, setScriptsDialogLayerIndex] = useState(-1);
   // Prevents the selectedTemplate effect from overwriting editableLayers on
   // the save path, where we set both states atomically in handleSubmit.
   const skipLayerResetRef = useRef(false);
@@ -85,11 +85,11 @@ export function Parametrization() {
       result.data?.templates?.find((t) => t.id === selectedTemplate?.id) ??
       null;
     setSelectedTemplate(freshTemplate);
-    setEditableLayers(withUiIds(freshTemplate?.layers || []));
+    setEditableLayers(freshTemplate?.layers || []);
     setSelectedLayerIds(new Set());
     setLayerType('All');
     setParameterQuery('');
-    setScriptsDialogLayerId('');
+    setScriptsDialogLayerIndex(-1);
   }, [refetch, selectedTemplate?.id]);
 
   useEffect(() => {
@@ -97,22 +97,23 @@ export function Parametrization() {
       skipLayerResetRef.current = false;
       return;
     }
-    setEditableLayers(withUiIds(selectedTemplate?.layers || []));
+    setEditableLayers(selectedTemplate?.layers || []);
     setSelectedLayerIds(new Set());
     setLayerType('All');
     setParameterQuery('');
-    setScriptsDialogLayerId('');
+    setScriptsDialogLayerIndex(-1);
   }, [selectedTemplate]);
 
   const handleBulkScriptSelect = useCallback(
     (type: ScriptType) => {
-      if (type === ScriptType.TEXT_AUTO_SCALE) {
+      if (SCRIPT_REGISTRY[type]?.addDirectly) {
+        const { layerTypes } = SCRIPT_REGISTRY[type];
         setEditableLayers((prev) =>
-          prev.map((layer) => {
-            if (!selectedLayerIds.has(layer._uiId ?? layer.internalId))
+          prev.map((layer, index) => {
+            if (!selectedLayerIds.has(index)) return layer;
+            if (layerTypes && !layerTypes.includes(layer.layerType))
               return layer;
-            if (layer.layerType !== 'DATA') return layer;
-            return addTextAutoScaleScript(layer);
+            return addScriptDirectly(layer, type);
           }),
         );
         return;
@@ -122,7 +123,7 @@ export function Parametrization() {
       if (!script) return;
 
       setActiveScriptEdit({
-        layerUiId: '',
+        layerIndex: -1,
         script,
         isNew: true,
         isBulk: true,
@@ -135,10 +136,7 @@ export function Parametrization() {
 
   const hasUnsavedChanges =
     !!selectedTemplate &&
-    !isEqual(
-      editableLayers.map(({ _uiId: _uid, ...rest }) => rest),
-      selectedTemplate.layers || [],
-    );
+    !isEqual(editableLayers, selectedTemplate.layers || []);
 
   const { isPending, mutateAsync: editTemplate } = useEditTemplate();
 
@@ -158,15 +156,11 @@ export function Parametrization() {
     if (!plainlyProject?.id || !selectedTemplate) return;
 
     try {
-      const cleanedLayers: ServerLayer[] = editableLayers.map(
-        (layer): ServerLayer => {
-          const { _uiId: _uid, scripting, ...rest } = layer;
-          if (!scripting?.scripts?.length) {
-            return rest as ServerLayer;
-          }
-          return { ...rest, scripting } as ServerLayer;
-        },
-      );
+      const cleanedLayers = editableLayers.map((layer) => {
+        const { scripting, ...rest } = layer;
+        if (!scripting?.scripts?.length) return rest;
+        return { ...rest, scripting };
+      });
 
       const savedProject = await editTemplate({
         projectId: plainlyProject.id,
@@ -183,13 +177,10 @@ export function Parametrization() {
         null;
       // Set editableLayers atomically with selectedTemplate so hasUnsavedChanges
       // is false in the same render. skipLayerResetRef prevents the
-      // selectedTemplate effect from re-running withUiIds and overwriting us.
-      // Assumption: the server returns layers in the same order they were sent;
-      // if it reorders them the _uiId assignments will shift, breaking both
-      // hasUnsavedChanges and the preserved selectedLayerIds (latent risk).
+      // selectedTemplate effect from overwriting us.
       skipLayerResetRef.current = true;
-      setEditableLayers(withUiIds(savedTemplate?.layers || []));
-      setScriptsDialogLayerId('');
+      setEditableLayers(savedTemplate?.layers || []);
+      setScriptsDialogLayerIndex(-1);
       setSelectedTemplate(savedTemplate);
       notifySuccess('Template changes saved successfully');
     } catch (error) {
@@ -355,8 +346,8 @@ export function Parametrization() {
                   selectedLayerIds={selectedLayerIds}
                   setSelectedLayerIds={setSelectedLayerIds}
                   onEditScript={setActiveScriptEdit}
-                  scriptsDialogLayerId={scriptsDialogLayerId}
-                  setScriptsDialogLayerId={setScriptsDialogLayerId}
+                  scriptsDialogLayerIndex={scriptsDialogLayerIndex}
+                  setScriptsDialogLayerIndex={setScriptsDialogLayerIndex}
                   disabled={disabledTemplates || !selectedTemplate}
                   unsavedChanges={hasUnsavedChanges}
                   renderingCompositionId={renderingCompositionId}

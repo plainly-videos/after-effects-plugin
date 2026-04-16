@@ -21,6 +21,7 @@ export type ScriptRegistryEntry = {
   defaults?: EditableScript;
   /** When false, this script cannot be added to a COMPOSITION layer that is the rendering composition. */
   supportsRoot?: boolean;
+  addDirectly?: boolean;
 };
 
 export const SCRIPT_REGISTRY: Record<ScriptType, ScriptRegistryEntry> = {
@@ -61,6 +62,7 @@ export const SCRIPT_REGISTRY: Record<ScriptType, ScriptRegistryEntry> = {
     isAddable: true,
     isBulkable: true,
     layerTypes: ['DATA'],
+    addDirectly: true,
   },
   [ScriptType.SHIFT_IN]: {
     label: 'Shift in',

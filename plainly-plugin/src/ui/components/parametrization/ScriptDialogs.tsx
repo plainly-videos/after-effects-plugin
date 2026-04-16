@@ -4,7 +4,7 @@ import {
   type ScriptEditState,
   ScriptType,
 } from '@src/ui/types/template';
-import { useCallback, useMemo } from 'react';
+import { useCallback } from 'react';
 
 import { AutoScaleMediaScriptDialog } from './AutoScaleMediaScriptDialog';
 import { CropScriptDialog } from './CropScriptDialog';
@@ -25,7 +25,7 @@ export function ScriptDialogs({
   setActiveScriptEdit: React.Dispatch<
     React.SetStateAction<ScriptEditState<EditableScript>>
   >;
-  selectedLayerIds: Set<string>;
+  selectedLayerIds: Set<number>;
   setEditableLayers: React.Dispatch<React.SetStateAction<Layer[]>>;
   editableLayers: Layer[];
   renderingCompositionId?: number;
@@ -33,15 +33,11 @@ export function ScriptDialogs({
   const handleScriptSave = useCallback(
     (updatedScript: EditableScript) => {
       if (!activeScriptEdit) return;
-      const { layerUiId: layerInternalId, isNew, isBulk } = activeScriptEdit;
+      const { layerIndex, isNew, isBulk } = activeScriptEdit;
       const { scriptType } = updatedScript;
       setEditableLayers((prev) =>
-        prev.map((layer) => {
-          if (
-            isBulk
-              ? !selectedLayerIds.has(layer._uiId ?? layer.internalId)
-              : (layer._uiId ?? layer.internalId) !== layerInternalId
-          )
+        prev.map((layer, index) => {
+          if (isBulk ? !selectedLayerIds.has(index) : index !== layerIndex)
             return layer;
           const registryEntry = SCRIPT_REGISTRY[scriptType];
           const allowedLayerTypes = registryEntry?.layerTypes;
@@ -92,15 +88,10 @@ export function ScriptDialogs({
     [setActiveScriptEdit],
   );
 
-  const activeLayer = useMemo(
-    () =>
-      activeScriptEdit && !activeScriptEdit.isBulk
-        ? editableLayers.find(
-            (l) => (l._uiId ?? l.internalId) === activeScriptEdit.layerUiId,
-          )
-        : undefined,
-    [activeScriptEdit, editableLayers],
-  );
+  const activeLayer =
+    activeScriptEdit && !activeScriptEdit.isBulk
+      ? editableLayers[activeScriptEdit.layerIndex]
+      : undefined;
 
   // Assumes the first composition when a layer belongs to multiple; the type allows plural but current data treats layers as comp-specific.
   const compId = activeLayer?.compositions[0]?.id;
@@ -111,7 +102,7 @@ export function ScriptDialogs({
       <CropScriptDialog
         key={
           activeScriptEdit?.script.scriptType === ScriptType.CROP
-            ? activeScriptEdit.layerUiId
+            ? activeScriptEdit.layerIndex
             : undefined
         }
         cropScript={
@@ -126,7 +117,7 @@ export function ScriptDialogs({
       <AutoScaleMediaScriptDialog
         key={
           activeScriptEdit?.script.scriptType === ScriptType.MEDIA_AUTO_SCALE
-            ? activeScriptEdit.layerUiId
+            ? activeScriptEdit.layerIndex
             : undefined
         }
         mediaAutoScaleScript={
@@ -143,7 +134,7 @@ export function ScriptDialogs({
       <ShiftScriptDialog
         key={
           activeScriptEdit?.script.scriptType === ScriptType.SHIFT_IN
-            ? activeScriptEdit.layerUiId
+            ? activeScriptEdit.layerIndex
             : undefined
         }
         script={
@@ -160,7 +151,7 @@ export function ScriptDialogs({
       <ShiftScriptDialog
         key={
           activeScriptEdit?.script.scriptType === ScriptType.SHIFT_OUT
-            ? activeScriptEdit.layerUiId
+            ? activeScriptEdit.layerIndex
             : undefined
         }
         script={
@@ -177,7 +168,7 @@ export function ScriptDialogs({
       <LayerManagementScriptDialog
         key={
           activeScriptEdit?.script.scriptType === ScriptType.LAYER_MANAGEMENT
-            ? activeScriptEdit.layerUiId
+            ? activeScriptEdit.layerIndex
             : undefined
         }
         script={

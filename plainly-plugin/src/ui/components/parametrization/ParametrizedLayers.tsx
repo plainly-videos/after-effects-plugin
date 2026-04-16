@@ -13,11 +13,11 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { AeScriptsApi } from '@src/node/bridge';
-import {
-  type EditableScript,
-  type Layer,
-  type LayerType,
-  type MediaType,
+import type {
+  EditableScript,
+  Layer,
+  LayerType,
+  MediaType,
   ScriptType,
 } from '@src/ui/types/template';
 import { isEmpty } from '@src/ui/utils';
@@ -40,11 +40,7 @@ import { Label } from '../typography';
 import { ScriptBadge } from './ScriptBadge';
 import { ScriptsDialog } from './ScriptsDialog';
 import { getScriptLabel, SCRIPT_REGISTRY } from './scriptRegistry';
-import {
-  addTextAutoScaleScript,
-  getDefaultScript,
-  reorderScripts,
-} from './utils';
+import { addScriptDirectly, getDefaultScript, reorderScripts } from './utils';
 
 function LayerTypeIcon({
   layerType,
@@ -132,8 +128,8 @@ export function ParametrizedLayers({
   selectedLayerIds,
   setSelectedLayerIds,
   onEditScript,
-  scriptsDialogLayerId,
-  setScriptsDialogLayerId,
+  scriptsDialogLayerIndex,
+  setScriptsDialogLayerIndex,
   disabled,
   unsavedChanges,
   renderingCompositionId,
@@ -142,33 +138,33 @@ export function ParametrizedLayers({
   setEditableLayers: React.Dispatch<React.SetStateAction<Layer[]>>;
   parameterQuery: string;
   layerType: LayerType | 'All';
-  selectedLayerIds: Set<string>;
-  setSelectedLayerIds: React.Dispatch<React.SetStateAction<Set<string>>>;
+  selectedLayerIds: Set<number>;
+  setSelectedLayerIds: React.Dispatch<React.SetStateAction<Set<number>>>;
   onEditScript: (params: {
-    layerUiId: string;
+    layerIndex: number;
     script: EditableScript;
     isNew: boolean;
     isBulk: boolean;
   }) => void;
-  scriptsDialogLayerId: string;
-  setScriptsDialogLayerId: React.Dispatch<React.SetStateAction<string>>;
+  scriptsDialogLayerIndex: number;
+  setScriptsDialogLayerIndex: React.Dispatch<React.SetStateAction<number>>;
   disabled?: boolean;
   unsavedChanges?: boolean;
   renderingCompositionId?: number;
 }) {
   const handleBadgeClick = useCallback(
-    (layerUiId: string, script: EditableScript) => {
-      onEditScript({ layerUiId, script, isNew: false, isBulk: false });
+    (layerIndex: number, script: EditableScript) => {
+      onEditScript({ layerIndex, script, isNew: false, isBulk: false });
     },
     [onEditScript],
   );
 
   const handleDragEnd = useCallback(
-    (layerUiId: string, event: DragEndEvent) => {
+    (layerIndex: number, event: DragEndEvent) => {
       const { active, over } = event;
       if (!over) return;
       setEditableLayers((prev) =>
-        reorderScripts(prev, layerUiId, String(active.id), String(over.id)),
+        reorderScripts(prev, layerIndex, String(active.id), String(over.id)),
       );
     },
     [setEditableLayers],
@@ -179,10 +175,10 @@ export function ParametrizedLayers({
   );
 
   const handleScriptRemove = useCallback(
-    (layerUiId: string, type: ScriptType) => {
+    (layerIndex: number, type: ScriptType) => {
       setEditableLayers((prev) =>
-        prev.map((layer) => {
-          if ((layer._uiId ?? layer.internalId) !== layerUiId) return layer;
+        prev.map((layer, index) => {
+          if (index !== layerIndex) return layer;
           return {
             ...layer,
             scripting: {
@@ -200,12 +196,12 @@ export function ParametrizedLayers({
 
   const handleScriptSelect = useCallback(
     (type: ScriptType) => {
-      if (!scriptsDialogLayerId) return;
-      if (type === ScriptType.TEXT_AUTO_SCALE) {
+      if (scriptsDialogLayerIndex === -1) return;
+      if (SCRIPT_REGISTRY[type]?.addDirectly) {
         setEditableLayers((prev) =>
-          prev.map((l) => {
-            if ((l._uiId ?? l.internalId) !== scriptsDialogLayerId) return l;
-            return addTextAutoScaleScript(l);
+          prev.map((l, index) => {
+            if (index !== scriptsDialogLayerIndex) return l;
+            return addScriptDirectly(l, type);
           }),
         );
         return;
@@ -213,22 +209,16 @@ export function ParametrizedLayers({
       const script = getDefaultScript(type);
       if (!script) return;
       onEditScript({
-        layerUiId: scriptsDialogLayerId,
+        layerIndex: scriptsDialogLayerIndex,
         script,
         isNew: true,
         isBulk: false,
       });
     },
-    [onEditScript, scriptsDialogLayerId, setEditableLayers],
+    [onEditScript, scriptsDialogLayerIndex, setEditableLayers],
   );
 
-  const scriptsDialogLayer = useMemo(
-    () =>
-      editableLayers.find(
-        (l) => (l._uiId ?? l.internalId) === scriptsDialogLayerId,
-      ),
-    [editableLayers, scriptsDialogLayerId],
-  );
+  const scriptsDialogLayer = editableLayers[scriptsDialogLayerIndex];
 
   const scriptsDialogIsRenderingComp = useMemo(
     () =>
@@ -243,16 +233,18 @@ export function ParametrizedLayers({
 
   const layers = useMemo(
     () =>
-      editableLayers.filter(
-        (layer) =>
-          (layer.layerName
-            .toLowerCase()
-            .includes(parameterQuery.toLowerCase()) ||
-            layer.parametrization?.value
+      editableLayers
+        .map((layer, index) => ({ layer, index }))
+        .filter(
+          ({ layer }) =>
+            (layer.layerName
               .toLowerCase()
-              .includes(parameterQuery.toLowerCase())) &&
-          (layerType === 'All' || layer.layerType === layerType),
-      ),
+              .includes(parameterQuery.toLowerCase()) ||
+              layer.parametrization?.value
+                .toLowerCase()
+                .includes(parameterQuery.toLowerCase())) &&
+            (layerType === 'All' || layer.layerType === layerType),
+        ),
     [editableLayers, parameterQuery, layerType],
   );
 
@@ -293,24 +285,21 @@ export function ParametrizedLayers({
               </div>
             </li>
           )}
-          {layers.map((layer) => (
+          {layers.map(({ layer, index }) => (
             <li
-              key={layer._uiId ?? layer.internalId}
+              key={`${layer.internalId}_${index}`}
               className="min-w-fit grid grid-cols-[auto_1fr_1fr] w-full divide-x divide-white/10 divide-dashed items-center"
             >
               <div className="flex items-center justify-center py-1 px-3">
                 <input
                   type="checkbox"
                   className="appearance-none rounded border border-white/10 bg-white/5 checked:border-indigo-600 checked:bg-indigo-600 indeterminate:border-indigo-600 indeterminate:bg-indigo-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:border-white/10 disabled:bg-transparent forced-colors:appearance-auto col-span-1 flex items-center justify-center"
-                  checked={selectedLayerIds.has(
-                    layer._uiId ?? layer.internalId,
-                  )}
+                  checked={selectedLayerIds.has(index)}
                   onChange={(e) => {
                     setSelectedLayerIds((prev) => {
                       const next = new Set(prev);
-                      const id = layer._uiId ?? layer.internalId;
-                      if (e.target.checked) next.add(id);
-                      else next.delete(id);
+                      if (e.target.checked) next.add(index);
+                      else next.delete(index);
                       return next;
                     });
                   }}
@@ -339,7 +328,6 @@ export function ParametrizedLayers({
                     <button
                       type="button"
                       className="text-left underline truncate text-xs leading-4"
-                      // intentionally uses internalId: AE needs the actual layer identifier, not the UI key
                       onClick={() => AeScriptsApi.selectLayer(layer.internalId)}
                     >
                       {layer.layerName}
@@ -352,9 +340,7 @@ export function ParametrizedLayers({
               </div>
               <div className="min-w-0 px-3 py-1 relative min-h-full">
                 <button
-                  onClick={() =>
-                    setScriptsDialogLayerId(layer._uiId ?? layer.internalId)
-                  }
+                  onClick={() => setScriptsDialogLayerIndex(index)}
                   className="absolute right-1 top-1 size-5 flex items-center justify-center cursor-pointer disabled:cursor-not-allowed group rounded-sm bg-primary hover:bg-secondary hover:text-gray-400"
                   type="button"
                 >
@@ -363,9 +349,7 @@ export function ParametrizedLayers({
                 <DndContext
                   sensors={sensors}
                   collisionDetection={closestCenter}
-                  onDragEnd={(event) =>
-                    handleDragEnd(layer._uiId ?? layer.internalId, event)
-                  }
+                  onDragEnd={(event) => handleDragEnd(index, event)}
                 >
                   <SortableContext
                     items={
@@ -387,16 +371,13 @@ export function ParametrizedLayers({
                               SCRIPT_REGISTRY[script.scriptType]?.isEditable
                                 ? () =>
                                     handleBadgeClick(
-                                      layer._uiId ?? layer.internalId,
+                                      index,
                                       script as EditableScript,
                                     )
                                 : undefined
                             }
                             onRemove={() =>
-                              handleScriptRemove(
-                                layer._uiId ?? layer.internalId,
-                                script.scriptType,
-                              )
+                              handleScriptRemove(index, script.scriptType)
                             }
                           />
                         );
@@ -410,8 +391,8 @@ export function ParametrizedLayers({
         </ul>
       </div>
       <ScriptsDialog
-        open={scriptsDialogLayerId !== ''}
-        setOpen={(open) => !open && setScriptsDialogLayerId('')}
+        open={scriptsDialogLayerIndex !== -1}
+        setOpen={(open) => !open && setScriptsDialogLayerIndex(-1)}
         onSelect={handleScriptSelect}
         layerType={scriptsDialogLayer?.layerType}
         isRenderingComp={scriptsDialogIsRenderingComp}
@@ -426,18 +407,17 @@ function SelectAllCheckbox({
   setSelectedLayerIds,
   disabled,
 }: {
-  layers: Layer[];
-  selectedLayerIds: Set<string>;
-  setSelectedLayerIds: React.Dispatch<React.SetStateAction<Set<string>>>;
+  layers: { index: number }[];
+  selectedLayerIds: Set<number>;
+  setSelectedLayerIds: React.Dispatch<React.SetStateAction<Set<number>>>;
   disabled?: boolean;
 }) {
   const ref = useRef<HTMLInputElement>(null);
   const allSelected =
     !isEmpty(layers) &&
-    layers.every((l) => selectedLayerIds.has(l._uiId ?? l.internalId));
+    layers.every(({ index }) => selectedLayerIds.has(index));
   const someSelected =
-    !allSelected &&
-    layers.some((l) => selectedLayerIds.has(l._uiId ?? l.internalId));
+    !allSelected && layers.some(({ index }) => selectedLayerIds.has(index));
 
   useEffect(() => {
     if (ref.current) ref.current.indeterminate = someSelected;
@@ -453,7 +433,7 @@ function SelectAllCheckbox({
         onChange={(e) => {
           setSelectedLayerIds(
             e.target.checked
-              ? new Set(layers.map((l) => l._uiId ?? l.internalId))
+              ? new Set(layers.map(({ index }) => index))
               : new Set(),
           );
         }}

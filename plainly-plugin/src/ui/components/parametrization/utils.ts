@@ -13,18 +13,16 @@ import { SCRIPT_REGISTRY } from './scriptRegistry';
 
 export const SCRIPT_PARAMETER_NAME_REGEX = /^[^.]+$/;
 
-export function addTextAutoScaleScript(layer: Layer): Layer {
+export function addScriptDirectly(layer: Layer, scriptType: ScriptType): Layer {
   const existingScripts = layer.scripting?.scripts || [];
-  if (
-    existingScripts.some((s) => s.scriptType === ScriptType.TEXT_AUTO_SCALE)
-  ) {
+  if (existingScripts.some((s) => s.scriptType === scriptType)) {
     return layer;
   }
   return {
     ...layer,
     scripting: {
       ...layer.scripting,
-      scripts: [...existingScripts, { scriptType: ScriptType.TEXT_AUTO_SCALE }],
+      scripts: [...existingScripts, { scriptType }],
     },
   };
 }
@@ -49,25 +47,15 @@ export function getDefaultScript(
   return SCRIPT_REGISTRY[scriptType]?.defaults;
 }
 
-export function withUiIds(layers: Layer[]): Layer[] {
-  return layers.map((layer, i) => ({
-    ...layer,
-    // Unconditionally overwrite any pre-existing _uiId (e.g. if the server
-    // ever echoes back unknown fields). Index-based assignment here is the
-    // single source of truth for this UI-only identifier.
-    _uiId: `${layer.internalId}_${i}`,
-  }));
-}
-
 export function reorderScripts(
   layers: Layer[],
-  layerUiId: string,
+  layerIndex: number,
   activeId: string,
   overId: string,
 ): Layer[] {
   if (activeId === overId) return layers;
-  return layers.map((layer) => {
-    if ((layer._uiId ?? layer.internalId) !== layerUiId) return layer;
+  return layers.map((layer, index) => {
+    if (index !== layerIndex) return layer;
     const scripts = layer.scripting?.scripts || [];
     const oldIndex = scripts.findIndex((s) => s.scriptType === activeId);
     const newIndex = scripts.findIndex((s) => s.scriptType === overId);
