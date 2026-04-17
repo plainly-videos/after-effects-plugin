@@ -1,5 +1,6 @@
 export * from './AboutRoute';
 export * from './ExportRoute';
+export * from './ParametrizationRoute';
 export * from './ProjectsRoute';
 export * from './pages';
 export * from './SettingsRoute';

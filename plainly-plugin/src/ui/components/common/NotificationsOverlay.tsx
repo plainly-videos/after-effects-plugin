@@ -96,7 +96,7 @@ export function NotificationsOverlay() {
   return (
     <div
       aria-live="assertive"
-      className="flex flex-col fixed pointer-events-none inset-0 justify-end px-4 py-6 sm:justify-start sm:p-6 z-50"
+      className="flex flex-col fixed pointer-events-none inset-0 justify-end px-4 py-6 sm:justify-start sm:p-6 z-40"
     >
       {notifications.map((notification) => (
         <Notification
