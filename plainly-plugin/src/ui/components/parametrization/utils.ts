@@ -13,6 +13,14 @@ import { SCRIPT_REGISTRY } from './scriptRegistry';
 
 export const SCRIPT_PARAMETER_NAME_REGEX = /^[^.]+$/;
 
+export function ensureHashPrefix(value: string): string {
+  return value.startsWith('#') ? value : `#${value}`;
+}
+
+export function stripHashPrefix(value: string): string {
+  return value.startsWith('#') ? value.slice(1) : value;
+}
+
 export function addScriptDirectly(layer: Layer, scriptType: ScriptType): Layer {
   const existingScripts = layer.scripting?.scripts || [];
   if (existingScripts.some((s) => s.scriptType === scriptType)) {
