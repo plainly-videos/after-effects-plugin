@@ -1,0 +1,89 @@
+import {
+  Dialog,
+  DialogBackdrop,
+  DialogPanel,
+  DialogTitle,
+} from '@headlessui/react';
+import { State, useGlobalState } from '@src/ui/state/store';
+import classNames from 'classnames';
+import type { ReactNode } from 'react';
+import { Button } from '../common';
+import { Description } from '../typography';
+
+export function ScriptDialogShell({
+  open,
+  setOpen,
+  icon,
+  title,
+  description,
+  onSave,
+  saveDisabled,
+  children,
+}: {
+  open: boolean;
+  setOpen: (open: boolean) => void;
+  icon: ReactNode;
+  title: string;
+  description: string;
+  onSave: () => void;
+  saveDisabled?: boolean;
+  children?: ReactNode;
+}) {
+  const [settings] = useGlobalState(State.SETTINGS);
+  const sidebarOpen = settings.sidebarOpen;
+
+  return (
+    <Dialog open={open} onClose={setOpen} className="relative">
+      <DialogBackdrop className="fixed inset-0 z-20 backdrop-blur-md" />
+
+      <div className="fixed inset-0 z-30 w-screen overflow-y-auto">
+        <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+          <DialogPanel
+            className={classNames(
+              'overflow-hidden rounded-lg bg-[rgb(29,29,30)] px-4 pb-4 pt-5 text-left sm:my-8 sm:w-full sm:max-w-lg sm:p-6 border border-white/10',
+              sidebarOpen
+                ? 'ml-[3.75rem] xs:ml-[var(--sidebar-width)]'
+                : 'ml-[3.75rem]',
+            )}
+          >
+            <div className="flex flex-col gap-4">
+              <div className="flex items-start gap-2">
+                <div className="size-8 bg-indigo-500 rounded-md flex items-center justify-center">
+                  {icon}
+                </div>
+                <div>
+                  <DialogTitle
+                    as="h3"
+                    className="text-sm font-semibold text-white"
+                  >
+                    {title}
+                  </DialogTitle>
+                  <Description>{description}</Description>
+                </div>
+              </div>
+              {children}
+            </div>
+            <div className="mt-4 sm:mt-3 sm:flex sm:flex-row-reverse">
+              <Button
+                type="button"
+                onClick={onSave}
+                disabled={saveDisabled}
+                className="inline-flex w-full sm:w-auto justify-center sm:ml-2"
+              >
+                Save
+              </Button>
+              <Button
+                type="button"
+                onClick={() => setOpen(false)}
+                secondary
+                className="inline-flex mt-2 sm:mt-0 w-full sm:w-auto justify-center"
+              >
+                Cancel
+              </Button>
+            </div>
+          </DialogPanel>
+        </div>
+      </div>
+    </Dialog>
+  );
+}

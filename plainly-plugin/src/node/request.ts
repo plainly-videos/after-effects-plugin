@@ -58,12 +58,20 @@ async function get<T>(
   return await instance.get(path, auth(apiKey));
 }
 
-async function post<T>(
+async function post<T, B>(
   path: string,
   apiKey: string,
-  body: string,
-): Promise<AxiosResponse<T, unknown>> {
+  body: B,
+): Promise<AxiosResponse<T, B>> {
   return await instance.post(path, body, auth(apiKey));
+}
+
+async function put<T, B>(
+  path: string,
+  apiKey: string,
+  body: B,
+): Promise<AxiosResponse<T, B>> {
+  return await instance.put(path, body, auth(apiKey));
 }
 
 async function postFormData<T>(
@@ -131,4 +139,4 @@ export const toPlainlyError = (error: unknown): PlainlyApiError => {
   }
 };
 
-export { get, post, postFormData };
+export { get, post, put, postFormData };
