@@ -7,6 +7,7 @@ import {
   useSensors,
 } from '@dnd-kit/core';
 import {
+  arrayMove,
   SortableContext,
   useSortable,
   verticalListSortingStrategy,
@@ -26,6 +27,7 @@ import {
   AudioLinesIcon,
   EditIcon,
   FolderIcon,
+  GripVerticalIcon,
   ImageIcon,
   InfoIcon,
   PlusIcon,
@@ -45,7 +47,12 @@ import {
 import { ScriptBadge } from './ScriptBadge';
 import { ScriptsDialog } from './ScriptsDialog';
 import { getScriptLabel, SCRIPT_REGISTRY } from './scriptRegistry';
-import { addScriptDirectly, getDefaultScript, reorderScripts } from './utils';
+import {
+  addScriptDirectly,
+  ensureHashPrefix,
+  getDefaultScript,
+  reorderScripts,
+} from './utils';
 
 function LayerTypeIcon({
   layerType,
@@ -128,6 +135,158 @@ function SortableScriptItem({
   );
 }
 
+function SortableLayerItem({
+  layer,
+  index,
+  isFilterActive,
+  selectedLayerIds,
+  setSelectedLayerIds,
+  setParamDialogLayerIndex,
+  setScriptsDialogLayerIndex,
+  sensors,
+  handleDragEnd,
+  handleBadgeClick,
+  handleScriptRemove,
+}: {
+  layer: Layer;
+  index: number;
+  isFilterActive: boolean;
+  selectedLayerIds: Set<number>;
+  setSelectedLayerIds: React.Dispatch<React.SetStateAction<Set<number>>>;
+  setParamDialogLayerIndex: React.Dispatch<React.SetStateAction<number>>;
+  setScriptsDialogLayerIndex: React.Dispatch<React.SetStateAction<number>>;
+  sensors: ReturnType<typeof useSensors>;
+  handleDragEnd: (layerIndex: number, event: DragEndEvent) => void;
+  handleBadgeClick: (layerIndex: number, script: EditableScript) => void;
+  handleScriptRemove: (layerIndex: number, type: ScriptType) => void;
+}) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: String(layer.internalId) });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  return (
+    <li
+      ref={setNodeRef}
+      style={style}
+      className="min-w-fit grid grid-cols-[auto_auto_1fr_1fr] w-full divide-x divide-white/10 divide-dashed items-center"
+    >
+      <div className="flex items-center justify-center py-1 px-2 h-full">
+        <GripVerticalIcon
+          className={classNames(
+            'size-3',
+            isFilterActive
+              ? 'text-gray-600 cursor-not-allowed'
+              : 'text-gray-400 cursor-grab',
+          )}
+          {...(!isFilterActive ? listeners : {})}
+          {...(!isFilterActive ? attributes : {})}
+        />
+      </div>
+      <div className="flex items-center justify-center py-1 px-2 h-full">
+        <input
+          type="checkbox"
+          className="appearance-none rounded border border-white/10 bg-white/5 checked:border-indigo-600 checked:bg-indigo-600 indeterminate:border-indigo-600 indeterminate:bg-indigo-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:border-white/10 disabled:bg-transparent forced-colors:appearance-auto col-span-1 flex items-center justify-center"
+          checked={selectedLayerIds.has(index)}
+          onChange={(e) => {
+            setSelectedLayerIds((prev) => {
+              const next = new Set(prev);
+              if (e.target.checked) next.add(index);
+              else next.delete(index);
+              return next;
+            });
+          }}
+        />
+      </div>
+      <div className="min-w-0 px-3 py-1 relative flex items-start gap-2 h-full">
+        {layer.layerType !== 'COMPOSITION' && (
+          <button
+            onClick={() => setParamDialogLayerIndex(index)}
+            className="absolute right-1 top-1 size-5 flex items-center justify-center cursor-pointer disabled:cursor-not-allowed group rounded-sm bg-primary hover:bg-secondary hover:text-gray-400 disabled:pointer-events-none disabled:opacity-50"
+            type="button"
+          >
+            <EditIcon className="size-3" />
+          </button>
+        )}
+        <div className="flex flex-col text-xs pr-3 min-w-0 h-full justify-center">
+          <div className="flex items-center gap-1">
+            <LayerTypeIcon
+              layerType={layer.layerType}
+              mediaType={
+                layer.layerType === 'MEDIA' ? layer.mediaType : undefined
+              }
+            />
+            <button
+              type="button"
+              className="text-left underline truncate text-xs leading-4"
+              onClick={() => AeScriptsApi.selectLayer(layer.internalId)}
+            >
+              {layer.layerName}
+            </button>
+          </div>
+          {layer.parametrization?.value != null && (
+            <code className="truncate text-gray-400 text-2xs">
+              {ensureHashPrefix(layer.parametrization.value)}
+            </code>
+          )}
+        </div>
+      </div>
+      <div className="min-w-0 px-3 py-1 relative min-h-full">
+        <button
+          onClick={() => setScriptsDialogLayerIndex(index)}
+          className="absolute right-1 top-1 size-5 flex items-center justify-center cursor-pointer disabled:cursor-not-allowed group rounded-sm bg-primary hover:bg-secondary hover:text-gray-400"
+          type="button"
+        >
+          <PlusIcon className="size-3" />
+        </button>
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragEnd={(event) => handleDragEnd(index, event)}
+        >
+          <SortableContext
+            items={layer.scripting?.scripts.map((s) => s.scriptType) ?? []}
+            strategy={verticalListSortingStrategy}
+          >
+            <div className="flex flex-col text-xs gap-1 pr-4">
+              {layer.scripting?.scripts.map((script, scriptIndex) => {
+                const isKnown = script.scriptType in SCRIPT_REGISTRY;
+                return (
+                  <SortableScriptItem
+                    key={script.scriptType}
+                    script={script}
+                    index={scriptIndex}
+                    isKnown={isKnown}
+                    onBadgeClick={
+                      isKnown && SCRIPT_REGISTRY[script.scriptType]?.isEditable
+                        ? () =>
+                            handleBadgeClick(index, script as EditableScript)
+                        : undefined
+                    }
+                    onRemove={() =>
+                      handleScriptRemove(index, script.scriptType)
+                    }
+                  />
+                );
+              })}
+            </div>
+          </SortableContext>
+        </DndContext>
+      </div>
+    </li>
+  );
+}
+
 export function ParametrizedLayers({
   editableLayers,
   setEditableLayers,
@@ -180,6 +339,25 @@ export function ParametrizedLayers({
       );
     },
     [setEditableLayers],
+  );
+
+  const handleLayerDragEnd = useCallback(
+    (event: DragEndEvent) => {
+      const { active, over } = event;
+      if (!over || active.id === over.id) return;
+      setEditableLayers((prev) => {
+        const ai = prev.findIndex(
+          (l) => String(l.internalId) === String(active.id),
+        );
+        const oi = prev.findIndex(
+          (l) => String(l.internalId) === String(over.id),
+        );
+        if (ai === -1 || oi === -1) return prev;
+        return arrayMove(prev, ai, oi);
+      });
+      setSelectedLayerIds(new Set());
+    },
+    [setEditableLayers, setSelectedLayerIds],
   );
 
   const sensors = useSensors(
@@ -278,6 +456,9 @@ export function ParametrizedLayers({
     [editableLayers, parameterQuery, layerType],
   );
 
+  const isFilterActive =
+    parameterQuery !== '' || layerType !== 'All' || !!disabled;
+
   return (
     <>
       <div className={classNames('col-span-full', disabled && 'opacity-50')}>
@@ -318,109 +499,33 @@ export function ParametrizedLayers({
               </div>
             </li>
           )}
-          {layers.map(({ layer, index }) => (
-            <li
-              key={`${layer.internalId}_${index}`}
-              className="min-w-fit grid grid-cols-[auto_1fr_1fr] w-full divide-x divide-white/10 divide-dashed items-center"
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleLayerDragEnd}
+          >
+            <SortableContext
+              items={layers.map(({ layer }) => String(layer.internalId))}
+              strategy={verticalListSortingStrategy}
             >
-              <div className="flex items-center justify-center py-1 px-3">
-                <input
-                  type="checkbox"
-                  className="appearance-none rounded border border-white/10 bg-white/5 checked:border-indigo-600 checked:bg-indigo-600 indeterminate:border-indigo-600 indeterminate:bg-indigo-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:border-white/10 disabled:bg-transparent forced-colors:appearance-auto col-span-1 flex items-center justify-center"
-                  checked={selectedLayerIds.has(index)}
-                  onChange={(e) => {
-                    setSelectedLayerIds((prev) => {
-                      const next = new Set(prev);
-                      if (e.target.checked) next.add(index);
-                      else next.delete(index);
-                      return next;
-                    });
-                  }}
-                />
-              </div>
-              <div className="min-w-0 px-3 py-1 relative flex items-start gap-2 h-full">
-                {layer.layerType !== 'COMPOSITION' && (
-                  <button
-                    onClick={() => setParamDialogLayerIndex(index)}
-                    className="absolute right-1 top-1 size-5 flex items-center justify-center cursor-pointer disabled:cursor-not-allowed group rounded-sm bg-primary hover:bg-secondary hover:text-gray-400 disabled:pointer-events-none disabled:opacity-50"
-                    type="button"
-                  >
-                    <EditIcon className="size-3" />
-                  </button>
-                )}
-                <div className="flex flex-col text-xs pr-3 min-w-0 h-full justify-center">
-                  <div className="flex items-center gap-1">
-                    <LayerTypeIcon
-                      layerType={layer.layerType}
-                      mediaType={
-                        layer.layerType === 'MEDIA'
-                          ? layer.mediaType
-                          : undefined
-                      }
-                    />
-                    <button
-                      type="button"
-                      className="text-left underline truncate text-xs leading-4"
-                      onClick={() => AeScriptsApi.selectLayer(layer.internalId)}
-                    >
-                      {layer.layerName}
-                    </button>
-                  </div>
-                  <code className="truncate text-gray-400 text-2xs">
-                    {layer.parametrization?.value}
-                  </code>
-                </div>
-              </div>
-              <div className="min-w-0 px-3 py-1 relative min-h-full">
-                <button
-                  onClick={() => setScriptsDialogLayerIndex(index)}
-                  className="absolute right-1 top-1 size-5 flex items-center justify-center cursor-pointer disabled:cursor-not-allowed group rounded-sm bg-primary hover:bg-secondary hover:text-gray-400"
-                  type="button"
-                >
-                  <PlusIcon className="size-3" />
-                </button>
-                <DndContext
+              {layers.map(({ layer, index }) => (
+                <SortableLayerItem
+                  key={String(layer.internalId)}
+                  layer={layer}
+                  index={index}
+                  isFilterActive={isFilterActive}
+                  selectedLayerIds={selectedLayerIds}
+                  setSelectedLayerIds={setSelectedLayerIds}
+                  setParamDialogLayerIndex={setParamDialogLayerIndex}
+                  setScriptsDialogLayerIndex={setScriptsDialogLayerIndex}
                   sensors={sensors}
-                  collisionDetection={closestCenter}
-                  onDragEnd={(event) => handleDragEnd(index, event)}
-                >
-                  <SortableContext
-                    items={
-                      layer.scripting?.scripts.map((s) => s.scriptType) ?? []
-                    }
-                    strategy={verticalListSortingStrategy}
-                  >
-                    <div className="flex flex-col text-xs gap-1 pr-4">
-                      {layer.scripting?.scripts.map((script, scriptIndex) => {
-                        const isKnown = script.scriptType in SCRIPT_REGISTRY;
-                        return (
-                          <SortableScriptItem
-                            key={script.scriptType}
-                            script={script}
-                            index={scriptIndex}
-                            isKnown={isKnown}
-                            onBadgeClick={
-                              isKnown &&
-                              SCRIPT_REGISTRY[script.scriptType]?.isEditable
-                                ? () =>
-                                    handleBadgeClick(
-                                      index,
-                                      script as EditableScript,
-                                    )
-                                : undefined
-                            }
-                            onRemove={() =>
-                              handleScriptRemove(index, script.scriptType)
-                            }
-                          />
-                        );
-                      })}
-                    </div>
-                  </SortableContext>
-                </DndContext>
-              </div>
-            </li>
-          ))}
+                  handleDragEnd={handleDragEnd}
+                  handleBadgeClick={handleBadgeClick}
+                  handleScriptRemove={handleScriptRemove}
+                />
+              ))}
+            </SortableContext>
+          </DndContext>
         </ul>
       </div>
       <ScriptsDialog
@@ -464,7 +569,7 @@ function SelectAllCheckbox({
   }, [someSelected]);
 
   return (
-    <div className="py-1 px-3 flex items-center justify-center">
+    <div className="py-1 px-2 flex items-center justify-center h-full ml-[29px]">
       <input
         ref={ref}
         type="checkbox"

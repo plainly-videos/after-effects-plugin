@@ -10,6 +10,7 @@ import classNames from 'classnames';
 import { useState } from 'react';
 import { Button, Checkbox } from '../common';
 import { Description, Label } from '../typography';
+import { stripHashPrefix } from './utils';
 
 export type ParameterDialogSaveValue = {
   label: string;
@@ -36,7 +37,9 @@ export function ParameterDialog({
   const { expression, value, defaultValue, mandatory } = parametrization ?? {};
 
   const [isExpression, setIsExpression] = useState(expression ?? false);
-  const [staticValue, setStaticValue] = useState(value ?? '');
+  const [staticValue, setStaticValue] = useState(
+    value ? stripHashPrefix(value) : '',
+  );
   const [displayName, setDisplayName] = useState(layer?.label ?? '');
   const [parameterName, setParameterName] = useState(
     expression ? (value ?? '') : '',
@@ -83,9 +86,9 @@ export function ParameterDialog({
 
   return (
     <Dialog open={open} onClose={setOpen} className="relative">
-      <DialogBackdrop className="fixed inset-0 backdrop-blur-md" />
+      <DialogBackdrop className="fixed inset-0 z-20 backdrop-blur-md" />
 
-      <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
+      <div className="fixed inset-0 z-30 w-screen overflow-y-auto">
         <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
           <DialogPanel
             className={classNames(
