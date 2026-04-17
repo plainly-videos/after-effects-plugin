@@ -11,6 +11,8 @@ import {
 } from '@src/ui/types/template';
 import { SCRIPT_REGISTRY } from './scriptRegistry';
 
+export const PARAM_NAME_REGEX =
+  /^[A-Za-z][A-Za-z0-9_]*(\.[A-Za-z][A-Za-z0-9_]*)*$/;
 export const SCRIPT_PARAMETER_NAME_REGEX = /^[^.]+$/;
 
 export function ensureHashPrefix(value: string): string {

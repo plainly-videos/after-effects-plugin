@@ -10,14 +10,12 @@ import classNames from 'classnames';
 import { useState } from 'react';
 import { Button, Checkbox } from '../common';
 import { Description, Label } from '../typography';
-import { stripHashPrefix } from './utils';
+import { PARAM_NAME_REGEX, stripHashPrefix } from './utils';
 
 export type ParameterDialogSaveValue = {
   label: string;
   parametrization: Parametrization;
 };
-
-const PARAM_NAME_REGEX = /^[A-Za-z][A-Za-z0-9_]*(\.[A-Za-z][A-Za-z0-9_]*)*$/;
 
 export function ParameterDialog({
   open,
@@ -33,23 +31,24 @@ export function ParameterDialog({
   const [settings] = useGlobalState(State.SETTINGS);
   const sidebarOpen = settings.sidebarOpen;
 
-  const parametrization = layer?.parametrization;
+  const { parametrization, label } = layer ?? {};
   const { expression, value, defaultValue, mandatory } = parametrization ?? {};
+  const stripValue = stripHashPrefix(value ?? '');
 
   const [isExpression, setIsExpression] = useState(expression ?? false);
-  const [staticValue, setStaticValue] = useState(
-    value ? stripHashPrefix(value) : '',
-  );
-  const [displayName, setDisplayName] = useState(layer?.label ?? '');
-  const [parameterName, setParameterName] = useState(
-    expression ? (value ?? '') : '',
-  );
-  const [defaultV, setDefaultV] = useState(defaultValue ?? '');
+
+  const initialValue = isExpression ? '' : stripValue;
+  const initialParameter = isExpression ? stripValue : '';
+
+  const [staticValue, setStaticValue] = useState(initialValue);
+  const [parameterName, setParameterName] = useState(initialParameter);
+  const [displayName, setDisplayName] = useState(label ?? '');
+  const [paramDefaultV, setParamDefaultV] = useState(defaultValue ?? '');
   const [isMandatory, setIsMandatory] = useState(mandatory ?? false);
 
-  const paramNameInvalid =
-    parameterName.length > 0 && !PARAM_NAME_REGEX.test(parameterName);
-  const saveDisabled = isExpression && !PARAM_NAME_REGEX.test(parameterName);
+  const isParamNameValid = PARAM_NAME_REGEX.test(parameterName);
+  const paramNameInvalid = parameterName.length > 0 && !isParamNameValid;
+  const saveDisabled = isExpression && !isParamNameValid;
 
   const handleSave = () => {
     if (!layer || !onSave) {
@@ -68,13 +67,15 @@ export function ParameterDialog({
           ...currentParametrization,
           expression: true,
           value: parameterName,
-          defaultValue: defaultV,
+          defaultValue: paramDefaultV,
           mandatory: isMandatory,
         }
       : {
           ...currentParametrization,
           expression: false,
           value: staticValue,
+          defaultValue: undefined,
+          mandatory: false,
         };
 
     onSave({
@@ -144,8 +145,8 @@ export function ParameterDialog({
                 param={parameterName}
                 setParam={setParameterName}
                 paramInvalid={paramNameInvalid}
-                defaultV={defaultV}
-                setDefaultV={setDefaultV}
+                defaultV={paramDefaultV}
+                setDefaultV={setParamDefaultV}
                 isMandatory={isMandatory}
                 setIsMandatory={setIsMandatory}
               />
