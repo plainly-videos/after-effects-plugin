@@ -75,6 +75,7 @@ export function Parametrization() {
     useState<ScriptEditState<EditableScript>>(null);
   const [showReloadConfirm, setShowReloadConfirm] = useState(false);
   const [scriptsDialogLayerIndex, setScriptsDialogLayerIndex] = useState(-1);
+  const [paramDialogLayerIndex, setParamDialogLayerIndex] = useState(-1);
   // Prevents the selectedTemplate effect from overwriting editableLayers on
   // the save path, where we set both states atomically in handleSubmit.
   const skipLayerResetRef = useRef(false);
@@ -90,6 +91,7 @@ export function Parametrization() {
     setLayerType('All');
     setParameterQuery('');
     setScriptsDialogLayerIndex(-1);
+    setParamDialogLayerIndex(-1);
   }, [refetch, selectedTemplate?.id]);
 
   useEffect(() => {
@@ -102,6 +104,7 @@ export function Parametrization() {
     setLayerType('All');
     setParameterQuery('');
     setScriptsDialogLayerIndex(-1);
+    setParamDialogLayerIndex(-1);
   }, [selectedTemplate]);
 
   const handleBulkScriptSelect = useCallback(
@@ -181,6 +184,7 @@ export function Parametrization() {
       skipLayerResetRef.current = true;
       setEditableLayers(savedTemplate?.layers || []);
       setScriptsDialogLayerIndex(-1);
+      setParamDialogLayerIndex(-1);
       setSelectedTemplate(savedTemplate);
       notifySuccess('Template changes saved successfully');
     } catch (error) {
@@ -348,6 +352,8 @@ export function Parametrization() {
                   onEditScript={setActiveScriptEdit}
                   scriptsDialogLayerIndex={scriptsDialogLayerIndex}
                   setScriptsDialogLayerIndex={setScriptsDialogLayerIndex}
+                  paramDialogLayerIndex={paramDialogLayerIndex}
+                  setParamDialogLayerIndex={setParamDialogLayerIndex}
                   disabled={disabledTemplates || !selectedTemplate}
                   unsavedChanges={hasUnsavedChanges}
                   renderingCompositionId={renderingCompositionId}
