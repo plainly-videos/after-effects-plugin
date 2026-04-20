@@ -1,3 +1,14 @@
+export class FolderPermissionError extends Error {
+  folderPath: string;
+  constructor(folderPath: string) {
+    super(
+      `No write permission for folder: ${folderPath}. Please ensure you have write access and try again.`,
+    );
+    this.folderPath = folderPath;
+    Object.setPrototypeOf(this, FolderPermissionError.prototype);
+  }
+}
+
 export class CollectFootageError extends Error {
   errorPaths: string[];
   constructor(errorPaths: string[]) {
