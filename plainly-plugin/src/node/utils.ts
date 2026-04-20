@@ -11,9 +11,11 @@ import { isWindows } from './constants';
 import { FolderPermissionError } from './errors';
 
 function isPermissionError(error: unknown): boolean {
+  if (error === null || typeof error !== 'object') return false;
   const code = (error as NodeJS.ErrnoException).code;
   return code === 'EPERM' || code === 'EACCES';
 }
+
 /**
  * Checks if a file or directory exists at the given path.
  * @param path - The path to check.
@@ -66,7 +68,7 @@ export async function renameIfExists(src: string, dest: string): Promise<void> {
     await fsPromises.rename(src, dest);
   } catch (error) {
     if (isPermissionError(error)) {
-      throw new FolderPermissionError(src);
+      throw new FolderPermissionError(path.dirname(src));
     }
     throw error;
   }

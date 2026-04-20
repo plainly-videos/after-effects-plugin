@@ -1,6 +1,6 @@
 import { Transition } from '@headlessui/react';
 import { useNotifications } from '@src/ui/hooks';
-import type { NotificationType } from '@src/ui/types';
+import type { NotificationAction, NotificationType } from '@src/ui/types';
 import classNames from 'classnames';
 import { CircleCheckBigIcon, InfoIcon, XIcon } from 'lucide-react';
 import { Button } from './Button';
@@ -19,7 +19,7 @@ function Notification({
   type: NotificationType;
   description?: string;
   code?: string;
-  action?: { label: string; onClick: () => void };
+  action?: NotificationAction;
   onClose: () => void;
   isFirst?: boolean;
   isLast?: boolean;
@@ -55,7 +55,7 @@ function Notification({
                   />
                 )}
               </div>
-              <div className="ml-3 w-0 flex-1 pt-0.5">
+              <div className="ml-3 w-0 flex-1 pt-0.5 pr-8">
                 <p className="text-sm font-medium text-white">{title}</p>
                 {description && (
                   <p className="mt-1 text-sm text-gray-400">{description}</p>

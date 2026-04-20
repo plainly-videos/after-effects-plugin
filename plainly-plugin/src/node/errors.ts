@@ -4,6 +4,7 @@ export class FolderPermissionError extends Error {
     super(
       `No write permission for folder: ${folderPath}. Please ensure you have write access and try again.`,
     );
+    this.name = 'FolderPermissionError';
     this.folderPath = folderPath;
     Object.setPrototypeOf(this, FolderPermissionError.prototype);
   }
