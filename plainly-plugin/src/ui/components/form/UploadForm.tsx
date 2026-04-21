@@ -13,7 +13,8 @@ import fs from 'fs';
 import { LoaderCircleIcon } from 'lucide-react';
 import { useCallback, useContext, useEffect, useState } from 'react';
 import { makeProjectZipTmpDir } from '../../../node';
-import { CanceledApiError } from '../../../node/errors';
+import { CanceledApiError, FolderPermissionError } from '../../../node/errors';
+import { openFolder } from '../../../node/utils';
 import { Alert, Button, InternalLink, Tooltip } from '../common';
 import { GlobalContext } from '../context';
 import { Description, Label, PageHeading } from '../typography';
@@ -154,7 +155,14 @@ export function UploadForm() {
         return;
       }
       setUploadProgress(0);
-      notifyError('Failed to upload project', error);
+      const action =
+        error instanceof FolderPermissionError
+          ? {
+              label: 'Open folder',
+              onClick: () => openFolder(error.folderPath),
+            }
+          : undefined;
+      notifyError('Failed to upload project', error, action);
     } finally {
       if (zipPathValue) {
         fs.rmSync(zipPathValue);

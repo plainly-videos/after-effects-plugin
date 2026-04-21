@@ -8,6 +8,14 @@ const homeDirectory = os.homedir();
 
 import archiver from 'archiver';
 import { isWindows } from './constants';
+import { FolderPermissionError } from './errors';
+
+function isPermissionError(error: unknown): boolean {
+  if (error === null || typeof error !== 'object') return false;
+  const code = (error as NodeJS.ErrnoException).code;
+  return code === 'EPERM' || code === 'EACCES';
+}
+
 /**
  * Checks if a file or directory exists at the given path.
  * @param path - The path to check.
@@ -56,7 +64,14 @@ export async function renameIfExists(src: string, dest: string): Promise<void> {
     return;
   }
 
-  await fsPromises.rename(src, dest);
+  try {
+    await fsPromises.rename(src, dest);
+  } catch (error) {
+    if (isPermissionError(error)) {
+      throw new FolderPermissionError(path.dirname(src));
+    }
+    throw error;
+  }
 }
 
 /**
@@ -125,14 +140,28 @@ export const zipItems = async (
   items: { src: string; dest: string; isRequired: boolean }[],
 ): Promise<string> => {
   return new Promise((resolve, reject) => {
-    const output = fs.createWriteStream(outputZipPath);
+    let output: fs.WriteStream;
+    try {
+      output = fs.createWriteStream(outputZipPath);
+    } catch (error) {
+      if (isPermissionError(error)) {
+        reject(new FolderPermissionError(path.dirname(outputZipPath)));
+      } else {
+        reject(error);
+      }
+      return;
+    }
     const archive = archiver('zip', { zlib: { level: 1 } });
 
     output.on('close', () => resolve(outputZipPath));
 
     output.on('error', (err) => {
       archive.destroy();
-      reject(err);
+      if (isPermissionError(err)) {
+        reject(new FolderPermissionError(path.dirname(outputZipPath)));
+      } else {
+        reject(err);
+      }
     });
 
     archive.on('error', (err) => {

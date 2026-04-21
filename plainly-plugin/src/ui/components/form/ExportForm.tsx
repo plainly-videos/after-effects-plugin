@@ -1,3 +1,4 @@
+import { FolderPermissionError } from '@src/node/errors';
 import { useNotifications } from '@src/ui/hooks';
 import classNames from 'classnames';
 import { FolderIcon } from 'lucide-react';
@@ -25,7 +26,14 @@ export function ExportForm() {
 
         if (openLocation) openFolder(targetPath);
       } catch (error) {
-        notifyError('Failed to collect files', error);
+        const action =
+          error instanceof FolderPermissionError
+            ? {
+                label: 'Open folder',
+                onClick: () => openFolder(error.folderPath),
+              }
+            : undefined;
+        notifyError('Failed to collect files', error, action);
         setLoading(false);
       }
     }

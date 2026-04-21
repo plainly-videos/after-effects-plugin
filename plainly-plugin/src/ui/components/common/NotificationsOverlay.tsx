@@ -1,6 +1,6 @@
 import { Transition } from '@headlessui/react';
 import { useNotifications } from '@src/ui/hooks';
-import type { NotificationType } from '@src/ui/types';
+import type { NotificationAction, NotificationType } from '@src/ui/types';
 import classNames from 'classnames';
 import { CircleCheckBigIcon, InfoIcon, XIcon } from 'lucide-react';
 import { Button } from './Button';
@@ -10,6 +10,7 @@ function Notification({
   type,
   description,
   code,
+  action,
   onClose,
   isFirst,
   isLast,
@@ -18,6 +19,7 @@ function Notification({
   type: NotificationType;
   description?: string;
   code?: string;
+  action?: NotificationAction;
   onClose: () => void;
   isFirst?: boolean;
   isLast?: boolean;
@@ -34,7 +36,7 @@ function Notification({
             isLast && 'rounded-b-lg',
           )}
         >
-          <div className="p-4">
+          <div className="p-4 relative">
             <div className="flex items-start">
               <div className="shrink-0">
                 {type === 'success' && (
@@ -53,14 +55,23 @@ function Notification({
                   />
                 )}
               </div>
-              <div className="ml-3 w-0 flex-1 pt-0.5">
+              <div className="ml-3 w-0 flex-1 pt-0.5 pr-8">
                 <p className="text-sm font-medium text-white">{title}</p>
                 {description && (
                   <p className="mt-1 text-sm text-gray-400">{description}</p>
                 )}
                 {code && <p className="mt-1 text-xs text-gray-500">{code}</p>}
+                {action && (
+                  <button
+                    type="button"
+                    onClick={action.onClick}
+                    className="mt-2 text-xs font-medium text-indigo-400 hover:text-indigo-300"
+                  >
+                    {action.label}
+                  </button>
+                )}
               </div>
-              <div className="ml-4 flex shrink-0">
+              <div className="absolute top-4 right-4">
                 <button
                   type="button"
                   onClick={onClose}
@@ -94,6 +105,7 @@ export function NotificationsOverlay() {
           type={notification.type}
           description={notification.description}
           code={notification.code}
+          action={notification.action}
           onClose={() => clearNotification(notification.id)}
           isFirst={notifications.indexOf(notification) === 0}
           isLast={

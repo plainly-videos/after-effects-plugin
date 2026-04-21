@@ -19,12 +19,18 @@ export enum NotificationType {
   INFO = 'info',
 }
 
+export interface NotificationAction {
+  label: string;
+  onClick: () => void;
+}
+
 export interface Notification {
   id: string;
   title: string;
   type: NotificationType;
   description?: string;
   code?: string;
+  action?: NotificationAction;
 }
 
 export class Pin {
