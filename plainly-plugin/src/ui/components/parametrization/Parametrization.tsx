@@ -49,7 +49,7 @@ import { Description, Label, PageHeading } from '../typography';
 import { FilterAndActions } from './FilterAndActions';
 import { ParametrizedLayers } from './ParametrizedLayers';
 import { ScriptDialogs } from './ScriptDialogs';
-import { SCRIPT_REGISTRY } from './scriptRegistry';
+import { PREMADE_SCRIPT_REGISTRY, SCRIPT_REGISTRY } from './scriptRegistry';
 import { addScriptDirectly, getDefaultScript } from './utils';
 
 export function Parametrization() {
@@ -57,7 +57,7 @@ export function Parametrization() {
   const { isLoading, data, refetch, isRefetching } = useGetProjectDetails(
     plainlyProject?.id,
   );
-  const { notifyError, notifySuccess } = useNotifications();
+  const { notifyError, notifyInfo, notifySuccess } = useNotifications();
 
   const [templateQuery, setTemplateQuery] = useState('');
   const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(
@@ -130,6 +130,21 @@ export function Parametrization() {
       });
     },
     [selectedLayerIds],
+  );
+
+  const handlePremadeScriptSelect = useCallback(
+    async (scriptId: string) => {
+      const entry = PREMADE_SCRIPT_REGISTRY[scriptId];
+      if (!entry) return;
+      await entry.handler({
+        editableLayers,
+        setEditableLayers,
+        notifyError,
+        notifyInfo,
+        notifySuccess,
+      });
+    },
+    [editableLayers, notifyError, notifyInfo, notifySuccess],
   );
 
   const renderingCompositionId = selectedTemplate?.renderingCompositionId;
@@ -335,6 +350,7 @@ export function Parametrization() {
                   layerType={layerType}
                   setLayerType={setLayerType}
                   onBulkScriptSelectAction={handleBulkScriptSelect}
+                  onPremadeScriptAction={handlePremadeScriptSelect}
                   bulkScriptDisabled={selectedLayerIds.size === 0}
                   disabled={disabledTemplates || !selectedTemplate}
                 />

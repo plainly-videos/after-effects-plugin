@@ -6,6 +6,8 @@ import type {
   ProjectInfo,
   ProjectIssueType,
   RelinkData,
+  SelectedLayerInfo,
+  VideoLayerInfo,
 } from 'plainly-types';
 import { csInterface } from '../constants';
 
@@ -206,6 +208,43 @@ class AeScriptsApiClass {
       return JSON.parse(result);
     } catch {
       throw new Error('Failed to parse layer names data.');
+    }
+  }
+
+  /**
+   * Returns the layers currently selected in the active (working) composition.
+   * If no composition is active, returns an empty array.
+   * @returns An array of SelectedLayerInfo entries
+   */
+  async getSelectedLayers(): Promise<SelectedLayerInfo[]> {
+    const result = await evalScriptAsync('getSelectedLayers()');
+    if (!result) return [];
+
+    try {
+      return JSON.parse(result);
+    } catch {
+      throw new Error('Failed to parse selected layers data.');
+    }
+  }
+
+  /**
+   * Returns the first video layer inside the given composition.
+   * A "video layer" is a footage layer whose source file has a recognized video extension.
+   * @param compId - The ID of the composition
+   * @returns Video layer info, or undefined if none found
+   */
+  async getFirstVideoLayerInComp(
+    compId: number,
+  ): Promise<VideoLayerInfo | undefined> {
+    const result = await evalScriptAsync(
+      `getFirstVideoLayerInComp(${JSON.stringify(String(compId))})`,
+    );
+    if (!result) return undefined;
+
+    try {
+      return JSON.parse(result);
+    } catch {
+      throw new Error('Failed to parse video layer data.');
     }
   }
 

@@ -5,6 +5,7 @@ import {
   type Layer,
   type LayerManagementScript,
   type MediaAutoScaleScript,
+  type Script,
   ScriptType,
   type ShiftInScript,
   type ShiftOutScript,
@@ -25,6 +26,17 @@ export function addScriptDirectly(layer: Layer, scriptType: ScriptType): Layer {
       scripts: [...existingScripts, { scriptType }],
     },
   };
+}
+
+export function upsertScript(
+  scripts: Script[],
+  next: EditableScript,
+): Script[] {
+  const idx = scripts.findIndex((s) => s.scriptType === next.scriptType);
+  if (idx === -1) return [...scripts, next];
+  const copy = scripts.slice();
+  copy[idx] = next;
+  return copy;
 }
 
 type DefaultScriptMap = {

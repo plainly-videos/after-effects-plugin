@@ -1,4 +1,48 @@
-import type { InstalledFontData } from 'plainly-types';
+import type {
+  InstalledFontData,
+  SelectedLayerInfo,
+  VideoLayerInfo,
+} from 'plainly-types';
+
+const VIDEO_FILE_EXTENSIONS: string[] = [
+  'crm',
+  'mxf',
+  'mov',
+  '3gp',
+  '3g2',
+  'amc',
+  'swf',
+  'flv',
+  'f4v',
+  'gif',
+  'm2ts',
+  'm4v',
+  'mpg',
+  'mpe',
+  'mpa',
+  'mpv',
+  'mod',
+  'm2p',
+  'm2v',
+  'm2a',
+  'm2t',
+  'mp4',
+  'omf',
+  'avi',
+  'wmv',
+  'wma',
+  'webm',
+];
+
+function hasVideoExtension(path: string): boolean {
+  const dot = path.lastIndexOf('.');
+  if (dot === -1) return false;
+  const ext = path.substring(dot + 1).toLowerCase();
+  for (let i = 0; i < VIDEO_FILE_EXTENSIONS.length; i++) {
+    if (VIDEO_FILE_EXTENSIONS[i] === ext) return true;
+  }
+  return false;
+}
 
 /**
  * @function isWin
@@ -242,6 +286,65 @@ function selectFile(fileId: string): void {
 }
 
 /**
+ * Returns the layers currently selected in the active (working) composition.
+ *
+ * The working composition is `app.project.activeItem` when it is a `CompItem`.
+ * If no composition is active, an empty array is returned.
+ *
+ * @returns {string} JSON array of SelectedLayerInfo entries.
+ */
+function getSelectedLayers(): string {
+  const active = app.project.activeItem;
+  if (!(active instanceof CompItem)) return JSON.stringify([]);
+
+  const selected = active.selectedLayers;
+  const result: SelectedLayerInfo[] = [];
+  for (let i = 0; i < selected.length; i++) {
+    const layer = selected[i];
+    const info: SelectedLayerInfo = {
+      id: layer.id,
+      name: layer.name,
+      index: layer.index,
+      compId: active.id,
+      compName: active.name,
+    };
+    if (layer instanceof AVLayer && layer.source instanceof CompItem) {
+      info.sourceCompId = layer.source.id;
+      info.sourceCompName = layer.source.name;
+    }
+    result.push(info);
+  }
+  return JSON.stringify(result);
+}
+
+/**
+ * Returns the first video layer inside the given composition, or undefined.
+ *
+ * A "video layer" is an AVLayer whose source is a FootageItem backed by a file
+ * with a recognized video extension.
+ */
+function getFirstVideoLayerInComp(compId: string): string | undefined {
+  const comp = app.project.itemByID(parseInt(compId, 10));
+  if (!(comp instanceof CompItem)) return undefined;
+
+  for (let i = 1; i <= comp.numLayers; i++) {
+    const layer = comp.layer(i);
+    if (!(layer instanceof AVLayer)) continue;
+    const src = layer.source;
+    if (!(src instanceof FootageItem)) continue;
+    if (src.file == null) continue;
+    if (!hasVideoExtension(src.file.fsName)) continue;
+
+    const info: VideoLayerInfo = {
+      id: layer.id,
+      name: layer.name,
+    };
+    return JSON.stringify(info);
+  }
+  return undefined;
+}
+
+/**
  * Generates a UUID (Universally Unique Identifier) string in the format 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.
  *
  * @returns {string} A randomly generated UUID string.
@@ -259,10 +362,12 @@ function uuid(): string {
 
 export {
   getAllComps,
+  getFirstVideoLayerInComp,
   getFolderPath,
   getInstalledFontsByFamilyNameAndStyleName,
   getInstalledFontsByPostScriptName,
   getCompLayerNames,
+  getSelectedLayers,
   getTextLayersByComp,
   isWin,
   pathJoin,
