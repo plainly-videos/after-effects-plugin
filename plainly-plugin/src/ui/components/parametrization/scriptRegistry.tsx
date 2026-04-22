@@ -1,4 +1,4 @@
-import type { EditableScript, LayerType } from '@src/ui/types/template';
+import type { EditableScript, Layer, LayerType } from '@src/ui/types/template';
 import { ScriptType } from '@src/ui/types/template';
 import {
   ImageIcon,
@@ -9,6 +9,8 @@ import {
   TypeIcon,
 } from 'lucide-react';
 import type React from 'react';
+import type { Dispatch, SetStateAction } from 'react';
+import { shiftAndCropHandler } from './premadeScripts/shiftAndCrop';
 
 export type ScriptRegistryEntry = {
   label: string;
@@ -108,6 +110,47 @@ export const SCRIPT_REGISTRY: Record<ScriptType, ScriptRegistryEntry> = {
       scriptType: ScriptType.LAYER_MANAGEMENT,
       parameterName: '',
     },
+  },
+};
+
+function ShiftAndCropIcon() {
+  return (
+    <div className="flex items-center gap-px text-white">
+      <LogInIcon className="size-3" />
+      <ScissorsIcon className="size-3" />
+    </div>
+  );
+}
+
+export type PremadeScriptHandlerContext = {
+  editableLayers: Layer[];
+  setEditableLayers: Dispatch<SetStateAction<Layer[]>>;
+  notifyError: (msg: string) => void;
+  notifyInfo: (msg: string) => void;
+  notifySuccess: (msg: string) => void;
+};
+
+export type PremadeScriptHandler = (
+  ctx: PremadeScriptHandlerContext,
+) => Promise<void> | void;
+
+export type PremadeScriptRegistryEntry = {
+  label: string;
+  description: string;
+  icon: React.ElementType;
+  handler: PremadeScriptHandler;
+};
+
+export const PREMADE_SCRIPT_REGISTRY: Record<
+  string,
+  PremadeScriptRegistryEntry
+> = {
+  SHIFT_AND_CROP: {
+    label: 'Shift and crop',
+    description:
+      'Chains selected scene compositions with shift-in and crops the first inner video of each scene.',
+    icon: ShiftAndCropIcon,
+    handler: shiftAndCropHandler,
   },
 };
 
