@@ -14,6 +14,13 @@ import { SCRIPT_REGISTRY } from './scriptRegistry';
 
 export const SCRIPT_PARAMETER_NAME_REGEX = /^[^.]+$/;
 
+export function normalizeLayers(layers: Layer[]): Layer[] {
+  return layers.map((layer) => {
+    const maybeLabel = (layer as { label?: string }).label;
+    return { ...layer, label: maybeLabel ?? layer.layerName };
+  });
+}
+
 export function addScriptDirectly(layer: Layer, scriptType: ScriptType): Layer {
   const existingScripts = layer.scripting?.scripts || [];
   if (existingScripts.some((s) => s.scriptType === scriptType)) {

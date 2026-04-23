@@ -55,7 +55,7 @@ import {
   type PromptChoiceOptions,
   SCRIPT_REGISTRY,
 } from './scriptRegistry';
-import { addScriptDirectly, getDefaultScript } from './utils';
+import { addScriptDirectly, getDefaultScript, normalizeLayers } from './utils';
 
 export function Parametrization() {
   const { plainlyProject, contextReady } = useContext(GlobalContext) || {};
@@ -101,7 +101,7 @@ export function Parametrization() {
       result.data?.templates?.find((t) => t.id === selectedTemplate?.id) ??
       null;
     setSelectedTemplate(freshTemplate);
-    setEditableLayers(freshTemplate?.layers || []);
+    setEditableLayers(normalizeLayers(freshTemplate?.layers || []));
     setSelectedLayerIds(new Set());
     setLayerType('All');
     setParameterQuery('');
@@ -113,7 +113,7 @@ export function Parametrization() {
       skipLayerResetRef.current = false;
       return;
     }
-    setEditableLayers(selectedTemplate?.layers || []);
+    setEditableLayers(normalizeLayers(selectedTemplate?.layers || []));
     setSelectedLayerIds(new Set());
     setLayerType('All');
     setParameterQuery('');
@@ -168,7 +168,7 @@ export function Parametrization() {
 
   const hasUnsavedChanges =
     !!selectedTemplate &&
-    !isEqual(editableLayers, selectedTemplate.layers || []);
+    !isEqual(editableLayers, normalizeLayers(selectedTemplate.layers || []));
 
   const { isPending, mutateAsync: editTemplate } = useEditTemplate();
 
@@ -211,7 +211,7 @@ export function Parametrization() {
       // is false in the same render. skipLayerResetRef prevents the
       // selectedTemplate effect from overwriting us.
       skipLayerResetRef.current = true;
-      setEditableLayers(savedTemplate?.layers || []);
+      setEditableLayers(normalizeLayers(savedTemplate?.layers || []));
       setScriptsDialogLayerIndex(-1);
       setSelectedTemplate(savedTemplate);
       notifySuccess('Template changes saved successfully');
