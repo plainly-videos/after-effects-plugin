@@ -122,12 +122,26 @@ function ShiftAndCropIcon() {
   );
 }
 
+export type PromptChoiceOption = {
+  id: string;
+  label: string;
+  description?: string;
+};
+
+export type PromptChoiceOptions = {
+  title: string;
+  description?: string;
+  options: PromptChoiceOption[];
+};
+
 export type PremadeScriptHandlerContext = {
   editableLayers: Layer[];
   setEditableLayers: Dispatch<SetStateAction<Layer[]>>;
   notifyError: (msg: string) => void;
   notifyInfo: (msg: string) => void;
   notifySuccess: (msg: string) => void;
+  /** Opens a choice dialog. Resolves with the chosen option id, or null if cancelled. */
+  promptChoice: (options: PromptChoiceOptions) => Promise<string | null>;
 };
 
 export type PremadeScriptHandler = (

@@ -40,6 +40,7 @@ import {
 import {
   Alert,
   Button,
+  ChoiceDialog,
   ConfirmationDialog,
   ExternalLink,
   InternalLink,
@@ -49,7 +50,11 @@ import { Description, Label, PageHeading } from '../typography';
 import { FilterAndActions } from './FilterAndActions';
 import { ParametrizedLayers } from './ParametrizedLayers';
 import { ScriptDialogs } from './ScriptDialogs';
-import { PREMADE_SCRIPT_REGISTRY, SCRIPT_REGISTRY } from './scriptRegistry';
+import {
+  PREMADE_SCRIPT_REGISTRY,
+  type PromptChoiceOptions,
+  SCRIPT_REGISTRY,
+} from './scriptRegistry';
 import { addScriptDirectly, getDefaultScript } from './utils';
 
 export function Parametrization() {
@@ -75,6 +80,17 @@ export function Parametrization() {
     useState<ScriptEditState<EditableScript>>(null);
   const [showReloadConfirm, setShowReloadConfirm] = useState(false);
   const [scriptsDialogLayerIndex, setScriptsDialogLayerIndex] = useState(-1);
+  const [choicePrompt, setChoicePrompt] = useState<
+    (PromptChoiceOptions & { resolve: (choice: string | null) => void }) | null
+  >(null);
+
+  const promptChoice = useCallback(
+    (options: PromptChoiceOptions) =>
+      new Promise<string | null>((resolve) => {
+        setChoicePrompt({ ...options, resolve });
+      }),
+    [],
+  );
   // Prevents the selectedTemplate effect from overwriting editableLayers on
   // the save path, where we set both states atomically in handleSubmit.
   const skipLayerResetRef = useRef(false);
@@ -142,9 +158,10 @@ export function Parametrization() {
         notifyError,
         notifyInfo,
         notifySuccess,
+        promptChoice,
       });
     },
-    [editableLayers, notifyError, notifyInfo, notifySuccess],
+    [editableLayers, notifyError, notifyInfo, notifySuccess, promptChoice],
   );
 
   const renderingCompositionId = selectedTemplate?.renderingCompositionId;
@@ -385,6 +402,20 @@ export function Parametrization() {
             description="You have unsaved changes, are you sure you want to reload? All unsaved changes will be lost."
             buttonText="Reload"
             action={handleReload}
+          />
+          <ChoiceDialog
+            open={choicePrompt !== null}
+            title={choicePrompt?.title ?? ''}
+            description={choicePrompt?.description}
+            options={choicePrompt?.options ?? []}
+            onSelect={(id) => {
+              choicePrompt?.resolve(id);
+              setChoicePrompt(null);
+            }}
+            onCancel={() => {
+              choicePrompt?.resolve(null);
+              setChoicePrompt(null);
+            }}
           />
           <ScriptDialogs
             activeScriptEdit={activeScriptEdit}

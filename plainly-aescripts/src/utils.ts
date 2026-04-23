@@ -1,4 +1,5 @@
 import type {
+  AudioLayerInfo,
   InstalledFontData,
   SelectedLayerInfo,
   VideoLayerInfo,
@@ -34,12 +35,41 @@ const VIDEO_FILE_EXTENSIONS: string[] = [
   'webm',
 ];
 
+const AUDIO_FILE_EXTENSIONS: string[] = [
+  'mp2',
+  'aac',
+  'm4a',
+  'aif',
+  'aiff',
+  'mp3',
+  'mpeg',
+  'mpg',
+  'mpa',
+  'mpe',
+  'wav',
+  'webm',
+];
+
 function hasVideoExtension(path: string): boolean {
   const dot = path.lastIndexOf('.');
   if (dot === -1) return false;
   const ext = path.substring(dot + 1).toLowerCase();
   for (let i = 0; i < VIDEO_FILE_EXTENSIONS.length; i++) {
     if (VIDEO_FILE_EXTENSIONS[i] === ext) return true;
+  }
+  return false;
+}
+
+// Video priority: an extension that appears in both lists (e.g. 'mpg', 'webm')
+// is classified as video, never as audio. Audio is reserved for pure-audio
+// formats like 'mp3', 'wav', 'aac'.
+function hasAudioExtension(path: string): boolean {
+  if (hasVideoExtension(path)) return false;
+  const dot = path.lastIndexOf('.');
+  if (dot === -1) return false;
+  const ext = path.substring(dot + 1).toLowerCase();
+  for (let i = 0; i < AUDIO_FILE_EXTENSIONS.length; i++) {
+    if (AUDIO_FILE_EXTENSIONS[i] === ext) return true;
   }
   return false;
 }
@@ -308,9 +338,19 @@ function getSelectedLayers(): string {
       compId: active.id,
       compName: active.name,
     };
-    if (layer instanceof AVLayer && layer.source instanceof CompItem) {
-      info.sourceCompId = layer.source.id;
-      info.sourceCompName = layer.source.name;
+    if (layer instanceof AVLayer) {
+      const src = layer.source;
+      if (src instanceof CompItem) {
+        info.sourceCompId = src.id;
+        info.sourceCompName = src.name;
+      } else if (src instanceof FootageItem && src.file != null) {
+        const fsName = src.file.fsName;
+        if (hasVideoExtension(fsName)) {
+          info.isVideo = true;
+        } else if (hasAudioExtension(fsName)) {
+          info.isAudio = true;
+        }
+      }
     }
     result.push(info);
   }
@@ -347,6 +387,35 @@ function getAllVideoLayersInComp(compId: string): string {
 }
 
 /**
+ * Returns all audio layers inside the given composition in timeline order
+ * (layer index ascending). Returns an empty array if the comp has no audio
+ * layers or cannot be resolved.
+ *
+ * An "audio layer" is an AVLayer whose source is a FootageItem backed by a
+ * file with a recognized audio extension that is not also a video extension.
+ */
+function getAllAudioLayersInComp(compId: string): string {
+  const comp = app.project.itemByID(parseInt(compId, 10));
+  if (!(comp instanceof CompItem)) return JSON.stringify([]);
+
+  const result: AudioLayerInfo[] = [];
+  for (let i = 1; i <= comp.numLayers; i++) {
+    const layer = comp.layer(i);
+    if (!(layer instanceof AVLayer)) continue;
+    const src = layer.source;
+    if (!(src instanceof FootageItem)) continue;
+    if (src.file == null) continue;
+    if (!hasAudioExtension(src.file.fsName)) continue;
+
+    result.push({
+      id: layer.id,
+      name: layer.name,
+    });
+  }
+  return JSON.stringify(result);
+}
+
+/**
  * Generates a UUID (Universally Unique Identifier) string in the format 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.
  *
  * @returns {string} A randomly generated UUID string.
@@ -363,6 +432,7 @@ function uuid(): string {
 }
 
 export {
+  getAllAudioLayersInComp,
   getAllComps,
   getAllVideoLayersInComp,
   getFolderPath,
