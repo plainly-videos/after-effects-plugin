@@ -13,6 +13,10 @@ interface SelectedLayerInfo {
   sourceCompId?: number;
   /** Set when the layer's source is a CompItem (precomp layer). */
   sourceCompName?: string;
+  /** True when the layer is an AVLayer whose source is a video footage file. */
+  isVideo?: boolean;
+  /** True when the layer is an AVLayer whose source is an audio footage file. */
+  isAudio?: boolean;
 }
 
 interface VideoLayerInfo {
@@ -20,4 +24,14 @@ interface VideoLayerInfo {
   name: string;
 }
 
-export type { InstalledFontData, SelectedLayerInfo, VideoLayerInfo };
+interface AudioLayerInfo {
+  id: number;
+  name: string;
+}
+
+export type {
+  AudioLayerInfo,
+  InstalledFontData,
+  SelectedLayerInfo,
+  VideoLayerInfo,
+};

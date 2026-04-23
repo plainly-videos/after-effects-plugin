@@ -1,6 +1,7 @@
 import { isEmpty } from '@src/ui/utils';
 import type {
   AnyProjectIssue,
+  AudioLayerInfo,
   InstalledFontData,
   ProjectData,
   ProjectInfo,
@@ -244,6 +245,27 @@ class AeScriptsApiClass {
       return JSON.parse(result);
     } catch {
       throw new Error('Failed to parse video layers data.');
+    }
+  }
+
+  /**
+   * Returns all audio layers inside the given composition in timeline order
+   * (layer index ascending).
+   * An "audio layer" is a footage layer whose source file has a recognized
+   * audio extension that is not also a video extension.
+   * @param compId - The ID of the composition
+   * @returns Array of audio layer info; empty if none found
+   */
+  async getAllAudioLayersInComp(compId: number): Promise<AudioLayerInfo[]> {
+    const result = await evalScriptAsync(
+      `getAllAudioLayersInComp(${JSON.stringify(String(compId))})`,
+    );
+    if (!result) return [];
+
+    try {
+      return JSON.parse(result);
+    } catch {
+      throw new Error('Failed to parse audio layers data.');
     }
   }
 

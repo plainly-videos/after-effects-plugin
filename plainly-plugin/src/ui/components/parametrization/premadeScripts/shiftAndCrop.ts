@@ -2,6 +2,7 @@ import { AeScriptsApi } from '@src/node/bridge';
 import {
   type CropScript,
   type Layer,
+  type MediaType,
   ScriptType,
   type ShiftInScript,
 } from '@src/ui/types/template';
@@ -9,12 +10,12 @@ import { isEmpty } from '@src/ui/utils';
 import type { PremadeScriptHandler } from '../scriptRegistry';
 import { upsertScript } from '../utils';
 
-type VideoInfo = { id: number; name: string };
+type MediaInfo = { id: number; name: string };
 
-type SceneVideoPlan =
+type SceneMediaPlan =
   | { kind: 'none' }
-  | { kind: 'single'; video: VideoInfo }
-  | { kind: 'multi'; videos: VideoInfo[] };
+  | { kind: 'single'; mediaType: MediaType; item: MediaInfo }
+  | { kind: 'multi'; mediaType: MediaType; items: MediaInfo[] };
 
 export const shiftAndCropHandler: PremadeScriptHandler = async ({
   editableLayers,
@@ -22,29 +23,66 @@ export const shiftAndCropHandler: PremadeScriptHandler = async ({
   notifyError,
   notifyInfo,
   notifySuccess,
+  promptChoice,
 }) => {
   const selected = await AeScriptsApi.getSelectedLayers();
   if (isEmpty(selected)) {
     notifyError(
-      'Select one or more composition layers in the active composition first.',
+      'Select one or more composition, video, or audio layers in the active composition first.',
     );
     return;
   }
 
-  const nonCompSel = selected.filter((s) => s.sourceCompId === undefined);
-  if (nonCompSel.length > 0) {
+  const invalidSel = selected.filter(
+    (s) => s.sourceCompId === undefined && !s.isVideo && !s.isAudio,
+  );
+  if (invalidSel.length > 0) {
     notifyError(
-      `Only composition layers are supported. These selected layers are not compositions: ${nonCompSel
+      `Only composition, video, or audio layers are supported. These selected layers are none of those: ${invalidSel
         .map((s) => s.name)
         .join(', ')}.`,
     );
     return;
   }
 
+  const compIds = new Set(selected.map((s) => s.compId));
+  if (compIds.size > 1) {
+    notifyError('Selected layers must all be in the same composition.');
+    return;
+  }
+
   const sorted = [...selected].sort((a, b) => a.index - b.index);
 
-  // Resolve or synthesize the scene COMPOSITION layer for each selected item.
+  // Resolve or synthesize a scene Layer for each selected item. A scene may be:
+  //   - A COMPOSITION layer (intro/outro, or scenes in cases 1 & 2)
+  //   - A direct MEDIA/video layer sitting in the render comp (case 3, video)
+  //   - A direct MEDIA/audio layer sitting in the render comp (case 3, audio)
   const scenes = sorted.map((sel) => {
+    const isDirectVideo =
+      sel.sourceCompId === undefined && sel.isVideo === true;
+    const isDirectAudio =
+      sel.sourceCompId === undefined && sel.isAudio === true;
+
+    if (isDirectVideo || isDirectAudio) {
+      const mediaType: MediaType = isDirectVideo ? 'video' : 'audio';
+      const existing = editableLayers.find(
+        (l) =>
+          l.layerType === 'MEDIA' &&
+          l.mediaType === mediaType &&
+          l.compositions[0]?.id === sel.compId &&
+          l.layerName === sel.name,
+      );
+      const sceneLayer: Layer = existing ?? {
+        internalId: String(sel.id),
+        layerName: sel.name,
+        label: sel.name,
+        compositions: [{ id: sel.compId, name: sel.compName }],
+        layerType: 'MEDIA',
+        mediaType,
+      };
+      return { sel, sceneLayer, directMediaType: mediaType };
+    }
+
     const existing = editableLayers.find(
       (l) =>
         l.layerType === 'COMPOSITION' &&
@@ -58,33 +96,93 @@ export const shiftAndCropHandler: PremadeScriptHandler = async ({
       compositions: [{ id: sel.compId, name: sel.compName }],
       layerType: 'COMPOSITION',
     };
-    return { sel, sceneLayer, wasExisting: !!existing };
+    return { sel, sceneLayer, directMediaType: null as MediaType | null };
   });
 
-  // For every non-outro scene, resolve all videos inside and decide the plan:
-  //   - 'multi' when the scene contains more than one video (e.g. a "Videos"
-  //     comp holding intro/body/outro videos): we shift each video to the
-  //     previous one and crop the last.
-  //   - 'single' when the scene contains exactly one video: we crop that video
-  //     (existing behavior).
-  //   - 'none' when the scene has no videos: we skip and notify.
+  // Probe inner media for each non-outro COMP scene. Direct-media scenes
+  // short-circuit — their scripts live on the scene layer itself, not on
+  // inner layers.
   const nonOutro = scenes.slice(0, -1);
-  const videoPlans = await Promise.all(
-    nonOutro.map(async ({ sceneLayer }): Promise<SceneVideoPlan> => {
+  const sceneInnerMedia = await Promise.all(
+    nonOutro.map(async ({ sceneLayer, directMediaType }) => {
+      if (directMediaType !== null)
+        return { video: [] as MediaInfo[], audio: [] as MediaInfo[] };
       const sourceCompId = Number(sceneLayer.internalId);
-      const videos = await AeScriptsApi.getAllVideoLayersInComp(sourceCompId);
-      if (videos.length === 0) return { kind: 'none' };
-      if (videos.length === 1) return { kind: 'single', video: videos[0] };
-      return { kind: 'multi', videos };
+      const [video, audio] = await Promise.all([
+        AeScriptsApi.getAllVideoLayersInComp(sourceCompId),
+        AeScriptsApi.getAllAudioLayersInComp(sourceCompId),
+      ]);
+      return { video, audio };
     }),
   );
 
-  const scenesWithoutVideo = videoPlans
-    .map((plan, i) => (plan.kind === 'none' ? nonOutro[i].sel.name : null))
+  // If any non-outro comp scene has BOTH video and audio inner layers, prompt
+  // once — the choice applies to every ambiguous scene in this operation.
+  const ambiguousSceneIdxs = sceneInnerMedia
+    .map((m, i) => (m.video.length > 0 && m.audio.length > 0 ? i : -1))
+    .filter((i) => i !== -1);
+  let ambiguousKind: MediaType | null = null;
+  if (ambiguousSceneIdxs.length > 0) {
+    const names = ambiguousSceneIdxs
+      .map((i) => nonOutro[i].sel.name)
+      .join(', ');
+    const chosen = await promptChoice({
+      title: 'Video or audio?',
+      description: `These compositions contain both video and audio layers: ${names}. Choose which media type the shift-and-crop chain should use.`,
+      options: [
+        {
+          id: 'video',
+          label: 'Video',
+          description: 'Chain video layers inside each ambiguous composition.',
+        },
+        {
+          id: 'audio',
+          label: 'Audio',
+          description: 'Chain audio layers inside each ambiguous composition.',
+        },
+      ],
+    });
+    if (chosen === null) return;
+    ambiguousKind = chosen === 'audio' ? 'audio' : 'video';
+  }
+
+  // For each non-outro comp scene, decide its media plan.
+  //   - only video → chain videos
+  //   - only audio → chain audios
+  //   - both → use prompt result
+  //   - neither → 'none' (skipped with a notice)
+  const mediaPlans: SceneMediaPlan[] = sceneInnerMedia.map((m) => {
+    const { video, audio } = m;
+    let items: MediaInfo[];
+    let mediaType: MediaType;
+    if (video.length > 0 && audio.length > 0) {
+      mediaType = ambiguousKind as MediaType;
+      items = mediaType === 'video' ? video : audio;
+    } else if (video.length > 0) {
+      mediaType = 'video';
+      items = video;
+    } else if (audio.length > 0) {
+      mediaType = 'audio';
+      items = audio;
+    } else {
+      return { kind: 'none' };
+    }
+    if (items.length === 1) {
+      return { kind: 'single', mediaType, item: items[0] };
+    }
+    return { kind: 'multi', mediaType, items };
+  });
+
+  const scenesWithoutMedia = mediaPlans
+    .map((plan, i) => {
+      if (plan.kind !== 'none') return null;
+      if (nonOutro[i].directMediaType !== null) return null;
+      return nonOutro[i].sel.name;
+    })
     .filter((name): name is string => name !== null);
-  if (scenesWithoutVideo.length > 0) {
+  if (scenesWithoutMedia.length > 0) {
     notifyInfo(
-      `No video layer found in: ${scenesWithoutVideo.join(
+      `No video or audio layer found in: ${scenesWithoutMedia.join(
         ', ',
       )}. Crop was not applied there.`,
     );
@@ -116,12 +214,11 @@ export const shiftAndCropHandler: PremadeScriptHandler = async ({
     return { ...layer, scripting: { ...(layer.scripting ?? {}), scripts } };
   };
 
-  // Build inner-video Layer entries for each non-outro scene based on its plan.
-  // Returns a flat list preserving timeline order within each scene.
-  const buildInnerVideoLayers = (): Layer[] => {
+  // Build inner-media Layer entries for each non-outro comp scene.
+  const buildInnerMediaLayers = (): Layer[] => {
     const out: Layer[] = [];
     nonOutro.forEach(({ sel, sceneLayer }, i) => {
-      const plan = videoPlans[i];
+      const plan = mediaPlans[i];
       if (plan.kind === 'none') return;
       const sourceCompId = Number(sceneLayer.internalId);
       const compositions = [
@@ -129,11 +226,11 @@ export const shiftAndCropHandler: PremadeScriptHandler = async ({
       ];
 
       if (plan.kind === 'single') {
-        const v = plan.video;
+        const v = plan.item;
         const existing = editableLayers.find(
           (l) =>
             l.layerType === 'MEDIA' &&
-            l.mediaType === 'video' &&
+            l.mediaType === plan.mediaType &&
             l.compositions[0]?.id === sourceCompId &&
             l.layerName === v.name,
         );
@@ -143,7 +240,7 @@ export const shiftAndCropHandler: PremadeScriptHandler = async ({
           label: v.name,
           compositions,
           layerType: 'MEDIA',
-          mediaType: 'video',
+          mediaType: plan.mediaType,
         };
         const scripts = upsertScript(base.scripting?.scripts ?? [], makeCrop());
         out.push({
@@ -153,14 +250,14 @@ export const shiftAndCropHandler: PremadeScriptHandler = async ({
         return;
       }
 
-      // 'multi': shift each video to the previous, crop the last.
-      plan.videos.forEach((v, vIdx) => {
-        const isFirstVideo = vIdx === 0;
-        const isLastVideo = vIdx === plan.videos.length - 1;
+      // 'multi': shift each item to the previous, crop the last.
+      plan.items.forEach((v, vIdx) => {
+        const isFirstItem = vIdx === 0;
+        const isLastItem = vIdx === plan.items.length - 1;
         const existing = editableLayers.find(
           (l) =>
             l.layerType === 'MEDIA' &&
-            l.mediaType === 'video' &&
+            l.mediaType === plan.mediaType &&
             l.compositions[0]?.id === sourceCompId &&
             l.layerName === v.name,
         );
@@ -170,16 +267,13 @@ export const shiftAndCropHandler: PremadeScriptHandler = async ({
           label: v.name,
           compositions,
           layerType: 'MEDIA',
-          mediaType: 'video',
+          mediaType: plan.mediaType,
         };
         let scripts = base.scripting?.scripts ?? [];
-        if (!isFirstVideo) {
-          scripts = upsertScript(
-            scripts,
-            makeShift(plan.videos[vIdx - 1].name),
-          );
+        if (!isFirstItem) {
+          scripts = upsertScript(scripts, makeShift(plan.items[vIdx - 1].name));
         }
-        if (isLastVideo) {
+        if (isLastItem) {
           scripts = upsertScript(scripts, makeCrop());
         }
         out.push({
@@ -191,22 +285,21 @@ export const shiftAndCropHandler: PremadeScriptHandler = async ({
     return out;
   };
 
-  const innerVideoLayers = buildInnerVideoLayers();
+  const innerMediaLayers = buildInnerMediaLayers();
 
   setEditableLayers((prev) => {
-    // Update existing entries in place; collect new ones to append.
     const byId = new Map(prev.map((l) => [l.internalId, l]));
     const next: Layer[] = prev.slice();
 
-    innerVideoLayers.forEach((videoLayer) => {
-      const existing = byId.get(videoLayer.internalId);
+    innerMediaLayers.forEach((mediaLayer) => {
+      const existing = byId.get(mediaLayer.internalId);
       if (existing) {
         const i = next.indexOf(existing);
-        next[i] = videoLayer;
-        byId.set(videoLayer.internalId, videoLayer);
+        next[i] = mediaLayer;
+        byId.set(mediaLayer.internalId, mediaLayer);
       } else {
-        next.push(videoLayer);
-        byId.set(videoLayer.internalId, videoLayer);
+        next.push(mediaLayer);
+        byId.set(mediaLayer.internalId, mediaLayer);
       }
     });
 
