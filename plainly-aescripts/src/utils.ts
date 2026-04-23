@@ -314,15 +314,17 @@ function selectFile(fileId: string): void {
  * Returns the layers currently selected in the active (working) composition.
  *
  * The working composition is `app.project.activeItem` when it is a `CompItem`.
- * Throws when no composition is active, so callers can distinguish "no active
- * comp" from "active comp but nothing selected" (the latter returns `[]`).
+ * Returns an `'Error: ...'` string when no composition is active (the
+ * evalScriptAsync bridge turns this into a rejected promise), so callers can
+ * distinguish "no active comp" from "active comp but nothing selected" (the
+ * latter returns `[]`).
  *
  * @returns {string} JSON array of SelectedLayerInfo entries.
  */
 function getSelectedLayers(): string {
   const active = app.project.activeItem;
   if (!(active instanceof CompItem)) {
-    throw new Error('No active composition. Open a composition first.');
+    return 'Error: No active composition. Open a composition first.';
   }
 
   const selected = active.selectedLayers;
@@ -358,8 +360,10 @@ function getSelectedLayers(): string {
 /**
  * Returns all video layers inside the given composition in timeline order
  * (layer index ascending). Returns an empty array when the comp has no video
- * layers. Throws when the compId cannot be resolved to a CompItem, so callers
- * can distinguish "comp not found" from "comp found, no matching layers".
+ * layers. Returns an `'Error: ...'` string when the compId cannot be resolved
+ * to a CompItem (the evalScriptAsync bridge turns this into a rejected
+ * promise), so callers can distinguish "comp not found" from "comp found, no
+ * matching layers".
  *
  * A "video layer" is an AVLayer whose source is a FootageItem backed by a file
  * with a recognized video extension.
@@ -367,7 +371,7 @@ function getSelectedLayers(): string {
 function getAllVideoLayersInComp(compId: string): string {
   const comp = app.project.itemByID(parseInt(compId, 10));
   if (!(comp instanceof CompItem)) {
-    throw new Error(`Composition with id ${compId} not found.`);
+    return `Error: Composition with id ${compId} not found.`;
   }
 
   const result: VideoLayerInfo[] = [];
@@ -399,7 +403,7 @@ function getAllVideoLayersInComp(compId: string): string {
 function getAllAudioLayersInComp(compId: string): string {
   const comp = app.project.itemByID(parseInt(compId, 10));
   if (!(comp instanceof CompItem)) {
-    throw new Error(`Composition with id ${compId} not found.`);
+    return `Error: Composition with id ${compId} not found.`;
   }
 
   const result: AudioLayerInfo[] = [];
