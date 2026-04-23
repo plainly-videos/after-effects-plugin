@@ -367,7 +367,7 @@ function getSelectedLayers(): string {
 function getAllVideoLayersInComp(compId: string): string {
   const comp = app.project.itemByID(parseInt(compId, 10));
   if (!(comp instanceof CompItem)) {
-    throw new Error('Composition with id ' + compId + ' not found.');
+    throw new Error(`Composition with id ${compId} not found.`);
   }
 
   const result: VideoLayerInfo[] = [];
@@ -399,7 +399,7 @@ function getAllVideoLayersInComp(compId: string): string {
 function getAllAudioLayersInComp(compId: string): string {
   const comp = app.project.itemByID(parseInt(compId, 10));
   if (!(comp instanceof CompItem)) {
-    throw new Error('Composition with id ' + compId + ' not found.');
+    throw new Error(`Composition with id ${compId} not found.`);
   }
 
   const result: AudioLayerInfo[] = [];
