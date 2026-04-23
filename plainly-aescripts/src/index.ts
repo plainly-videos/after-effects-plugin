@@ -10,8 +10,8 @@ import {
 import { relinkFootage } from './relink';
 import './shims';
 import {
+  getAllVideoLayersInComp,
   getCompLayerNames,
-  getFirstVideoLayerInComp,
   getInstalledFontsByFamilyNameAndStyleName,
   getInstalledFontsByPostScriptName,
   getSelectedLayers,
@@ -45,7 +45,7 @@ const utilsFunctions = {
   selectFile,
   getCompLayerNames,
   getSelectedLayers,
-  getFirstVideoLayerInComp,
+  getAllVideoLayersInComp,
 };
 
 const validateFunctions = {

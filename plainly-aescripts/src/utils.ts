@@ -318,15 +318,18 @@ function getSelectedLayers(): string {
 }
 
 /**
- * Returns the first video layer inside the given composition, or undefined.
+ * Returns all video layers inside the given composition in timeline order
+ * (layer index ascending). Returns an empty array if the comp has no videos
+ * or cannot be resolved.
  *
  * A "video layer" is an AVLayer whose source is a FootageItem backed by a file
  * with a recognized video extension.
  */
-function getFirstVideoLayerInComp(compId: string): string | undefined {
+function getAllVideoLayersInComp(compId: string): string {
   const comp = app.project.itemByID(parseInt(compId, 10));
-  if (!(comp instanceof CompItem)) return undefined;
+  if (!(comp instanceof CompItem)) return JSON.stringify([]);
 
+  const result: VideoLayerInfo[] = [];
   for (let i = 1; i <= comp.numLayers; i++) {
     const layer = comp.layer(i);
     if (!(layer instanceof AVLayer)) continue;
@@ -335,13 +338,12 @@ function getFirstVideoLayerInComp(compId: string): string | undefined {
     if (src.file == null) continue;
     if (!hasVideoExtension(src.file.fsName)) continue;
 
-    const info: VideoLayerInfo = {
+    result.push({
       id: layer.id,
       name: layer.name,
-    };
-    return JSON.stringify(info);
+    });
   }
-  return undefined;
+  return JSON.stringify(result);
 }
 
 /**
@@ -362,7 +364,7 @@ function uuid(): string {
 
 export {
   getAllComps,
-  getFirstVideoLayerInComp,
+  getAllVideoLayersInComp,
   getFolderPath,
   getInstalledFontsByFamilyNameAndStyleName,
   getInstalledFontsByPostScriptName,
