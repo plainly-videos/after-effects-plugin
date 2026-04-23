@@ -228,23 +228,22 @@ class AeScriptsApiClass {
   }
 
   /**
-   * Returns the first video layer inside the given composition.
+   * Returns all video layers inside the given composition in timeline order
+   * (layer index ascending).
    * A "video layer" is a footage layer whose source file has a recognized video extension.
    * @param compId - The ID of the composition
-   * @returns Video layer info, or undefined if none found
+   * @returns Array of video layer info; empty if none found
    */
-  async getFirstVideoLayerInComp(
-    compId: number,
-  ): Promise<VideoLayerInfo | undefined> {
+  async getAllVideoLayersInComp(compId: number): Promise<VideoLayerInfo[]> {
     const result = await evalScriptAsync(
-      `getFirstVideoLayerInComp(${JSON.stringify(String(compId))})`,
+      `getAllVideoLayersInComp(${JSON.stringify(String(compId))})`,
     );
-    if (!result) return undefined;
+    if (!result) return [];
 
     try {
       return JSON.parse(result);
     } catch {
-      throw new Error('Failed to parse video layer data.');
+      throw new Error('Failed to parse video layers data.');
     }
   }
 
