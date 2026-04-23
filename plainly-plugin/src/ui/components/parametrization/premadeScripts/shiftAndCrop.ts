@@ -25,7 +25,15 @@ export const shiftAndCropHandler: PremadeScriptHandler = async ({
   notifySuccess,
   promptChoice,
 }) => {
-  const selected = await AeScriptsApi.getSelectedLayers();
+  let selected: Awaited<ReturnType<typeof AeScriptsApi.getSelectedLayers>>;
+  try {
+    selected = await AeScriptsApi.getSelectedLayers();
+  } catch {
+    // getSelectedLayers throws when no composition is active — distinct from
+    // "comp is active but nothing is selected", which returns [].
+    notifyError('Open a composition and select one or more layers first.');
+    return;
+  }
   if (isEmpty(selected)) {
     notifyError(
       'Select one or more composition, video, or audio layers in the active composition first.',
@@ -103,6 +111,23 @@ export const shiftAndCropHandler: PremadeScriptHandler = async ({
   // short-circuit — their scripts live on the scene layer itself, not on
   // inner layers.
   const nonOutro = scenes.slice(0, -1);
+
+  // Guard: non-outro COMP scenes must have a numeric internalId so we can
+  // resolve their source composition via itemByID. If any don't, bail early
+  // rather than silently treat them as empty comps.
+  const unresolvableComps = nonOutro
+    .filter(({ sceneLayer, directMediaType }) => {
+      if (directMediaType !== null) return false;
+      return !Number.isFinite(Number(sceneLayer.internalId));
+    })
+    .map(({ sel }) => sel.name);
+  if (unresolvableComps.length > 0) {
+    notifyError(
+      `Could not resolve source composition for: ${unresolvableComps.join(', ')}.`,
+    );
+    return;
+  }
+
   const sceneInnerMedia = await Promise.all(
     nonOutro.map(async ({ sceneLayer, directMediaType }) => {
       if (directMediaType !== null)

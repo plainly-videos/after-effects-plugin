@@ -214,7 +214,9 @@ class AeScriptsApiClass {
 
   /**
    * Returns the layers currently selected in the active (working) composition.
-   * If no composition is active, returns an empty array.
+   * Returns an empty array when a composition is active but nothing is
+   * selected. Rejects with an error when no composition is active, so callers
+   * can distinguish the two cases.
    * @returns An array of SelectedLayerInfo entries
    */
   async getSelectedLayers(): Promise<SelectedLayerInfo[]> {
@@ -232,6 +234,8 @@ class AeScriptsApiClass {
    * Returns all video layers inside the given composition in timeline order
    * (layer index ascending).
    * A "video layer" is a footage layer whose source file has a recognized video extension.
+   * Returns an empty array when the comp has no video layers. Rejects when the
+   * compId cannot be resolved to a composition.
    * @param compId - The ID of the composition
    * @returns Array of video layer info; empty if none found
    */
@@ -252,7 +256,9 @@ class AeScriptsApiClass {
    * Returns all audio layers inside the given composition in timeline order
    * (layer index ascending).
    * An "audio layer" is a footage layer whose source file has a recognized
-   * audio extension that is not also a video extension.
+   * audio extension.
+   * Returns an empty array when the comp has no audio layers. Rejects when the
+   * compId cannot be resolved to a composition.
    * @param compId - The ID of the composition
    * @returns Array of audio layer info; empty if none found
    */

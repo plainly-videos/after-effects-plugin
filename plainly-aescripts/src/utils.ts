@@ -35,6 +35,9 @@ const VIDEO_FILE_EXTENSIONS: string[] = [
   'webm',
 ];
 
+// Pure-audio formats only. Ambiguous extensions that can carry video
+// (e.g. 'mpg', 'mpa', 'mpe', 'webm') live in VIDEO_FILE_EXTENSIONS and are
+// always classified as video.
 const AUDIO_FILE_EXTENSIONS: string[] = [
   'mp2',
   'aac',
@@ -43,11 +46,7 @@ const AUDIO_FILE_EXTENSIONS: string[] = [
   'aiff',
   'mp3',
   'mpeg',
-  'mpg',
-  'mpa',
-  'mpe',
   'wav',
-  'webm',
 ];
 
 function hasVideoExtension(path: string): boolean {
@@ -60,11 +59,7 @@ function hasVideoExtension(path: string): boolean {
   return false;
 }
 
-// Video priority: an extension that appears in both lists (e.g. 'mpg', 'webm')
-// is classified as video, never as audio. Audio is reserved for pure-audio
-// formats like 'mp3', 'wav', 'aac'.
 function hasAudioExtension(path: string): boolean {
-  if (hasVideoExtension(path)) return false;
   const dot = path.lastIndexOf('.');
   if (dot === -1) return false;
   const ext = path.substring(dot + 1).toLowerCase();
@@ -319,13 +314,16 @@ function selectFile(fileId: string): void {
  * Returns the layers currently selected in the active (working) composition.
  *
  * The working composition is `app.project.activeItem` when it is a `CompItem`.
- * If no composition is active, an empty array is returned.
+ * Throws when no composition is active, so callers can distinguish "no active
+ * comp" from "active comp but nothing selected" (the latter returns `[]`).
  *
  * @returns {string} JSON array of SelectedLayerInfo entries.
  */
 function getSelectedLayers(): string {
   const active = app.project.activeItem;
-  if (!(active instanceof CompItem)) return JSON.stringify([]);
+  if (!(active instanceof CompItem)) {
+    throw new Error('No active composition. Open a composition first.');
+  }
 
   const selected = active.selectedLayers;
   const result: SelectedLayerInfo[] = [];
@@ -359,15 +357,18 @@ function getSelectedLayers(): string {
 
 /**
  * Returns all video layers inside the given composition in timeline order
- * (layer index ascending). Returns an empty array if the comp has no videos
- * or cannot be resolved.
+ * (layer index ascending). Returns an empty array when the comp has no video
+ * layers. Throws when the compId cannot be resolved to a CompItem, so callers
+ * can distinguish "comp not found" from "comp found, no matching layers".
  *
  * A "video layer" is an AVLayer whose source is a FootageItem backed by a file
  * with a recognized video extension.
  */
 function getAllVideoLayersInComp(compId: string): string {
   const comp = app.project.itemByID(parseInt(compId, 10));
-  if (!(comp instanceof CompItem)) return JSON.stringify([]);
+  if (!(comp instanceof CompItem)) {
+    throw new Error('Composition with id ' + compId + ' not found.');
+  }
 
   const result: VideoLayerInfo[] = [];
   for (let i = 1; i <= comp.numLayers; i++) {
@@ -388,15 +389,18 @@ function getAllVideoLayersInComp(compId: string): string {
 
 /**
  * Returns all audio layers inside the given composition in timeline order
- * (layer index ascending). Returns an empty array if the comp has no audio
- * layers or cannot be resolved.
+ * (layer index ascending). Returns an empty array when the comp has no audio
+ * layers. Throws when the compId cannot be resolved to a CompItem, so callers
+ * can distinguish "comp not found" from "comp found, no matching layers".
  *
  * An "audio layer" is an AVLayer whose source is a FootageItem backed by a
- * file with a recognized audio extension that is not also a video extension.
+ * file with a recognized audio extension.
  */
 function getAllAudioLayersInComp(compId: string): string {
   const comp = app.project.itemByID(parseInt(compId, 10));
-  if (!(comp instanceof CompItem)) return JSON.stringify([]);
+  if (!(comp instanceof CompItem)) {
+    throw new Error('Composition with id ' + compId + ' not found.');
+  }
 
   const result: AudioLayerInfo[] = [];
   for (let i = 1; i <= comp.numLayers; i++) {
