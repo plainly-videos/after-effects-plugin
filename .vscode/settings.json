@@ -4,5 +4,8 @@
   "editor.codeActionsOnSave": {
     "source.organizeImports.biome": "explicit",
     "source.fixAll.biome": "explicit"
+  },
+  "json.schemaDownload.trustedDomains": {
+    "https://*.turborepo.dev/schema.json": true
   }
 }
