@@ -72,6 +72,7 @@ export function SettingsForm() {
 
       try {
         await setSettingsApiKey(apiKey, pin);
+        clearPinFromSessionStorage();
         notifySuccess('Settings saved successfully');
         setApiKey(undefined);
         if (pin) {

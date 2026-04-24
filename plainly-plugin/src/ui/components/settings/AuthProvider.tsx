@@ -4,7 +4,7 @@ import {
   useSettings,
 } from '@src/ui/hooks';
 import { LoaderCircleIcon } from 'lucide-react';
-import { createContext, useCallback } from 'react';
+import { createContext, useCallback, useEffect } from 'react';
 import { MissingApiKey, PinOverlay } from '.';
 
 interface AuthContextProps {
@@ -20,10 +20,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     useSettings();
   const { notifyError } = useNotifications();
 
-  const [pin, setPinStorage] = useSessionStorage<string | undefined>(
-    'pin',
-    undefined,
-  );
+  const [pin, setPinStorage, clearPinStorage] = useSessionStorage<
+    string | undefined
+  >('pin', undefined);
 
   const onPinSubmitted = useCallback(
     (pin: string | undefined) => {
@@ -38,7 +37,24 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     [getSettingsApiKey, notifyError, setPinStorage],
   );
 
-  const showOverlay = apiKeyEncrypted && !pin;
+  // Try to decode BEFORE returning JSX. Don't throw, just track failure.
+  let decryptedApiKey: string | undefined;
+  let pinInvalid = false;
+  if (apiKeySet && (!apiKeyEncrypted || pin)) {
+    try {
+      decryptedApiKey = getSettingsApiKey(pin);
+    } catch {
+      pinInvalid = true;
+    }
+  }
+
+  // If decode failed, clear the PIN on the next tick.
+  // This triggers a re-render where `pin` is now `undefined`, showing the overlay again.
+  useEffect(() => {
+    if (pinInvalid) clearPinStorage();
+  }, [clearPinStorage, pinInvalid]);
+
+  const showOverlay = apiKeyEncrypted && (!pin || pinInvalid);
 
   return (
     <>
@@ -50,10 +66,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           {apiKeySet && (
             <>
               {showOverlay && <PinOverlay onPinSubmitted={onPinSubmitted} />}
-              {!showOverlay && (
-                <AuthContext.Provider
-                  value={{ apiKey: getSettingsApiKey(pin) }}
-                >
+              {!showOverlay && decryptedApiKey && (
+                <AuthContext.Provider value={{ apiKey: decryptedApiKey }}>
                   {children}
                 </AuthContext.Provider>
               )}
