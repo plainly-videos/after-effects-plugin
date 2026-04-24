@@ -6,6 +6,7 @@ export function Checkbox({
   label,
   description,
   defaultChecked = true,
+  checked,
   onChange,
   disabled = false,
 }: {
@@ -14,9 +15,12 @@ export function Checkbox({
   label: string;
   description?: string;
   defaultChecked?: boolean;
+  checked?: boolean;
   onChange: React.Dispatch<React.SetStateAction<boolean>>;
   disabled?: boolean;
 }) {
+  const checkProps = checked === undefined ? { defaultChecked } : { checked };
+
   return (
     <div
       className={classNames(
@@ -27,7 +31,7 @@ export function Checkbox({
       <div className="flex h-6 shrink-0 items-center">
         <div className="group grid size-4 grid-cols-1">
           <input
-            defaultChecked={defaultChecked}
+            {...checkProps}
             id={id}
             name={name}
             type="checkbox"
