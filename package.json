@@ -1,6 +1,6 @@
 {
   "name": "com.plainlyvideos.after-effects-plugin",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "author": "Plainly Videos",
   "scripts": {
     "build": "turbo run build",
