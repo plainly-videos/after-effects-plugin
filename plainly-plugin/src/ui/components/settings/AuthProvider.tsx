@@ -3,8 +3,8 @@ import {
   useSessionStorage,
   useSettings,
 } from '@src/ui/hooks';
-import { LoaderCircleIcon } from 'lucide-react';
 import { createContext, useCallback, useEffect } from 'react';
+import { Loading } from '../common';
 import { MissingApiKey, PinOverlay } from '.';
 
 interface AuthContextProps {
@@ -38,11 +38,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   );
 
   // Try to decode BEFORE returning JSX. Don't throw, just track failure.
-  let decryptedApiKey: string | undefined;
+  let settingsApiKey: string | undefined;
   let pinInvalid = false;
   if (apiKeySet && (!apiKeyEncrypted || pin)) {
     try {
-      decryptedApiKey = getSettingsApiKey(pin);
+      settingsApiKey = getSettingsApiKey(pin);
     } catch {
       pinInvalid = true;
     }
@@ -56,25 +56,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const showOverlay = apiKeyEncrypted && (!pin || pinInvalid);
 
+  if (loading) return <Loading />;
+  if (!apiKeySet) return <MissingApiKey />;
+  if (showOverlay) return <PinOverlay onPinSubmitted={onPinSubmitted} />;
+  if (!settingsApiKey) return <Loading />;
+
   return (
-    <>
-      {loading ? (
-        <LoaderCircleIcon className="animate-spin shrink-0 mx-auto size-6 text-white my-auto" />
-      ) : (
-        <>
-          {!apiKeySet && <MissingApiKey />}
-          {apiKeySet && (
-            <>
-              {showOverlay && <PinOverlay onPinSubmitted={onPinSubmitted} />}
-              {!showOverlay && decryptedApiKey && (
-                <AuthContext.Provider value={{ apiKey: decryptedApiKey }}>
-                  {children}
-                </AuthContext.Provider>
-              )}
-            </>
-          )}
-        </>
-      )}
-    </>
+    <AuthContext.Provider value={{ apiKey: settingsApiKey }}>
+      {children}
+    </AuthContext.Provider>
   );
 };
