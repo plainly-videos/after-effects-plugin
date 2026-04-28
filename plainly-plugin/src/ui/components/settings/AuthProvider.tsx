@@ -16,54 +16,62 @@ export const AuthContext = createContext<AuthContextProps>(
 );
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const { apiKeySet, apiKeyEncrypted, getSettingsApiKey, loading } =
-    useSettings();
+  const {
+    apiKeySet,
+    apiKeyEncrypted: apiKeyLocked,
+    getSettingsApiKey,
+    loading,
+  } = useSettings();
   const { notifyError } = useNotifications();
 
-  const [pin, setPinStorage, clearPinStorage] = useSessionStorage<
-    string | undefined
-  >('pin', undefined);
+  const [pin, setPin, clearPin] = useSessionStorage<string | undefined>(
+    'pin',
+    undefined,
+  );
+
+  const tryUnlock = useCallback(
+    (pin: string | undefined): { apiKey?: string; error?: unknown } => {
+      try {
+        return { apiKey: getSettingsApiKey(pin) };
+      } catch (error) {
+        return { error };
+      }
+    },
+    [getSettingsApiKey],
+  );
 
   const onPinSubmitted = useCallback(
-    (pin: string | undefined) => {
-      try {
-        getSettingsApiKey(pin);
-        setPinStorage(pin);
-      } catch (error) {
+    (submittedPin: string | undefined) => {
+      const { error } = tryUnlock(submittedPin);
+      if (error) {
         notifyError('There was an issue with setting the PIN.', error);
         return;
       }
+      setPin(submittedPin);
     },
-    [getSettingsApiKey, notifyError, setPinStorage],
+    [tryUnlock, notifyError, setPin],
   );
 
-  // Try to decode BEFORE returning JSX. Don't throw, just track failure.
-  let settingsApiKey: string | undefined;
-  let pinInvalid = false;
-  if (apiKeySet && (!apiKeyEncrypted || pin)) {
-    try {
-      settingsApiKey = getSettingsApiKey(pin);
-    } catch {
-      pinInvalid = true;
-    }
-  }
+  // A stored PIN is "rejected" if it fails to unlock (wrong PIN, or stale PIN
+  // from when the key was still locked). The effect below clears it so the
+  // overlay re-appears.
+  const pinRejected = apiKeySet && !!pin && !!tryUnlock(pin).error;
 
-  // If decode failed, clear the PIN on the next tick.
-  // This triggers a re-render where `pin` is now `undefined`, showing the overlay again.
   useEffect(() => {
-    if (pinInvalid) clearPinStorage();
-  }, [clearPinStorage, pinInvalid]);
+    if (pinRejected) clearPin();
+  }, [clearPin, pinRejected]);
 
-  const showOverlay = apiKeyEncrypted && (!pin || pinInvalid);
+  const showPinOverlay = apiKeyLocked && (!pin || pinRejected);
 
   if (loading) return <Loading />;
   if (!apiKeySet) return <MissingApiKey />;
-  if (showOverlay) return <PinOverlay onPinSubmitted={onPinSubmitted} />;
-  if (!settingsApiKey) return <Loading />;
+  if (showPinOverlay) return <PinOverlay onPinSubmitted={onPinSubmitted} />;
+
+  // Past the gates: key is set, and either it's not locked or we have a
+  // verified PIN. Decoding here cannot fail.
+  const apiKey = getSettingsApiKey(apiKeyLocked ? pin : undefined);
 
   return (
-    <AuthContext.Provider value={{ apiKey: settingsApiKey }}>
-      {children}
-    </AuthContext.Provider>
+    <AuthContext.Provider value={{ apiKey }}>{children}</AuthContext.Provider>
   );
 };
