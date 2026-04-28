@@ -32,7 +32,9 @@ export function SettingsForm() {
   const [edit, setEdit] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const [, , clearPinFromSessionStorage] = useSessionStorage('pin', undefined);
+  const [, setPinStorage, clearPinStorage] = useSessionStorage<
+    string | undefined
+  >('pin', undefined);
   const [apiKey, setApiKey] = useState<string>();
   const [pin, setPin] = useState<Pin>();
   const [confirmPin, setConfirmPin] = useState<Pin>();
@@ -72,7 +74,7 @@ export function SettingsForm() {
 
       try {
         await setSettingsApiKey(apiKey, pin);
-        clearPinFromSessionStorage();
+        setPinStorage(pin?.getPin());
         notifySuccess('Settings saved successfully');
         setApiKey(undefined);
         if (pin) {
@@ -92,7 +94,7 @@ export function SettingsForm() {
     setLoading(true);
     try {
       await clearApiKey();
-      clearPinFromSessionStorage();
+      clearPinStorage();
       notifySuccess('API key removed successfully');
     } catch (error) {
       notifyError('Failed to remove API key', error);
