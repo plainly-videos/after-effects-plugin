@@ -7,6 +7,7 @@ export interface Project extends ModelBaseWithDates {
   description?: string;
   attributes?: Record<string, unknown> & {
     tags?: string[];
+    folder?: string;
   };
   revisionHistory?: ProjectRevision[];
   analyzed: boolean;

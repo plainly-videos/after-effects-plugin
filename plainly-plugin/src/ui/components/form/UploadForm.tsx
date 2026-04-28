@@ -18,6 +18,7 @@ import { openFolder } from '../../../node/utils';
 import { Alert, Button, InternalLink, Tooltip } from '../common';
 import { GlobalContext } from '../context';
 import { Description, Label, PageHeading } from '../typography';
+import { FolderPicker } from './FolderPicker';
 
 export function UploadForm() {
   const { plainlyProject, documentId } = useContext(GlobalContext);
@@ -40,6 +41,7 @@ export function UploadForm() {
     projectName?: string;
     description?: string;
     tags?: string[];
+    folder?: string;
   }>({});
   const [uploadMode, setUploadMode] = useState<'new' | 'edit'>();
   const [uploadProgress, setUploadProgress] = useState(0);
@@ -113,6 +115,9 @@ export function UploadForm() {
         }
       }
 
+      const folder = inputs.folder?.trim();
+      folder && formData.append('folder', folder);
+
       let project: Project | undefined;
 
       // check if the `documentId` and project from `getProjectData` have the same ID
@@ -178,7 +183,11 @@ export function UploadForm() {
         setInputs((prev) => ({ ...prev, tags: value.split(',') }));
       }
 
-      if (name === 'projectName' || name === 'description') {
+      if (
+        name === 'projectName' ||
+        name === 'description' ||
+        name === 'folder'
+      ) {
         setInputs((prev) => ({ ...prev, [name]: value }));
       }
     },
@@ -297,6 +306,7 @@ export function UploadForm() {
             projectName={inputs.projectName || data?.name}
             description={inputs.description || data?.description}
             tags={inputs.tags || data?.attributes?.tags}
+            folder={inputs.folder || data?.attributes?.folder}
             onChange={handleChange}
           />
         ) : (
@@ -304,6 +314,7 @@ export function UploadForm() {
             projectName={inputs.projectName}
             description={inputs.description}
             tags={inputs.tags}
+            folder={inputs.folder}
             onChange={handleChange}
           />
         )}
@@ -337,11 +348,13 @@ function Inputs({
   projectName,
   description,
   tags,
+  folder,
   onChange,
 }: {
   projectName?: string;
   description?: string;
   tags?: string[];
+  folder?: string;
   onChange: (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => void;
@@ -382,12 +395,14 @@ function Inputs({
           id="tags"
           name="tags"
           type="text"
-          className="mt-2 col-start-1 row-start-1 block w-full rounded-md bg-white/5 px-3 py-1 text-xs text-white outline outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500"
+          className="mt-1 col-start-1 row-start-1 block w-full rounded-md bg-white/5 px-3 py-1 text-xs text-white outline outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500"
           value={tags?.join(',') || ''}
           onChange={onChange}
           placeholder="Example: Sports, Fitness, Gym"
         />
       </div>
+
+      <FolderPicker folder={folder} onChange={onChange} />
     </>
   );
 }
