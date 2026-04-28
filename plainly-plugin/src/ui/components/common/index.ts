@@ -4,5 +4,6 @@ export * from './Button';
 export * from './Checkbox';
 export * from './ConfirmationDialog';
 export * from './Link';
+export * from './Loading';
 export * from './NotificationsOverlay';
 export * from './Tooltip';

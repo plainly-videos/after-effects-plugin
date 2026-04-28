@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 
 export const useSessionStorage = <T>(
   key: string,
@@ -14,25 +14,28 @@ export const useSessionStorage = <T>(
     }
   });
 
-  const setValue = (value: T) => {
-    try {
-      const valueToStore =
-        value instanceof Function ? value(storedValue) : value;
-      setStoredValue(valueToStore);
-      sessionStorage.setItem(key, JSON.stringify(valueToStore));
-    } catch (error) {
-      console.error(error);
-    }
-  };
+  const setValue = useCallback(
+    (value: T) => {
+      try {
+        const valueToStore =
+          value instanceof Function ? value(storedValue) : value;
+        setStoredValue(valueToStore);
+        sessionStorage.setItem(key, JSON.stringify(valueToStore));
+      } catch (error) {
+        console.error(error);
+      }
+    },
+    [key, storedValue],
+  );
 
-  const clearValue = () => {
+  const clearValue = useCallback(() => {
     try {
       setStoredValue(initialValue);
       sessionStorage.removeItem(key);
     } catch (error) {
       console.error(error);
     }
-  };
+  }, [initialValue, key]);
 
   return [storedValue, setValue, clearValue];
 };
