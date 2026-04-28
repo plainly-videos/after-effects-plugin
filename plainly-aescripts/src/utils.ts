@@ -247,7 +247,6 @@ export {
   getInstalledFontsByPostScriptName,
   getTextLayersByComp,
   isWin,
-  pathJoin,
   selectLayer,
   selectComp,
   selectFile,

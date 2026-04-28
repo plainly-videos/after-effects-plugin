@@ -1735,15 +1735,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@heroicons/react@npm:^2.1.5":
-  version: 2.2.0
-  resolution: "@heroicons/react@npm:2.2.0"
-  peerDependencies:
-    react: ">= 16 || ^19.0.0-rc"
-  checksum: ff4dbfa98dacc41f86db82be9102d0c2cd0b8652b428f0b49ffd2580bee8f36fca43937a3d3d5e8f209c7303f5317a32163c018dfa13a3730d79dec43addac93
-  languageName: node
-  linkType: hard
-
 "@isaacs/cliui@npm:^8.0.2":
   version: 8.0.2
   resolution: "@isaacs/cliui@npm:8.0.2"
@@ -2312,17 +2303,6 @@ __metadata:
   peerDependencies:
     tailwindcss: ">=3.0.0 || >= 3.0.0-alpha.1 || >= 4.0.0-alpha.20 || >= 4.0.0-beta.1"
   checksum: 4526d02edccc4e44599d9588f83e4ac3e9435d137da5638653de2e74d5b612ade449a8c26d075be21692c1ac00a514aaffdb6723e526e3c8314c9a75a9f45979
-  languageName: node
-  linkType: hard
-
-"@tailwindcss/typography@npm:^0.5.15":
-  version: 0.5.19
-  resolution: "@tailwindcss/typography@npm:0.5.19"
-  dependencies:
-    postcss-selector-parser: 6.0.10
-  peerDependencies:
-    tailwindcss: "*"
-  checksum: 6e5b25a2a24b8f112c9628b29aee4579ed024f368111937a5f3be7a4adc2d768c1aa9d5d5bb2d04972c7b49e526bcaade9f9e785e2e7a0b6be3d392f7ba02e17
   languageName: node
   linkType: hard
 
@@ -4781,13 +4761,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"globals@npm:^15.11.0":
-  version: 15.15.0
-  resolution: "globals@npm:15.15.0"
-  checksum: a2a92199a112db00562a2f85eeef2a7e3943e171f7f7d9b17dfa9231e35fd612588f3c199d1509ab1757273467e413b08c80424cf6e399e96acdaf93deb3ee88
-  languageName: node
-  linkType: hard
-
 "gopd@npm:^1.2.0":
   version: 1.2.0
   resolution: "gopd@npm:1.2.0"
@@ -6588,10 +6561,8 @@ __metadata:
     "@babel/preset-react": ^7.26.3
     "@babel/preset-typescript": ^7.28.5
     "@headlessui/react": ^2.2.0
-    "@heroicons/react": ^2.1.5
     "@jest/globals": ^30.2.0
     "@tailwindcss/forms": ^0.5.9
-    "@tailwindcss/typography": ^0.5.15
     "@tanstack/react-query": ^5.66.0
     "@types/archiver": ^6.0.3
     "@types/dotenv-webpack": ^7.0.8
@@ -6612,7 +6583,6 @@ __metadata:
     date-fns: ^4.1.0
     dotenv-webpack: ^8.1.0
     form-data: ^4.0.4
-    globals: ^15.11.0
     html-webpack-plugin: ^5.6.3
     jest: ^30.2.0
     lodash-es: ^4.18.1
@@ -6763,16 +6733,6 @@ __metadata:
   peerDependencies:
     postcss: ^8.2.14
   checksum: 2c86ecf2d0ce68f27c87c7e24ae22dc6dd5515a89fcaf372b2627906e11f5c1f36e4a09e4c15c20fd4a23d628b3d945c35839f44496fbee9a25866258006671b
-  languageName: node
-  linkType: hard
-
-"postcss-selector-parser@npm:6.0.10":
-  version: 6.0.10
-  resolution: "postcss-selector-parser@npm:6.0.10"
-  dependencies:
-    cssesc: ^3.0.0
-    util-deprecate: ^1.0.2
-  checksum: 46afaa60e3d1998bd7adf6caa374baf857cc58d3ff944e29459c9a9e4680a7fe41597bd5b755fc81d7c388357e9bf67c0251d047c640a09f148e13606b8a8608
   languageName: node
   linkType: hard
 
