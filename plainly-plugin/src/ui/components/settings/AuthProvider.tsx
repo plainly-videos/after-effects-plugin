@@ -3,8 +3,8 @@ import {
   useSessionStorage,
   useSettings,
 } from '@src/ui/hooks';
-import { LoaderCircleIcon } from 'lucide-react';
-import { createContext, useCallback } from 'react';
+import { createContext, useCallback, useEffect } from 'react';
+import { Loading } from '../common';
 import { MissingApiKey, PinOverlay } from '.';
 
 interface AuthContextProps {
@@ -16,51 +16,62 @@ export const AuthContext = createContext<AuthContextProps>(
 );
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const { apiKeySet, apiKeyEncrypted, getSettingsApiKey, loading } =
-    useSettings();
+  const {
+    apiKeySet,
+    apiKeyEncrypted: apiKeyLocked,
+    getSettingsApiKey,
+    loading,
+  } = useSettings();
   const { notifyError } = useNotifications();
 
-  const [pin, setPinStorage] = useSessionStorage<string | undefined>(
+  const [pin, setPin, clearPin] = useSessionStorage<string | undefined>(
     'pin',
     undefined,
   );
 
-  const onPinSubmitted = useCallback(
-    (pin: string | undefined) => {
+  const tryUnlock = useCallback(
+    (pin: string | undefined): { apiKey?: string; error?: unknown } => {
       try {
-        getSettingsApiKey(pin);
-        setPinStorage(pin);
+        return { apiKey: getSettingsApiKey(pin) };
       } catch (error) {
-        notifyError('There was an issue with setting the PIN.', error);
-        return;
+        return { error };
       }
     },
-    [getSettingsApiKey, notifyError, setPinStorage],
+    [getSettingsApiKey],
   );
 
-  const showOverlay = apiKeyEncrypted && !pin;
+  const onPinSubmitted = useCallback(
+    (submittedPin: string | undefined) => {
+      const { error } = tryUnlock(submittedPin);
+      if (error) {
+        notifyError('Failed to unlock with the provided PIN.', error);
+        return;
+      }
+      setPin(submittedPin);
+    },
+    [tryUnlock, notifyError, setPin],
+  );
+
+  // A stored PIN is "rejected" if it fails to unlock (wrong PIN, or stale PIN
+  // from when the key was still locked). The effect below clears it so the
+  // overlay re-appears.
+  const pinRejected = apiKeySet && !!pin && !!tryUnlock(pin).error;
+
+  useEffect(() => {
+    if (pinRejected) clearPin();
+  }, [clearPin, pinRejected]);
+
+  const showPinOverlay = apiKeyLocked && (!pin || pinRejected);
+
+  if (loading) return <Loading />;
+  if (!apiKeySet) return <MissingApiKey />;
+  if (showPinOverlay) return <PinOverlay onPinSubmitted={onPinSubmitted} />;
+
+  // Past the gates: key is set, and either it's not locked or we have a
+  // verified PIN. Decoding here cannot fail.
+  const apiKey = getSettingsApiKey(apiKeyLocked ? pin : undefined);
 
   return (
-    <>
-      {loading ? (
-        <LoaderCircleIcon className="animate-spin shrink-0 mx-auto size-6 text-white my-auto" />
-      ) : (
-        <>
-          {!apiKeySet && <MissingApiKey />}
-          {apiKeySet && (
-            <>
-              {showOverlay && <PinOverlay onPinSubmitted={onPinSubmitted} />}
-              {!showOverlay && (
-                <AuthContext.Provider
-                  value={{ apiKey: getSettingsApiKey(pin) }}
-                >
-                  {children}
-                </AuthContext.Provider>
-              )}
-            </>
-          )}
-        </>
-      )}
-    </>
+    <AuthContext.Provider value={{ apiKey }}>{children}</AuthContext.Provider>
   );
 };
