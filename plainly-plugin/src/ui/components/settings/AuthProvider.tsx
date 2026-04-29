@@ -44,7 +44,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     (submittedPin: string | undefined) => {
       const { error } = tryUnlock(submittedPin);
       if (error) {
-        notifyError('There was an issue with setting the PIN.', error);
+        notifyError('Failed to unlock with the provided PIN.', error);
         return;
       }
       setPin(submittedPin);
