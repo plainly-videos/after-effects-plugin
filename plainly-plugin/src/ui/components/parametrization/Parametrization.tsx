@@ -6,6 +6,7 @@ import {
   ComboboxOptions,
 } from '@headlessui/react';
 import { platformBaseUrl } from '@src/env';
+import { AeScriptsApi } from '@src/node/bridge';
 import {
   useEditTemplate,
   useGetProjectDetails,
@@ -55,6 +56,7 @@ import {
   type PromptChoiceOptions,
   SCRIPT_REGISTRY,
 } from './scriptRegistry';
+import { materializeTimelineSelection } from './timelineScripts';
 import { addScriptDirectly, getDefaultScript, normalizeLayers } from './utils';
 
 export function Parametrization() {
@@ -165,6 +167,94 @@ export function Parametrization() {
   );
 
   const renderingCompositionId = selectedTemplate?.renderingCompositionId;
+
+  const handleTimelineScriptSelect = useCallback(
+    async (scriptType: ScriptType) => {
+      let selected: Awaited<ReturnType<typeof AeScriptsApi.getSelectedLayers>>;
+      try {
+        selected = await AeScriptsApi.getSelectedLayers();
+      } catch {
+        notifyError('Open a composition and select one or more layers first.');
+        return;
+      }
+      if (selected.length === 0) {
+        notifyError(
+          'Select one or more layers in the active composition first.',
+        );
+        return;
+      }
+
+      const { nextLayers, targetIndices } = materializeTimelineSelection(
+        selected,
+        editableLayers,
+      );
+
+      const registryEntry = SCRIPT_REGISTRY[scriptType];
+      if (!registryEntry) return;
+      const allowedLayerTypes = registryEntry.layerTypes;
+      const supportsRoot = registryEntry.supportsRoot;
+
+      const compatibleIndices = targetIndices.filter((idx) => {
+        const layer = nextLayers[idx];
+        if (allowedLayerTypes && !allowedLayerTypes.includes(layer.layerType)) {
+          return false;
+        }
+        if (
+          supportsRoot === false &&
+          layer.layerType === 'COMPOSITION' &&
+          renderingCompositionId !== undefined &&
+          Number(layer.internalId) === renderingCompositionId
+        ) {
+          return false;
+        }
+        return true;
+      });
+
+      if (compatibleIndices.length === 0) {
+        notifyInfo(
+          `None of the selected layers are compatible with "${registryEntry.label}".`,
+        );
+        return;
+      }
+
+      setEditableLayers(() => nextLayers);
+
+      const isSingle = targetIndices.length === 1;
+
+      if (registryEntry.addDirectly) {
+        setEditableLayers((prev) =>
+          prev.map((layer, index) =>
+            compatibleIndices.includes(index)
+              ? addScriptDirectly(layer, scriptType)
+              : layer,
+          ),
+        );
+        return;
+      }
+
+      const defaults = getDefaultScript(scriptType);
+      if (!defaults) return;
+
+      if (isSingle) {
+        setActiveScriptEdit({
+          layerIndex: compatibleIndices[0],
+          script: defaults,
+          isNew: true,
+          isBulk: false,
+        });
+        return;
+      }
+
+      setActiveScriptEdit({
+        layerIndex: -1,
+        script: defaults,
+        isNew: true,
+        isBulk: true,
+        targetLayerIndices: new Set(compatibleIndices),
+      });
+    },
+    [editableLayers, notifyError, notifyInfo, renderingCompositionId],
+  );
 
   const hasUnsavedChanges =
     !!selectedTemplate &&
@@ -368,6 +458,7 @@ export function Parametrization() {
                   setLayerType={setLayerType}
                   onBulkScriptSelectAction={handleBulkScriptSelect}
                   onPremadeScriptAction={handlePremadeScriptSelect}
+                  onTimelineScriptAction={handleTimelineScriptSelect}
                   bulkScriptDisabled={selectedLayerIds.size === 0}
                   disabled={disabledTemplates || !selectedTemplate}
                 />
