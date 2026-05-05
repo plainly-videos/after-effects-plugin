@@ -6,7 +6,7 @@ import type { SelectedLayerInfo } from 'plainly-types';
  *
  * Priority is deliberate:
  *   1. precomp (sourceCompId)        → COMPOSITION
- *   2. video / audio                  → MEDIA
+ *   2. video / audio / image          → MEDIA
  *   3. text                           → DATA
  *   4. solid                          → SOLID_COLOR
  *   5. generic AV                     → MEDIA (best-effort fallback)
@@ -17,7 +17,7 @@ import type { SelectedLayerInfo } from 'plainly-types';
  */
 export function resolveLayerType(sel: SelectedLayerInfo): LayerType {
   if (sel.sourceCompId !== undefined) return 'COMPOSITION';
-  if (sel.isVideo || sel.isAudio) return 'MEDIA';
+  if (sel.isVideo || sel.isAudio || sel.isImage) return 'MEDIA';
   if (sel.isText) return 'DATA';
   if (sel.isSolid) return 'SOLID_COLOR';
   if (sel.isAVLayer) return 'MEDIA';
@@ -31,6 +31,7 @@ export function resolveLayerType(sel: SelectedLayerInfo): LayerType {
  */
 function resolveMediaType(sel: SelectedLayerInfo): MediaType {
   if (sel.isAudio) return 'audio';
+  if (sel.isImage) return 'image';
   return 'video';
 }
 
