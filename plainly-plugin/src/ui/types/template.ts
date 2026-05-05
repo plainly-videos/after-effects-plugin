@@ -9,6 +9,7 @@ export interface Template {
 type LayerBase = {
   internalId: string;
   layerName: string;
+  label: string;
   compositions: { id: number; name: string }[];
   parametrization?: Parametrization;
   scripting?: Scripting;

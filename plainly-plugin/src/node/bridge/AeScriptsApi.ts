@@ -1,11 +1,14 @@
 import { isEmpty } from '@src/ui/utils';
 import type {
   AnyProjectIssue,
+  AudioLayerInfo,
   InstalledFontData,
   ProjectData,
   ProjectInfo,
   ProjectIssueType,
   RelinkData,
+  SelectedLayerInfo,
+  VideoLayerInfo,
 } from 'plainly-types';
 import { csInterface } from '../constants';
 
@@ -206,6 +209,69 @@ class AeScriptsApiClass {
       return JSON.parse(result);
     } catch {
       throw new Error('Failed to parse layer names data.');
+    }
+  }
+
+  /**
+   * Returns the layers currently selected in the active (working) composition.
+   * Returns an empty array when a composition is active but nothing is
+   * selected. Rejects with an error when no composition is active, so callers
+   * can distinguish the two cases.
+   * @returns An array of SelectedLayerInfo entries
+   */
+  async getSelectedLayers(): Promise<SelectedLayerInfo[]> {
+    const result = await evalScriptAsync('getSelectedLayers()');
+    if (!result) return [];
+
+    try {
+      return JSON.parse(result);
+    } catch {
+      throw new Error('Failed to parse selected layers data.');
+    }
+  }
+
+  /**
+   * Returns all video layers inside the given composition in timeline order
+   * (layer index ascending).
+   * A "video layer" is a footage layer whose source file has a recognized video extension.
+   * Returns an empty array when the comp has no video layers. Rejects when the
+   * compId cannot be resolved to a composition.
+   * @param compId - The ID of the composition
+   * @returns Array of video layer info; empty if none found
+   */
+  async getAllVideoLayersInComp(compId: number): Promise<VideoLayerInfo[]> {
+    const result = await evalScriptAsync(
+      `getAllVideoLayersInComp(${JSON.stringify(String(compId))})`,
+    );
+    if (!result) return [];
+
+    try {
+      return JSON.parse(result);
+    } catch {
+      throw new Error('Failed to parse video layers data.');
+    }
+  }
+
+  /**
+   * Returns all audio layers inside the given composition in timeline order
+   * (layer index ascending).
+   * An "audio layer" is a footage layer whose source file has a recognized
+   * audio extension.
+   * Returns an empty array when the comp has no audio layers. Rejects when the
+   * compId cannot be resolved to a composition.
+   * @param compId - The ID of the composition
+   * @returns Array of audio layer info; empty if none found
+   */
+  async getAllAudioLayersInComp(compId: number): Promise<AudioLayerInfo[]> {
+    const result = await evalScriptAsync(
+      `getAllAudioLayersInComp(${JSON.stringify(String(compId))})`,
+    );
+    if (!result) return [];
+
+    try {
+      return JSON.parse(result);
+    } catch {
+      throw new Error('Failed to parse audio layers data.');
     }
   }
 

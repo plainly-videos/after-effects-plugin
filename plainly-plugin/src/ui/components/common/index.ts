@@ -2,6 +2,7 @@ export * from './Alert';
 export * from './Banner';
 export * from './Button';
 export * from './Checkbox';
+export * from './ChoiceDialog';
 export * from './ConfirmationDialog';
 export * from './Link';
 export * from './Loading';

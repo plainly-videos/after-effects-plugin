@@ -40,6 +40,7 @@ import {
 import {
   Alert,
   Button,
+  ChoiceDialog,
   ConfirmationDialog,
   ExternalLink,
   InternalLink,
@@ -49,15 +50,19 @@ import { Description, Label, PageHeading } from '../typography';
 import { FilterAndActions } from './FilterAndActions';
 import { ParametrizedLayers } from './ParametrizedLayers';
 import { ScriptDialogs } from './ScriptDialogs';
-import { SCRIPT_REGISTRY } from './scriptRegistry';
-import { addScriptDirectly, getDefaultScript } from './utils';
+import {
+  PREMADE_SCRIPT_REGISTRY,
+  type PromptChoiceOptions,
+  SCRIPT_REGISTRY,
+} from './scriptRegistry';
+import { addScriptDirectly, getDefaultScript, normalizeLayers } from './utils';
 
 export function Parametrization() {
   const { plainlyProject, contextReady } = useContext(GlobalContext) || {};
   const { isLoading, data, refetch, isRefetching } = useGetProjectDetails(
     plainlyProject?.id,
   );
-  const { notifyError, notifySuccess } = useNotifications();
+  const { notifyError, notifyInfo, notifySuccess } = useNotifications();
 
   const [templateQuery, setTemplateQuery] = useState('');
   const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(
@@ -75,6 +80,17 @@ export function Parametrization() {
     useState<ScriptEditState<EditableScript>>(null);
   const [showReloadConfirm, setShowReloadConfirm] = useState(false);
   const [scriptsDialogLayerIndex, setScriptsDialogLayerIndex] = useState(-1);
+  const [choicePrompt, setChoicePrompt] = useState<
+    (PromptChoiceOptions & { resolve: (choice: string | null) => void }) | null
+  >(null);
+
+  const promptChoice = useCallback(
+    (options: PromptChoiceOptions) =>
+      new Promise<string | null>((resolve) => {
+        setChoicePrompt({ ...options, resolve });
+      }),
+    [],
+  );
   // Prevents the selectedTemplate effect from overwriting editableLayers on
   // the save path, where we set both states atomically in handleSubmit.
   const skipLayerResetRef = useRef(false);
@@ -85,7 +101,7 @@ export function Parametrization() {
       result.data?.templates?.find((t) => t.id === selectedTemplate?.id) ??
       null;
     setSelectedTemplate(freshTemplate);
-    setEditableLayers(freshTemplate?.layers || []);
+    setEditableLayers(normalizeLayers(freshTemplate?.layers || []));
     setSelectedLayerIds(new Set());
     setLayerType('All');
     setParameterQuery('');
@@ -97,7 +113,7 @@ export function Parametrization() {
       skipLayerResetRef.current = false;
       return;
     }
-    setEditableLayers(selectedTemplate?.layers || []);
+    setEditableLayers(normalizeLayers(selectedTemplate?.layers || []));
     setSelectedLayerIds(new Set());
     setLayerType('All');
     setParameterQuery('');
@@ -132,11 +148,27 @@ export function Parametrization() {
     [selectedLayerIds],
   );
 
+  const handlePremadeScriptSelect = useCallback(
+    async (scriptId: string) => {
+      const entry = PREMADE_SCRIPT_REGISTRY[scriptId];
+      if (!entry) return;
+      await entry.handler({
+        editableLayers,
+        setEditableLayers,
+        notifyError,
+        notifyInfo,
+        notifySuccess,
+        promptChoice,
+      });
+    },
+    [editableLayers, notifyError, notifyInfo, notifySuccess, promptChoice],
+  );
+
   const renderingCompositionId = selectedTemplate?.renderingCompositionId;
 
   const hasUnsavedChanges =
     !!selectedTemplate &&
-    !isEqual(editableLayers, selectedTemplate.layers || []);
+    !isEqual(editableLayers, normalizeLayers(selectedTemplate.layers || []));
 
   const { isPending, mutateAsync: editTemplate } = useEditTemplate();
 
@@ -179,7 +211,7 @@ export function Parametrization() {
       // is false in the same render. skipLayerResetRef prevents the
       // selectedTemplate effect from overwriting us.
       skipLayerResetRef.current = true;
-      setEditableLayers(savedTemplate?.layers || []);
+      setEditableLayers(normalizeLayers(savedTemplate?.layers || []));
       setScriptsDialogLayerIndex(-1);
       setSelectedTemplate(savedTemplate);
       notifySuccess('Template changes saved successfully');
@@ -335,6 +367,7 @@ export function Parametrization() {
                   layerType={layerType}
                   setLayerType={setLayerType}
                   onBulkScriptSelectAction={handleBulkScriptSelect}
+                  onPremadeScriptAction={handlePremadeScriptSelect}
                   bulkScriptDisabled={selectedLayerIds.size === 0}
                   disabled={disabledTemplates || !selectedTemplate}
                 />
@@ -369,6 +402,20 @@ export function Parametrization() {
             description="You have unsaved changes, are you sure you want to reload? All unsaved changes will be lost."
             buttonText="Reload"
             action={handleReload}
+          />
+          <ChoiceDialog
+            open={choicePrompt !== null}
+            title={choicePrompt?.title ?? ''}
+            description={choicePrompt?.description}
+            options={choicePrompt?.options ?? []}
+            onSelect={(id) => {
+              choicePrompt?.resolve(id);
+              setChoicePrompt(null);
+            }}
+            onCancel={() => {
+              choicePrompt?.resolve(null);
+              setChoicePrompt(null);
+            }}
           />
           <ScriptDialogs
             activeScriptEdit={activeScriptEdit}
