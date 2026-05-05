@@ -337,6 +337,9 @@ function getSelectedLayers(): string {
       index: layer.index,
       compId: active.id,
       compName: active.name,
+      inPoint: layer.inPoint,
+      outPoint: layer.outPoint,
+      compFrameRate: active.frameRate,
     };
     if (layer instanceof AVLayer) {
       const src = layer.source;
@@ -386,6 +389,9 @@ function getAllVideoLayersInComp(compId: string): string {
     result.push({
       id: layer.id,
       name: layer.name,
+      inPoint: layer.inPoint,
+      outPoint: layer.outPoint,
+      compFrameRate: comp.frameRate,
     });
   }
   return JSON.stringify(result);
@@ -418,6 +424,9 @@ function getAllAudioLayersInComp(compId: string): string {
     result.push({
       id: layer.id,
       name: layer.name,
+      inPoint: layer.inPoint,
+      outPoint: layer.outPoint,
+      compFrameRate: comp.frameRate,
     });
   }
   return JSON.stringify(result);

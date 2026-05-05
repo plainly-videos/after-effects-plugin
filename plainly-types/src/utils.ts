@@ -9,6 +9,12 @@ interface SelectedLayerInfo {
   index: number;
   compId: number;
   compName: string;
+  /** Layer in-point in the parent comp's timeline, in seconds. */
+  inPoint: number;
+  /** Layer out-point in the parent comp's timeline, in seconds. */
+  outPoint: number;
+  /** Frame rate of the parent (active) comp. */
+  compFrameRate: number;
   /** Set when the layer's source is a CompItem (precomp layer). */
   sourceCompId?: number;
   /** Set when the layer's source is a CompItem (precomp layer). */
@@ -22,11 +28,23 @@ interface SelectedLayerInfo {
 interface VideoLayerInfo {
   id: number;
   name: string;
+  /** Layer in-point in its parent comp's timeline, in seconds. */
+  inPoint: number;
+  /** Layer out-point in its parent comp's timeline, in seconds. */
+  outPoint: number;
+  /** Frame rate of the parent comp. */
+  compFrameRate: number;
 }
 
 interface AudioLayerInfo {
   id: number;
   name: string;
+  /** Layer in-point in its parent comp's timeline, in seconds. */
+  inPoint: number;
+  /** Layer out-point in its parent comp's timeline, in seconds. */
+  outPoint: number;
+  /** Frame rate of the parent comp. */
+  compFrameRate: number;
 }
 
 export type {

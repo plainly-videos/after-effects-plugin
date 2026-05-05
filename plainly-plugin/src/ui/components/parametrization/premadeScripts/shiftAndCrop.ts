@@ -10,7 +10,27 @@ import { isEmpty } from '@src/ui/utils';
 import type { PremadeScriptHandler } from '../scriptRegistry';
 import { upsertScript } from '../utils';
 
-type MediaInfo = { id: number; name: string };
+type MediaInfo = {
+  id: number;
+  name: string;
+  inPoint: number;
+  outPoint: number;
+  compFrameRate: number;
+};
+
+/**
+ * Computes the timeline overlap (in frames) of `curr` over the tail of `prev`.
+ * Returns 0 when the layers are gapped or perfectly butted. Both layers must
+ * live in the same parent comp (so the same frame rate applies).
+ */
+const overlapFrames = (
+  prev: { outPoint: number },
+  curr: { inPoint: number; compFrameRate: number },
+): number => {
+  const seconds = prev.outPoint - curr.inPoint;
+  if (seconds <= 0) return 0;
+  return Math.max(0, Math.round(seconds * curr.compFrameRate));
+};
 
 type SceneMediaPlan =
   | { kind: 'none' }
@@ -59,7 +79,11 @@ export const shiftAndCropHandler: PremadeScriptHandler = async ({
     return;
   }
 
-  const sorted = [...selected].sort((a, b) => a.index - b.index);
+  // Sort by timeline position, not by layer stacking index. Layer index
+  // reflects vertical order in AE's layer panel, which is independent of where
+  // each layer sits on the timeline. The shift/crop chain must follow temporal
+  // order (intro → scene 1 → … → outro).
+  const sorted = [...selected].sort((a, b) => a.inPoint - b.inPoint);
 
   // Resolve or synthesize a scene Layer for each selected item. A scene may be:
   //   - A COMPOSITION layer (intro/outro, or scenes in cases 1 & 2)
@@ -137,7 +161,12 @@ export const shiftAndCropHandler: PremadeScriptHandler = async ({
         AeScriptsApi.getAllVideoLayersInComp(sourceCompId),
         AeScriptsApi.getAllAudioLayersInComp(sourceCompId),
       ]);
-      return { video, audio };
+      // Order by timeline position so the shift chain follows playback order
+      // rather than the comp's layer stacking order.
+      return {
+        video: [...video].sort((a, b) => a.inPoint - b.inPoint),
+        audio: [...audio].sort((a, b) => a.inPoint - b.inPoint),
+      };
     }),
   );
 
@@ -219,11 +248,14 @@ export const shiftAndCropHandler: PremadeScriptHandler = async ({
     compStartsAtInPoint: false,
   });
 
-  const makeShift = (targetName: string): ShiftInScript => ({
+  const makeShift = (
+    targetName: string,
+    shiftOverlap: number,
+  ): ShiftInScript => ({
     scriptType: ScriptType.SHIFT_IN,
     shiftTarget: targetName,
     shiftsTo: 'out-point',
-    shiftOverlap: 0,
+    shiftOverlap,
   });
 
   const applyToScene = (layer: Layer, sceneIdx: number): Layer => {
@@ -231,7 +263,10 @@ export const shiftAndCropHandler: PremadeScriptHandler = async ({
     const isLast = sceneIdx === scenes.length - 1;
     let scripts = layer.scripting?.scripts ?? [];
     if (!isFirst) {
-      scripts = upsertScript(scripts, makeShift(scenes[sceneIdx - 1].sel.name));
+      const prev = scenes[sceneIdx - 1].sel;
+      const curr = scenes[sceneIdx].sel;
+      const overlap = overlapFrames(prev, curr);
+      scripts = upsertScript(scripts, makeShift(prev.name, overlap));
     }
     if (isLast) {
       scripts = upsertScript(scripts, makeCrop());
@@ -296,7 +331,9 @@ export const shiftAndCropHandler: PremadeScriptHandler = async ({
         };
         let scripts = base.scripting?.scripts ?? [];
         if (!isFirstItem) {
-          scripts = upsertScript(scripts, makeShift(plan.items[vIdx - 1].name));
+          const prevItem = plan.items[vIdx - 1];
+          const overlap = overlapFrames(prevItem, v);
+          scripts = upsertScript(scripts, makeShift(prevItem.name, overlap));
         }
         if (isLastItem) {
           scripts = upsertScript(scripts, makeCrop());
