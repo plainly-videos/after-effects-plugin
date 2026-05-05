@@ -56,7 +56,7 @@ import {
   type PromptChoiceOptions,
   SCRIPT_REGISTRY,
 } from './scriptRegistry';
-import { materializeTimelineSelection } from './timelineScripts';
+import { materializeTimelineSelection, previewLayer } from './timelineScripts';
 import { addScriptDirectly, getDefaultScript, normalizeLayers } from './utils';
 
 export function Parametrization() {
@@ -184,18 +184,16 @@ export function Parametrization() {
         return;
       }
 
-      const { nextLayers, targetIndices } = materializeTimelineSelection(
-        selected,
-        editableLayers,
-      );
-
       const registryEntry = SCRIPT_REGISTRY[scriptType];
       if (!registryEntry) return;
       const allowedLayerTypes = registryEntry.layerTypes;
       const supportsRoot = registryEntry.supportsRoot;
 
-      const compatibleIndices = targetIndices.filter((idx) => {
-        const layer = nextLayers[idx];
+      // Filter for compatibility BEFORE materializing so we never append
+      // synthesized layers that wouldn't receive the script (avoids orphan
+      // empty layers in editableLayers).
+      const compatibleSelected = selected.filter((sel) => {
+        const layer = previewLayer(sel, editableLayers);
         if (allowedLayerTypes && !allowedLayerTypes.includes(layer.layerType)) {
           return false;
         }
@@ -210,23 +208,34 @@ export function Parametrization() {
         return true;
       });
 
-      if (compatibleIndices.length === 0) {
+      if (compatibleSelected.length === 0) {
         notifyInfo(
           `None of the selected layers are compatible with "${registryEntry.label}".`,
         );
         return;
       }
 
+      const { nextLayers, targetIndices } = materializeTimelineSelection(
+        compatibleSelected,
+        editableLayers,
+      );
+
       setEditableLayers(() => nextLayers);
 
-      const isSingle = targetIndices.length === 1;
+      // Only count "single" against the user's intent (raw selection),
+      // not against post-compat count: selecting one layer always lands
+      // in single-mode UI, even after filtering.
+      const isSingle = selected.length === 1;
+      const synthesizedStartIdx = editableLayers.length;
+      const newlySynthesizedIndices = targetIndices.filter(
+        (i) => i >= synthesizedStartIdx,
+      );
 
       if (registryEntry.addDirectly) {
+        const targetSet = new Set(targetIndices);
         setEditableLayers((prev) =>
           prev.map((layer, index) =>
-            compatibleIndices.includes(index)
-              ? addScriptDirectly(layer, scriptType)
-              : layer,
+            targetSet.has(index) ? addScriptDirectly(layer, scriptType) : layer,
           ),
         );
         return;
@@ -237,10 +246,11 @@ export function Parametrization() {
 
       if (isSingle) {
         setActiveScriptEdit({
-          layerIndex: compatibleIndices[0],
+          layerIndex: targetIndices[0],
           script: defaults,
           isNew: true,
           isBulk: false,
+          newlySynthesizedIndices,
         });
         return;
       }
@@ -250,7 +260,8 @@ export function Parametrization() {
         script: defaults,
         isNew: true,
         isBulk: true,
-        targetLayerIndices: new Set(compatibleIndices),
+        targetLayerIndices: new Set(targetIndices),
+        newlySynthesizedIndices,
       });
     },
     [editableLayers, notifyError, notifyInfo, renderingCompositionId],

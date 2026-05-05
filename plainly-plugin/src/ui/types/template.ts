@@ -112,6 +112,13 @@ export type ScriptEditState<S extends Script> = {
    * mutate the parametrized-list checkbox selection.
    */
   targetLayerIndices?: Set<number>;
+  /**
+   * Indices of layers that were synthesized into editableLayers when this
+   * edit was opened (not previously present). On close, any of these that
+   * still have no scripts are pruned — that handles the cancel case for
+   * the timeline-driven flow without leaving orphan empty layers behind.
+   */
+  newlySynthesizedIndices?: number[];
 } | null;
 
 export type TemplatePut = Omit<Template, 'id'> & { layers: Layer[] };

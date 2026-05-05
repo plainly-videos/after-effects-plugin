@@ -87,10 +87,19 @@ export function ScriptDialogs({
     ],
   );
 
-  const close = useCallback(
-    () => setActiveScriptEdit(null),
-    [setActiveScriptEdit],
-  );
+  const close = useCallback(() => {
+    const synthesized = activeScriptEdit?.newlySynthesizedIndices;
+    if (synthesized && synthesized.length > 0) {
+      const synthSet = new Set(synthesized);
+      setEditableLayers((prev) =>
+        prev.filter((layer, idx) => {
+          if (!synthSet.has(idx)) return true;
+          return (layer.scripting?.scripts?.length ?? 0) > 0;
+        }),
+      );
+    }
+    setActiveScriptEdit(null);
+  }, [activeScriptEdit, setActiveScriptEdit, setEditableLayers]);
 
   const activeLayer =
     activeScriptEdit && !activeScriptEdit.isBulk

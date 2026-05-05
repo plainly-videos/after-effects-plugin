@@ -35,6 +35,22 @@ function resolveMediaType(sel: SelectedLayerInfo): MediaType {
 }
 
 /**
+ * Resolve a timeline selection to the Layer it would correspond to in
+ * editableLayers — either an existing entry matched by (layerName, compId)
+ * or a freshly synthesized one. Does not mutate editableLayers; intended
+ * for compatibility checks before deciding whether to materialize.
+ */
+export function previewLayer(
+  sel: SelectedLayerInfo,
+  editableLayers: Layer[],
+): Layer {
+  const existing = editableLayers.find(
+    (l) => l.layerName === sel.name && l.compositions[0]?.id === sel.compId,
+  );
+  return existing ?? synthesizeLayer(sel);
+}
+
+/**
  * Build a Layer object from a timeline selection. Used when no existing
  * editableLayer matches by (layerName, compId).
  */
