@@ -192,8 +192,15 @@ export function Parametrization() {
       // Filter for compatibility BEFORE materializing so we never append
       // synthesized layers that wouldn't receive the script (avoids orphan
       // empty layers in editableLayers).
+      let unresolvedCount = 0;
       const compatibleSelected = selected.filter((sel) => {
         const layer = previewLayer(sel, editableLayers);
+        if (!layer) {
+          // Footage with an unrecognized type — don't synthesize a
+          // misclassified MEDIA/video entry; tally and skip.
+          unresolvedCount++;
+          return false;
+        }
         if (allowedLayerTypes && !allowedLayerTypes.includes(layer.layerType)) {
           return false;
         }
@@ -215,10 +222,28 @@ export function Parametrization() {
         return;
       }
 
+      if (unresolvedCount > 0) {
+        notifyInfo(
+          `${unresolvedCount} selected layer${unresolvedCount === 1 ? '' : 's'} could not be classified and will be skipped.`,
+        );
+      }
+
       const { nextLayers, targetIndices } = materializeTimelineSelection(
         compatibleSelected,
         editableLayers,
       );
+
+      // Multiple timeline selections can collapse to the same parametrized
+      // index when two AE layers share (layerName, compId) — duplicate-named
+      // layers in the same comp. Surface this so the user knows not every
+      // selection received the script.
+      const uniqueTargetCount = new Set(targetIndices).size;
+      if (uniqueTargetCount < targetIndices.length) {
+        const collapsed = targetIndices.length - uniqueTargetCount;
+        notifyInfo(
+          `${collapsed} selected layer${collapsed === 1 ? '' : 's'} share a name with another selected layer in the same composition; only one entry will receive the script.`,
+        );
+      }
 
       setEditableLayers(() => nextLayers);
 

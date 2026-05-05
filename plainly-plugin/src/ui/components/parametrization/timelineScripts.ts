@@ -9,19 +9,18 @@ import type { SelectedLayerInfo } from 'plainly-types';
  *   2. video / audio / image          → MEDIA
  *   3. text                           → DATA
  *   4. solid                          → SOLID_COLOR
- *   5. generic AV                     → MEDIA (best-effort fallback)
  *
- * Anything that matches none of the above falls through to MEDIA. The
- * picker's compatibility filter prevents this fallback from causing harm:
- * scripts with explicit `layerTypes` will simply skip mis-detected layers.
+ * Returns null for generic AV layers we can't classify (e.g. footage with
+ * an unrecognized extension). Those would otherwise default to MEDIA/video
+ * and get persisted with a wrong mediaType — better to skip them and let
+ * the caller tally the skip.
  */
-export function resolveLayerType(sel: SelectedLayerInfo): LayerType {
+export function resolveLayerType(sel: SelectedLayerInfo): LayerType | null {
   if (sel.sourceCompId !== undefined) return 'COMPOSITION';
   if (sel.isVideo || sel.isAudio || sel.isImage) return 'MEDIA';
   if (sel.isText) return 'DATA';
   if (sel.isSolid) return 'SOLID_COLOR';
-  if (sel.isAVLayer) return 'MEDIA';
-  return 'MEDIA';
+  return null;
 }
 
 /**
@@ -38,25 +37,30 @@ function resolveMediaType(sel: SelectedLayerInfo): MediaType {
 /**
  * Resolve a timeline selection to the Layer it would correspond to in
  * editableLayers — either an existing entry matched by (layerName, compId)
- * or a freshly synthesized one. Does not mutate editableLayers; intended
- * for compatibility checks before deciding whether to materialize.
+ * or a freshly synthesized one. Returns null when neither path applies
+ * (no existing match and the selection's type can't be resolved). Does
+ * not mutate editableLayers; intended for compatibility checks before
+ * deciding whether to materialize.
  */
 export function previewLayer(
   sel: SelectedLayerInfo,
   editableLayers: Layer[],
-): Layer {
+): Layer | null {
   const existing = editableLayers.find(
     (l) => l.layerName === sel.name && l.compositions[0]?.id === sel.compId,
   );
-  return existing ?? synthesizeLayer(sel);
+  if (existing) return existing;
+  return synthesizeLayer(sel);
 }
 
 /**
  * Build a Layer object from a timeline selection. Used when no existing
- * editableLayer matches by (layerName, compId).
+ * editableLayer matches by (layerName, compId). Returns null when the
+ * selection's LayerType can't be resolved.
  */
-function synthesizeLayer(sel: SelectedLayerInfo): Layer {
+function synthesizeLayer(sel: SelectedLayerInfo): Layer | null {
   const layerType = resolveLayerType(sel);
+  if (layerType === null) return null;
   const internalId =
     sel.sourceCompId !== undefined ? String(sel.sourceCompId) : String(sel.id);
   const base = {
@@ -97,6 +101,9 @@ export function materializeTimelineSelection(
       continue;
     }
     const synthesized = synthesizeLayer(sel);
+    // Caller is expected to pre-filter via previewLayer so synthesize
+    // succeeds here; defensively skip if it doesn't.
+    if (!synthesized) continue;
     nextLayers.push(synthesized);
     targetIndices.push(nextLayers.length - 1);
   }

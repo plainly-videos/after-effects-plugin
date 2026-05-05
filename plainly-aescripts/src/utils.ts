@@ -426,14 +426,8 @@ function getSelectedLayers(): string {
             info.isAudio = true;
           } else if (hasImageExtension(fsName)) {
             info.isImage = true;
-          } else {
-            info.isAVLayer = true;
           }
-        } else {
-          info.isAVLayer = true;
         }
-      } else {
-        info.isAVLayer = true;
       }
     }
     result.push(info);

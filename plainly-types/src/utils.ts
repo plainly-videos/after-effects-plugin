@@ -29,8 +29,6 @@ interface SelectedLayerInfo {
   isText?: boolean;
   /** True when the layer's source is a SolidSource. */
   isSolid?: boolean;
-  /** True when the layer is a generic AVLayer that did not match video/audio/image/solid. */
-  isAVLayer?: boolean;
 }
 
 interface VideoLayerInfo {
