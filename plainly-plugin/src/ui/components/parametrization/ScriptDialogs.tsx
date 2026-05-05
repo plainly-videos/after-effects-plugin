@@ -33,11 +33,15 @@ export function ScriptDialogs({
   const handleScriptSave = useCallback(
     (updatedScript: EditableScript) => {
       if (!activeScriptEdit) return;
-      const { layerIndex, isNew, isBulk } = activeScriptEdit;
+      const { layerIndex, isNew, isBulk, targetLayerIndices } =
+        activeScriptEdit;
       const { scriptType } = updatedScript;
+      const bulkTargets = isBulk
+        ? (targetLayerIndices ?? selectedLayerIds)
+        : null;
       setEditableLayers((prev) =>
         prev.map((layer, index) => {
-          if (isBulk ? !selectedLayerIds.has(index) : index !== layerIndex)
+          if (bulkTargets ? !bulkTargets.has(index) : index !== layerIndex)
             return layer;
           const registryEntry = SCRIPT_REGISTRY[scriptType];
           const allowedLayerTypes = registryEntry?.layerTypes;
@@ -78,7 +82,7 @@ export function ScriptDialogs({
     [
       activeScriptEdit,
       renderingCompositionId,
-      selectedLayerIds.has,
+      selectedLayerIds,
       setEditableLayers,
     ],
   );
