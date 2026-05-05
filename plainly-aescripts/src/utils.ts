@@ -341,18 +341,30 @@ function getSelectedLayers(): string {
       outPoint: layer.outPoint,
       compFrameRate: active.frameRate,
     };
-    if (layer instanceof AVLayer) {
+    if (layer instanceof TextLayer) {
+      info.isText = true;
+    } else if (layer instanceof AVLayer) {
       const src = layer.source;
       if (src instanceof CompItem) {
         info.sourceCompId = src.id;
         info.sourceCompName = src.name;
-      } else if (src instanceof FootageItem && src.file != null) {
-        const fsName = src.file.fsName;
-        if (hasVideoExtension(fsName)) {
-          info.isVideo = true;
-        } else if (hasAudioExtension(fsName)) {
-          info.isAudio = true;
+      } else if (src instanceof FootageItem) {
+        if (src.mainSource instanceof SolidSource) {
+          info.isSolid = true;
+        } else if (src.file != null) {
+          const fsName = src.file.fsName;
+          if (hasVideoExtension(fsName)) {
+            info.isVideo = true;
+          } else if (hasAudioExtension(fsName)) {
+            info.isAudio = true;
+          } else {
+            info.isAVLayer = true;
+          }
+        } else {
+          info.isAVLayer = true;
         }
+      } else {
+        info.isAVLayer = true;
       }
     }
     result.push(info);
