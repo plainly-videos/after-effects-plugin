@@ -23,6 +23,12 @@ interface SelectedLayerInfo {
   isVideo?: boolean;
   /** True when the layer is an AVLayer whose source is an audio footage file. */
   isAudio?: boolean;
+  /** True when the layer is an AVLayer whose source is an image footage file. */
+  isImage?: boolean;
+  /** True when the layer is a TextLayer. */
+  isText?: boolean;
+  /** True when the layer's source is a SolidSource. */
+  isSolid?: boolean;
 }
 
 interface VideoLayerInfo {

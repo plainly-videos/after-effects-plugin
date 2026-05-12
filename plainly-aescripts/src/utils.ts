@@ -49,6 +49,63 @@ const AUDIO_FILE_EXTENSIONS: string[] = [
   'wav',
 ];
 
+// 'gif' is intentionally omitted: AE treats animated GIFs as video footage,
+// so it lives in VIDEO_FILE_EXTENSIONS and is classified there first.
+const IMAGE_FILE_EXTENSIONS: string[] = [
+  'ai',
+  'eps',
+  'ps',
+  'pdf',
+  'psd',
+  'bmp',
+  'rle',
+  'dib',
+  'tif',
+  'crw',
+  'nef',
+  'raf',
+  'orf',
+  'mrw',
+  'dcr',
+  'mos',
+  'raw',
+  'pef',
+  'srf',
+  'dng',
+  'x3f',
+  'cr2',
+  'erf',
+  'cin',
+  'dpx',
+  'rla',
+  'rpf',
+  'img',
+  'ei',
+  'iff',
+  'tdi',
+  'jpg',
+  'jpe',
+  'jpeg',
+  'heif',
+  'heic',
+  'ma',
+  'exr',
+  'pcx',
+  'png',
+  'webp',
+  'hdr',
+  'rgbe',
+  'xyze',
+  'sgi',
+  'bw',
+  'rgb',
+  'pic',
+  'tga',
+  'vda',
+  'icb',
+  'vst',
+];
+
 function hasVideoExtension(path: string): boolean {
   const dot = path.lastIndexOf('.');
   if (dot === -1) return false;
@@ -65,6 +122,16 @@ function hasAudioExtension(path: string): boolean {
   const ext = path.substring(dot + 1).toLowerCase();
   for (let i = 0; i < AUDIO_FILE_EXTENSIONS.length; i++) {
     if (AUDIO_FILE_EXTENSIONS[i] === ext) return true;
+  }
+  return false;
+}
+
+function hasImageExtension(path: string): boolean {
+  const dot = path.lastIndexOf('.');
+  if (dot === -1) return false;
+  const ext = path.substring(dot + 1).toLowerCase();
+  for (let i = 0; i < IMAGE_FILE_EXTENSIONS.length; i++) {
+    if (IMAGE_FILE_EXTENSIONS[i] === ext) return true;
   }
   return false;
 }
@@ -341,17 +408,25 @@ function getSelectedLayers(): string {
       outPoint: layer.outPoint,
       compFrameRate: active.frameRate,
     };
-    if (layer instanceof AVLayer) {
+    if (layer instanceof TextLayer) {
+      info.isText = true;
+    } else if (layer instanceof AVLayer) {
       const src = layer.source;
       if (src instanceof CompItem) {
         info.sourceCompId = src.id;
         info.sourceCompName = src.name;
-      } else if (src instanceof FootageItem && src.file != null) {
-        const fsName = src.file.fsName;
-        if (hasVideoExtension(fsName)) {
-          info.isVideo = true;
-        } else if (hasAudioExtension(fsName)) {
-          info.isAudio = true;
+      } else if (src instanceof FootageItem) {
+        if (src.mainSource instanceof SolidSource) {
+          info.isSolid = true;
+        } else if (src.file != null) {
+          const fsName = src.file.fsName;
+          if (hasVideoExtension(fsName)) {
+            info.isVideo = true;
+          } else if (hasAudioExtension(fsName)) {
+            info.isAudio = true;
+          } else if (hasImageExtension(fsName)) {
+            info.isImage = true;
+          }
         }
       }
     }
