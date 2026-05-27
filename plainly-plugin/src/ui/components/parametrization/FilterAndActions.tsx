@@ -1,11 +1,21 @@
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react';
+import { AeScriptsApi } from '@src/node/bridge';
+import { useNotifications } from '@src/ui/hooks';
 import type { LayerType, ScriptType } from '@src/ui/types/template';
 import classNames from 'classnames';
-import { ChevronDownIcon, CirclePileIcon, FunnelXIcon } from 'lucide-react';
+import {
+  ChevronDownIcon,
+  CirclePileIcon,
+  FunnelXIcon,
+  ScrollTextIcon,
+  SquareMousePointerIcon,
+} from 'lucide-react';
 import { useState } from 'react';
 import { Tooltip, TooltipContent, TooltipTrigger } from '../common';
 import { Label } from '../typography';
+import { PremadeScriptsDialog } from './PremadeScriptsDialog';
 import { ScriptsDialog } from './ScriptsDialog';
+import { TimelineScriptsDialog } from './TimelineScriptsDialog';
 
 const filterOptions: [LayerType | 'All', string][] = [
   ['All', 'All'],
@@ -22,6 +32,8 @@ export function FilterAndActions({
   layerType,
   setLayerType,
   onBulkScriptSelectAction,
+  onPremadeScriptAction,
+  onTimelineScriptAction,
   bulkScriptDisabled,
   disabled,
 }: {
@@ -30,10 +42,34 @@ export function FilterAndActions({
   layerType: LayerType | 'All';
   setLayerType: React.Dispatch<React.SetStateAction<LayerType | 'All'>>;
   onBulkScriptSelectAction: (type: ScriptType) => void;
+  onPremadeScriptAction: (scriptId: string) => void;
+  onTimelineScriptAction: (type: ScriptType) => void;
   bulkScriptDisabled?: boolean;
   disabled?: boolean;
 }) {
   const [openScriptsDialog, setOpenScriptsDialog] = useState(false);
+  const [openPremadeScriptsDialog, setOpenPremadeScriptsDialog] =
+    useState(false);
+  const [openTimelineScriptsDialog, setOpenTimelineScriptsDialog] =
+    useState(false);
+  const [timelineSelectionCount, setTimelineSelectionCount] = useState(0);
+  const { notifyError } = useNotifications();
+
+  const openTimelineScriptsAction = async () => {
+    let selected: Awaited<ReturnType<typeof AeScriptsApi.getSelectedLayers>>;
+    try {
+      selected = await AeScriptsApi.getSelectedLayers();
+    } catch {
+      notifyError('Open a composition and select one or more layers first.');
+      return;
+    }
+    if (selected.length === 0) {
+      notifyError('Select one or more layers in the active composition first.');
+      return;
+    }
+    setTimelineSelectionCount(selected.length);
+    setOpenTimelineScriptsDialog(true);
+  };
 
   const clearFiltersAction = () => {
     setParameterQuery('');
@@ -98,6 +134,24 @@ export function FilterAndActions({
                   </TooltipTrigger>
                   <TooltipContent>Select layers first</TooltipContent>
                 </Tooltip>
+                <MenuItem>
+                  <span
+                    className="group flex items-center gap-2 rounded-md px-3 py-1.5 text-xs text-gray-400 hover:bg-indigo-600 hover:text-white w-full"
+                    onClick={openTimelineScriptsAction}
+                  >
+                    <SquareMousePointerIcon className="size-4 shrink-0 text-gray-400" />
+                    Timeline script add
+                  </span>
+                </MenuItem>
+                <MenuItem>
+                  <span
+                    className="group flex items-center gap-2 rounded-md px-3 py-1.5 text-xs text-gray-400 hover:bg-indigo-600 hover:text-white w-full"
+                    onClick={() => setOpenPremadeScriptsDialog(true)}
+                  >
+                    <ScrollTextIcon className="size-4 shrink-0 text-gray-400" />
+                    Predefined scripts
+                  </span>
+                </MenuItem>
               </MenuItems>
             </Menu>
           </div>
@@ -126,6 +180,17 @@ export function FilterAndActions({
         setOpen={setOpenScriptsDialog}
         onSelect={onBulkScriptSelectAction}
         bulk
+      />
+      <PremadeScriptsDialog
+        open={openPremadeScriptsDialog}
+        setOpen={setOpenPremadeScriptsDialog}
+        onSelect={onPremadeScriptAction}
+      />
+      <TimelineScriptsDialog
+        open={openTimelineScriptsDialog}
+        setOpen={setOpenTimelineScriptsDialog}
+        selectionCount={timelineSelectionCount}
+        onSelect={onTimelineScriptAction}
       />
     </>
   );

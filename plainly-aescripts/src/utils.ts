@@ -1,4 +1,25 @@
-import type { InstalledFontData } from 'plainly-types';
+import type {
+  AudioLayerInfo,
+  InstalledFontData,
+  SelectedLayerInfo,
+  VideoLayerInfo,
+} from 'plainly-types';
+
+// Classify footage by AE's own source flags rather than file extensions.
+// A still image reports `hasVideo === true`, so video detection must exclude
+// stills via `mainSource.isStill`. Audio-only footage is `hasAudio` without
+// `hasVideo`.
+function isImageSource(src: FootageItem): boolean {
+  return src.mainSource.isStill;
+}
+
+function isVideoSource(src: FootageItem): boolean {
+  return src.hasVideo && !src.mainSource.isStill;
+}
+
+function isAudioSource(src: FootageItem): boolean {
+  return src.hasAudio && !src.hasVideo;
+}
 
 /**
  * @function isWin
@@ -242,6 +263,131 @@ function selectFile(fileId: string): void {
 }
 
 /**
+ * Returns the layers currently selected in the active (working) composition.
+ *
+ * The working composition is `app.project.activeItem` when it is a `CompItem`.
+ * Returns an `'Error: ...'` string when no composition is active (the
+ * evalScriptAsync bridge turns this into a rejected promise), so callers can
+ * distinguish "no active comp" from "active comp but nothing selected" (the
+ * latter returns `[]`).
+ *
+ * @returns {string} JSON array of SelectedLayerInfo entries.
+ */
+function getSelectedLayers(): string {
+  const active = app.project.activeItem;
+  if (!(active instanceof CompItem)) {
+    return 'Error: No active composition. Open a composition first.';
+  }
+
+  const selected = active.selectedLayers;
+  const result: SelectedLayerInfo[] = [];
+  for (let i = 0; i < selected.length; i++) {
+    const layer = selected[i];
+    const info: SelectedLayerInfo = {
+      id: layer.id,
+      name: layer.name,
+      index: layer.index,
+      compId: active.id,
+      compName: active.name,
+      inPoint: layer.inPoint,
+      outPoint: layer.outPoint,
+      compFrameRate: active.frameRate,
+    };
+    if (layer instanceof TextLayer) {
+      info.isText = true;
+    } else if (layer instanceof AVLayer) {
+      const src = layer.source;
+      if (src instanceof CompItem) {
+        info.sourceCompId = src.id;
+        info.sourceCompName = src.name;
+      } else if (src instanceof FootageItem) {
+        if (src.mainSource instanceof SolidSource) {
+          info.isSolid = true;
+        } else if (isVideoSource(src)) {
+          info.isVideo = true;
+        } else if (isAudioSource(src)) {
+          info.isAudio = true;
+        } else if (isImageSource(src)) {
+          info.isImage = true;
+        }
+      }
+    }
+    result.push(info);
+  }
+  return JSON.stringify(result);
+}
+
+/**
+ * Returns all video layers inside the given composition in timeline order
+ * (layer index ascending). Returns an empty array when the comp has no video
+ * layers. Returns an `'Error: ...'` string when the compId cannot be resolved
+ * to a CompItem (the evalScriptAsync bridge turns this into a rejected
+ * promise), so callers can distinguish "comp not found" from "comp found, no
+ * matching layers".
+ *
+ * A "video layer" is an AVLayer whose source is a FootageItem that has video
+ * and is not a still image.
+ */
+function getAllVideoLayersInComp(compId: string): string {
+  const comp = app.project.itemByID(parseInt(compId, 10));
+  if (!(comp instanceof CompItem)) {
+    return `Error: Composition with id ${compId} not found.`;
+  }
+
+  const result: VideoLayerInfo[] = [];
+  for (let i = 1; i <= comp.numLayers; i++) {
+    const layer = comp.layer(i);
+    if (!(layer instanceof AVLayer)) continue;
+    const src = layer.source;
+    if (!(src instanceof FootageItem)) continue;
+    if (!isVideoSource(src)) continue;
+
+    result.push({
+      id: layer.id,
+      name: layer.name,
+      inPoint: layer.inPoint,
+      outPoint: layer.outPoint,
+      compFrameRate: comp.frameRate,
+    });
+  }
+  return JSON.stringify(result);
+}
+
+/**
+ * Returns all audio layers inside the given composition in timeline order
+ * (layer index ascending). Returns an empty array when the comp has no audio
+ * layers. Throws when the compId cannot be resolved to a CompItem, so callers
+ * can distinguish "comp not found" from "comp found, no matching layers".
+ *
+ * An "audio layer" is an AVLayer whose source is a FootageItem that has audio
+ * but no video.
+ */
+function getAllAudioLayersInComp(compId: string): string {
+  const comp = app.project.itemByID(parseInt(compId, 10));
+  if (!(comp instanceof CompItem)) {
+    return `Error: Composition with id ${compId} not found.`;
+  }
+
+  const result: AudioLayerInfo[] = [];
+  for (let i = 1; i <= comp.numLayers; i++) {
+    const layer = comp.layer(i);
+    if (!(layer instanceof AVLayer)) continue;
+    const src = layer.source;
+    if (!(src instanceof FootageItem)) continue;
+    if (!isAudioSource(src)) continue;
+
+    result.push({
+      id: layer.id,
+      name: layer.name,
+      inPoint: layer.inPoint,
+      outPoint: layer.outPoint,
+      compFrameRate: comp.frameRate,
+    });
+  }
+  return JSON.stringify(result);
+}
+
+/**
  * Generates a UUID (Universally Unique Identifier) string in the format 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.
  *
  * @returns {string} A randomly generated UUID string.
@@ -258,11 +404,14 @@ function uuid(): string {
 }
 
 export {
+  getAllAudioLayersInComp,
   getAllComps,
+  getAllVideoLayersInComp,
   getFolderPath,
   getInstalledFontsByFamilyNameAndStyleName,
   getInstalledFontsByPostScriptName,
   getCompLayerNames,
+  getSelectedLayers,
   getTextLayersByComp,
   isWin,
   pathJoin,

@@ -6,6 +6,7 @@ import {
   ComboboxOptions,
 } from '@headlessui/react';
 import { platformBaseUrl } from '@src/env';
+import { AeScriptsApi } from '@src/node/bridge';
 import {
   useEditTemplate,
   useGetProjectDetails,
@@ -40,6 +41,7 @@ import {
 import {
   Alert,
   Button,
+  ChoiceDialog,
   ConfirmationDialog,
   ExternalLink,
   InternalLink,
@@ -49,15 +51,20 @@ import { Description, Label, PageHeading } from '../typography';
 import { FilterAndActions } from './FilterAndActions';
 import { ParametrizedLayers } from './ParametrizedLayers';
 import { ScriptDialogs } from './ScriptDialogs';
-import { SCRIPT_REGISTRY } from './scriptRegistry';
-import { addScriptDirectly, getDefaultScript } from './utils';
+import {
+  PREMADE_SCRIPT_REGISTRY,
+  type PromptChoiceOptions,
+  SCRIPT_REGISTRY,
+} from './scriptRegistry';
+import { materializeTimelineSelection, previewLayer } from './timelineScripts';
+import { addScriptDirectly, getDefaultScript, normalizeLayers } from './utils';
 
 export function Parametrization() {
   const { plainlyProject, contextReady } = useContext(GlobalContext) || {};
   const { isLoading, data, refetch, isRefetching } = useGetProjectDetails(
     plainlyProject?.id,
   );
-  const { notifyError, notifySuccess } = useNotifications();
+  const { notifyError, notifyInfo, notifySuccess } = useNotifications();
 
   const [templateQuery, setTemplateQuery] = useState('');
   const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(
@@ -75,6 +82,17 @@ export function Parametrization() {
     useState<ScriptEditState<EditableScript>>(null);
   const [showReloadConfirm, setShowReloadConfirm] = useState(false);
   const [scriptsDialogLayerIndex, setScriptsDialogLayerIndex] = useState(-1);
+  const [choicePrompt, setChoicePrompt] = useState<
+    (PromptChoiceOptions & { resolve: (choice: string | null) => void }) | null
+  >(null);
+
+  const promptChoice = useCallback(
+    (options: PromptChoiceOptions) =>
+      new Promise<string | null>((resolve) => {
+        setChoicePrompt({ ...options, resolve });
+      }),
+    [],
+  );
   // Prevents the selectedTemplate effect from overwriting editableLayers on
   // the save path, where we set both states atomically in handleSubmit.
   const skipLayerResetRef = useRef(false);
@@ -85,7 +103,7 @@ export function Parametrization() {
       result.data?.templates?.find((t) => t.id === selectedTemplate?.id) ??
       null;
     setSelectedTemplate(freshTemplate);
-    setEditableLayers(freshTemplate?.layers || []);
+    setEditableLayers(normalizeLayers(freshTemplate?.layers || []));
     setSelectedLayerIds(new Set());
     setLayerType('All');
     setParameterQuery('');
@@ -97,7 +115,7 @@ export function Parametrization() {
       skipLayerResetRef.current = false;
       return;
     }
-    setEditableLayers(selectedTemplate?.layers || []);
+    setEditableLayers(normalizeLayers(selectedTemplate?.layers || []));
     setSelectedLayerIds(new Set());
     setLayerType('All');
     setParameterQuery('');
@@ -134,9 +152,181 @@ export function Parametrization() {
 
   const renderingCompositionId = selectedTemplate?.renderingCompositionId;
 
+  const handlePremadeScriptSelect = useCallback(
+    async (scriptId: string) => {
+      const entry = PREMADE_SCRIPT_REGISTRY[scriptId];
+      if (!entry) return;
+      await entry.handler({
+        editableLayers,
+        setEditableLayers,
+        notifyError,
+        notifyInfo,
+        notifySuccess,
+        promptChoice,
+        renderingCompositionId,
+      });
+    },
+    [
+      editableLayers,
+      notifyError,
+      notifyInfo,
+      notifySuccess,
+      promptChoice,
+      renderingCompositionId,
+    ],
+  );
+
+  const handleTimelineScriptSelect = useCallback(
+    async (scriptType: ScriptType) => {
+      let selected: Awaited<ReturnType<typeof AeScriptsApi.getSelectedLayers>>;
+      try {
+        selected = await AeScriptsApi.getSelectedLayers();
+      } catch {
+        notifyError('Open a composition and select one or more layers first.');
+        return;
+      }
+      if (selected.length === 0) {
+        notifyError(
+          'Select one or more layers in the active composition first.',
+        );
+        return;
+      }
+
+      const registryEntry = SCRIPT_REGISTRY[scriptType];
+      if (!registryEntry) return;
+      // The selection can change between opening TimelineScriptsDialog (which
+      // filters non-bulkable scripts out at >=2 selected) and confirming. Guard
+      // here so a non-bulkable script can never be applied across many layers.
+      if (selected.length > 1 && registryEntry.isBulkable === false) {
+        notifyInfo(
+          `"${registryEntry.label}" can only be added to a single layer at a time.`,
+        );
+        return;
+      }
+      const allowedLayerTypes = registryEntry.layerTypes;
+      const supportsRoot = registryEntry.supportsRoot;
+
+      // Filter for compatibility BEFORE materializing so we never append
+      // synthesized layers that wouldn't receive the script (avoids orphan
+      // empty layers in editableLayers).
+      let unresolvedCount = 0;
+      const compatibleSelected = selected.filter((sel) => {
+        const layer = previewLayer(sel, editableLayers);
+        if (!layer) {
+          // Footage with an unrecognized type — don't synthesize a
+          // misclassified MEDIA/video entry; tally and skip.
+          unresolvedCount++;
+          return false;
+        }
+        if (allowedLayerTypes && !allowedLayerTypes.includes(layer.layerType)) {
+          return false;
+        }
+        if (
+          supportsRoot === false &&
+          layer.layerType === 'COMPOSITION' &&
+          renderingCompositionId !== undefined &&
+          Number(layer.internalId) === renderingCompositionId
+        ) {
+          return false;
+        }
+        return true;
+      });
+
+      if (compatibleSelected.length === 0) {
+        notifyInfo(
+          `None of the selected layers are compatible with "${registryEntry.label}".`,
+        );
+        return;
+      }
+
+      if (unresolvedCount > 0) {
+        notifyInfo(
+          `${unresolvedCount} selected layer${unresolvedCount === 1 ? '' : 's'} could not be classified and will be skipped.`,
+        );
+      }
+
+      const { nextLayers, targetIndices } = materializeTimelineSelection(
+        compatibleSelected,
+        editableLayers,
+      );
+
+      // Multiple timeline selections can collapse to the same parametrized
+      // index when two AE layers share (layerName, compId) — duplicate-named
+      // layers in the same comp. Surface this so the user knows not every
+      // selection received the script.
+      const uniqueTargetCount = new Set(targetIndices).size;
+      if (uniqueTargetCount < targetIndices.length) {
+        const collapsed = targetIndices.length - uniqueTargetCount;
+        notifyInfo(
+          `${collapsed} selected layer${collapsed === 1 ? '' : 's'} share a name with another selected layer in the same composition; only one entry will receive the script.`,
+        );
+      }
+
+      setEditableLayers(() => nextLayers);
+
+      // Only count "single" against the user's intent (raw selection),
+      // not against post-compat count: selecting one layer always lands
+      // in single-mode UI, even after filtering.
+      const isSingle = selected.length === 1;
+      const synthesizedStartIdx = editableLayers.length;
+      const newlySynthesizedIndices = targetIndices.filter(
+        (i) => i >= synthesizedStartIdx,
+      );
+
+      if (registryEntry.addDirectly) {
+        const targetSet = new Set(targetIndices);
+        setEditableLayers((prev) =>
+          prev.map((layer, index) =>
+            targetSet.has(index) ? addScriptDirectly(layer, scriptType) : layer,
+          ),
+        );
+        return;
+      }
+
+      const defaults = getDefaultScript(scriptType);
+      if (!defaults) return;
+
+      if (isSingle) {
+        setActiveScriptEdit({
+          layerIndex: targetIndices[0],
+          script: defaults,
+          isNew: true,
+          isBulk: false,
+          newlySynthesizedIndices,
+        });
+        return;
+      }
+
+      setActiveScriptEdit({
+        layerIndex: -1,
+        script: defaults,
+        isNew: true,
+        isBulk: true,
+        targetLayerIndices: new Set(targetIndices),
+        newlySynthesizedIndices,
+      });
+    },
+    [editableLayers, notifyError, notifyInfo, renderingCompositionId],
+  );
+
   const hasUnsavedChanges =
     !!selectedTemplate &&
-    !isEqual(editableLayers, selectedTemplate.layers || []);
+    !isEqual(editableLayers, normalizeLayers(selectedTemplate.layers || []));
+
+  // Keys (`internalId::compId::scriptType`) of scripts already persisted on the saved
+  // template. Any script not in this set is an unsaved addition and gets
+  // highlighted in the list until the next save updates the baseline.
+  const savedScriptKeys = useMemo(() => {
+    const keys = new Set<string>();
+    for (const layer of normalizeLayers(selectedTemplate?.layers || [])) {
+      for (const script of layer.scripting?.scripts ?? []) {
+        keys.add(
+          `${layer.internalId}::${layer.compositions[0]?.id}::${script.scriptType}`,
+        );
+      }
+    }
+    return keys;
+  }, [selectedTemplate]);
 
   const { isPending, mutateAsync: editTemplate } = useEditTemplate();
 
@@ -179,7 +369,7 @@ export function Parametrization() {
       // is false in the same render. skipLayerResetRef prevents the
       // selectedTemplate effect from overwriting us.
       skipLayerResetRef.current = true;
-      setEditableLayers(savedTemplate?.layers || []);
+      setEditableLayers(normalizeLayers(savedTemplate?.layers || []));
       setScriptsDialogLayerIndex(-1);
       setSelectedTemplate(savedTemplate);
       notifySuccess('Template changes saved successfully');
@@ -283,7 +473,7 @@ export function Parametrization() {
                           anchor="bottom"
                           transition
                           className={classNames(
-                            'min-w-[--input-width] rounded-md border border-white/5 bg-secondary p-1 mt-1 empty:invisible',
+                            'z-20 min-w-[--input-width] rounded-md border border-white/5 bg-secondary p-1 mt-1 empty:invisible',
                             'transition duration-100 ease-in',
                           )}
                         >
@@ -335,6 +525,8 @@ export function Parametrization() {
                   layerType={layerType}
                   setLayerType={setLayerType}
                   onBulkScriptSelectAction={handleBulkScriptSelect}
+                  onPremadeScriptAction={handlePremadeScriptSelect}
+                  onTimelineScriptAction={handleTimelineScriptSelect}
                   bulkScriptDisabled={selectedLayerIds.size === 0}
                   disabled={disabledTemplates || !selectedTemplate}
                 />
@@ -350,6 +542,7 @@ export function Parametrization() {
                   setScriptsDialogLayerIndex={setScriptsDialogLayerIndex}
                   disabled={disabledTemplates || !selectedTemplate}
                   unsavedChanges={hasUnsavedChanges}
+                  savedScriptKeys={savedScriptKeys}
                   renderingCompositionId={renderingCompositionId}
                 />
               </div>
@@ -369,6 +562,20 @@ export function Parametrization() {
             description="You have unsaved changes, are you sure you want to reload? All unsaved changes will be lost."
             buttonText="Reload"
             action={handleReload}
+          />
+          <ChoiceDialog
+            open={choicePrompt !== null}
+            title={choicePrompt?.title ?? ''}
+            description={choicePrompt?.description}
+            options={choicePrompt?.options ?? []}
+            onSelect={(id) => {
+              choicePrompt?.resolve(id);
+              setChoicePrompt(null);
+            }}
+            onCancel={() => {
+              choicePrompt?.resolve(null);
+              setChoicePrompt(null);
+            }}
           />
           <ScriptDialogs
             activeScriptEdit={activeScriptEdit}

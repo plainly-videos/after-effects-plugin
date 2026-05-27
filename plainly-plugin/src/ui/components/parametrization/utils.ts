@@ -5,6 +5,7 @@ import {
   type Layer,
   type LayerManagementScript,
   type MediaAutoScaleScript,
+  type Script,
   ScriptType,
   type ShiftInScript,
   type ShiftOutScript,
@@ -12,6 +13,13 @@ import {
 import { SCRIPT_REGISTRY } from './scriptRegistry';
 
 export const SCRIPT_PARAMETER_NAME_REGEX = /^[^.]+$/;
+
+export function normalizeLayers(layers: Layer[]): Layer[] {
+  return layers.map((layer) => {
+    const maybeLabel = (layer as { label?: string }).label;
+    return { ...layer, label: maybeLabel ?? layer.layerName };
+  });
+}
 
 export function addScriptDirectly(layer: Layer, scriptType: ScriptType): Layer {
   const existingScripts = layer.scripting?.scripts || [];
@@ -25,6 +33,17 @@ export function addScriptDirectly(layer: Layer, scriptType: ScriptType): Layer {
       scripts: [...existingScripts, { scriptType }],
     },
   };
+}
+
+export function upsertScript(
+  scripts: Script[],
+  next: EditableScript,
+): Script[] {
+  const idx = scripts.findIndex((s) => s.scriptType === next.scriptType);
+  if (idx === -1) return [...scripts, next];
+  const copy = scripts.slice();
+  copy[idx] = next;
+  return copy;
 }
 
 type DefaultScriptMap = {

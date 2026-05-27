@@ -10,6 +10,7 @@ export function ScriptBadge({
   action,
   onRemove,
   disabled,
+  isNew,
   index,
   dragListeners,
   dragAttributes,
@@ -18,6 +19,7 @@ export function ScriptBadge({
   action?: () => void;
   onRemove?: () => void;
   disabled?: boolean;
+  isNew?: boolean;
   index: number;
   dragListeners?: DraggableSyntheticListeners;
   dragAttributes?: DraggableAttributes;
@@ -25,7 +27,10 @@ export function ScriptBadge({
   return (
     <span
       className={classNames(
-        'group relative inline-flex items-center gap-0.5 rounded-md px-1.5 py-0.5 text-2xs font-medium text-white bg-gray-500 hover:bg-gray-400',
+        'group relative inline-flex items-center gap-0.5 rounded-md px-1.5 py-0.5 text-2xs font-medium',
+        isNew
+          ? 'bg-yellow-400 hover:bg-yellow-300 text-black'
+          : 'bg-gray-500 hover:bg-gray-400 text-white',
         action && !disabled && 'cursor-pointer',
         disabled && 'opacity-50',
       )}
@@ -37,7 +42,12 @@ export function ScriptBadge({
         {...dragListeners}
         onClick={(e) => e.stopPropagation()}
       >
-        <GripVerticalIcon className="size-2.5 text-gray-300" />
+        <GripVerticalIcon
+          className={classNames(
+            'size-2.5',
+            isNew ? 'text-gray-700' : 'text-gray-300',
+          )}
+        />
       </span>
       <span className="tabular-nums">{index + 1}.</span>
       <span>{label}</span>
