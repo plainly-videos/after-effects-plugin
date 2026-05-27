@@ -67,12 +67,14 @@ function SortableScriptItem({
   script,
   index,
   isKnown,
+  isNew,
   onBadgeClick,
   onRemove,
 }: {
   script: { scriptType: ScriptType };
   index: number;
   isKnown: boolean;
+  isNew?: boolean;
   onBadgeClick?: () => void;
   onRemove: () => void;
 }) {
@@ -101,6 +103,7 @@ function SortableScriptItem({
       }
       onRemove={onRemove}
       disabled={!isKnown}
+      isNew={isNew}
       index={index}
       dragListeners={listeners}
       dragAttributes={attributes}
@@ -135,6 +138,7 @@ export function ParametrizedLayers({
   setScriptsDialogLayerIndex,
   disabled,
   unsavedChanges,
+  savedScriptKeys,
   renderingCompositionId,
 }: {
   editableLayers: Layer[];
@@ -153,6 +157,7 @@ export function ParametrizedLayers({
   setScriptsDialogLayerIndex: React.Dispatch<React.SetStateAction<number>>;
   disabled?: boolean;
   unsavedChanges?: boolean;
+  savedScriptKeys?: Set<string>;
   renderingCompositionId?: number;
 }) {
   const handleBadgeClick = useCallback(
@@ -366,12 +371,18 @@ export function ParametrizedLayers({
                     <div className="flex flex-col text-xs gap-1 pr-4">
                       {layer.scripting?.scripts.map((script, scriptIndex) => {
                         const isKnown = script.scriptType in SCRIPT_REGISTRY;
+                        const isNew =
+                          !!savedScriptKeys &&
+                          !savedScriptKeys.has(
+                            `${layer.internalId}::${script.scriptType}`,
+                          );
                         return (
                           <SortableScriptItem
                             key={script.scriptType}
                             script={script}
                             index={scriptIndex}
                             isKnown={isKnown}
+                            isNew={isNew}
                             onBadgeClick={
                               isKnown &&
                               SCRIPT_REGISTRY[script.scriptType]?.isEditable

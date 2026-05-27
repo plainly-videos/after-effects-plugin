@@ -296,6 +296,19 @@ export function Parametrization() {
     !!selectedTemplate &&
     !isEqual(editableLayers, normalizeLayers(selectedTemplate.layers || []));
 
+  // Keys (`internalId::scriptType`) of scripts already persisted on the saved
+  // template. Any script not in this set is an unsaved addition and gets
+  // highlighted in the list until the next save updates the baseline.
+  const savedScriptKeys = useMemo(() => {
+    const keys = new Set<string>();
+    for (const layer of normalizeLayers(selectedTemplate?.layers || [])) {
+      for (const script of layer.scripting?.scripts ?? []) {
+        keys.add(`${layer.internalId}::${script.scriptType}`);
+      }
+    }
+    return keys;
+  }, [selectedTemplate]);
+
   const { isPending, mutateAsync: editTemplate } = useEditTemplate();
 
   const templates = data?.templates || [];
@@ -441,7 +454,7 @@ export function Parametrization() {
                           anchor="bottom"
                           transition
                           className={classNames(
-                            'min-w-[--input-width] rounded-md border border-white/5 bg-secondary p-1 mt-1 empty:invisible',
+                            'z-20 min-w-[--input-width] rounded-md border border-white/5 bg-secondary p-1 mt-1 empty:invisible',
                             'transition duration-100 ease-in',
                           )}
                         >
@@ -510,6 +523,7 @@ export function Parametrization() {
                   setScriptsDialogLayerIndex={setScriptsDialogLayerIndex}
                   disabled={disabledTemplates || !selectedTemplate}
                   unsavedChanges={hasUnsavedChanges}
+                  savedScriptKeys={savedScriptKeys}
                   renderingCompositionId={renderingCompositionId}
                 />
               </div>

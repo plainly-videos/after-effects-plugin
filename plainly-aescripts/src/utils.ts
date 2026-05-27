@@ -5,135 +5,20 @@ import type {
   VideoLayerInfo,
 } from 'plainly-types';
 
-const VIDEO_FILE_EXTENSIONS: string[] = [
-  'crm',
-  'mxf',
-  'mov',
-  '3gp',
-  '3g2',
-  'amc',
-  'swf',
-  'flv',
-  'f4v',
-  'gif',
-  'm2ts',
-  'm4v',
-  'mpg',
-  'mpe',
-  'mpa',
-  'mpv',
-  'mod',
-  'm2p',
-  'm2v',
-  'm2a',
-  'm2t',
-  'mp4',
-  'omf',
-  'avi',
-  'wmv',
-  'wma',
-  'webm',
-];
-
-// Pure-audio formats only. Ambiguous extensions that can carry video
-// (e.g. 'mpg', 'mpa', 'mpe', 'webm') live in VIDEO_FILE_EXTENSIONS and are
-// always classified as video.
-const AUDIO_FILE_EXTENSIONS: string[] = [
-  'mp2',
-  'aac',
-  'm4a',
-  'aif',
-  'aiff',
-  'mp3',
-  'mpeg',
-  'wav',
-];
-
-// 'gif' is intentionally omitted: AE treats animated GIFs as video footage,
-// so it lives in VIDEO_FILE_EXTENSIONS and is classified there first.
-const IMAGE_FILE_EXTENSIONS: string[] = [
-  'ai',
-  'eps',
-  'ps',
-  'pdf',
-  'psd',
-  'bmp',
-  'rle',
-  'dib',
-  'tif',
-  'crw',
-  'nef',
-  'raf',
-  'orf',
-  'mrw',
-  'dcr',
-  'mos',
-  'raw',
-  'pef',
-  'srf',
-  'dng',
-  'x3f',
-  'cr2',
-  'erf',
-  'cin',
-  'dpx',
-  'rla',
-  'rpf',
-  'img',
-  'ei',
-  'iff',
-  'tdi',
-  'jpg',
-  'jpe',
-  'jpeg',
-  'heif',
-  'heic',
-  'ma',
-  'exr',
-  'pcx',
-  'png',
-  'webp',
-  'hdr',
-  'rgbe',
-  'xyze',
-  'sgi',
-  'bw',
-  'rgb',
-  'pic',
-  'tga',
-  'vda',
-  'icb',
-  'vst',
-];
-
-function hasVideoExtension(path: string): boolean {
-  const dot = path.lastIndexOf('.');
-  if (dot === -1) return false;
-  const ext = path.substring(dot + 1).toLowerCase();
-  for (let i = 0; i < VIDEO_FILE_EXTENSIONS.length; i++) {
-    if (VIDEO_FILE_EXTENSIONS[i] === ext) return true;
-  }
-  return false;
+// Classify footage by AE's own source flags rather than file extensions.
+// A still image reports `hasVideo === true`, so video detection must exclude
+// stills via `mainSource.isStill`. Audio-only footage is `hasAudio` without
+// `hasVideo`.
+function isImageSource(src: FootageItem): boolean {
+  return src.mainSource.isStill;
 }
 
-function hasAudioExtension(path: string): boolean {
-  const dot = path.lastIndexOf('.');
-  if (dot === -1) return false;
-  const ext = path.substring(dot + 1).toLowerCase();
-  for (let i = 0; i < AUDIO_FILE_EXTENSIONS.length; i++) {
-    if (AUDIO_FILE_EXTENSIONS[i] === ext) return true;
-  }
-  return false;
+function isVideoSource(src: FootageItem): boolean {
+  return src.hasVideo && !src.mainSource.isStill;
 }
 
-function hasImageExtension(path: string): boolean {
-  const dot = path.lastIndexOf('.');
-  if (dot === -1) return false;
-  const ext = path.substring(dot + 1).toLowerCase();
-  for (let i = 0; i < IMAGE_FILE_EXTENSIONS.length; i++) {
-    if (IMAGE_FILE_EXTENSIONS[i] === ext) return true;
-  }
-  return false;
+function isAudioSource(src: FootageItem): boolean {
+  return src.hasAudio && !src.hasVideo;
 }
 
 /**
@@ -418,15 +303,12 @@ function getSelectedLayers(): string {
       } else if (src instanceof FootageItem) {
         if (src.mainSource instanceof SolidSource) {
           info.isSolid = true;
-        } else if (src.file != null) {
-          const fsName = src.file.fsName;
-          if (hasVideoExtension(fsName)) {
-            info.isVideo = true;
-          } else if (hasAudioExtension(fsName)) {
-            info.isAudio = true;
-          } else if (hasImageExtension(fsName)) {
-            info.isImage = true;
-          }
+        } else if (isVideoSource(src)) {
+          info.isVideo = true;
+        } else if (isAudioSource(src)) {
+          info.isAudio = true;
+        } else if (isImageSource(src)) {
+          info.isImage = true;
         }
       }
     }
@@ -443,8 +325,8 @@ function getSelectedLayers(): string {
  * promise), so callers can distinguish "comp not found" from "comp found, no
  * matching layers".
  *
- * A "video layer" is an AVLayer whose source is a FootageItem backed by a file
- * with a recognized video extension.
+ * A "video layer" is an AVLayer whose source is a FootageItem that has video
+ * and is not a still image.
  */
 function getAllVideoLayersInComp(compId: string): string {
   const comp = app.project.itemByID(parseInt(compId, 10));
@@ -458,8 +340,7 @@ function getAllVideoLayersInComp(compId: string): string {
     if (!(layer instanceof AVLayer)) continue;
     const src = layer.source;
     if (!(src instanceof FootageItem)) continue;
-    if (src.file == null) continue;
-    if (!hasVideoExtension(src.file.fsName)) continue;
+    if (!isVideoSource(src)) continue;
 
     result.push({
       id: layer.id,
@@ -478,8 +359,8 @@ function getAllVideoLayersInComp(compId: string): string {
  * layers. Throws when the compId cannot be resolved to a CompItem, so callers
  * can distinguish "comp not found" from "comp found, no matching layers".
  *
- * An "audio layer" is an AVLayer whose source is a FootageItem backed by a
- * file with a recognized audio extension.
+ * An "audio layer" is an AVLayer whose source is a FootageItem that has audio
+ * but no video.
  */
 function getAllAudioLayersInComp(compId: string): string {
   const comp = app.project.itemByID(parseInt(compId, 10));
@@ -493,8 +374,7 @@ function getAllAudioLayersInComp(compId: string): string {
     if (!(layer instanceof AVLayer)) continue;
     const src = layer.source;
     if (!(src instanceof FootageItem)) continue;
-    if (src.file == null) continue;
-    if (!hasAudioExtension(src.file.fsName)) continue;
+    if (!isAudioSource(src)) continue;
 
     result.push({
       id: layer.id,

@@ -29,7 +29,7 @@ const overlapFrames = (
 ): number => {
   const seconds = prev.outPoint - curr.inPoint;
   if (seconds <= 0) return 0;
-  return Math.max(0, Math.round(seconds * curr.compFrameRate));
+  return Math.round(seconds * curr.compFrameRate);
 };
 
 type SceneMediaPlan =
@@ -45,12 +45,10 @@ export const shiftAndCropHandler: PremadeScriptHandler = async ({
   notifySuccess,
   promptChoice,
 }) => {
-  let selected: Awaited<ReturnType<typeof AeScriptsApi.getSelectedLayers>>;
-  try {
-    selected = await AeScriptsApi.getSelectedLayers();
-  } catch {
-    // getSelectedLayers throws when no composition is active — distinct from
-    // "comp is active but nothing is selected", which returns [].
+  // getSelectedLayers throws when no composition is active — distinct from
+  // "comp is active but nothing is selected", which returns [].
+  const selected = await AeScriptsApi.getSelectedLayers().catch(() => null);
+  if (selected === null) {
     notifyError('Open a composition and select one or more layers first.');
     return;
   }
@@ -128,7 +126,8 @@ export const shiftAndCropHandler: PremadeScriptHandler = async ({
       compositions: [{ id: sel.compId, name: sel.compName }],
       layerType: 'COMPOSITION',
     };
-    return { sel, sceneLayer, directMediaType: null as MediaType | null };
+    const directMediaType: MediaType | null = null;
+    return { sel, sceneLayer, directMediaType };
   });
 
   // Probe inner media for each non-outro COMP scene. Direct-media scenes
@@ -377,6 +376,15 @@ export const shiftAndCropHandler: PremadeScriptHandler = async ({
         byId.set(updated.internalId, updated);
       }
     });
+
+    // Surface MEDIA layers (video and audio inner media) above COMPOSITION
+    // scene layers. Push order alone only achieves this when nothing
+    // pre-exists; layers already in the template are updated in place and keep
+    // their original position, so audio inner media could otherwise sit below
+    // its comp. Array.prototype.sort is stable, so relative order within each
+    // group is preserved.
+    const rank = (l: Layer) => (l.layerType === 'MEDIA' ? 0 : 1);
+    next.sort((a, b) => rank(a) - rank(b));
 
     return next;
   });
