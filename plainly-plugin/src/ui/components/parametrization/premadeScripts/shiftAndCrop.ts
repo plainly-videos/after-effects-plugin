@@ -44,6 +44,7 @@ export const shiftAndCropHandler: PremadeScriptHandler = async ({
   notifyInfo,
   notifySuccess,
   promptChoice,
+  renderingCompositionId,
 }) => {
   // getSelectedLayers throws when no composition is active — distinct from
   // "comp is active but nothing is selected", which returns [].
@@ -59,6 +60,16 @@ export const shiftAndCropHandler: PremadeScriptHandler = async ({
     return;
   }
 
+  // Shift-and-crop chains one scene to the next, so a single selection has
+  // nothing to chain and would produce a misleading "applied" toast while
+  // touching no inner media. Require at least two scenes.
+  if (selected.length < 2) {
+    notifyError(
+      'Select at least two composition, video, or audio layers to chain with shift and crop.',
+    );
+    return;
+  }
+
   const invalidSel = selected.filter(
     (s) => s.sourceCompId === undefined && !s.isVideo && !s.isAudio,
   );
@@ -69,6 +80,23 @@ export const shiftAndCropHandler: PremadeScriptHandler = async ({
         .join(', ')}.`,
     );
     return;
+  }
+
+  // CROP and SHIFT_IN do not support the root comp (supportsRoot: false), so a
+  // scene whose source IS the rendering composition can never receive them.
+  // Refuse upfront rather than build a chain the save would reject.
+  if (renderingCompositionId !== undefined) {
+    const rootScenes = selected.filter(
+      (s) => s.sourceCompId === renderingCompositionId,
+    );
+    if (rootScenes.length > 0) {
+      notifyError(
+        `The rendering composition cannot be part of a shift-and-crop chain: ${rootScenes
+          .map((s) => s.name)
+          .join(', ')}.`,
+      );
+      return;
+    }
   }
 
   const compIds = new Set(selected.map((s) => s.compId));
@@ -377,15 +405,10 @@ export const shiftAndCropHandler: PremadeScriptHandler = async ({
       }
     });
 
-    // Surface MEDIA layers (video and audio inner media) above COMPOSITION
-    // scene layers. Push order alone only achieves this when nothing
-    // pre-exists; layers already in the template are updated in place and keep
-    // their original position, so audio inner media could otherwise sit below
-    // its comp. Array.prototype.sort is stable, so relative order within each
-    // group is preserved.
-    const rank = (l: Layer) => (l.layerType === 'MEDIA' ? 0 : 1);
-    next.sort((a, b) => rank(a) - rank(b));
-
+    // Layers untouched by this operation keep their original position — we do
+    // not globally reorder the list. New inner-media layers are pushed before
+    // new scene layers above (inner media in the first forEach), so freshly
+    // synthesized media still appears above its freshly synthesized comp.
     return next;
   });
 

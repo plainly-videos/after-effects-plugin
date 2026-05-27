@@ -142,6 +142,12 @@ export type PremadeScriptHandlerContext = {
   notifySuccess: (msg: string) => void;
   /** Opens a choice dialog. Resolves with the chosen option id, or null if cancelled. */
   promptChoice: (options: PromptChoiceOptions) => Promise<string | null>;
+  /**
+   * Id of the template's rendering (root) composition, when known. Handlers use
+   * it to refuse adding scripts that don't support the root comp (supportsRoot:
+   * false) to a selection whose source is the rendering composition.
+   */
+  renderingCompositionId?: number;
 };
 
 export type PremadeScriptHandler = (

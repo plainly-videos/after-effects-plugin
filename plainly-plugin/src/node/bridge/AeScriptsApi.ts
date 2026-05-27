@@ -233,7 +233,8 @@ class AeScriptsApiClass {
   /**
    * Returns all video layers inside the given composition in timeline order
    * (layer index ascending).
-   * A "video layer" is a footage layer whose source file has a recognized video extension.
+   * A "video layer" is an AVLayer whose footage source AE flags as having
+   * video and not being a still image (hasVideo && !mainSource.isStill).
    * Returns an empty array when the comp has no video layers. Rejects when the
    * compId cannot be resolved to a composition.
    * @param compId - The ID of the composition
@@ -255,8 +256,8 @@ class AeScriptsApiClass {
   /**
    * Returns all audio layers inside the given composition in timeline order
    * (layer index ascending).
-   * An "audio layer" is a footage layer whose source file has a recognized
-   * audio extension.
+   * An "audio layer" is an AVLayer whose footage source AE flags as having
+   * audio but not video (hasAudio && !hasVideo).
    * Returns an empty array when the comp has no audio layers. Rejects when the
    * compId cannot be resolved to a composition.
    * @param compId - The ID of the composition

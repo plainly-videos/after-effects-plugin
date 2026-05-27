@@ -374,7 +374,7 @@ export function ParametrizedLayers({
                         const isNew =
                           !!savedScriptKeys &&
                           !savedScriptKeys.has(
-                            `${layer.internalId}::${script.scriptType}`,
+                            `${layer.internalId}::${layer.compositions[0]?.id}::${script.scriptType}`,
                           );
                         return (
                           <SortableScriptItem

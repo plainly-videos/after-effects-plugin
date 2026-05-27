@@ -150,6 +150,8 @@ export function Parametrization() {
     [selectedLayerIds],
   );
 
+  const renderingCompositionId = selectedTemplate?.renderingCompositionId;
+
   const handlePremadeScriptSelect = useCallback(
     async (scriptId: string) => {
       const entry = PREMADE_SCRIPT_REGISTRY[scriptId];
@@ -161,12 +163,18 @@ export function Parametrization() {
         notifyInfo,
         notifySuccess,
         promptChoice,
+        renderingCompositionId,
       });
     },
-    [editableLayers, notifyError, notifyInfo, notifySuccess, promptChoice],
+    [
+      editableLayers,
+      notifyError,
+      notifyInfo,
+      notifySuccess,
+      promptChoice,
+      renderingCompositionId,
+    ],
   );
-
-  const renderingCompositionId = selectedTemplate?.renderingCompositionId;
 
   const handleTimelineScriptSelect = useCallback(
     async (scriptType: ScriptType) => {
@@ -186,6 +194,15 @@ export function Parametrization() {
 
       const registryEntry = SCRIPT_REGISTRY[scriptType];
       if (!registryEntry) return;
+      // The selection can change between opening TimelineScriptsDialog (which
+      // filters non-bulkable scripts out at >=2 selected) and confirming. Guard
+      // here so a non-bulkable script can never be applied across many layers.
+      if (selected.length > 1 && registryEntry.isBulkable === false) {
+        notifyInfo(
+          `"${registryEntry.label}" can only be added to a single layer at a time.`,
+        );
+        return;
+      }
       const allowedLayerTypes = registryEntry.layerTypes;
       const supportsRoot = registryEntry.supportsRoot;
 
@@ -296,14 +313,16 @@ export function Parametrization() {
     !!selectedTemplate &&
     !isEqual(editableLayers, normalizeLayers(selectedTemplate.layers || []));
 
-  // Keys (`internalId::scriptType`) of scripts already persisted on the saved
+  // Keys (`internalId::compId::scriptType`) of scripts already persisted on the saved
   // template. Any script not in this set is an unsaved addition and gets
   // highlighted in the list until the next save updates the baseline.
   const savedScriptKeys = useMemo(() => {
     const keys = new Set<string>();
     for (const layer of normalizeLayers(selectedTemplate?.layers || [])) {
       for (const script of layer.scripting?.scripts ?? []) {
-        keys.add(`${layer.internalId}::${script.scriptType}`);
+        keys.add(
+          `${layer.internalId}::${layer.compositions[0]?.id}::${script.scriptType}`,
+        );
       }
     }
     return keys;

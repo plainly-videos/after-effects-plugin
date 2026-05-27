@@ -6,6 +6,7 @@ import {
 } from '@headlessui/react';
 import { State, useGlobalState } from '@src/ui/state/store';
 import classNames from 'classnames';
+import type { ReactNode } from 'react';
 import { Description } from '../typography';
 import { Button } from './Button';
 
@@ -13,6 +14,8 @@ export type ChoiceDialogOption = {
   id: string;
   label: string;
   description?: string;
+  /** Optional icon element, rendered inside the indigo badge. */
+  icon?: ReactNode;
 };
 
 export function ChoiceDialog({
@@ -62,6 +65,11 @@ export function ChoiceDialog({
                     onClick={() => onSelect(opt.id)}
                     className="w-full flex items-start gap-3 rounded-md px-3 py-2 text-left hover:bg-white/5"
                   >
+                    {opt.icon && (
+                      <div className="size-8 bg-indigo-500 rounded-md flex shrink-0 items-center justify-center">
+                        {opt.icon}
+                      </div>
+                    )}
                     <div>
                       <p className="text-xs font-medium text-white">
                         {opt.label}

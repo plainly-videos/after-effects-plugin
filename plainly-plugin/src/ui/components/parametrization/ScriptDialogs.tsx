@@ -70,7 +70,7 @@ export function ScriptDialogs({
               ? existingScripts.map((s) =>
                   s.scriptType === scriptType ? updatedScript : s,
                 )
-              : isNew || (isBulk && !hasScript)
+              : !hasScript && (isNew || isBulk)
                 ? [...existingScripts, updatedScript]
                 : existingScripts.map((s) =>
                     s.scriptType === scriptType ? updatedScript : s,
