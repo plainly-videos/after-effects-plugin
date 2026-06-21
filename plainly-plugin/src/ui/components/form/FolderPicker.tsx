@@ -39,7 +39,7 @@ export function FolderPicker({
             id="folder"
             name="folder"
             type="text"
-            className="w-full rounded-l-md bg-white/5 px-3 py-1 text-xs text-white outline outline-1 -outline-offset-1 outline-white/10 focus-within:outline focus-within:outline-2 focus-within:-outline-offset-2 focus-within:outline-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full rounded-l-md border-none bg-white/5 px-3 py-1 text-xs text-white outline outline-1 -outline-offset-1 outline-white/10 focus-within:outline focus-within:outline-2 focus-within:-outline-offset-2 focus-within:outline-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
             value={folder === '/' ? 'Root' : folder || 'No folder'}
             disabled
           />
@@ -52,7 +52,7 @@ export function FolderPicker({
         </div>
         <button
           type="button"
-          className="-ml-px rounded-r-md bg-white/10 hover:bg-white/20 px-3 py-1 text-xs text-white outline outline-1 -outline-offset-1 outline-white/10 focus-within:outline focus-within:outline-2 focus-within:-outline-offset-2 focus-within:outline-indigo-500 whitespace-nowrap"
+          className="-ml-px rounded-r-md border-none bg-white/10 hover:bg-white/20 px-3 py-1 text-xs text-white outline outline-1 -outline-offset-1 outline-white/10 focus-within:outline focus-within:outline-2 focus-within:-outline-offset-2 focus-within:outline-indigo-500 whitespace-nowrap"
           onClick={() => setDialogOpen(true)}
         >
           Choose folder
@@ -143,7 +143,7 @@ function FolderPickerDialog({
                     id="folderName"
                     name="folderName"
                     type="text"
-                    className="col-start-1 row-start-1 block w-full rounded-md bg-white/5 px-3 py-1 text-xs text-white outline outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500"
+                    className="col-start-1 row-start-1 block w-full rounded-md border-none bg-white/5 px-3 py-1 text-xs text-white outline outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500"
                     placeholder="/folder/sub-folder"
                     value={folderName}
                     onChange={(e) => {

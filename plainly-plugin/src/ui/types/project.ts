@@ -1,4 +1,5 @@
 import type { ModelBaseWithDates } from '.';
+import type { Template } from './template';
 
 export interface Project extends ModelBaseWithDates {
   analysis: ProjectAnalysis;
@@ -12,7 +13,7 @@ export interface Project extends ModelBaseWithDates {
   revisionHistory?: ProjectRevision[];
   analyzed: boolean;
   size: number;
-  templates: Record<string, unknown>[]; // extend when more is needed
+  templates: Template[];
 }
 
 interface ProjectAnalysis {

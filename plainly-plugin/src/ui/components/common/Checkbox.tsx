@@ -1,24 +1,40 @@
+import classNames from 'classnames';
+
 export function Checkbox({
+  id,
+  name,
   label,
   description,
+  defaultChecked = true,
   onChange,
+  disabled = false,
 }: {
+  id: string;
+  name: string;
   label: string;
   description?: string;
+  defaultChecked?: boolean;
   onChange: React.Dispatch<React.SetStateAction<boolean>>;
+  disabled?: boolean;
 }) {
   return (
-    <div className="flex gap-3">
+    <div
+      className={classNames(
+        'flex gap-3',
+        disabled && 'pointer-events-none opacity-50',
+      )}
+    >
       <div className="flex h-6 shrink-0 items-center">
         <div className="group grid size-4 grid-cols-1">
           <input
-            defaultChecked
-            id="comments"
-            name="comments"
+            defaultChecked={defaultChecked}
+            id={id}
+            name={name}
             type="checkbox"
-            aria-describedby="comments-description"
+            aria-describedby={`${id}-description`}
             className="col-start-1 row-start-1 appearance-none rounded border border-white/10 bg-white/5 checked:border-indigo-600 checked:bg-indigo-600 indeterminate:border-indigo-600 indeterminate:bg-indigo-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:border-white/10 disabled:bg-transparent forced-colors:appearance-auto"
             onChange={(e) => onChange(e.target.checked)}
+            disabled={disabled}
           />
           <svg
             fill="none"
@@ -44,10 +60,10 @@ export function Checkbox({
         </div>
       </div>
       <div className="text-xs">
-        <label htmlFor="comments" className="font-medium text-white">
+        <label htmlFor={id} className="font-medium text-white">
           {label}
         </label>
-        <p id="comments-description" className="text-gray-400">
+        <p id={`${id}-description`} className="text-gray-400">
           {description}
         </p>
       </div>

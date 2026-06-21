@@ -10,7 +10,7 @@ import {
 } from 'lucide-react';
 import type { AnyProjectIssue } from 'plainly-types';
 import { useCallback } from 'react';
-import { Tooltip } from '../common';
+import { Tooltip, TooltipContent, TooltipTrigger } from '../common';
 import { ProjectIssueType } from '.';
 
 export function Issue({
@@ -42,46 +42,60 @@ export function Issue({
       >
         <div className="flex items-center gap-2">
           <p>{label}</p>
-          <Tooltip
-            text={description}
-            className="max-w-40 whitespace-break-spaces"
-          >
-            <div className="flex items-center justify-center cursor-help size-4 group">
-              <CircleQuestionMark className="size-4 text-gray-400 group-hover:text-white duration-200" />
-            </div>
+          <Tooltip>
+            <TooltipTrigger
+              render={
+                <div className="flex items-center justify-center cursor-help size-4 group">
+                  <CircleQuestionMark className="size-4 text-gray-400 group-hover:text-white duration-200" />
+                </div>
+              }
+            />
+            <TooltipContent>{description}</TooltipContent>
           </Tooltip>
-          <Tooltip text="Read more">
-            <div className="flex items-center justify-center cursor-pointer size-4 group">
-              <button
-                type="button"
-                onClick={() => handleLinkClick(externalLink)}
-                className="flex items-center justify-center"
-              >
-                <ExternalLinkIcon className="size-4 text-gray-400 group-hover:text-white duration-200" />
-              </button>
-            </div>
+          <Tooltip>
+            <TooltipTrigger
+              render={
+                <div className="flex items-center justify-center cursor-pointer size-4 group">
+                  <button
+                    type="button"
+                    onClick={() => handleLinkClick(externalLink)}
+                    className="flex items-center justify-center"
+                  >
+                    <ExternalLinkIcon className="size-4 text-gray-400 group-hover:text-white duration-200" />
+                  </button>
+                </div>
+              }
+            />
+            <TooltipContent>Read more</TooltipContent>
           </Tooltip>
           {warning && (
-            <Tooltip
-              text={warning}
-              className="whitespace-break-spaces max-w-sm"
-            >
-              <div className="flex items-center justify-center cursor-help size-4 group">
-                <TriangleAlertIcon className="size-4 text-gray-400 group-hover:text-white duration-200" />
-              </div>
+            <Tooltip>
+              <TooltipTrigger
+                render={
+                  <div className="flex items-center justify-center cursor-help size-4 group">
+                    <TriangleAlertIcon className="size-4 text-gray-400 group-hover:text-white duration-200" />
+                  </div>
+                }
+              />
+              <TooltipContent>{warning}</TooltipContent>
             </Tooltip>
           )}
-          <Tooltip text="Fix this issue" disabled={Boolean(warning)}>
-            <div className="flex items-center justify-center cursor-pointer size-4 group">
-              <button
-                type="button"
-                onClick={onFixClick}
-                className="flex items-center justify-center disabled:cursor-not-allowed disabled:opacity-50"
-                disabled={Boolean(warning)}
-              >
-                <WrenchIcon className="size-4 text-gray-400 group-hover:text-white duration-200" />
-              </button>
-            </div>
+          <Tooltip disabled={Boolean(warning)}>
+            <TooltipTrigger
+              render={
+                <div className="flex items-center justify-center cursor-pointer size-4 group">
+                  <button
+                    type="button"
+                    onClick={onFixClick}
+                    className="flex items-center justify-center disabled:cursor-not-allowed disabled:opacity-50"
+                    disabled={Boolean(warning)}
+                  >
+                    <WrenchIcon className="size-4 text-gray-400 group-hover:text-white duration-200" />
+                  </button>
+                </div>
+              }
+            />
+            <TooltipContent>Fix this issue</TooltipContent>
           </Tooltip>
         </div>
         <div className="flex items-center gap-2">

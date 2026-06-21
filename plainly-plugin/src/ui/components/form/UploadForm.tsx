@@ -15,7 +15,14 @@ import { useCallback, useContext, useEffect, useState } from 'react';
 import { makeProjectZipTmpDir } from '../../../node';
 import { CanceledApiError, FolderPermissionError } from '../../../node/errors';
 import { openFolder } from '../../../node/utils';
-import { Alert, Button, InternalLink, Tooltip } from '../common';
+import {
+  Alert,
+  Button,
+  InternalLink,
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '../common';
 import { GlobalContext } from '../context';
 import { Description, Label, PageHeading } from '../typography';
 import { FolderPicker } from './FolderPicker';
@@ -322,18 +329,20 @@ export function UploadForm() {
 
       <div className="flex gap-2 float-right">
         {loading && (
-          <Tooltip
-            text={isPacking ? 'Cannot cancel during packing' : ''}
-            disabled={!isPacking}
-          >
-            <Button
-              type="button"
-              secondary
-              onClick={() => (isUploading ? cancelUpload() : cancelEdit())}
-              disabled={isPacking}
-            >
-              Cancel
-            </Button>
+          <Tooltip disabled={!isPacking}>
+            <TooltipTrigger
+              render={
+                <Button
+                  type="button"
+                  secondary
+                  onClick={() => (isUploading ? cancelUpload() : cancelEdit())}
+                  disabled={isPacking}
+                >
+                  Cancel
+                </Button>
+              }
+            />
+            <TooltipContent>Cannot cancel during packing</TooltipContent>
           </Tooltip>
         )}
         <Button loading={loading} disabled={disabled || loading}>
@@ -367,7 +376,7 @@ function Inputs({
           id="projectName"
           name="projectName"
           type="text"
-          className="col-start-1 row-start-1 block w-full rounded-md bg-white/5 px-3 py-1 text-xs text-white outline outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500"
+          className="col-start-1 row-start-1 block w-full rounded-md border-none bg-white/5 px-3 py-1 text-xs text-white outline outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500"
           value={projectName || ''}
           onChange={onChange}
           required
@@ -379,7 +388,7 @@ function Inputs({
         <textarea
           id="description"
           name="description"
-          className="col-start-1 row-start-1 block w-full rounded-md bg-white/5 px-3 py-1 text-xs text-white outline outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500"
+          className="col-start-1 row-start-1 block w-full rounded-md border-none bg-white/5 px-3 py-1 text-xs text-white outline outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500"
           value={description || ''}
           onChange={onChange}
         />
@@ -395,7 +404,7 @@ function Inputs({
           id="tags"
           name="tags"
           type="text"
-          className="mt-1 col-start-1 row-start-1 block w-full rounded-md bg-white/5 px-3 py-1 text-xs text-white outline outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500"
+          className="mt-1 col-start-1 row-start-1 block w-full rounded-md border-none bg-white/5 px-3 py-1 text-xs text-white outline outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500"
           value={tags?.join(',') || ''}
           onChange={onChange}
           placeholder="Example: Sports, Fitness, Gym"

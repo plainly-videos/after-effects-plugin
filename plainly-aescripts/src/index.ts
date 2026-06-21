@@ -10,6 +10,7 @@ import {
 import { relinkFootage } from './relink';
 import './shims';
 import {
+  getCompLayerNames,
   getInstalledFontsByFamilyNameAndStyleName,
   getInstalledFontsByPostScriptName,
   selectComp,
@@ -40,6 +41,7 @@ const utilsFunctions = {
   selectLayer,
   selectComp,
   selectFile,
+  getCompLayerNames,
 };
 
 const validateFunctions = {

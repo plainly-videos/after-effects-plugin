@@ -16,7 +16,7 @@ export function Banner({
         show ? 'flex' : 'hidden',
         'h-6 bg-indigo-500 opacity-70 bg-opacity-60 justify-center items-center',
         sidebarOpen
-          ? 'ml-[3.75rem] xs:ml-36 mr-[3.75rem] w-[calc(100%-3.75rem)] xs:w-[calc(100%-9rem)]'
+          ? 'ml-[3.75rem] xs:ml-[var(--sidebar-width)] mr-[3.75rem] w-[calc(100%-3.75rem)] xs:w-[calc(100%-var(--sidebar-width))]'
           : 'ml-[3.75rem] w-[calc(100%-3.75rem)]',
       )}
     >
