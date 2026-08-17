@@ -47,7 +47,8 @@ jobs:
         run: echo "${{ secrets.PLUGIN_CERTIFICATE_P12 }}" | base64 --decode > certificate.p12
 
       - name: Verify certificate
-        run: openssl pkcs12 -info -in certificate.p12 -noout -passin pass:${{ secrets.PLUGIN_CERTIFICATE_P12_PASSWORD }}
+        # -legacy: p12 uses RC2-40-CBC, moved to OpenSSL 3 legacy provider
+        run: openssl pkcs12 -legacy -info -in certificate.p12 -noout -passin pass:${{ secrets.PLUGIN_CERTIFICATE_P12_PASSWORD }}
 
       - name: Perform signing
         run: |
