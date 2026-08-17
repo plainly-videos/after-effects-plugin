@@ -104,13 +104,15 @@ export function UploadForm() {
       const projectName = inputs.projectName?.trim();
       projectName && formData.append('name', projectName);
 
-      const description = inputs.description?.trim();
-      description && formData.append('description', description);
+      // fields the user touched are always sent, empty included, so they can be cleared
+      if (inputs.description !== undefined) {
+        formData.append('description', inputs.description.trim());
+      }
 
-      const tagsSet = new Set(inputs.tags?.map((tag) => tag.trim()));
-      const tags = Array.from(tagsSet).filter((tag) => tag.length > 0);
-      if (tags.length > 0) {
-        for (const tag of tags) {
+      if (inputs.tags !== undefined) {
+        const tagsSet = new Set(inputs.tags.map((tag) => tag.trim()));
+        const tags = Array.from(tagsSet).filter((tag) => tag.length > 0);
+        for (const tag of tags.length > 0 ? tags : ['']) {
           formData.append('tags', tag);
         }
       }
@@ -303,10 +305,10 @@ export function UploadForm() {
 
         {editSelected ? (
           <Inputs
-            projectName={inputs.projectName || data?.name}
-            description={inputs.description || data?.description}
-            tags={inputs.tags || data?.attributes?.tags}
-            folder={inputs.folder || data?.attributes?.folder}
+            projectName={inputs.projectName ?? data?.name}
+            description={inputs.description ?? data?.description}
+            tags={inputs.tags ?? data?.attributes?.tags}
+            folder={inputs.folder ?? data?.attributes?.folder}
             onChange={handleChange}
           />
         ) : (
