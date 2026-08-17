@@ -10,7 +10,7 @@
     "test:ci:coverage": "turbo run test:ci:coverage",
     "biome": "biome check .",
     "biome:fix": "biome check --write .",
-    "build:clean": "yarn build:aescripts && yarn build:plugin",
+    "build:clean": "yarn build:types && yarn build:aescripts && yarn build:plugin",
     "build:aescripts": "cd plainly-aescripts && yarn install --immutable && yarn build && cd ..",
     "build:plugin": "cd plainly-plugin && yarn install --immutable && yarn build && cd ..",
     "build:types": "cd plainly-types && yarn install --immutable && yarn build && cd ..",
