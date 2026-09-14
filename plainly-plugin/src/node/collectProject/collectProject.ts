@@ -1,7 +1,7 @@
 import crypto from 'crypto';
 import fsPromises from 'fs/promises';
 import path from 'path';
-import type { Footage } from 'plainly-types';
+import type { Footage, RelinkData } from 'plainly-types';
 import { AeScriptsApi } from '../bridge/AeScriptsApi';
 import { isWindows, TMP_DIR } from '../constants';
 import { exists, finalizePath, renameIfExists, zipItems } from '../utils';
@@ -42,30 +42,21 @@ async function makeProjectZipTmpDir(): Promise<string> {
   return makeProjectZip(TMP_DIR);
 }
 
-function makeNewRelinkData(
-  footage: Footage[],
-  footageDir: string,
-): Record<string, string> {
-  return footage.reduce(
-    (acc, item) => {
-      const itemId = item.itemId.toString();
-      const itemPath = path.join(footageDir, item.itemAeFolder, item.itemName);
-      acc[itemId] = itemPath;
-      return acc;
-    },
-    {} as Record<string, string>,
-  );
+function makeNewRelinkData(footage: Footage[], footageDir: string): RelinkData {
+  return footage.reduce((acc, item) => {
+    const itemId = item.itemId.toString();
+    const itemPath = path.join(footageDir, item.itemAeFolder, item.itemName);
+    acc[itemId] = { path: itemPath, isSequence: item.isSequence };
+    return acc;
+  }, {} as RelinkData);
 }
 
-function makeOriginalRelinkData(footage: Footage[]): Record<string, string> {
-  return footage.reduce(
-    (acc, item) => {
-      const itemId = item.itemId.toString();
-      acc[itemId] = item.itemFsPath;
-      return acc;
-    },
-    {} as Record<string, string>,
-  );
+function makeOriginalRelinkData(footage: Footage[]): RelinkData {
+  return footage.reduce((acc, item) => {
+    const itemId = item.itemId.toString();
+    acc[itemId] = { path: item.itemFsPath, isSequence: item.isSequence };
+    return acc;
+  }, {} as RelinkData);
 }
 
 async function makeProjectZip(targetPath: string): Promise<string> {

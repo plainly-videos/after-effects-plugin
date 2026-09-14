@@ -26,11 +26,13 @@ function relinkFootage(relinkData: RelinkData): void {
     }
 
     const itemId = item.id.toString();
-    let fullPath = relinkData[itemId];
+    const relinkItem = relinkData[itemId];
 
-    if (!fullPath) {
+    if (!relinkItem) {
       continue;
     }
+
+    let fullPath = relinkItem.path;
 
     if (isWin() && fullPath.length > 255) {
       fullPath = `\\\\?\\${fullPath}`;
@@ -38,7 +40,14 @@ function relinkFootage(relinkData: RelinkData): void {
 
     const replacementFile = new File(fullPath);
     if (replacementFile.exists) {
-      item.replace(replacementFile);
+      if (relinkItem.isSequence) {
+        // Important: replace() imports a single still, which collapses an image
+        // sequence to one frame. The path points at the first frame, and the rest
+        // of the sequence is picked up from the same folder in numbered order.
+        item.replaceWithSequence(replacementFile, false);
+      } else {
+        item.replace(replacementFile);
+      }
     }
   }
 

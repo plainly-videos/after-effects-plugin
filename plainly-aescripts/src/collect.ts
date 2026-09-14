@@ -61,6 +61,69 @@ function collectFonts(): Font[] {
   return Object.values(fonts);
 }
 
+/**
+ * Extensions After Effects can import as an image sequence. Video containers are
+ * deliberately left out: they are not still based, but they are a single file.
+ * PSD and AI are left out as well, since relinking skips them.
+ */
+const SEQUENCE_EXTENSIONS = [
+  'png',
+  'jpg',
+  'jpeg',
+  'jpe',
+  'tga',
+  'targa',
+  'tif',
+  'tiff',
+  'exr',
+  'dpx',
+  'cin',
+  'bmp',
+  'hdr',
+  'iff',
+  'sgi',
+  'rla',
+  'rpf',
+  'pict',
+  'pct',
+  'jp2',
+];
+
+/**
+ * Determines whether a footage item is an image sequence rather than a single file.
+ *
+ * After Effects exposes no direct flag for this, so it is derived from the source
+ * being non still footage (a sequence spans multiple frames) that points at a file
+ * with a still image extension.
+ *
+ * @param {FootageItem} item - The footage item to inspect.
+ * @returns {boolean} True if the item is an image sequence, false otherwise.
+ */
+function isImageSequence(item: FootageItem): boolean {
+  const source = item.mainSource;
+  if (!(source instanceof FileSource) || source.isStill) {
+    return false;
+  }
+  if (item.file == null) {
+    return false;
+  }
+
+  const name = item.file.name.toLowerCase();
+  const dotIndex = name.lastIndexOf('.');
+  if (dotIndex === -1) {
+    return false;
+  }
+
+  const extension = name.substring(dotIndex + 1);
+  for (let i = 0; i < SEQUENCE_EXTENSIONS.length; i++) {
+    if (SEQUENCE_EXTENSIONS[i] === extension) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
 function collectFootage(): Footage[] {
   const footage: Footage[] = [];
 
@@ -79,10 +142,13 @@ function collectFootage(): Footage[] {
 
     footage.push({
       itemId: item.id,
+      // NOTE: for an image sequence this is the first frame, which is also the
+      // entry point After Effects needs to re-import the whole sequence
       itemName: item.file.name,
       itemFsPath: item.file.fsName,
       itemAeFolder: relativePath,
       isMissing: item.footageMissing,
+      isSequence: isImageSequence(item),
     });
   }
 

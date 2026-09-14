@@ -4,6 +4,7 @@ interface Footage {
   itemFsPath: string;
   itemAeFolder: string;
   isMissing: boolean;
+  isSequence: boolean;
 }
 
 interface Font {

@@ -8,6 +8,68 @@ import {
   runInParallelReturnRejected,
 } from '../utils';
 
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+/**
+ * Builds a matcher for every frame belonging to the same sequence as the given
+ * file, based on the trailing frame number in its name (`shot_0001.png` matches
+ * `shot_<digits>.png`).
+ *
+ * @param fileName The name of the first frame of the sequence.
+ * @returns A matcher for the sequence frames, or undefined if the name is not numbered.
+ */
+function sequenceFrameMatcher(fileName: string): RegExp | undefined {
+  const extension = path.extname(fileName);
+  const baseName = path.basename(fileName, extension);
+  const numbered = /^(.*?)(\d+)$/.exec(baseName);
+
+  if (!numbered) {
+    return undefined;
+  }
+
+  return new RegExp(
+    `^${escapeRegExp(numbered[1])}\\d+${escapeRegExp(extension)}$`,
+    'i',
+  );
+}
+
+/**
+ * Copies every frame of an image sequence into the destination folder.
+ *
+ * NOTE: all frames matching the sequence naming in the source folder are copied,
+ * not only the range the project uses. That can make the zip larger than strictly
+ * needed, but it keeps the sequence intact.
+ *
+ * @param firstFrameSrc The path of the first frame of the sequence.
+ * @param destDir The folder to copy the frames into.
+ */
+async function copySequence(firstFrameSrc: string, destDir: string) {
+  const srcDir = path.dirname(firstFrameSrc);
+  const fileName = path.basename(firstFrameSrc);
+  const matcher = sequenceFrameMatcher(fileName);
+
+  if (!matcher) {
+    // Not a numbered name after all, treat it as a single file
+    await fsPromises.copyFile(firstFrameSrc, path.join(destDir, fileName));
+    return;
+  }
+
+  const entries = await fsPromises.readdir(srcDir);
+  const frames = entries.filter((entry) => matcher.test(entry));
+
+  if (frames.length === 0) {
+    throw new Error(firstFrameSrc);
+  }
+
+  await Promise.all(
+    frames.map((frame) =>
+      fsPromises.copyFile(path.join(srcDir, frame), path.join(destDir, frame)),
+    ),
+  );
+}
+
 export async function copyFootage(
   footage: Footage[],
   targetDir: string,
@@ -28,9 +90,12 @@ export async function copyFootage(
     const folder = footageItem.itemAeFolder;
 
     generateFolders(path.join(newFootageDir, folder));
-    const dest = path.join(newFootageDir, folder, footageName);
+    const destDir = path.join(newFootageDir, folder);
     try {
-      return await fsPromises.copyFile(src, dest);
+      if (footageItem.isSequence) {
+        return await copySequence(src, destDir);
+      }
+      return await fsPromises.copyFile(src, path.join(destDir, footageName));
     } catch {
       throw new Error(src);
     }
