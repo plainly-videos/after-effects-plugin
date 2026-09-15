@@ -29,8 +29,16 @@ function sequenceFrameMatcher(fileName: string): RegExp | undefined {
     return undefined;
   }
 
+  // After Effects groups frames by the exact width of the numeric field, so a zero
+  // padded sequence must not pull in differently padded neighbours (`shot_001.png`
+  // and `shot_0001.png` are two sequences). Unpadded names grow past their width
+  // (`f9.png` -> `f10.png`), so those stay open ended.
+  const digits = numbered[2];
+  const frameNumber =
+    digits.charAt(0) === '0' ? `\\d{${digits.length}}` : '\\d+';
+
   return new RegExp(
-    `^${escapeRegExp(numbered[1])}\\d+${escapeRegExp(extension)}$`,
+    `^${escapeRegExp(numbered[1])}${frameNumber}${escapeRegExp(extension)}$`,
     'i',
   );
 }
@@ -59,10 +67,6 @@ async function copySequence(firstFrameSrc: string, destDir: string) {
   const entries = await fsPromises.readdir(srcDir);
   const frames = entries.filter((entry) => matcher.test(entry));
 
-  if (frames.length === 0) {
-    throw new Error(firstFrameSrc);
-  }
-
   await Promise.all(
     frames.map((frame) =>
       fsPromises.copyFile(path.join(srcDir, frame), path.join(destDir, frame)),
@@ -86,15 +90,14 @@ export async function copyFootage(
   const footagePromises = footage.map(async (footageItem) => {
     let src = finalizePath(footageItem.itemFsPath);
     src = src.replace(footageDir, footageDirRenamed);
-    const footageName = path.basename(footageItem.itemFsPath);
-    const folder = footageItem.itemAeFolder;
+    const destDir = path.join(newFootageDir, footageItem.itemAeFolder);
 
-    generateFolders(path.join(newFootageDir, folder));
-    const destDir = path.join(newFootageDir, folder);
+    generateFolders(destDir);
     try {
       if (footageItem.isSequence) {
         return await copySequence(src, destDir);
       }
+      const footageName = path.basename(footageItem.itemFsPath);
       return await fsPromises.copyFile(src, path.join(destDir, footageName));
     } catch {
       throw new Error(src);

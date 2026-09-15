@@ -86,7 +86,20 @@ const SEQUENCE_EXTENSIONS = [
   'rpf',
   'pict',
   'pct',
+  'pic',
   'jp2',
+  // Targa aliases
+  'vda',
+  'icb',
+  'vst',
+  // Camera raw, CinemaDNG and friends are shot as sequences by definition
+  'dng',
+  'cr2',
+  'crw',
+  'nef',
+  'arw',
+  'raf',
+  'orf',
 ];
 
 /**

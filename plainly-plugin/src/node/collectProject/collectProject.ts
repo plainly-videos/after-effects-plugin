@@ -136,9 +136,9 @@ async function makeProjectZip(targetPath: string): Promise<string> {
     await AeScriptsApi.relinkFootage(
       makeNewRelinkData(projectInfo.footage, footageDir),
     ).finally(() =>
-      undoStack.unshift(async () => {
-        AeScriptsApi.relinkFootage(makeOriginalRelinkData(projectInfo.footage));
-      }),
+      undoStack.unshift(() =>
+        AeScriptsApi.relinkFootage(makeOriginalRelinkData(projectInfo.footage)),
+      ),
     );
 
     // 7. Zip the project
