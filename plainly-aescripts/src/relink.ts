@@ -1,7 +1,9 @@
 import type { RelinkData } from 'plainly-types';
 import { isWin } from './utils';
 
-function relinkFootage(relinkData: RelinkData): void {
+function relinkFootage(relinkData: RelinkData) {
+  const failed: string[] = [];
+
   for (let i = 1; i <= app.project.numItems; i++) {
     const item = app.project.item(i);
     if (!(item instanceof FootageItem)) {
@@ -26,11 +28,13 @@ function relinkFootage(relinkData: RelinkData): void {
     }
 
     const itemId = item.id.toString();
-    let fullPath = relinkData[itemId];
+    const relinkItem = relinkData[itemId];
 
-    if (!fullPath) {
+    if (!relinkItem) {
       continue;
     }
+
+    let fullPath = relinkItem.path;
 
     if (isWin() && fullPath.length > 255) {
       fullPath = `\\\\?\\${fullPath}`;
@@ -38,11 +42,30 @@ function relinkFootage(relinkData: RelinkData): void {
 
     const replacementFile = new File(fullPath);
     if (replacementFile.exists) {
-      item.replace(replacementFile);
+      // Important: a single item must never abort the loop. This same function
+      // restores the original links on the way out, and a throw there would leave
+      // the remaining items pointing at the temporary (Footage) folder that is
+      // deleted right after, without ever reaching the save below.
+      try {
+        if (relinkItem.isSequence) {
+          // Important: replace() imports a single still, which collapses an image
+          // sequence to one frame. The path points at the first frame, and the rest
+          // of the sequence is picked up from the same folder in numbered order.
+          item.replaceWithSequence(replacementFile, false);
+        } else {
+          item.replace(replacementFile);
+        }
+      } catch (e) {
+        failed.push(item.name);
+      }
     }
   }
 
   app.project.save();
+
+  if (failed.length > 0) {
+    return `Error: Could not relink the following items: ${failed.join(', ')}`;
+  }
 }
 
 export { relinkFootage };

@@ -1,5 +1,10 @@
-interface RelinkData {
-  [itemId: string]: string;
+interface RelinkItem {
+  path: string;
+  isSequence: boolean;
 }
 
-export type { RelinkData };
+interface RelinkData {
+  [itemId: string]: RelinkItem;
+}
+
+export type { RelinkData, RelinkItem };
