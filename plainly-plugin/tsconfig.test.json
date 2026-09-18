@@ -1,0 +1,12 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "paths": {
+      "@src/*": ["src/*"],
+      // The published declarations are built into dist, which a checkout does
+      // not carry, so tests read the types from their source instead
+      "plainly-types": ["../plainly-types/src"]
+    }
+  },
+  "include": ["src", "tests"]
+}
