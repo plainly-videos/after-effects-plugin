@@ -7,7 +7,7 @@ import { isWindows, TMP_DIR } from '../constants';
 import { exists, finalizePath, renameIfExists, zipItems } from '../utils';
 import { copyFonts } from './copyFonts';
 import { copyFootage } from './copyFootage';
-import { validateFonts, validateFootage } from './utils';
+import { resolveFootageFolders, validateFonts, validateFootage } from './utils';
 
 /**
  * Opens a file dialog for the user to select a folder.
@@ -72,6 +72,9 @@ async function makeProjectZip(targetPath: string): Promise<string> {
 
   // 1. Collect project data
   const projectInfo = await AeScriptsApi.collectFiles();
+
+  // Give footage items that would land on the same path a folder of their own
+  projectInfo.footage = resolveFootageFolders(projectInfo.footage);
 
   const hasLongFootagePaths = projectInfo.footage.some((item) => {
     const itemPath = item.itemFsPath;

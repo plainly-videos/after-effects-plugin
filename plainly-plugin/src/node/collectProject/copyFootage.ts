@@ -87,22 +87,35 @@ export async function copyFootage(
   const newFootageDir = path.join(targetDir, '(Footage)');
   await fsPromises.mkdir(newFootageDir);
 
-  const footagePromises = footage.map(async (footageItem) => {
-    let src = finalizePath(footageItem.itemFsPath);
-    src = src.replace(footageDir, footageDirRenamed);
-    const destDir = path.join(newFootageDir, footageItem.itemAeFolder);
+  // Items left on the same destination point at the same source file, copying it
+  // once keeps the parallel copies below from writing over each other
+  const uniqueFootage = new Map<string, Footage>();
+  for (const footageItem of footage) {
+    const dest = path.join(
+      footageItem.itemAeFolder,
+      path.basename(footageItem.itemFsPath),
+    );
+    uniqueFootage.set(dest.toLowerCase(), footageItem);
+  }
 
-    generateFolders(destDir);
-    try {
-      if (footageItem.isSequence) {
-        return await copySequence(src, destDir);
+  const footagePromises = Array.from(uniqueFootage.values()).map(
+    async (footageItem) => {
+      let src = finalizePath(footageItem.itemFsPath);
+      src = src.replace(footageDir, footageDirRenamed);
+      const destDir = path.join(newFootageDir, footageItem.itemAeFolder);
+
+      generateFolders(destDir);
+      try {
+        if (footageItem.isSequence) {
+          return await copySequence(src, destDir);
+        }
+        const footageName = path.basename(footageItem.itemFsPath);
+        return await fsPromises.copyFile(src, path.join(destDir, footageName));
+      } catch {
+        throw new Error(src);
       }
-      const footageName = path.basename(footageItem.itemFsPath);
-      return await fsPromises.copyFile(src, path.join(destDir, footageName));
-    } catch {
-      throw new Error(src);
-    }
-  });
+    },
+  );
 
   const errors = await runInParallelReturnRejected(footagePromises);
   if (errors.length > 0) {
