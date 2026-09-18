@@ -95,7 +95,12 @@ export async function copyFootage(
       footageItem.itemAeFolder,
       path.basename(footageItem.itemFsPath),
     );
-    uniqueFootage.set(dest.toLowerCase(), footageItem);
+    const key = dest.toLowerCase();
+    // The same file can be in the project both as a sequence and as a single
+    // frame, and only the sequence copy brings every frame
+    if (!uniqueFootage.get(key)?.isSequence) {
+      uniqueFootage.set(key, footageItem);
+    }
   }
 
   const footagePromises = Array.from(uniqueFootage.values()).map(

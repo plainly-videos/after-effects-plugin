@@ -45,6 +45,20 @@ function validateFootage(footage: Footage[]) {
 }
 
 /**
+ * Strips the frame number off a file name, giving the name shared by every frame
+ * of its sequence (`shot_0001.png` -> `shot_.png`), or undefined if the name is
+ * not numbered.
+ */
+function numberedFamily(fileName: string): string | undefined {
+  const extension = path.extname(fileName);
+  const numbered = /^(.*?)\d+$/.exec(path.basename(fileName, extension));
+
+  // Padding is ignored, so differently padded names are read as one family and
+  // kept apart although they could not collide
+  return numbered ? `${numbered[1]}${extension}` : undefined;
+}
+
+/**
  * Spreads footage items that would be copied on top of each other across
  * numbered subfolders, and returns the footage with the folders applied.
  *
@@ -55,22 +69,42 @@ function validateFootage(footage: Footage[]) {
  * The collision moves into a subfolder rather than renaming the file, because an
  * image sequence is picked up by the frame numbering around its name.
  *
+ * A sequence is copied frame by frame, so it claims every name in its numbering
+ * and not only the frame the project points at.
+ *
  * @param footage The collected footage items.
  * @returns The footage items, each pointing at a free destination folder.
  */
 function resolveFootageFolders(footage: Footage[]): Footage[] {
   // Destination, lowercased for case insensitive file systems, to the source it holds
   const taken = new Map<string, string>();
+  // The same for a whole numbering, holding whether a sequence claimed it
+  const families = new Map<string, { source: string; isSequence: boolean }>();
 
   return footage.map((item) => {
     const fileName = path.basename(item.itemFsPath);
+    const familyName = numberedFamily(fileName);
     const source = item.itemFsPath.toLowerCase();
-    const destination = (folder: string) =>
-      path.join(folder, fileName).toLowerCase();
+    const destination = (folder: string, name: string) =>
+      path.join(folder, name).toLowerCase();
     const isTaken = (folder: string) => {
-      const heldBy = taken.get(destination(folder));
+      const heldBy = taken.get(destination(folder, fileName));
       // Items pointing at the same file can share a destination
-      return heldBy !== undefined && heldBy !== source;
+      if (heldBy !== undefined && heldBy !== source) {
+        return true;
+      }
+
+      if (!familyName) {
+        return false;
+      }
+
+      const family = families.get(destination(folder, familyName));
+      return (
+        family !== undefined &&
+        family.source !== source &&
+        // Two stills that merely look numbered never write over each other
+        (item.isSequence === true || family.isSequence)
+      );
     };
 
     let folder = item.itemAeFolder;
@@ -78,7 +112,15 @@ function resolveFootageFolders(footage: Footage[]): Footage[] {
       folder = path.join(item.itemAeFolder, `(${suffix})`);
     }
 
-    taken.set(destination(folder), source);
+    taken.set(destination(folder, fileName), source);
+    if (familyName) {
+      const key = destination(folder, familyName);
+      families.set(key, {
+        source,
+        isSequence:
+          item.isSequence === true || families.get(key)?.isSequence === true,
+      });
+    }
     return { ...item, itemAeFolder: folder };
   });
 }
