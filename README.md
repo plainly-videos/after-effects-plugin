@@ -1,10 +1,25 @@
 # Plainly Videos After Effects Plugin
 
-This repository contains code for the After Effects Plugin created to support [Plainly Videos](https://plainlyvideos.com) users to collaborate with the Plainly platform from within After Effects.
+![Plainly Videos After Effects Plugin - where creativity meets automation](.github/assets/banner.jpg)
 
-## Plugin features
-* **Export zip**: Gather all project assets and fonts, then compress them into a single zip file for easy sharing.
-* **Upload project**: Upload active project directly to Plainly platform.
+An Adobe After Effects extension for preparing and uploading AE projects to [Plainly Videos](https://plainlyvideos.com), a cloud-based video automation platform that renders native After Effects templates at scale through a web app, native integrations, or the REST API.
+
+The plugin runs inside After Effects and handles the step that usually breaks video automation pipelines: getting a project, with every asset, out of your local machine and into the cloud intact.
+
+### What it does
+
+* **Export zip** - Gather all project assets, then compress them into a single zip file for easy sharing.
+* **Upload project** - pushes the active project directly to your Plainly workspace, where it becomes a reusable template you can render via the [API](https://www.plainlyvideos.com/documentation/api-reference), [integrations](https://www.plainlyvideos.com/product/integrations), or the [Plainly MCP server](https://github.com/plainly-videos/mcp-server).
+* **Preview cloud renders** - open Plainly's renders dashboard in your default browser to review videos rendered on Plainly.
+
+### Typical workflow
+
+1. Design your video in After Effects as usual
+2. Upload the project to Plainly using the plugin
+3. Set up templates and parametrize the dynamic layers (text, images, colors, media) on the platform
+4. Render one video or thousands from the web app, from data sources like CSV and Google Sheets, or programmatically via the API
+
+Full plugin documentation: [help.plainlyvideos.com/docs/after-effects-plugin](https://help.plainlyvideos.com/docs/after-effects-plugin)
 
 ## Installation
 
@@ -127,3 +142,13 @@ To debug the plugin:
 
 ## Additional Resources
 For a comprehensive guide to Adobe CEP development, refer to the [Getting Started guides](https://github.com/Adobe-CEP/Getting-Started-guides)
+
+---
+
+<div align="center">
+
+**If you find this project helpful, please consider giving it a ⭐!**
+
+[![Star on GitHub](https://img.shields.io/github/stars/plainly-videos/after-effects-plugin?style=for-the-badge&logo=github&label=Star%20this%20repo&color=FFD700)](https://github.com/plainly-videos/after-effects-plugin/stargazers)
+
+</div>
