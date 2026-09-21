@@ -11,7 +11,6 @@ The plugin runs inside After Effects and handles the step that usually breaks vi
 * **Export zip** - Gather all project assets, then compress them into a single zip file for easy sharing.
 * **Upload project** - pushes the active project directly to your Plainly workspace, where it becomes a reusable template you can render via the [API](https://www.plainlyvideos.com/documentation/api-reference), [integrations](https://www.plainlyvideos.com/product/integrations), or the [Plainly MCP server](https://github.com/plainly-videos/mcp-server).
 * **Preview cloud renders** - open Plainly's renders dashboard in your default browser to review videos rendered on Plainly.
-* **Fetch project updates** - pull the latest version of a linked project from Plainly into After Effects. When a teammate uploads a new version, you fetch it from the plugin instead of passing project files around.
 
 ### Typical workflow
 
