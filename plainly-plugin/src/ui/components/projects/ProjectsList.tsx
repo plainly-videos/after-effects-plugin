@@ -78,7 +78,7 @@ export function ProjectsList() {
         const folder = await selectFolder(
           'Select folder to download project to:',
         );
-        if (!folder || folder === 'undefined') return;
+        if (!folder) return;
 
         const destPath = await reserveUniqueFilePath(
           finalizePath(folder),
