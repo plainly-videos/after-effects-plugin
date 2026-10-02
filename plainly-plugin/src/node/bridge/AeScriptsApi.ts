@@ -33,10 +33,13 @@ async function evalScriptAsync(func: string): Promise<string | undefined> {
 class AeScriptsApiClass {
   /**
    * Opens a folder selection dialog in After Effects.
+   * @param prompt Optional dialog prompt text
    * @returns The selected folder path, or undefined if cancelled
    */
-  async selectFolder(): Promise<string | undefined> {
-    return await evalScriptAsync('selectFolder()');
+  async selectFolder(prompt?: string): Promise<string | undefined> {
+    return await evalScriptAsync(
+      `selectFolder(${prompt ? JSON.stringify(prompt) : ''})`,
+    );
   }
 
   /**

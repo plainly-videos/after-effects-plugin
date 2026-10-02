@@ -14,8 +14,8 @@ import { resolveFootageFolders, validateFonts, validateFootage } from './utils';
  *
  * @param callback a callback that will be called with the path of the selected folder.
  */
-async function selectFolder(): Promise<string | undefined> {
-  return await AeScriptsApi.selectFolder();
+async function selectFolder(prompt?: string): Promise<string | undefined> {
+  return await AeScriptsApi.selectFolder(prompt);
 }
 
 /**

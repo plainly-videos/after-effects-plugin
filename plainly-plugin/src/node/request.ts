@@ -1,5 +1,9 @@
 import axios, { type AxiosResponse } from 'axios';
 import type FormData from 'form-data';
+import fs from 'fs';
+import fsPromises from 'fs/promises';
+import type { Readable } from 'stream';
+import { pipeline } from 'stream/promises';
 
 import { apiBaseURL, pluginBundleVersion } from '../env';
 import {
@@ -79,6 +83,25 @@ async function postFormData<T>(
   });
 }
 
+async function download(
+  path: string,
+  apiKey: string,
+  destPath: string,
+): Promise<void> {
+  const { data } = await instance.get<Readable>(path, {
+    responseType: 'stream',
+    ...auth(apiKey),
+  });
+
+  try {
+    await pipeline(data, fs.createWriteStream(destPath));
+  } catch (error) {
+    // don't leave a partial file behind
+    await fsPromises.rm(destPath, { force: true });
+    throw error;
+  }
+}
+
 const fallbackErrors = (error: unknown): PlainlyApiError => {
   if (isLikelyOfflineError(error)) {
     return new NoInternetConnectionApiError();
@@ -131,4 +154,4 @@ export const toPlainlyError = (error: unknown): PlainlyApiError => {
   }
 };
 
-export { get, post, postFormData };
+export { download, get, post, postFormData };

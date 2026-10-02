@@ -43,6 +43,11 @@ export enum ErrorCode {
   GENERAL_UNAUTHORIZED = 'GENERAL_UNAUTHORIZED',
   GENERAL_FORBIDDEN = 'GENERAL_FORBIDDEN',
   GENERAL_CANCELED = 'GENERAL_CANCELED',
+
+  /**
+   * Backend errors
+   */
+  FEATURE_GATING_NOT_ALLOWED_PROJECT_DOWNLOAD = 'FEATURE_GATING_NOT_ALLOWED_PROJECT_DOWNLOAD',
 }
 
 export class ApiErrorResponseData {
@@ -206,6 +211,8 @@ const CODE_MESSAGE_MAP: Partial<Record<ErrorCode, string>> = {
     'No valid authentication credentials to perform this action.',
   [ErrorCode.GENERAL_FORBIDDEN]:
     'You are not authorized to perform this action.',
+  [ErrorCode.FEATURE_GATING_NOT_ALLOWED_PROJECT_DOWNLOAD]:
+    'Project download is not available on the Free plan or during the free trial.',
 };
 
 export const getErrorDescription = (
