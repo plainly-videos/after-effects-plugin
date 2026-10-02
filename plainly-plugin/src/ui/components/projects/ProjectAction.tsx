@@ -1,14 +1,16 @@
 import classNames from 'classnames';
-import type { LucideIcon } from 'lucide-react';
+import { LoaderCircleIcon, type LucideIcon } from 'lucide-react';
 
 export function ProjectAction({
   icon: Icon,
   action,
   linked,
+  loading,
 }: {
   icon: LucideIcon;
   action: () => void;
   linked?: boolean;
+  loading?: boolean;
 }) {
   return (
     <button
@@ -20,8 +22,13 @@ export function ProjectAction({
       )}
       type="button"
       onClick={action}
+      disabled={loading}
     >
-      <Icon className="size-3" />
+      {loading ? (
+        <LoaderCircleIcon className="size-3 animate-spin" />
+      ) : (
+        <Icon className="size-3" />
+      )}
     </button>
   );
 }
