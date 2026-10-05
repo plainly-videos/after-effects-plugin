@@ -58,6 +58,8 @@ function relinkFootage(relinkData: RelinkData) {
       } catch (e) {
         failed.push(item.name);
       }
+    } else {
+      failed.push(item.name);
     }
   }
 
