@@ -99,6 +99,8 @@ export function Validations() {
       );
     } catch (error) {
       notifyError('Failed to fix issues.', error);
+      // some issues may have been fixed before the failure
+      await handleTestForIssues(false);
     } finally {
       setLoading(false);
       fixInFlightRef.current = false;

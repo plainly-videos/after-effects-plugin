@@ -2,7 +2,7 @@ import { AeScriptsApi } from '@src/node/bridge/AeScriptsApi';
 import type { AnyProjectIssue } from 'plainly-types';
 import { createContext, useCallback, useEffect, useState } from 'react';
 import semver from 'semver';
-import { useNotifications } from '../../hooks';
+import { useNotifications, useProjectData } from '../../hooks';
 
 interface GlobalContextProps {
   contextReady?: boolean;
@@ -29,6 +29,7 @@ export const GlobalContext = createContext<GlobalContextValue>(
 
 export const GlobalProvider = ({ children }: { children: React.ReactNode }) => {
   const { notifyInfo } = useNotifications();
+  const { getProjectData } = useProjectData();
   const [globalData, setGlobalData] = useState<GlobalContextProps>();
 
   const validateProject = useCallback(async () => {
@@ -61,14 +62,7 @@ export const GlobalProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     const interval = setInterval(async () => {
-      let projectData: Awaited<ReturnType<typeof AeScriptsApi.getProjectData>>;
-      try {
-        projectData = await AeScriptsApi.getProjectData();
-      } catch (error) {
-        console.error('Error getting project data:', error);
-        setGlobalData((prev) => ({ ...prev, contextReady: true }));
-        return;
-      }
+      const projectData = await getProjectData();
 
       if (projectData) {
         let newData: GlobalContextProps = {
@@ -102,7 +96,7 @@ export const GlobalProvider = ({ children }: { children: React.ReactNode }) => {
     }, 3000);
 
     return () => clearInterval(interval);
-  }, [notifyInfo, globalData]);
+  }, [notifyInfo, globalData, getProjectData]);
 
   const contextValue: GlobalContextValue = {
     ...globalData,

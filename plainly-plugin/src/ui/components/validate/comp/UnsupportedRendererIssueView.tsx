@@ -42,6 +42,10 @@ export function UnsupportedRendererIssueView({
         'Error fixing issue.',
         'An unexpected error occurred while attempting to fix the unsupported 3D renderer issues, please try again.',
       );
+      // some comps may have been fixed before the failure
+      validateProject().catch((e) =>
+        console.error('Error re-validating project:', e),
+      );
     }
   };
 

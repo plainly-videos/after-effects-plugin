@@ -42,7 +42,8 @@ export function ExportForm() {
   const onSelectFolder = useCallback(async () => {
     try {
       const selectedPath = await selectFolder();
-      setTargetPath(selectedPath);
+      // cancelling the dialog resolves undefined, keep the previous folder
+      if (selectedPath) setTargetPath(selectedPath);
     } catch (error) {
       notifyError('Failed to select folder', error);
     }
