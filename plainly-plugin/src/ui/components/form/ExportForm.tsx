@@ -40,9 +40,13 @@ export function ExportForm() {
   };
 
   const onSelectFolder = useCallback(async () => {
-    const selectedPath = await selectFolder();
-    setTargetPath(selectedPath);
-  }, []);
+    try {
+      const selectedPath = await selectFolder();
+      setTargetPath(selectedPath);
+    } catch (error) {
+      notifyError('Failed to select folder', error);
+    }
+  }, [notifyError]);
 
   return (
     <form className="space-y-4 w-full text-white" onSubmit={handleSubmit}>

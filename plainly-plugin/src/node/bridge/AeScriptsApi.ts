@@ -12,10 +12,12 @@ import { csInterface } from '../constants';
 async function evalScriptAsync(func: string): Promise<string | undefined> {
   return new Promise((resolve, reject) => {
     try {
-      const finalFunc = `$['com.plainlyvideos.after-effects-plugin.Panel'].${func};`;
+      // Uncaught ExtendScript throws come back as an indistinguishable '',
+      // so catch them in AE and return them as 'Error: ...' like our own failures
+      const finalFunc = `(function () { try { return $['com.plainlyvideos.after-effects-plugin.Panel'].${func}; } catch (e) { return 'Error: ' + (e.message || e) + ' (${func.split('(')[0]})'; } })();`;
       csInterface.evalScript(finalFunc, (result: string) => {
-        if (result.includes('Error: ')) {
-          reject(new Error(result));
+        if (result.startsWith('Error: ')) {
+          return reject(new Error(result));
         }
 
         resolve(result === 'undefined' ? undefined : result);

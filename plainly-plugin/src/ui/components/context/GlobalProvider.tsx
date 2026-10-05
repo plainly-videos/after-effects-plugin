@@ -61,7 +61,14 @@ export const GlobalProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     const interval = setInterval(async () => {
-      const projectData = await AeScriptsApi.getProjectData();
+      let projectData: Awaited<ReturnType<typeof AeScriptsApi.getProjectData>>;
+      try {
+        projectData = await AeScriptsApi.getProjectData();
+      } catch (error) {
+        console.error('Error getting project data:', error);
+        setGlobalData((prev) => ({ ...prev, contextReady: true }));
+        return;
+      }
 
       if (projectData) {
         let newData: GlobalContextProps = {
