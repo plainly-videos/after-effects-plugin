@@ -34,17 +34,19 @@ function fixAllIssues(
 ) {
   app.beginUndoGroup('fix all');
 
-  for (let i = 0; i < issues.length; i++) {
-    const issue = issues[i];
-    if (
-      issue.type === ProjectIssueType.Unsupported3DRenderer &&
-      !ignoreFixing[ProjectIssueType.Unsupported3DRenderer]
-    ) {
-      fixUnsupported3DRendererIssue(issue.compId);
+  try {
+    for (let i = 0; i < issues.length; i++) {
+      const issue = issues[i];
+      if (
+        issue.type === ProjectIssueType.Unsupported3DRenderer &&
+        !ignoreFixing[ProjectIssueType.Unsupported3DRenderer]
+      ) {
+        fixUnsupported3DRendererIssue(issue.compId);
+      }
     }
+  } finally {
+    app.endUndoGroup();
   }
-
-  app.endUndoGroup();
 }
 
 export { validateProject, fixAllIssues, ProjectIssueType };

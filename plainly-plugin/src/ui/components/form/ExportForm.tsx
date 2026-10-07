@@ -40,9 +40,14 @@ export function ExportForm() {
   };
 
   const onSelectFolder = useCallback(async () => {
-    const selectedPath = await selectFolder();
-    setTargetPath(selectedPath);
-  }, []);
+    try {
+      const selectedPath = await selectFolder();
+      // cancelling the dialog resolves undefined, keep the previous folder
+      if (selectedPath) setTargetPath(selectedPath);
+    } catch (error) {
+      notifyError('Failed to select folder', error);
+    }
+  }, [notifyError]);
 
   return (
     <form className="space-y-4 w-full text-white" onSubmit={handleSubmit}>
@@ -86,9 +91,7 @@ export function ExportForm() {
                     className="relative cursor-pointer rounded-md bg-inherit font-medium text-white focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-600 focus-within:ring-offset-2 focus-within:ring-offset-gray-900 group-hover:text-indigo-500"
                   >
                     <span>
-                      {targetPath && targetPath !== 'undefined'
-                        ? decodeURI(targetPath)
-                        : 'Select folder'}
+                      {targetPath ? decodeURI(targetPath) : 'Select folder'}
                     </span>
                   </label>
                 </div>
@@ -108,7 +111,7 @@ export function ExportForm() {
 
       <Button
         className="float-right"
-        disabled={!targetPath || targetPath === 'undefined' || loading}
+        disabled={!targetPath || loading}
         loading={loading}
       >
         Export

@@ -56,11 +56,13 @@ function fixUnsupported3DRendererIssue(compId: string): void {
 function fixUnsupported3DRendererIssues(compIds: string[]) {
   app.beginUndoGroup('fix unsupported 3d renderer');
 
-  for (const compId of compIds) {
-    fixUnsupported3DRendererIssue(compId);
+  try {
+    for (const compId of compIds) {
+      fixUnsupported3DRendererIssue(compId);
+    }
+  } finally {
+    app.endUndoGroup();
   }
-
-  app.endUndoGroup();
 }
 
 export {

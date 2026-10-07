@@ -19,7 +19,7 @@ import { isCompIssue, isFileIssue, isTextLayerIssue } from './utils';
 export function Validations() {
   const { contextReady, projectIssues, validateProject, aeVersion } =
     useContext(GlobalContext);
-  const { notifyInfo } = useNotifications();
+  const { notifyInfo, notifyError } = useNotifications();
 
   const [currentIssueType, setCurrentIssueType] = useState<ProjectIssueType>();
   const [loading, setLoading] = useState(false);
@@ -55,17 +55,19 @@ export function Validations() {
         if (notify) {
           notifyInfo(
             'Project validation completed.',
-            !issues
+            !issues?.length
               ? 'No issues found.'
               : 'Please review the issues and consider fixing them, some may require manual intervention.',
           );
         }
+      } catch (error) {
+        notifyError('Project validation failed.', error);
       } finally {
         setLoading(false);
         testInFlightRef.current = false;
       }
     },
-    [nextFrame, notifyInfo, validateProject],
+    [nextFrame, notifyError, notifyInfo, validateProject],
   );
 
   // for fix all issues, reasons to ignore fixing certain issue types can be passed in here
@@ -95,6 +97,10 @@ export function Validations() {
         'Attempted to fix all issues.',
         'Please review the project again. Some issues may require manual intervention.',
       );
+    } catch (error) {
+      notifyError('Failed to fix issues.', error);
+      // some issues may have been fixed before the failure
+      await handleTestForIssues(false);
     } finally {
       setLoading(false);
       fixInFlightRef.current = false;
@@ -102,6 +108,7 @@ export function Validations() {
   }, [
     handleTestForIssues,
     nextFrame,
+    notifyError,
     notifyInfo,
     projectIssues,
     totalCount,

@@ -1,5 +1,5 @@
 import { AeScriptsApi } from '@src/node/bridge';
-import { useNavigate } from '@src/ui/hooks';
+import { useNavigate, useNotifications } from '@src/ui/hooks';
 import classNames from 'classnames';
 import {
   ChevronDownIcon,
@@ -112,13 +112,19 @@ export function Issue({
 }
 
 function IssueItem({ issue }: { issue: AnyProjectIssue }) {
+  const { notifyError } = useNotifications();
+
   const onIssueClick = useCallback(
     async (id: string, type: 'comp' | 'layer' | 'file') => {
-      if (type === 'comp') await AeScriptsApi.selectComp(id);
-      if (type === 'layer') await AeScriptsApi.selectLayer(id);
-      if (type === 'file') await AeScriptsApi.selectFile(id);
+      try {
+        if (type === 'comp') await AeScriptsApi.selectComp(id);
+        if (type === 'layer') await AeScriptsApi.selectLayer(id);
+        if (type === 'file') await AeScriptsApi.selectFile(id);
+      } catch (error) {
+        notifyError('Failed to select item in After Effects.', error);
+      }
     },
-    [],
+    [notifyError],
   );
 
   switch (issue.type) {
