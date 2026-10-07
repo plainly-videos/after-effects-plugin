@@ -6,8 +6,10 @@ import { getAllComps, getFolderPath, getTextLayersByComp } from './utils';
  *
  * @returns {Folder|string} The selected folder, or undefined as a string if no folder is selected.
  */
-function selectFolder(): Folder | string {
-  const folder = Folder.selectDialog('Select folder to collect project files:');
+function selectFolder(
+  prompt = 'Select folder to collect project files:',
+): Folder | string {
+  const folder = Folder.selectDialog(prompt);
   if (folder) return folder.fsName; // Return selected folder
 
   // NOTE: this always returns undefined as a string if no folder is selected

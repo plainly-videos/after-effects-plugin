@@ -1,5 +1,9 @@
 import axios, { type AxiosResponse } from 'axios';
 import type FormData from 'form-data';
+import fs from 'fs';
+import fsPromises from 'fs/promises';
+import { Readable } from 'stream';
+import { pipeline } from 'stream/promises';
 
 import { apiBaseURL, pluginBundleVersion } from '../env';
 import {
@@ -46,9 +50,25 @@ const isLikelyOfflineError = (error: unknown): boolean => {
   );
 };
 
+const readJson = async (stream: Readable): Promise<unknown> => {
+  try {
+    const chunks: Buffer[] = [];
+    for await (const chunk of stream) chunks.push(chunk);
+    return JSON.parse(Buffer.concat(chunks).toString());
+  } catch {
+    return undefined;
+  }
+};
+
 instance.interceptors.response.use(
   (response) => response,
-  (error) => Promise.reject(toPlainlyError(error)),
+  async (error) => {
+    // stream responses carry the error body unread, parse it to keep the message
+    if (axios.isAxiosError(error) && error.response?.data instanceof Readable) {
+      error.response.data = await readJson(error.response.data);
+    }
+    return Promise.reject(toPlainlyError(error));
+  },
 );
 
 async function get<T>(
@@ -77,6 +97,24 @@ async function postFormData<T>(
     signal,
     ...auth(apiKey),
   });
+}
+
+async function download(
+  path: string,
+  apiKey: string,
+  destPath: string,
+): Promise<void> {
+  try {
+    const { data } = await instance.get<Readable>(path, {
+      responseType: 'stream',
+      ...auth(apiKey),
+    });
+    await pipeline(data, fs.createWriteStream(destPath));
+  } catch (error) {
+    // don't leave an empty or partial file behind
+    await fsPromises.rm(destPath, { force: true });
+    throw error;
+  }
 }
 
 const fallbackErrors = (error: unknown): PlainlyApiError => {
@@ -131,4 +169,4 @@ export const toPlainlyError = (error: unknown): PlainlyApiError => {
   }
 };
 
-export { get, post, postFormData };
+export { download, get, post, postFormData };

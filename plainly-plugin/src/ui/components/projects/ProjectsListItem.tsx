@@ -1,7 +1,12 @@
 import type { Project } from '@src/ui/types/project';
 import classNames from 'classnames';
 import { format } from 'date-fns';
-import { ExternalLinkIcon, LinkIcon, VideoIcon } from 'lucide-react';
+import {
+  DownloadIcon,
+  ExternalLinkIcon,
+  LinkIcon,
+  VideoIcon,
+} from 'lucide-react';
 import type { ProjectData } from 'plainly-types';
 import { useCallback, useState } from 'react';
 import { ConfirmationDialog, Tooltip } from '../common';
@@ -19,12 +24,16 @@ export function ProjectsListItem({
   linkProject,
   openInWeb,
   openProjectRenders,
+  downloadProject,
+  downloading,
   linkedExists,
 }: {
   project: Project;
   linkProject: (data: Omit<ProjectData, 'documentId'>) => void;
   openInWeb: (id: string) => void;
   openProjectRenders: (id: string) => void;
+  downloadProject: (project: Project) => void;
+  downloading?: boolean;
   linkedExists?: boolean;
 }) {
   const [showConfirmation, setShowConfirmation] = useState(false);
@@ -98,6 +107,13 @@ export function ProjectsListItem({
             </Tooltip>
             <Tooltip text="Renders">
               <ProjectAction icon={VideoIcon} action={openRenders} />
+            </Tooltip>
+            <Tooltip text="Download">
+              <ProjectAction
+                icon={DownloadIcon}
+                action={() => downloadProject(project)}
+                loading={downloading}
+              />
             </Tooltip>
             <Tooltip text="Open in web">
               <ProjectAction icon={ExternalLinkIcon} action={open} />

@@ -75,6 +75,38 @@ export async function renameIfExists(src: string, dest: string): Promise<void> {
 }
 
 /**
+ * Reserves a free file path in the directory by atomically creating an empty
+ * file, appending ` (1)`, ` (2)`, ... to the name if it is already taken.
+ *
+ * @example
+ * reserveUniqueFilePath('/tmp', 'project', '.zip') // => '/tmp/project (1).zip'
+ * @param dir The directory to create the file in.
+ * @param name The file name without the extension.
+ * @param ext The file extension, including the dot.
+ * @returns The reserved file path.
+ */
+export async function reserveUniqueFilePath(
+  dir: string,
+  name: string,
+  ext: string,
+): Promise<string> {
+  for (let i = 0; ; i++) {
+    const filePath = path.join(
+      dir,
+      i === 0 ? `${name}${ext}` : `${name} (${i})${ext}`,
+    );
+    try {
+      await fsPromises.writeFile(filePath, '', { flag: 'wx' });
+      return filePath;
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code === 'EEXIST') continue;
+      if (isPermissionError(error)) throw new FolderPermissionError(dir);
+      throw error;
+    }
+  }
+}
+
+/**
  * Replaces the tilde character at the start of a path with the user's home
  * directory.
  *

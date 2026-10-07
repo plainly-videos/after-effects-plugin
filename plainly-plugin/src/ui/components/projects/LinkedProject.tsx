@@ -4,6 +4,7 @@ import { format } from 'date-fns';
 import {
   CalendarIcon,
   CircleCheckIcon,
+  DownloadIcon,
   ExternalLinkIcon,
   FolderSync,
   LayoutTemplateIcon,
@@ -22,11 +23,15 @@ export function LinkedProject({
   removeProject,
   openInWeb,
   openProjectRenders,
+  downloadProject,
+  downloading,
 }: {
   project: Project;
   removeProject: () => void;
   openInWeb: (id: string) => void;
   openProjectRenders: (id: string) => void;
+  downloadProject: (project: Project) => void;
+  downloading?: boolean;
 }) {
   const { plainlyProject } = useContext(GlobalContext);
   const [showConfirmation, setShowConfirmation] = useState(false);
@@ -93,6 +98,14 @@ export function LinkedProject({
               </Tooltip>
               <Tooltip text="Renders">
                 <ProjectAction icon={VideoIcon} action={openRenders} linked />
+              </Tooltip>
+              <Tooltip text="Download">
+                <ProjectAction
+                  icon={DownloadIcon}
+                  action={() => downloadProject(project)}
+                  loading={downloading}
+                  linked
+                />
               </Tooltip>
               <Tooltip text="Open in web">
                 <ProjectAction icon={ExternalLinkIcon} action={open} linked />

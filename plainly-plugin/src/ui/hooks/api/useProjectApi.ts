@@ -1,6 +1,10 @@
-import { get, postFormData } from '@src/node/request';
+import { download, get, postFormData } from '@src/node/request';
 import type { Project } from '@src/ui/types/project';
-import { type QueryClient, useQueryClient } from '@tanstack/react-query';
+import {
+  type QueryClient,
+  useMutationState,
+  useQueryClient,
+} from '@tanstack/react-query';
 import type FormData from 'form-data';
 import { useEffect, useRef } from 'react';
 import { API_REFETCH_INTERVAL } from '.';
@@ -171,4 +175,25 @@ export const useEditProject = () => {
   const cancel = () => abortControllerRef.current?.abort();
 
   return { isPending, isError, mutateAsync, cancel };
+};
+
+const DOWNLOAD_PROJECT_MUTATION_KEY = ['download-project'];
+
+type DownloadProjectVariables = { projectId: string; destPath: string };
+
+export const useDownloadProject = () => {
+  const { mutateAsync } = useApiMutation(
+    (apiKey, { projectId, destPath }: DownloadProjectVariables) =>
+      download(`/projects/${projectId}/download`, apiKey, destPath),
+    { mutationKey: DOWNLOAD_PROJECT_MUTATION_KEY },
+  );
+
+  // every mutateAsync call is its own mutation, so this tracks all concurrent downloads
+  const downloadingIds = useMutationState({
+    filters: { mutationKey: DOWNLOAD_PROJECT_MUTATION_KEY, status: 'pending' },
+    select: (mutation) =>
+      (mutation.state.variables as DownloadProjectVariables).projectId,
+  });
+
+  return { downloadingIds, mutateAsync };
 };
